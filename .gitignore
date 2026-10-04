@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# SvelteKit / Vite build output
+.svelte-kit/
+build/
+dist/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Environment — never commit real values; only .env.example is tracked
+.env
+.env.*
+!.env.example
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

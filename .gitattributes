@@ -1,0 +1,15 @@
+# Normalisasi line ending lintas platform (Linux, macOS, Windows).
+# Prettier memakai LF; tanpa ini Git for Windows (core.autocrlf=true) checkout CRLF
+# dan `pnpm format:check` gagal.
+* text=auto eol=lf
+
+# Biner
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

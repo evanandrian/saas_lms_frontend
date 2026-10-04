@@ -1,0 +1,480 @@
+/*
+ * FLIXARE design system (FE-FOUNDATION-03R) — docs/architecture/design-system.md
+ * Sumber kanonik: FLIXARE Brand Guidelines v1.0 (PDF). Tailwind CSS 4 (CSS-first) + Skeleton 5.
+ *
+ * Lapisan token:  brand (kanonik, HEX)  →  semantic (makna UI)  →  component (utilitas lms-*)
+ * Skeleton/Cerberus hanya primitif internal (neutral mode gelap, success/warning/error) di bawah token FLIXARE.
+ */
+@import 'tailwindcss';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+/*
+ * Mode warna (FE-05R): `<html data-mode>` = `light` | `dark` | `system` (diisi SSR dari preferensi pengguna).
+ * `light`/`dark` memaksa mode; `system` mengikuti OS. Seluruh token `light-dark()` mengikuti `color-scheme`
+ * yang diatur Skeleton lewat variant `dark` ini, sehingga palet tidak berubah — hanya pemicunya.
+ */
+@custom-variant dark {
+	&:where([data-mode='dark'], [data-mode='dark'] *) {
+		@slot;
+	}
+	@media (prefers-color-scheme: dark) {
+		&:where([data-mode='system'], [data-mode='system'] *) {
+			@slot;
+		}
+	}
+}
+
+/* Sora — typeface kanonik (SIL OFL 1.1, lihat src/lib/assets/fonts/sora/OFL.txt). Variable font, self-hosted. */
+@font-face {
+	font-family: 'Sora';
+	font-style: normal;
+	font-weight: 100 800;
+	font-display: swap;
+	src: url('./lib/assets/fonts/sora/sora-latin-ext.woff2') format('woff2');
+	unicode-range:
+		U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+		U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+		U+A720-A7FF;
+}
+@font-face {
+	font-family: 'Sora';
+	font-style: normal;
+	font-weight: 100 800;
+	font-display: swap;
+	src: url('./lib/assets/fonts/sora/sora-latin.woff2') format('woff2');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* 1. BRAND TOKENS — nilai kanonik Brand Guidelines §07. JANGAN diubah tanpa keputusan brand Level 3. */
+@theme {
+	--color-lms-brand-royal-blue: #4169e1;
+	--color-lms-brand-growth-green: #3fae78;
+	--color-lms-brand-deep-neutral: #172554;
+	--color-lms-brand-soft-background: #f8fafc;
+
+	--font-lms-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+
+	/* Skala tipografi kanonik (Brand Guidelines §08), px → rem (16px = 1rem). */
+	--text-lms-d1: 4rem;
+	--text-lms-d1--line-height: 4.5rem;
+	--text-lms-d1--font-weight: 700;
+	--text-lms-d2: 3rem;
+	--text-lms-d2--line-height: 3.5rem;
+	--text-lms-d2--font-weight: 700;
+	--text-lms-h1: 2.5rem;
+	--text-lms-h1--line-height: 3rem;
+	--text-lms-h1--font-weight: 700;
+	--text-lms-h2: 2rem;
+	--text-lms-h2--line-height: 2.5rem;
+	--text-lms-h2--font-weight: 700;
+	--text-lms-h3: 1.5rem;
+	--text-lms-h3--line-height: 2rem;
+	--text-lms-h3--font-weight: 600;
+	--text-lms-h4: 1.25rem;
+	--text-lms-h4--line-height: 1.75rem;
+	--text-lms-h4--font-weight: 600;
+	--text-lms-body-lg: 1.125rem;
+	--text-lms-body-lg--line-height: 1.75rem;
+	--text-lms-body-lg--font-weight: 400;
+	--text-lms-body: 1rem;
+	--text-lms-body--line-height: 1.5rem;
+	--text-lms-body--font-weight: 400;
+	--text-lms-body-sm: 0.875rem;
+	--text-lms-body-sm--line-height: 1.25rem;
+	--text-lms-body-sm--font-weight: 400;
+	--text-lms-caption: 0.75rem;
+	--text-lms-caption--line-height: 1rem;
+	--text-lms-caption--font-weight: 400;
+}
+
+/*
+ * 2. SEMANTIC TOKENS — makna UI. Nilai light diturunkan dari warna brand (color-mix antar warna brand).
+ * Nilai dark hanya menjaga perilaku yang sudah ada (regresi); kebijakan dark mode = HUMAN_DECISION_REQUIRED.
+ * Rasio kontras setiap pasangan: design-system.md §13.
+ */
+@theme inline {
+	--color-lms-background: light-dark(
+		var(--color-lms-brand-soft-background),
+		var(--color-surface-950)
+	);
+	--color-lms-surface: light-dark(#ffffff, var(--color-surface-900));
+	--color-lms-surface-muted: light-dark(
+		color-mix(
+			in oklab,
+			var(--color-lms-brand-deep-neutral) 6%,
+			var(--color-lms-brand-soft-background)
+		),
+		var(--color-surface-800)
+	);
+	--color-lms-foreground: light-dark(var(--color-lms-brand-deep-neutral), var(--color-surface-50));
+	--color-lms-muted: light-dark(
+		color-mix(
+			in oklab,
+			var(--color-lms-brand-deep-neutral) 70%,
+			var(--color-lms-brand-soft-background)
+		),
+		var(--color-surface-300)
+	);
+	--color-lms-border: light-dark(
+		color-mix(
+			in oklab,
+			var(--color-lms-brand-deep-neutral) 12%,
+			var(--color-lms-brand-soft-background)
+		),
+		var(--color-surface-800)
+	);
+	--color-lms-input-border: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-deep-neutral) 55%, #ffffff),
+		var(--color-surface-400)
+	);
+
+	/* Interaksi: Royal Blue kanonik dipakai langsung (putih di atasnya 4.85:1). */
+	--color-lms-interactive: var(--color-lms-brand-royal-blue);
+	--color-lms-on-interactive: #ffffff;
+	/* Turunan aksesibel untuk hover — BUKAN pengganti warna brand. */
+	--color-lms-interactive-hover: color-mix(
+		in oklab,
+		var(--color-lms-brand-royal-blue) 80%,
+		var(--color-lms-brand-deep-neutral)
+	);
+	--color-lms-interactive-subtle: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 10%, #ffffff),
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 25%, var(--color-surface-900))
+	);
+	--color-lms-focus: var(--color-lms-brand-royal-blue);
+
+	/* Progres: Growth Green. BUKAN semantic success; tidak untuk teks di atas terang (2.79:1). */
+	--color-lms-progress: var(--color-lms-brand-growth-green);
+
+	/* Semantic state — independen dari warna brand (primitif Skeleton). */
+	--color-lms-danger-text: light-dark(var(--color-error-700), var(--color-error-300));
+	--color-lms-warning-text: light-dark(var(--color-warning-950), var(--color-warning-300));
+
+	/*
+	 * FE-04 (keputusan D3) — token minimal untuk pola produk. Semua turunan brand/semantic,
+	 * rasio kontras: design-system.md §13.
+	 */
+	/* Teks bernuansa progres (delta positif); Growth Green murni gagal sebagai teks di latar terang. */
+	--color-lms-progress-text: light-dark(
+		color-mix(
+			in oklab,
+			var(--color-lms-brand-growth-green) 55%,
+			var(--color-lms-brand-deep-neutral)
+		),
+		var(--color-lms-brand-growth-green)
+	);
+	/* Track bar progres (dekoratif; nilai selalu disertai angka). */
+	--color-lms-progress-track: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-deep-neutral) 10%, #ffffff),
+		var(--color-surface-700)
+	);
+	/* Skala 3 tingkat untuk sel data (heatmap/presensi); angka selalu tampil di sel. */
+	--color-lms-scale-high: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 40%, #ffffff),
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 45%, var(--color-surface-900))
+	);
+	--color-lms-scale-mid: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 15%, #ffffff),
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 18%, var(--color-surface-900))
+	);
+	--color-lms-scale-low: light-dark(
+		color-mix(in oklab, var(--color-warning-500) 35%, #ffffff),
+		color-mix(in oklab, var(--color-warning-500) 35%, var(--color-surface-900))
+	);
+	/* Hero produk (keputusan D4): Deep Neutral solid, tanpa gradient dan tanpa kurva. */
+	--color-lms-hero: var(--color-lms-brand-deep-neutral);
+	--color-lms-on-hero: #ffffff;
+	--color-lms-on-hero-muted: color-mix(in oklab, #ffffff 82%, var(--color-lms-brand-deep-neutral));
+	/* FE-06 (referensi v3 `--link`): warna tautan teks, turunan Royal Blue yang lolos 4.5:1 di kedua mode. */
+	--color-lms-link: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 80%, var(--color-lms-brand-deep-neutral)),
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 45%, #ffffff)
+	);
+	/* FE-05R (referensi): hijau muda teks progres di atas hero (≈ #7FCEA7). */
+	--color-lms-on-hero-progress: color-mix(
+		in oklab,
+		var(--color-lms-brand-growth-green) 60%,
+		#ffffff
+	);
+	/* FE-05R (referensi `--tint3`): biru redup untuk batang periode lain & kategori ketiga (non-teks). */
+	--color-lms-interactive-muted: light-dark(
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 35%, #ffffff),
+		color-mix(in oklab, var(--color-lms-brand-royal-blue) 45%, var(--color-surface-900))
+	);
+	/* FE-07 (referensi v3 `#FCC24D`): teks peringatan di atas hero; tema warning, bukan warna brand baru. */
+	--color-lms-on-hero-warning: var(--color-warning-300);
+	--color-lms-hero-raised: color-mix(in oklab, #ffffff 8%, var(--color-lms-brand-deep-neutral));
+
+	--shadow-lms-raised: var(--shadow-sm);
+	/* Bayangan kartu sesuai referensi FLIXARE App.html (FE-05R); tidak ada bayangan di mode gelap. */
+	--shadow-lms-card:
+		0 1px 2px
+			light-dark(
+				color-mix(in oklab, var(--color-lms-brand-deep-neutral) 4%, transparent),
+				transparent
+			),
+		0 8px 24px -12px
+			light-dark(
+				color-mix(in oklab, var(--color-lms-brand-deep-neutral) 10%, transparent),
+				transparent
+			);
+}
+
+/*
+ * Pemetaan primitif Skeleton ke FLIXARE agar identitas Cerberus tidak bocor lewat
+ * ring fokus input/select bawaan, radio/checkbox, link, seleksi teks, font, dan latar root.
+ */
+:root[data-theme='cerberus'] {
+	--color-primary-500: var(--color-lms-brand-royal-blue);
+	--color-primary-contrast-500: #ffffff;
+	--color-brand-light: var(--color-lms-brand-royal-blue);
+	--color-brand-dark: var(--color-lms-brand-royal-blue);
+	--color-root-bg-light: var(--color-lms-brand-soft-background);
+	--typo-base--color-light: var(--color-lms-brand-deep-neutral);
+	--typo-base--font-family: var(--font-lms-sans);
+	--typo-base--font-size: var(--text-lms-body);
+	--typo-base--line-height: var(--text-lms-body--line-height);
+	--typo-heading--font-family: var(--font-lms-sans);
+}
+
+@layer base {
+	/* Fokus keyboard selalu terlihat (jangan dihapus tanpa pengganti yang aksesibel). */
+	:focus-visible {
+		outline: 2px solid var(--color-lms-focus);
+		outline-offset: 2px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+}
+
+/* 3. COMPONENT TOKENS (utilitas lms-*) ------------------------------------ */
+
+/* Lebar konten dan gutter halaman yang konsisten di semua breakpoint. */
+@utility lms-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: var(--container-7xl);
+	padding-inline: --spacing(4);
+
+	@variant md {
+		padding-inline: --spacing(6);
+	}
+}
+
+/* Fokus untuk elemen yang style bawaannya menimpa outline (mis. utilitas `input` Skeleton). */
+@utility lms-focus-ring {
+	&:focus-visible {
+		outline: 2px solid var(--color-lms-focus);
+		outline-offset: 2px;
+	}
+}
+
+/*
+ * Kontrol form: warna FLIXARE (menimpa warna surface Cerberus pada `input`/`select` Skeleton),
+ * batas ≥ 3:1 terhadap background, merah saat aria-invalid.
+ */
+@utility lms-input {
+	&:is(&) {
+		background-color: var(--color-lms-surface);
+		color: var(--color-lms-foreground);
+	}
+	&:not(:focus) {
+		--tw-ring-color: var(--color-lms-input-border);
+	}
+	&[aria-invalid='true'] {
+		--tw-ring-color: var(--color-lms-danger-text);
+	}
+}
+
+/*
+ * Aksi. Hover memakai warna lebih gelap, bukan filter brightness bawaan `btn` Skeleton
+ * (yang menurunkan kontras teks di bawah 4.5:1). `&:is(&)` menaikkan specificity di atas `.btn:not(:disabled):hover`.
+ */
+@utility lms-action-primary {
+	background-color: var(--color-lms-interactive);
+	color: var(--color-lms-on-interactive);
+
+	&:is(&):hover:not(:disabled) {
+		filter: none;
+		background-color: var(--color-lms-interactive-hover);
+	}
+}
+
+@utility lms-action-secondary {
+	background-color: var(--color-lms-surface-muted);
+	color: var(--color-lms-foreground);
+}
+
+@utility lms-action-ghost {
+	&:is(&):hover:not(:disabled) {
+		filter: none;
+		background-color: var(--color-lms-surface-muted);
+	}
+}
+
+@utility lms-action-destructive {
+	background-color: var(--color-error-800);
+	color: var(--color-error-contrast-800);
+
+	&:is(&):hover:not(:disabled) {
+		filter: none;
+		background-color: var(--color-error-900);
+	}
+}
+
+/* Item navigasi aktif: latar subtle + teks kuat (makna juga lewat aria-current dan font-semibold). */
+@utility lms-nav-active {
+	background-color: var(--color-lms-interactive-subtle);
+	color: var(--color-lms-foreground);
+}
+
+/* Nada informasi (Alert info): sama dengan latar subtle interaktif. */
+@utility lms-tone-info {
+	background-color: var(--color-lms-interactive-subtle);
+	color: var(--color-lms-foreground);
+}
+
+/* Permukaan kartu/panel produk: surface + border dekoratif, radius container (FE-04). */
+@utility lms-card {
+	background-color: var(--color-lms-surface);
+	border: 1px solid var(--color-lms-border);
+	/* Radius 18px + bayangan halus sesuai referensi (FE-05R). */
+	border-radius: 1.125rem;
+	box-shadow: var(--shadow-lms-card);
+}
+
+/*
+ * Hero produk (D4): Deep Neutral solid. Fokus di dalam hero memakai putih (14.69:1)
+ * karena Royal Blue di atas Deep Neutral hanya 3.03:1.
+ */
+/*
+ * Hero produk. FE-05R (keputusan pemilik produk, mencabut FE-04R D04 untuk hero): gradient radial
+ * Royal Blue (kanan atas) + Growth Green samar (kiri bawah) di atas Deep Neutral, persis referensi.
+ * Hanya warna brand; pengecualian "brand moment" dicatat di design-system.md §9.
+ */
+@utility lms-hero {
+	background-color: var(--color-lms-hero);
+	background-image:
+		radial-gradient(
+			80% 140% at 100% 0%,
+			color-mix(in oklab, var(--color-lms-brand-royal-blue) 55%, transparent) 0%,
+			transparent 60%
+		),
+		radial-gradient(
+			50% 80% at 0% 100%,
+			color-mix(in oklab, var(--color-lms-brand-growth-green) 14%, transparent) 0%,
+			transparent 70%
+		);
+	color: var(--color-lms-on-hero);
+	--color-lms-focus: var(--color-lms-on-hero);
+}
+/* Layar penuh bertema hero (halaman keluar & hitung mundur tryout, referensi v3 layar 09). */
+@utility lms-hero-screen {
+	background-color: var(--color-lms-hero);
+	background-image:
+		radial-gradient(
+			70% 60% at 90% 0%,
+			color-mix(in oklab, var(--color-lms-brand-royal-blue) 50%, transparent) 0%,
+			transparent 60%
+		),
+		radial-gradient(
+			50% 50% at 0% 100%,
+			color-mix(in oklab, var(--color-lms-brand-growth-green) 16%, transparent) 0%,
+			transparent 70%
+		);
+	color: var(--color-lms-on-hero);
+	--color-lms-focus: var(--color-lms-on-hero);
+}
+/* Panel brand halaman login: geometri gradient referensi layar 01. */
+@utility lms-hero-panel {
+	background-color: var(--color-lms-hero);
+	background-image:
+		radial-gradient(
+			110% 80% at 100% 0%,
+			color-mix(in oklab, var(--color-lms-brand-royal-blue) 55%, transparent) 0%,
+			transparent 60%
+		),
+		radial-gradient(
+			60% 50% at 0% 100%,
+			color-mix(in oklab, var(--color-lms-brand-growth-green) 16%, transparent) 0%,
+			transparent 70%
+		);
+	color: var(--color-lms-on-hero);
+	--color-lms-focus: var(--color-lms-on-hero);
+}
+
+/* Kartu kaca di atas hero (referensi): putih 7%, garis putih 14%, blur 12px, radius 18px. */
+@utility lms-hero-raised {
+	background-color: color-mix(in oklab, var(--color-lms-on-hero) 7%, transparent);
+	border: 1px solid color-mix(in oklab, var(--color-lms-on-hero) 14%, transparent);
+	border-radius: 1.125rem;
+	-webkit-backdrop-filter: blur(12px);
+	backdrop-filter: blur(12px);
+	color: var(--color-lms-on-hero);
+}
+
+/* Sel skala data: teks selalu foreground (≥ 7.29:1 di semua tingkat dan mode). */
+@utility lms-scale-high {
+	background-color: var(--color-lms-scale-high);
+	color: var(--color-lms-foreground);
+}
+@utility lms-scale-mid {
+	background-color: var(--color-lms-scale-mid);
+	color: var(--color-lms-foreground);
+}
+@utility lms-scale-low {
+	background-color: var(--color-lms-scale-low);
+	color: var(--color-lms-foreground);
+}
+
+/* Tipografi semantik di atas skala kanonik. */
+@utility lms-text-label {
+	font-size: var(--text-lms-body-sm);
+	line-height: var(--text-lms-body-sm--line-height);
+	font-weight: 600;
+}
+
+@utility lms-text-helper {
+	font-size: var(--text-lms-body-sm);
+	line-height: var(--text-lms-body-sm--line-height);
+	color: var(--color-lms-muted);
+}
+
+@utility lms-text-caption {
+	font-size: var(--text-lms-caption);
+	line-height: var(--text-lms-caption--line-height);
+	color: var(--color-lms-muted);
+}
+
+@utility lms-text-error {
+	font-size: var(--text-lms-body-sm);
+	line-height: var(--text-lms-body-sm--line-height);
+	color: var(--color-lms-danger-text);
+}
+
+/* Indikator progres tab/hitung mundur (FE-06): lebar 0 → 100%; durasi diatur pemakai. */
+@keyframes lms-grow {
+	from {
+		width: 0%;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+/* Kertas bergaris untuk tumpukan koreksi (dashboard guru, referensi v3). */
+@utility lms-ruled-paper {
+	background-image: repeating-linear-gradient(transparent 0 7px, var(--color-lms-border) 7px 8px);
+}

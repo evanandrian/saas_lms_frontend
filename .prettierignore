@@ -1,0 +1,18 @@
+# Output build & dependency
+node_modules/
+build/
+dist/
+.svelte-kit/
+coverage/
+playwright-report/
+test-results/
+
+# Lockfile dikelola pnpm
+pnpm-lock.yaml
+
+# Dokumentasi Markdown sengaja dikecualikan dari format otomatis (FE-FOUNDATION-02):
+# tabel dan riwayat keputusan di docs/ dirawat manual agar diff audit tetap kecil.
+*.md
+
+# Aset statis
+static/
