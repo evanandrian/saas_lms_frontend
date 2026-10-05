@@ -1,402 +1,993 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
+	import { invalidate } from '$app/navigation';
+	import ConfirmDialog, { type ConfirmDialogDetail } from '$lib/components/ui/ConfirmDialog.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
-	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
-	import Inbox from '@lucide/svelte/icons/inbox';
-	import Building2 from '@lucide/svelte/icons/building-2';
-	import Package from '@lucide/svelte/icons/package';
-	import Receipt from '@lucide/svelte/icons/receipt';
-	import Wallet from '@lucide/svelte/icons/wallet';
-	import Server from '@lucide/svelte/icons/server';
-	import ScrollText from '@lucide/svelte/icons/scroll-text';
-	import Settings from '@lucide/svelte/icons/settings';
-	import Users from '@lucide/svelte/icons/users';
-	import Home from '@lucide/svelte/icons/home';
+	import type { NavigationFailure } from '$lib/features/navigation/navigation.api';
+	import {
+		NavigationEditor,
+		type EditorGroup,
+		type EditorItem,
+		type GroupToggleKey
+	} from '$lib/features/navigation/navigation-editor.svelte';
+	import {
+		NAME_MAX_LENGTH,
+		NAVIGATION_BADGES,
+		NAVIGATION_ICON_KEYS,
+		NAVIGATION_ROLES,
+		NAVIGATION_TARGETS,
+		isExternalRoute,
+		navigationIcon,
+		normalizeRoute,
+		type FieldError,
+		type NavigationIssue,
+		type NavigationLayout,
+		type NavigationRole
+	} from '$lib/features/navigation/navigation.model';
+	import { useI18n } from '$lib/i18n';
+	import type { LucideIcon } from '@lucide/svelte';
+	import Check from '@lucide/svelte/icons/check';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import ChevronUp from '@lucide/svelte/icons/chevron-up';
+	import CircleAlert from '@lucide/svelte/icons/circle-alert';
+	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import ExternalLink from '@lucide/svelte/icons/external-link';
+	import Eye from '@lucide/svelte/icons/eye';
+	import EyeOff from '@lucide/svelte/icons/eye-off';
+	import FolderPlus from '@lucide/svelte/icons/folder-plus';
+	import Layers from '@lucide/svelte/icons/layers';
+	import Link from '@lucide/svelte/icons/link';
+	import List from '@lucide/svelte/icons/list';
+	import Pencil from '@lucide/svelte/icons/pencil';
+	import Plus from '@lucide/svelte/icons/plus';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import Search from '@lucide/svelte/icons/search';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { untrack } from 'svelte';
+	import type { PageProps } from './$types';
 
-	const ICON_MAP: Record<string, any> = { 
-		'layout-dashboard': LayoutDashboard, 
-		'inbox': Inbox, 
-		'building-2': Building2, 
-		'package': Package, 
-		'receipt': Receipt, 
-		'wallet': Wallet, 
-		'server': Server, 
-		'scroll-text': ScrollText, 
-		'settings': Settings, 
-		'users': Users,
-		'home': Home 
+	let { data }: PageProps = $props();
+
+	const i18n = useI18n();
+	const t = (key: string, params?: Record<string, string | number>) =>
+		i18n.t(`navigation.${key}`, params);
+
+	const editor = untrack(() => (data.layouts ? new NavigationEditor(data.layouts) : null));
+	const simulate = untrack(() => data.simulate);
+
+	type ConfirmKind = 'delete' | 'reset';
+	let confirmKind = $state<ConfirmKind | null>(null);
+	let isConfirmOpen = $state(false);
+	let isSaving = $state(false);
+	let failure = $state<NavigationFailure | null>(null);
+	let resetForm = $state<HTMLFormElement | null>(null);
+
+	const timeLabel = () =>
+		new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+	// ---------- turunan tampilan (cermin renderVals referensi) ----------
+	const role = $derived(editor?.role ?? 'platform');
+	const accent = $derived(NAVIGATION_ROLES.find((r) => r.key === role)?.accent ?? '#4169E1');
+	const roleLabel = $derived(t(`roles.${role}`));
+	const tree = $derived(editor?.tree ?? []);
+	const errors = $derived(editor?.errors ?? {});
+	const errorCount = $derived(Object.keys(errors).length);
+	const tried = $derived(editor?.tried ?? false);
+	const dirty = $derived(editor?.isDirty() ?? false);
+	const totalItems = $derived(tree.reduce((sum, g) => sum + g.items.length, 0));
+	const hiddenItems = $derived(
+		tree.reduce(
+			(sum, g) => sum + (g.hidden ? g.items.length : g.items.filter((m) => m.hidden).length),
+			0
+		)
+	);
+	const query = $derived((editor?.query ?? '').trim().toLowerCase());
+	const tenant = $derived(
+		data.preview?.tenants[role] ?? {
+			initials: role === 'platform' ? 'FX' : 'SK',
+			name: role === 'platform' ? 'FLIXARE Console' : t('preview.school'),
+			host: role === 'platform' ? `platform.${data.rootDomain}` : `<sekolah>.${data.rootDomain}`
+		}
+	);
+
+	const mix = (percent: number) =>
+		`color-mix(in oklch, ${accent} ${percent}%, var(--color-lms-surface))`;
+	const selectedStyle = (selected: boolean) =>
+		selected ? `background:${mix(12)};box-shadow:inset 3px 0 0 ${accent}` : '';
+
+	/** Error nama/rute ditampilkan setelah simpan dicoba; rute tidak valid/duplikat langsung tampil (referensi). */
+	function visibleError(uid: string, field: 'name' | 'route'): FieldError | undefined {
+		const error = errors[uid]?.[field];
+		if (!error) return undefined;
+		if (tried || error.key === 'server') return error;
+		return field === 'route' && error.key !== 'route_required' ? error : undefined;
+	}
+
+	function errorText(error: FieldError | undefined): string {
+		if (!error) return '';
+		if (error.key === 'server') return error.message ?? '';
+		return t(`errors.${error.key}`, { other: error.other ?? '' });
+	}
+
+	const visibleTree = $derived(
+		tree
+			.map((g, gi) => {
+				const groupHit = g.name.toLowerCase().includes(query);
+				const items = g.items
+					.map((m, mi) => ({ m, mi }))
+					.filter(
+						({ m }) => !query || groupHit || `${m.name} ${m.route}`.toLowerCase().includes(query)
+					);
+				if (query && !groupHit && !items.length) return null;
+				return { g, gi, items, expanded: query ? true : !editor?.collapsed[g.uid] };
+			})
+			.filter((entry) => entry !== null)
+	);
+
+	function groupMeta(g: EditorGroup): string {
+		let meta = t('tree.count', { count: g.items.length });
+		if (g.clickable) meta += ` · ${g.route || t('tree.route_empty')}`;
+		if (g.hidden) meta += ` · ${t('tree.hidden')}`;
+		else if (!g.show_label) meta += ` · ${t('tree.no_title')}`;
+		return meta;
+	}
+
+	const selectedGroup = $derived(editor?.selectedGroup);
+	const selectedItem = $derived(editor?.selectedItem);
+	const node = $derived<EditorGroup | EditorItem | undefined>(selectedItem ?? selectedGroup);
+	const nameError = $derived(node ? visibleError(node.uid, 'name') : undefined);
+	const routeError = $derived(node ? visibleError(node.uid, 'route') : undefined);
+	const showRoute = $derived(!!selectedItem || !!selectedGroup?.clickable);
+	const routeHost = $derived(
+		node?.route && isExternalRoute(node.route) ? node.route : tenant.host + (node?.route || '/…')
+	);
+
+	const GROUP_TOGGLES: GroupToggleKey[] = ['show_label', 'default_open', 'clickable'];
+
+	// Pratinjau sidebar: grup tampil bila punya menu tampil atau bisa diklik (referensi `pv`).
+	const preview = $derived(
+		tree
+			.filter((g) => !g.hidden && (g.items.some((m) => !m.hidden) || g.clickable))
+			.map((g) => ({
+				g,
+				showLabel: g.show_label || !g.default_open,
+				closed: !g.default_open,
+				items: g.default_open || !g.show_label ? g.items.filter((m) => !m.hidden) : []
+			}))
+	);
+	const badgeSample = (badge: string) =>
+		data.preview?.badgeSamples[badge as keyof typeof data.preview.badgeSamples];
+
+	const barState = $derived.by(
+		(): { tone: 'error' | 'warn' | 'muted'; icon: LucideIcon; text: string } => {
+			if (tried && errorCount)
+				return { tone: 'error', icon: CircleAlert, text: t('bar.errors', { count: errorCount }) };
+			if (failure) return { tone: 'error', icon: CircleAlert, text: t(`failure.${failure}`) };
+			if (dirty) return { tone: 'warn', icon: Pencil, text: t('bar.dirty', { role: roleLabel }) };
+			const savedAt = editor?.savedAt[role];
+			if (savedAt)
+				return { tone: 'muted', icon: CircleCheck, text: t('bar.saved', { time: savedAt }) };
+			return { tone: 'muted', icon: CircleCheck, text: t('bar.clean') };
+		}
+	);
+	const TONE_CLASS = {
+		error: 'text-lms-danger-text',
+		warn: 'text-lms-warning-text',
+		muted: 'text-lms-muted'
 	};
 
-	let { data }: { data: PageData } = $props();
-
-	let role = $state('Platform Admin');
-	let filterType = $state('all');
-	let searchQuery = $state('');
-
-	// Use deeply reactive state
-	let menus = $state(JSON.parse(JSON.stringify(data.menus || [])));
-	let selectedMenu = $state<any>(null);
-	let showSaveBar = $state(false);
-	let showIconDropdown = $state(false);
-
-	function selectMenu(menu: any, group?: any) {
-		selectedMenu = menu;
-	}
-
-	function handleAddGroup() {
-		const newGroup = {
-			id: 'group-' + Date.now(),
-			type: 'group',
-			name: 'Grup Baru',
-			description: 'Grup navigasi baru',
-			icon: 'layout-dashboard',
-			position: menus.length + 1,
-			isVisible: true,
-			roles: ['Platform Admin'],
-			children: []
-		};
-		menus = [...menus, newGroup];
-		selectMenu(menus[menus.length - 1]);
-		showSaveBar = true;
-	}
-
-	function handleAddItem() {
-		let parentGroup = selectedMenu?.type === 'group' ? selectedMenu : menus.find((g: any) => g.children?.some((c: any) => c.id === selectedMenu?.id));
-		if (!parentGroup) {
-			if (menus.length === 0) return;
-			parentGroup = menus[0];
-		}
-		const newItem = {
-			id: 'item-' + Date.now(),
-			type: 'item',
-			name: 'Menu Baru',
-			url: '/app/baru',
-			icon: 'layout-dashboard',
-			position: (parentGroup.children?.length || 0) + 1,
-			isVisible: true,
-			targetBlank: false,
-			roles: ['Platform Admin']
-		};
-		if (!parentGroup.children) parentGroup.children = [];
-		parentGroup.children = [...parentGroup.children, newItem];
-		selectMenu(parentGroup.children[parentGroup.children.length - 1]);
-		showSaveBar = true;
-	}
-
-	function handleDelete() {
-		if (!selectedMenu) return;
-		if (selectedMenu.type === 'group') {
-			menus = menus.filter((m: any) => m.id !== selectedMenu.id);
-		} else {
-			const parent = menus.find((g: any) => g.children?.some((c: any) => c.id === selectedMenu.id));
-			if (parent && parent.children) {
-				parent.children = parent.children.filter((c: any) => c.id !== selectedMenu.id);
+	const confirmContent = $derived.by(
+		(): {
+			icon: LucideIcon;
+			title: string;
+			message: string;
+			label: string;
+			details: ConfirmDialogDetail[];
+		} | null => {
+			if (confirmKind === 'reset') {
+				return {
+					icon: RotateCcw,
+					title: t('confirm.reset_title'),
+					message: t('confirm.reset_message', { role: roleLabel }),
+					label: t('confirm.reset_confirm'),
+					details: [
+						{
+							icon: Layers,
+							label: t('confirm.current_layout'),
+							value: t('summary', { groups: tree.length, items: totalItems })
+						}
+					]
+				};
 			}
+			if (confirmKind === 'delete' && node && selectedGroup) {
+				return selectedItem
+					? {
+							icon: Trash2,
+							title: t('confirm.delete_item_title', { name: selectedItem.name }),
+							message: t('confirm.delete_item_message', { role: roleLabel }),
+							label: t('confirm.delete_confirm'),
+							details: [{ icon: Link, label: t('editor.route'), value: selectedItem.route || '—' }]
+						}
+					: {
+							icon: Trash2,
+							title: t('confirm.delete_group_title', { name: selectedGroup.name }),
+							message: t('confirm.delete_group_message', {
+								role: roleLabel,
+								count: selectedGroup.items.length
+							}),
+							label: t('confirm.delete_confirm'),
+							details: [
+								{
+									icon: List,
+									label: t('confirm.items_deleted'),
+									value: String(selectedGroup.items.length)
+								}
+							]
+						};
+			}
+			return null;
 		}
-		selectedMenu = null;
-		showSaveBar = true;
+	);
+
+	function openConfirm(kind: ConfirmKind) {
+		confirmKind = kind;
+		isConfirmOpen = true;
 	}
 
-	$effect(() => {
-		// When selectedMenu deeply changes, show save bar
-		if (selectedMenu) {
-			showSaveBar = true;
+	async function handleConfirm() {
+		if (!editor) return;
+		if (confirmKind === 'delete') editor.deleteSelected();
+		if (confirmKind === 'reset') {
+			if (simulate) applyResult(defaultLayoutFor(editor.role));
+			else resetForm?.requestSubmit();
 		}
-	});
+		confirmKind = null;
+	}
+
+	function defaultLayoutFor(r: NavigationRole): NavigationLayout {
+		const layout = data.layouts?.[r];
+		return { ...(layout as NavigationLayout), version: (editor?.versions[r] ?? 0) + 1 };
+	}
+
+	function applyResult(layout: NavigationLayout) {
+		editor?.applySaved(layout, timeLabel());
+		failure = null;
+		// Sidebar platform dibaca dari susunan ini → muat ulang layout agar langsung berlaku.
+		if (layout.role === 'platform' && !simulate) void invalidate('app:navigation');
+	}
+
+	function handleFailure(data: Record<string, unknown> | undefined) {
+		const reason = (data?.reason as NavigationFailure | undefined) ?? 'unavailable';
+		const issues = (data?.issues as NavigationIssue[] | undefined) ?? [];
+		if (reason === 'validation' && issues.length) {
+			editor?.applyServerIssues(issues);
+			failure = null;
+			return;
+		}
+		failure = reason;
+	}
+
+	const submitSave: SubmitFunction = ({ formData, cancel }) => {
+		const payload = editor?.prepareSave();
+		if (!editor || !payload) {
+			cancel();
+			return;
+		}
+		if (simulate) {
+			cancel();
+			applySimulatedSave();
+			return;
+		}
+		formData.set('role', payload.role);
+		formData.set('version', String(payload.version));
+		formData.set('groups', JSON.stringify(payload.groups));
+		isSaving = true;
+		return async ({ result }) => {
+			isSaving = false;
+			if (result.type === 'success') applyResult(result.data?.layout as NavigationLayout);
+			else if (result.type === 'failure') handleFailure(result.data);
+			else failure = 'unavailable';
+		};
+	};
+
+	const submitReset: SubmitFunction = ({ formData }) => {
+		formData.set('role', role);
+		formData.set('version', String(editor?.versions[role] ?? 0));
+		isSaving = true;
+		return async ({ result }) => {
+			isSaving = false;
+			if (result.type === 'success') applyResult(result.data?.layout as NavigationLayout);
+			else if (result.type === 'failure') handleFailure(result.data);
+			else failure = 'unavailable';
+		};
+	};
+
+	/** Dev tanpa backend: simpan hanya ke state lokal (ID baru diberi ID sementara). */
+	function applySimulatedSave() {
+		if (!editor) return;
+		const r = editor.role;
+		const groups = editor.tree.map((g) => ({
+			id: g.id ?? g.uid,
+			code: g.uid,
+			name: g.name.trim(),
+			icon: g.icon,
+			route: g.clickable ? g.route : '',
+			show_label: g.show_label,
+			default_open: g.default_open,
+			clickable: g.clickable,
+			hidden: g.hidden,
+			items: g.items.map((m) => ({
+				id: m.id ?? m.uid,
+				code: m.uid,
+				name: m.name.trim(),
+				icon: m.icon,
+				route: m.route,
+				target: m.target,
+				hidden: m.hidden,
+				badge: m.badge
+			}))
+		}));
+		applyResult({
+			role: r,
+			version: editor.versions[r] + 1,
+			updated_at: new Date().toISOString(),
+			groups
+		});
+	}
+
+	function handleRoleChange(next: NavigationRole) {
+		editor?.setRole(next);
+		failure = null;
+	}
 </script>
 
 <svelte:head>
-	<title>Konfigurasi Menu & Navigasi - Platform</title>
+	<title>{t('title')} · FLIXARE</title>
 </svelte:head>
 
-<div class="head">
-	<div>
-		<h1>Konfigurasi Menu & Navigasi</h1>
-		<p>Bangun struktur navigasi workspace secara fleksibel. Tentukan grup menu, sub menu, URL, urutan, visibilitas, target halaman, dan peran yang dapat melihat setiap menu.</p>
-	</div>
-	<div class="actions">
-		<button class="btn sm" id="reset">↺ Atur ulang</button>
-		<button class="btn primary sm" id="saveTop">Simpan perubahan</button>
-	</div>
-</div>
-
-<div class="context">
-	<div class="ctx">
-		<div class="school">PL</div>
-		<div>
-			<b>Platform Global</b>
-			<small>Konfigurasi navigasi default untuk semua penyewa</small>
+<!-- Referensi: FLIXARE App v3 · layar "04c Menu & Navigasi" (MenuMaster). -->
+<!-- line-height `normal` mengikuti referensi (body referensi tidak menetapkan line-height). -->
+<div class="text-lms-foreground flex flex-col gap-4 leading-[normal]">
+	<div class="flex flex-wrap items-end justify-between gap-4">
+		<div class="flex flex-col gap-1.5">
+			<span class="text-lms-interactive font-mono text-xs font-semibold tracking-widest"
+				>{t('eyebrow')}</span
+			>
+			<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
+			<p class="text-lms-muted max-w-180 text-sm text-pretty">{t('description')}</p>
 		</div>
-	</div>
-	<select class="select role" bind:value={role}>
-		<option>Orang tua</option>
-		<option>Admin Sekolah</option>
-		<option>Guru</option>
-		<option>Siswa</option>
-		<option>Kepala Sekolah</option>
-		<option>Platform Admin</option>
-	</select>
-</div>
-
-<div class="workspace">
-	<section class="panel">
-		<div class="panelhead">
-			<div>
-				<h2>Struktur menu</h2>
-				<p>Susun hierarki dengan head grup → sub menu. Drag untuk mengubah urutan.</p>
+		{#if editor}
+			<div class="flex flex-wrap gap-2">
+				<button
+					type="button"
+					class="border-lms-border-strong bg-lms-surface lms-focus-ring flex h-10 items-center gap-2 rounded-[10px] border px-3.5 text-sm font-semibold"
+					onclick={() => editor.addGroup()}
+				>
+					<Icon icon={FolderPlus} size="sm" />{t('actions.new_group')}
+				</button>
+				<button
+					type="button"
+					class="lms-action-primary lms-focus-ring flex h-10 items-center gap-2 rounded-[10px] px-4 text-sm font-semibold"
+					onclick={() => editor.addItem()}
+				>
+					<Icon icon={Plus} size="sm" />{t('actions.new_item')}
+				</button>
 			</div>
-			<button class="btn primary sm" onclick={handleAddGroup}>＋ Tambah grup</button>
+		{/if}
+	</div>
+
+	{#if simulate}
+		<div
+			class="lms-tone-warning flex items-start gap-2.5 rounded-[10px] px-3 py-2.5 text-[13px] leading-[19px]"
+			role="status"
+		>
+			<Icon icon={TriangleAlert} size="sm" /><span>{t('simulation')}</span>
 		</div>
-		<div class="toolbar">
-			<div class="search">
-				<span>⌕</span>
-				<input bind:value={searchQuery} placeholder="Cari nama menu atau URL..." />
-			</div>
-			<select class="select filter" bind:value={filterType}>
-				<option value="all">Semua tipe</option>
-				<option value="group">Head grup</option>
-				<option value="item">Sub menu</option>
-			</select>
-			<button class="btn sm" onclick={handleAddItem}>＋ Sub menu</button>
+	{/if}
+
+	{#if !editor}
+		<div
+			class="border-lms-input-border bg-lms-surface text-lms-muted rounded-xl border border-dashed px-5 py-10 text-center text-sm"
+			role="alert"
+		>
+			{t(`failure.${data.failure ?? 'unavailable'}`)}
 		</div>
-		<div class="tree">
-			{#each menus as group}
-				<div class="tree-group">
-					<div 
-						class="tree-row group {selectedMenu?.id === group.id ? 'selected' : ''}" 
-						onclick={() => selectMenu(group)}
+	{:else}
+		<!-- Tab peran + ringkasan -->
+		<div
+			class="bg-lms-surface border-lms-border flex flex-wrap items-center justify-between gap-3 rounded-xl border px-3 py-2.5"
+		>
+			<div
+				class="bg-lms-surface-muted flex flex-wrap gap-0.5 rounded-[10px] p-[3px]"
+				role="tablist"
+				aria-label={t('roles_label')}
+			>
+				{#each NAVIGATION_ROLES as r (r.key)}
+					{@const active = r.key === role}
+					<button
+						type="button"
+						role="tab"
+						aria-selected={active}
+						class={[
+							'lms-focus-ring flex h-[34px] items-center gap-2 rounded-lg px-3.5 text-[13px] font-semibold whitespace-nowrap',
+							active ? 'bg-lms-surface text-lms-foreground shadow-sm' : 'text-lms-muted'
+						]}
+						onclick={() => handleRoleChange(r.key)}
 					>
-						<button class="chev">⌄</button>
-						<span class="drag">⋮⋮</span>
-						<span class="treeicon"><Icon icon={ICON_MAP[group.icon || 'home']} size="sm" /></span>
-						<div class="treename">
-							[{group.position}] {group.name}
-							<small>{group.description || 'Grup navigasi'}</small>
-						</div>
-						<span class="typebadge group">HEAD GRUP</span>
-						<button class="rowmore">•••</button>
-					</div>
-					<div class="tree-children">
-						{#each group.children || [] as item}
-							<div 
-								class="tree-row child {selectedMenu?.id === item.id ? 'selected' : ''}" 
-								onclick={() => selectMenu(item, group)}
-							>
-								<button class="chev">•</button>
-								<span class="drag">⋮⋮</span>
-								<span class="treeicon"><Icon icon={ICON_MAP[item.icon || 'home']} size="sm" /></span>
-								<div class="treename">
-									[{item.position}] {item.name}
-									<small>{item.url}</small>
-								</div>
-								<span class="typebadge">SUB MENU</span>
-								<button class="rowmore">•••</button>
-							</div>
-						{/each}
-					</div>
-				</div>
-			{/each}
-		</div>
-		<div class="tree-footer">
-			Contoh struktur: <b>Pengaturan</b> adalah head grup, sedangkan <b>Menu & Navigasi</b>, <b>Peran & Akses</b>, dan <b>Konfigurasi</b> adalah sub menu di bawahnya.
-		</div>
-	</section>
-
-	<section class="panel formpanel">
-		<div class="panelhead">
-			<div>
-				<h2>Detail menu</h2>
-				<p>Pilih menu di sebelah kiri untuk mengedit, atau buat baru.</p>
-			</div>
-		</div>
-		
-		{#if selectedMenu}
-		<div class="form">
-			<div class="formtitle">
-				<div>
-					<h3>{selectedMenu.name || 'Menu Baru'}</h3>
-					<p>ID: {selectedMenu.id}</p>
-				</div>
-				<div class="status {selectedMenu.isVisible ? 'on' : 'off'}">{selectedMenu.isVisible ? 'AKTIF' : 'NONAKTIF'}</div>
-			</div>
-
-			<div class="formgrid">
-				<div class="field full">
-					<label>Nama Menu</label>
-					<input type="text" class="input" bind:value={selectedMenu.name} placeholder="Contoh: Beranda" />
-				</div>
-				<div class="field">
-					<label>Tipe Menu</label>
-					<div class="segment">
-						<button class="seg {selectedMenu.type === 'group' ? 'active' : ''}" onclick={() => selectedMenu.type = 'group'}>Head Grup</button>
-						<button class="seg {selectedMenu.type === 'item' ? 'active' : ''}" onclick={() => selectedMenu.type = 'item'}>Sub Menu</button>
-					</div>
-				</div>
-				<div class="field">
-					<label>Posisi / Urutan</label>
-					<input type="number" class="input" bind:value={selectedMenu.position} />
-				</div>
-				
-				<div class="field">
-					<label>Ikon (Lucide)</label>
-					<div class="relative custom-select-container" style="position: relative;" tabindex="-1" onfocusout={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) showIconDropdown = false; }}>
-						<button type="button" class="input icon-select-trigger" style="display: flex; align-items: center; gap: 10px; width: 100%; cursor: pointer;" onclick={() => showIconDropdown = !showIconDropdown}>
-							<Icon icon={ICON_MAP[selectedMenu.icon || 'home']} size="sm" />
-							<span style="flex: 1; text-align: left;">{selectedMenu.icon}</span>
-							<svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-						</button>
-						{#if showIconDropdown}
-							<ul class="icon-dropdown">
-								{#each Object.keys(ICON_MAP) as ic}
-									<li tabindex="0" onclick={() => { selectedMenu.icon = ic; showIconDropdown = false; }} onkeydown={(e) => { if (e.key === 'Enter') { selectedMenu.icon = ic; showIconDropdown = false; }}}>
-										<Icon icon={ICON_MAP[ic]} size="sm" />
-										{ic}
-									</li>
-								{/each}
-							</ul>
+						<span class="size-2 rounded-full" style:background={r.accent}></span>
+						{t(`roles.${r.key}`)}
+						{#if editor.isDirty(r.key)}
+							<span class="bg-lms-warning-text size-1.5 rounded-full" title={t('unsaved')}></span>
+							<span class="sr-only">({t('unsaved')})</span>
 						{/if}
-					</div>
+					</button>
+				{/each}
+			</div>
+			<span class="text-lms-muted text-[13px]">
+				{t('summary', { groups: tree.length, items: totalItems })}{hiddenItems
+					? ` · ${t('summary_hidden', { count: hiddenItems })}`
+					: ''}
+			</span>
+		</div>
+
+		<div class="flex flex-wrap items-start gap-4">
+			<!-- Pohon grup & menu -->
+			<div
+				class="bg-lms-surface border-lms-border flex min-w-[280px] flex-[1_1_320px] flex-col rounded-xl border"
+			>
+				<div class="border-lms-border flex flex-col gap-2 border-b p-3">
+					<label class="relative block">
+						<span class="sr-only">{t('tree.search_label')}</span>
+						<span class="text-lms-muted pointer-events-none absolute top-[11px] left-3"
+							><Icon icon={Search} size="sm" /></span
+						>
+						<input
+							type="search"
+							bind:value={editor.query}
+							placeholder={t('tree.search')}
+							class="border-lms-input-border bg-lms-surface lms-focus-ring h-[38px] w-full rounded-lg border ps-9 pe-3 text-[13px]"
+						/>
+					</label>
+					<span class="text-lms-muted text-xs">{t('tree.hint')}</span>
 				</div>
-
-				{#if selectedMenu.type === 'item'}
-					<div class="field full" style="margin-top: 10px">
-						<label>URL / Path Navigasi</label>
-						<input type="text" class="input" bind:value={selectedMenu.url} placeholder="Contoh: /app/beranda" />
-						<div class="help">Harus diawali dengan garis miring (/) atau URL eksternal valid.</div>
-					</div>
-					<div class="field full">
-						<label class="checkrow">
-							<input type="checkbox" bind:checked={selectedMenu.targetBlank} />
-							<div><b>Buka di tab baru</b><br>Centang jika ini tautan eksternal.</div>
-						</label>
-					</div>
-				{/if}
-
-				<div class="field full">
-					<div class="subsection">
-						<h4>Visibilitas & Akses Peran</h4>
-						<p>Tentukan apakah menu ini terlihat, dan siapa saja yang bisa melihatnya.</p>
-						
-						<label class="checkrow" style="margin-bottom: 15px">
-							<input type="checkbox" bind:checked={selectedMenu.isVisible} />
-							<div><b>Tampilkan di Sidebar</b><br>Jika dimatikan, menu akan disembunyikan dari semua pengguna.</div>
-						</label>
-
-						<div class="permissionbox">
-							<div class="permissionhead">
-								<b>Bisa diakses oleh:</b>
-								<button class="btn primary sm">Pilih Semua</button>
-							</div>
-							<div class="permission-list">
-								{#each ['Orang tua', 'Admin Sekolah', 'Guru', 'Siswa', 'Kepala Sekolah', 'Platform Admin'] as r}
-									<button 
-										class="chip {selectedMenu.roles.includes(r) ? 'active' : ''}"
-										onclick={() => {
-											if (selectedMenu.roles.includes(r)) selectedMenu.roles = selectedMenu.roles.filter((x: string) => x !== r);
-											else selectedMenu.roles = [...selectedMenu.roles, r];
-										}}
+				<div class="flex flex-col gap-1 p-2">
+					{#each visibleTree as { g, gi, items, expanded } (g.uid)}
+						{@const selected = editor.sel.gid === g.uid && !editor.sel.mid}
+						<div class="flex flex-col gap-0.5">
+							<div
+								class={[
+									'flex items-center gap-2 rounded-lg py-1.5 ps-1 pe-1.5',
+									g.hidden && 'opacity-50'
+								]}
+								style={selectedStyle(selected)}
+							>
+								<button
+									type="button"
+									class="text-lms-muted lms-focus-ring flex size-[26px] shrink-0 items-center justify-center rounded-md"
+									aria-label={t('tree.toggle_group')}
+									aria-expanded={expanded}
+									onclick={() => editor.toggleCollapsed(g.uid)}
+								>
+									<Icon icon={expanded ? ChevronDown : ChevronRight} size="sm" />
+								</button>
+								<button
+									type="button"
+									class="lms-focus-ring flex min-w-0 flex-1 items-center gap-2 rounded-md text-start"
+									aria-current={selected ? 'true' : undefined}
+									onclick={() => editor.select(g.uid, null)}
+								>
+									<span
+										class="bg-lms-surface-muted text-lms-foreground flex size-[30px] shrink-0 items-center justify-center rounded-lg"
 									>
-										{r}
+										<Icon icon={navigationIcon(g.icon)} size="sm" />
+									</span>
+									<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+										<span class="flex items-center gap-1.5 text-[13px] font-bold">
+											<span class="truncate">{g.name || t('untitled')}</span>
+											{#if tried && errors[g.uid]}<span
+													class="bg-lms-danger-text size-[7px] shrink-0 rounded-full"
+													aria-label={t('has_error')}
+												></span>{/if}
+										</span>
+										<span class="text-lms-muted truncate text-[11px]">{groupMeta(g)}</span>
+									</span>
+								</button>
+								<span class="flex shrink-0">
+									{@render rowButton(ChevronUp, t('tree.move_up'), gi === 0, () =>
+										editor.moveGroup(gi, -1)
+									)}
+									{@render rowButton(ChevronDown, t('tree.move_down'), gi === tree.length - 1, () =>
+										editor.moveGroup(gi, 1)
+									)}
+									{@render rowButton(
+										g.hidden ? EyeOff : Eye,
+										t('tree.toggle_visibility'),
+										false,
+										() => editor.toggleHidden(g.uid, null)
+									)}
+									{@render rowButton(Plus, t('tree.add_item'), false, () => editor.addItem(g.uid))}
+								</span>
+							</div>
+							{#if expanded}
+								<div
+									class="border-lms-input-border ms-4 flex flex-col gap-0.5 border-s border-dashed ps-3"
+								>
+									{#each items as { m, mi } (m.uid)}
+										{@const itemSelected = editor.sel.mid === m.uid}
+										{@const itemError = errors[m.uid] && (tried || !!visibleError(m.uid, 'route'))}
+										<div
+											class={[
+												'flex items-center gap-2 rounded-lg px-1.5 py-[5px]',
+												(m.hidden || g.hidden) && 'opacity-50'
+											]}
+											style={selectedStyle(itemSelected)}
+										>
+											<button
+												type="button"
+												class="lms-focus-ring flex min-w-0 flex-1 items-center gap-2 rounded-md text-start"
+												aria-current={itemSelected ? 'true' : undefined}
+												onclick={() => editor.select(g.uid, m.uid)}
+											>
+												<span class="text-lms-muted flex w-5 shrink-0 justify-center"
+													><Icon icon={navigationIcon(m.icon)} size="sm" /></span
+												>
+												<span class="flex min-w-0 flex-1 flex-col gap-px">
+													<span class="flex items-center gap-1.5 text-[13px] font-semibold">
+														<span class="truncate">{m.name || t('untitled')}</span>
+														{#if m.badge !== 'none'}
+															<span
+																class="bg-lms-surface-muted text-lms-muted rounded-full px-1.5 py-px text-[10px] font-bold"
+																>{badgeSample(m.badge) ?? '•'}</span
+															>
+														{/if}
+														{#if m.target === 'new'}<span class="text-lms-muted"
+																><Icon
+																	icon={ExternalLink}
+																	size="sm"
+																	label={t('editor.target_new')}
+																/></span
+															>{/if}
+														{#if itemError}<span
+																class="bg-lms-danger-text size-[7px] shrink-0 rounded-full"
+																aria-label={t('has_error')}
+															></span>{/if}
+													</span>
+													<span
+														class={[
+															'truncate font-mono text-[11px]',
+															m.route ? 'text-lms-muted' : 'text-lms-warning-text'
+														]}
+													>
+														{m.route || t('tree.route_missing')}
+													</span>
+												</span>
+											</button>
+											<span class="flex shrink-0">
+												{@render rowButton(ChevronUp, t('tree.move_up'), mi === 0, () =>
+													editor.moveItem(g.uid, mi, -1)
+												)}
+												{@render rowButton(
+													ChevronDown,
+													t('tree.move_down'),
+													mi === g.items.length - 1,
+													() => editor.moveItem(g.uid, mi, 1)
+												)}
+												{@render rowButton(
+													m.hidden ? EyeOff : Eye,
+													t('tree.toggle_visibility'),
+													false,
+													() => editor.toggleHidden(g.uid, m.uid)
+												)}
+											</span>
+										</div>
+									{/each}
+									{#if !g.items.length}
+										<button
+											type="button"
+											class="border-lms-border-strong text-lms-muted lms-focus-ring flex h-[34px] items-center justify-center gap-1.5 rounded-lg border border-dashed text-xs"
+											onclick={() => editor.addItem(g.uid)}
+										>
+											<Icon icon={Plus} size="sm" />{t('tree.add_first')}
+										</button>
+									{/if}
+								</div>
+							{/if}
+						</div>
+					{/each}
+					{#if query && !visibleTree.length}
+						<span class="text-lms-muted px-3 py-6 text-center text-[13px]"
+							>{t('tree.no_result', { query: editor.query })}</span
+						>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Editor node terpilih -->
+			<div class="flex min-w-0 flex-[1_1_360px] flex-col gap-3.5">
+				{#if node && selectedGroup}
+					<div
+						class="bg-lms-surface border-lms-border flex flex-col gap-[18px] rounded-xl border p-5"
+					>
+						<div class="flex flex-wrap items-start justify-between gap-3">
+							<div class="flex min-w-0 flex-col gap-1">
+								<span class="text-lms-muted font-mono text-[11px] tracking-widest">
+									{selectedItem
+										? t('editor.kind_item', { group: selectedGroup.name.toUpperCase() })
+										: t('editor.kind_group', { count: selectedGroup.items.length })}
+								</span>
+								<h2 class="flex flex-wrap items-center gap-2.5 text-lg font-bold">
+									{node.name || t('untitled')}
+									<span
+										class={[
+											'rounded-full px-2 py-[3px] text-[10px] font-bold tracking-wide',
+											node.hidden ? 'bg-lms-surface-muted text-lms-muted' : 'lms-tone-success'
+										]}
+									>
+										{node.hidden ? t('status.hidden') : t('status.shown')}
+									</span>
+								</h2>
+							</div>
+							<button
+								type="button"
+								class="border-lms-border-strong bg-lms-surface text-lms-danger-text lms-focus-ring flex h-9 items-center gap-1.5 rounded-lg border px-3 text-[13px] font-semibold"
+								onclick={() => openConfirm('delete')}
+							>
+								<Icon icon={Trash2} size="sm" />{selectedItem
+									? t('editor.delete_item')
+									: t('editor.delete_group')}
+							</button>
+						</div>
+
+						{#if !selectedItem && !selectedGroup.items.length && !selectedGroup.clickable}
+							<div
+								class="lms-tone-warning flex items-start gap-2.5 rounded-[10px] px-3 py-2.5 text-[13px] leading-[19px]"
+							>
+								<Icon icon={TriangleAlert} size="sm" /><span>{t('editor.empty_group_warning')}</span
+								>
+							</div>
+						{/if}
+
+						<div
+							class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] items-start gap-x-4 gap-y-3.5"
+						>
+							<label class="flex flex-col gap-1.5">
+								<span class="text-[13px] font-semibold"
+									>{selectedItem ? t('editor.name_item') : t('editor.name_group')}</span
+								>
+								<input
+									value={node.name}
+									oninput={(e) => editor.patch({ name: e.currentTarget.value })}
+									maxlength={NAME_MAX_LENGTH}
+									aria-invalid={!!nameError}
+									class={[
+										'bg-lms-surface lms-focus-ring h-[42px] w-full rounded-[10px] border-[1.5px] px-3 text-sm',
+										nameError ? 'border-lms-danger-text' : 'border-lms-input-border'
+									]}
+								/>
+								<span class={['text-xs', nameError ? 'text-lms-danger-text' : 'text-lms-muted']}>
+									{nameError
+										? errorText(nameError)
+										: t('editor.chars_left', { count: NAME_MAX_LENGTH - node.name.length })}
+								</span>
+							</label>
+							<div class="flex flex-col gap-1.5">
+								<span class="text-[13px] font-semibold">{t('editor.status')}</span>
+								{@render segmented(
+									[
+										{ key: 'show', label: t('status.shown'), icon: Eye },
+										{ key: 'hide', label: t('status.hide'), icon: EyeOff }
+									],
+									node.hidden ? 'hide' : 'show',
+									(k) => editor.patch({ hidden: k === 'hide' })
+								)}
+							</div>
+							{#if selectedItem}
+								<label class="flex flex-col gap-1.5">
+									<span class="text-[13px] font-semibold">{t('editor.parent')}</span>
+									<select
+										value={selectedGroup.uid}
+										onchange={(e) => editor.moveToGroup(e.currentTarget.value)}
+										class="border-lms-input-border bg-lms-surface lms-focus-ring h-[42px] w-full rounded-[10px] border-[1.5px] px-2.5 text-sm"
+									>
+										{#each tree as option (option.uid)}<option value={option.uid}
+												>{option.name || t('untitled')}</option
+											>{/each}
+									</select>
+									<span class="text-lms-muted text-xs">{t('editor.parent_hint')}</span>
+								</label>
+								<div class="flex flex-col gap-1.5">
+									<span class="text-[13px] font-semibold">{t('editor.target')}</span>
+									{@render segmented(
+										NAVIGATION_TARGETS.map((k) => ({ key: k, label: t(`editor.target_${k}`) })),
+										selectedItem.target,
+										(k) => editor.patch({ target: k as EditorItem['target'] })
+									)}
+								</div>
+							{/if}
+							{#if showRoute}
+								<label class="col-span-full flex flex-col gap-1.5">
+									<span class="text-[13px] font-semibold">{t('editor.route')}</span>
+									<input
+										value={node.route}
+										onchange={(e) => editor.patch({ route: normalizeRoute(e.currentTarget.value) })}
+										placeholder={t('editor.route_placeholder')}
+										aria-invalid={!!routeError}
+										class={[
+											'bg-lms-surface lms-focus-ring h-[42px] w-full rounded-[10px] border-[1.5px] px-3 font-mono text-sm',
+											routeError ? 'border-lms-danger-text' : 'border-lms-input-border'
+										]}
+									/>
+									<span class={['text-xs', routeError ? 'text-lms-danger-text' : 'text-lms-muted']}>
+										{routeError ? errorText(routeError) : t('editor.address', { host: routeHost })}
+									</span>
+								</label>
+							{/if}
+							{#if selectedItem}
+								<div class="col-span-full flex flex-col gap-1.5">
+									<span class="text-[13px] font-semibold">{t('editor.badge')}</span>
+									{@render segmented(
+										NAVIGATION_BADGES.map((k) => ({ key: k, label: t(`badges.${k}`) })),
+										selectedItem.badge,
+										(k) => editor.patch({ badge: k as EditorItem['badge'] }),
+										true
+									)}
+								</div>
+							{/if}
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<span class="text-[13px] font-semibold" id="navigation-icon-label"
+								>{t('editor.icon')}</span
+							>
+							<div
+								class="grid grid-cols-[repeat(auto-fill,minmax(40px,1fr))] gap-1.5"
+								role="radiogroup"
+								aria-labelledby="navigation-icon-label"
+							>
+								{#each NAVIGATION_ICON_KEYS as key (key)}
+									{@const on = key === node.icon}
+									<button
+										type="button"
+										role="radio"
+										aria-checked={on}
+										aria-label={key}
+										title={key}
+										class={[
+											'lms-focus-ring flex h-10 items-center justify-center rounded-lg border-[1.5px]',
+											on ? '' : 'border-lms-border bg-lms-surface text-lms-muted'
+										]}
+										style={on ? `border-color:${accent};background:${mix(14)};color:${accent}` : ''}
+										onclick={() => editor.patch({ icon: key })}
+									>
+										<Icon icon={navigationIcon(key)} size="sm" />
 									</button>
 								{/each}
 							</div>
 						</div>
-					</div>
-				</div>
 
-				<div class="field full">
-					<div class="formactions">
-						<div class="left">
-							<button class="btn" style="color: var(--danger)" onclick={handleDelete}>Hapus menu</button>
-						</div>
+						{#if !selectedItem}
+							<div class="border-lms-border flex flex-col gap-3 border-t pt-4">
+								<span class="text-[13px] font-semibold">{t('editor.group_behavior')}</span>
+								{#each GROUP_TOGGLES as key (key)}
+									{@const on = selectedGroup[key]}
+									<button
+										type="button"
+										role="switch"
+										aria-checked={on}
+										class="lms-focus-ring flex items-center gap-3 rounded-md text-start"
+										onclick={() => editor.patch({ [key]: !on })}
+									>
+										<span
+											class={[
+												'relative h-[22px] w-10 shrink-0 rounded-full transition-colors',
+												on ? 'bg-lms-interactive' : 'bg-lms-input-border'
+											]}
+										>
+											<span
+												class={[
+													'absolute top-[3px] left-[3px] size-4 rounded-full bg-white transition-transform',
+													on && 'translate-x-[18px]'
+												]}
+											></span>
+										</span>
+										<span class="flex flex-col gap-px">
+											<span class="text-[13px] font-semibold">{t(`toggles.${key}`)}</span>
+											<span class="text-lms-muted text-xs">{t(`toggles.${key}_hint`)}</span>
+										</span>
+									</button>
+								{/each}
+							</div>
+						{/if}
 					</div>
+				{:else}
+					<div
+						class="border-lms-input-border bg-lms-surface text-lms-muted rounded-xl border border-dashed px-5 py-10 text-center text-sm"
+					>
+						{t('editor.empty')}
+					</div>
+				{/if}
+			</div>
+
+			<!-- Pratinjau sidebar -->
+			<div class="flex min-w-[230px] flex-[0_1_250px] flex-col gap-2 lg:sticky lg:top-21">
+				<span class="text-lms-muted font-mono text-[11px] tracking-widest"
+					>{t('preview.title', { role: roleLabel.toUpperCase() })}</span
+				>
+				<div
+					class="bg-lms-surface border-lms-border flex flex-col overflow-hidden rounded-xl border"
+				>
+					<div class="border-lms-border flex h-[52px] items-center gap-2.5 border-b px-3.5">
+						<span
+							class="flex size-7 items-center justify-center rounded-lg text-[11px] font-bold text-white"
+							style:background={accent}>{tenant.initials}</span
+						>
+						<span class="flex flex-col">
+							<span class="text-xs font-bold">{tenant.name}</span>
+							<span class="text-lms-muted text-[10px]">{roleLabel}</span>
+						</span>
+					</div>
+					<nav
+						class="flex flex-col gap-0.5 p-2"
+						aria-label={t('preview.title', { role: roleLabel })}
+					>
+						{#each preview as entry (entry.g.uid)}
+							<div class="flex flex-col gap-px pt-1.5">
+								{#if entry.showLabel}
+									<button
+										type="button"
+										class="text-lms-muted lms-focus-ring flex items-center justify-between rounded-md px-2.5 py-1 text-start text-[10px] font-bold tracking-widest uppercase"
+										onclick={() => editor.select(entry.g.uid, null)}
+									>
+										{entry.g.name}
+										{#if entry.closed}<Icon icon={ChevronRight} size="sm" />{/if}
+									</button>
+								{/if}
+								{#each entry.items as m (m.uid)}
+									{@const active = m.uid === editor.sel.mid}
+									<button
+										type="button"
+										class={[
+											'lms-focus-ring flex h-[34px] items-center gap-2.5 rounded-[7px] px-2.5 text-start text-[13px]',
+											active ? 'text-lms-foreground font-semibold' : 'text-lms-muted'
+										]}
+										style={active ? `background:${mix(14)}` : ''}
+										onclick={() => editor.select(entry.g.uid, m.uid)}
+									>
+										<span style:color={active ? accent : undefined}
+											><Icon icon={navigationIcon(m.icon)} size="sm" /></span
+										>
+										<span class="min-w-0 flex-1 truncate">{m.name}</span>
+										{#if m.badge !== 'none'}
+											<span
+												class="rounded-full px-[7px] py-px text-[10px] font-bold text-white"
+												style:background={accent}>{badgeSample(m.badge) ?? '•'}</span
+											>
+										{/if}
+									</button>
+								{/each}
+							</div>
+						{/each}
+					</nav>
 				</div>
+				<span class="text-lms-muted text-xs">
+					{hiddenItems ? t('preview.hidden_note', { count: hiddenItems }) : t('preview.click_note')}
+				</span>
 			</div>
 		</div>
-		{:else}
-		<div style="padding: 40px; text-align: center; color: var(--muted); font-size: 13px">
-			Pilih menu dari struktur di sebelah kiri untuk melihat detailnya.
+
+		<!-- Bar simpan -->
+		<div
+			class="bg-lms-surface border-lms-border sticky bottom-4 z-5 flex flex-wrap items-center gap-2.5 rounded-xl border py-3 ps-4 pe-3 shadow-[0_18px_40px_-24px_rgba(15,24,56,0.4)]"
+		>
+			<span
+				class={['flex flex-[1_1_220px] items-center gap-2 text-[13px]', TONE_CLASS[barState.tone]]}
+				role="status"
+			>
+				<Icon icon={barState.icon} size="sm" />{barState.text}
+			</span>
+			<button
+				type="button"
+				class="text-lms-muted lms-focus-ring flex h-[42px] items-center gap-1.5 rounded-[10px] px-3.5 text-[13px] font-semibold"
+				disabled={isSaving}
+				onclick={() => openConfirm('reset')}
+			>
+				<Icon icon={RotateCcw} size="sm" />{t('actions.reset')}
+			</button>
+			{#if dirty}
+				<button
+					type="button"
+					class="border-lms-border-strong bg-lms-surface lms-focus-ring h-[42px] rounded-[10px] border px-4 text-sm font-semibold"
+					disabled={isSaving}
+					onclick={() => {
+						editor.discard();
+						failure = null;
+					}}
+				>
+					{t('actions.discard')}
+				</button>
+			{/if}
+			<form method="POST" action="?/save" use:enhance={submitSave}>
+				<button
+					type="submit"
+					class="lms-action-primary lms-focus-ring flex h-[42px] items-center gap-2 rounded-[10px] px-[18px] text-sm font-bold"
+					aria-busy={isSaving}
+					disabled={isSaving}
+				>
+					<Icon icon={Check} size="sm" />{isSaving
+						? t('actions.saving')
+						: t('actions.save', { role: roleLabel })}
+				</button>
+			</form>
+			<form
+				method="POST"
+				action="?/reset"
+				use:enhance={submitReset}
+				bind:this={resetForm}
+				hidden
+			></form>
 		</div>
+
+		{#if confirmContent}
+			<ConfirmDialog
+				bind:open={isConfirmOpen}
+				icon={confirmContent.icon}
+				title={confirmContent.title}
+				message={confirmContent.message}
+				details={confirmContent.details}
+				confirmLabel={confirmContent.label}
+				confirmIcon={Check}
+				busyLabel={t('confirm.busy')}
+				cancelLabel={t('confirm.cancel')}
+				keyHint={t('confirm.key_hint')}
+				onconfirm={handleConfirm}
+			/>
 		{/if}
-	</section>
+	{/if}
 </div>
 
-<!-- Sticky Save Bar -->
-<div class="savebar {showSaveBar ? 'show' : ''}">
-	<div><span>Perubahan belum disimpan.</span></div>
-	<div style="display: flex; gap: 10px;">
-		<button class="btn sm" onclick={() => showSaveBar = false}>Batal</button>
-		<button class="btn primary sm" onclick={() => { showSaveBar = false; alert('Berhasil disimpan'); }}>Simpan</button>
+{#snippet rowButton(icon: LucideIcon, label: string, dimmed: boolean, onclick: () => void)}
+	<button
+		type="button"
+		class={[
+			'text-lms-muted hover:bg-lms-surface-muted hover:text-lms-foreground lms-focus-ring flex size-7 items-center justify-center rounded-md',
+			dimmed && 'opacity-30'
+		]}
+		aria-label={label}
+		title={label}
+		{onclick}
+	>
+		<Icon {icon} size="sm" />
+	</button>
+{/snippet}
+
+{#snippet segmented(
+	options: { key: string; label: string; icon?: LucideIcon }[],
+	current: string,
+	onpick: (key: string) => void,
+	wrap = false
+)}
+	<div
+		class={['bg-lms-surface-muted flex gap-0.5 rounded-[10px] p-[3px]', wrap && 'flex-wrap']}
+		role="radiogroup"
+	>
+		{#each options as option (option.key)}
+			{@const active = option.key === current}
+			<button
+				type="button"
+				role="radio"
+				aria-checked={active}
+				class={[
+					'lms-focus-ring flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold whitespace-nowrap',
+					wrap ? 'h-[34px] flex-auto px-2.5' : 'h-9 flex-1',
+					active ? 'bg-lms-surface text-lms-foreground shadow-sm' : 'text-lms-muted'
+				]}
+				onclick={() => onpick(option.key)}
+			>
+				{#if option.icon}<Icon icon={option.icon} size="sm" />{/if}{option.label}
+			</button>
+		{/each}
 	</div>
-</div>
-
-
-<style>
-* {box-sizing:border-box}
-
-button,input,select,textarea{font:inherit}button{cursor:pointer}
-.app{min-height:100vh;display:grid;grid-template-columns:248px 1fr}
-.sidebar{background:var(--color-lms-surface);border-right:1px solid var(--color-lms-border);height:100vh;position:sticky;top:0;display:flex;flex-direction:column}
-.brand{height:68px;border-bottom:1px solid var(--color-lms-border);display:flex;align-items:center;gap:10px;padding:0 22px;font-weight:800;letter-spacing:.04em}
-.mark{width:27px;height:27px;position:relative}.mark:before,.mark:after{content:"";position:absolute;border-radius:8px;transform:rotate(-32deg)}
-.mark:before{width:10px;height:22px;background:var(--color-lms-interactive);left:5px;top:4px}.mark:after{width:9px;height:15px;background:var(--color-lms-progress);right:2px;top:1px}.dot{position:absolute;width:6px;height:6px;background:var(--color-lms-progress);border-radius:50%;left:0;top:0}
-.side{padding:20px 12px 0}.label{padding:0 10px 8px;color:var(--color-lms-muted);font-size:11px;font-weight:750;letter-spacing:.09em;text-transform:uppercase}
-.nav{display:flex;gap:11px;align-items:center;padding:10px 11px;border-radius:9px;color:var(--color-lms-muted);text-decoration:none;font-weight:650;margin:2px 0}.nav:hover{background:var(--color-lms-background);color:var(--color-lms-foreground)}.nav.active{background:var(--color-lms-interactive-subtle);color:var(--color-lms-interactive)}.ico{width:19px;text-align:center}.bottom{margin-top:auto;padding:16px 12px;border-top:1px solid var(--color-lms-border)}
-.main{min-width:0}.top{height:68px;background:var(--color-lms-surface);border-bottom:1px solid var(--color-lms-border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20}.crumb{color:var(--color-lms-muted);font-size:13px}.crumb b{color:var(--color-lms-foreground)}.user{display:flex;align-items:center;gap:10px}.usertext{text-align:right;font-size:12px;line-height:1.3}.usertext span{display:block;color:var(--color-lms-muted);font-size:10px}.avatar{width:34px;height:34px;border-radius:50%;background:var(--color-lms-foreground);color:var(--color-lms-surface);display:grid;place-items:center;font-size:12px;font-weight:800}
-.content{padding:28px 32px 105px;max-width:1540px;margin:auto}
-.head{display:flex;justify-content:space-between;gap:20px;margin-bottom:20px}.head h1{margin:0 0 8px;font-size:28px;letter-spacing:-.03em}.head p{margin:0;color:var(--color-lms-muted);max-width:820px;line-height:1.65}.actions{display:flex;gap:9px;flex-shrink:0;align-items:flex-start}
-.btn{border:1px solid var(--color-lms-border);background:var(--color-lms-surface);color:var(--color-lms-foreground);border-radius:9px;padding:10px 15px;font-weight:700}.btn:hover{background:var(--color-lms-background)}.btn.primary{background:var(--color-lms-interactive);border-color:var(--color-lms-interactive);color:var(--color-lms-on-interactive, #ffffff)}.btn.primary:hover{background:var(--color-lms-interactive-hover)}.btn.danger{color:var(--color-lms-danger-text);border-color:var(--color-lms-danger-text);background:var(--color-lms-surface)}.btn.sm{padding:7px 10px;font-size:12px}
-.context{background:var(--color-lms-surface);border:1px solid var(--color-lms-border);border-radius:12px;padding:14px 17px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.ctx{display:flex;align-items:center;gap:12px}.school{width:38px;height:38px;border-radius:10px;background:var(--color-lms-interactive-subtle);color:var(--color-lms-interactive);display:grid;place-items:center;font-weight:800}.ctx small{display:block;color:var(--color-lms-muted);font-size:11px;margin-top:3px}.select{border:1px solid var(--color-lms-border);border-radius:8px;background:var(--color-lms-surface);color:var(--color-lms-foreground);padding:9px 11px;font-weight:650}.role{min-width:185px}
-.workspace{display:grid;grid-template-columns:minmax(430px,1.15fr) minmax(420px,.85fr);gap:18px}
-.panel{background:var(--color-lms-surface);border:1px solid var(--color-lms-border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panelhead{padding:17px 19px;border-bottom:1px solid var(--color-lms-border);display:flex;justify-content:space-between;align-items:center;gap:12px}.panelhead h2{font-size:16px;margin:0 0 4px}.panelhead p{font-size:12px;color:var(--color-lms-muted);margin:0;line-height:1.5}
-.toolbar{padding:12px 15px;border-bottom:1px solid var(--color-lms-border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}.search{position:relative;flex:1;min-width:170px}.search input{width:100%;padding:9px 11px 9px 32px;border:1px solid var(--color-lms-border);border-radius:8px;outline:none}.search span{position:absolute;left:11px;top:9px;color:var(--color-lms-muted)}.filter{padding:9px 10px}
-.tree{padding:15px}.tree-group{margin-bottom:7px}.tree-row{min-height:48px;display:grid;grid-template-columns:22px 22px 34px minmax(120px,1fr) auto 32px;gap:8px;align-items:center;border:1px solid transparent;border-radius:10px;padding:6px 8px;transition:.15s}.tree-row:hover{background:var(--color-lms-background);border-color:var(--color-lms-border)}.tree-row.selected{background:var(--color-lms-interactive-subtle);border-color:var(--color-lms-interactive)}.tree-row.group{background:var(--color-lms-surface)}.tree-row.child{margin-left:34px;grid-template-columns:22px 22px 32px minmax(120px,1fr) auto 32px}.tree-row.hidden{opacity:.55}
-.chev{border:0;background:transparent;color:var(--color-lms-muted);width:22px;height:25px;font-size:14px}.drag{color:var(--color-lms-muted);cursor:grab;text-align:center}.treeicon{width:32px;height:32px;border-radius:8px;background:var(--color-lms-background);color:var(--color-lms-muted);display:grid;place-items:center;font-size:14px}.group .treeicon{background:var(--color-lms-interactive-subtle);color:var(--color-lms-interactive)}.treename{font-weight:750;min-width:0}.treename small{display:block;color:var(--color-lms-muted);font-size:10px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.typebadge{font-size:9px;padding:5px 7px;border-radius:6px;background:var(--color-lms-background);color:var(--color-lms-muted);font-weight:800}.typebadge.group{background:var(--color-lms-interactive-subtle);color:var(--color-lms-interactive)}.rowmore{border:0;background:transparent;color:var(--color-lms-muted);width:30px;height:30px;border-radius:7px}.rowmore:hover{background:var(--color-lms-background)}
-.tree-footer{border-top:1px solid var(--color-lms-border);padding:13px 15px;color:var(--color-lms-muted);font-size:11px;line-height:1.5}
-.form{padding:18px 20px}.formtitle{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:17px}.formtitle h3{font-size:15px;margin:0 0 4px}.formtitle p{font-size:11px;color:var(--color-lms-muted);margin:0;line-height:1.5}.status{font-size:10px;padding:5px 8px;border-radius:6px;font-weight:800;white-space:nowrap}.status.on{background:color-mix(in oklab, var(--color-lms-progress) 15%, transparent);color:var(--color-lms-progress)}.status.off{background:var(--color-lms-background);color:var(--color-lms-muted)}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field.full{grid-column:1/-1}.field label{display:block;font-size:11px;font-weight:750;margin-bottom:6px}.input,.textarea{width:100%;border:1px solid var(--color-lms-border);border-radius:8px;padding:10px 11px;color:var(--color-lms-foreground);outline:none;background:var(--color-lms-surface)}.textarea{min-height:75px;resize:vertical}.input:focus,.textarea:focus,.select:focus{border-color:var(--color-lms-interactive);box-shadow:0 0 0 3px var(--color-lms-interactive-subtle)}.help{font-size:10px;color:var(--color-lms-muted);line-height:1.5;margin-top:5px}
-.urlrow{display:grid;grid-template-columns:1fr auto;gap:8px}.urlok{border:1px solid var(--color-lms-progress);background:color-mix(in oklab, var(--color-lms-progress) 15%, transparent);color:var(--color-lms-progress);border-radius:8px;padding:0 11px;display:flex;align-items:center;font-size:11px;font-weight:750}
-.segment{display:flex;border:1px solid var(--color-lms-border);border-radius:8px;padding:3px;background:var(--color-lms-background)}.seg{flex:1;border:0;background:transparent;padding:8px;border-radius:6px;color:var(--color-lms-muted);font-size:11px;font-weight:700}.seg.active{background:var(--color-lms-surface);color:var(--color-lms-interactive);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.checkrow{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--color-lms-muted);line-height:1.5;margin:9px 0}.checkrow input{accent-color:var(--color-lms-interactive);margin-top:2px}
-.permissionbox{border:1px solid var(--color-lms-border);border-radius:10px;padding:12px;margin-top:5px}.permissionhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.permissionhead b{font-size:11px}.permission-list{display:flex;flex-wrap:wrap;gap:7px}.chip{border:1px solid var(--color-lms-border);background:var(--color-lms-surface);color:var(--color-lms-muted);padding:7px 9px;border-radius:7px;font-size:10px;font-weight:700}.chip.active{background:var(--color-lms-interactive-subtle);border-color:var(--color-lms-interactive);color:var(--color-lms-interactive)}
-.subsection{margin-top:18px;padding-top:17px;border-top:1px solid var(--color-lms-border)}.subsection h4{font-size:12px;margin:0 0 4px}.subsection>p{font-size:10px;color:var(--color-lms-muted);line-height:1.5;margin:0 0 11px}
-.formactions{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--color-lms-border)}.formactions .left{display:flex;gap:7px}.formactions .right{display:flex;gap:7px}
-.previewbox{margin-top:16px;border:1px solid var(--color-lms-border);border-radius:11px;background:var(--color-lms-background);padding:12px}.previewlabel{font-size:10px;color:var(--color-lms-muted);font-weight:750;margin-bottom:8px}.urlpreview{background:var(--color-lms-surface);border:1px solid var(--color-lms-border);border-radius:8px;padding:10px;font-size:11px;color:var(--color-lms-foreground);word-break:break-all}.urlpreview b{color:var(--color-lms-interactive)}
-.savebar{position:fixed;left:248px;right:0;bottom:0;background:color-mix(in oklab, var(--color-lms-surface) 95%, transparent);backdrop-filter:blur(8px);border-top:1px solid var(--color-lms-border);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;transform:translateY(110%);transition:.2s;z-index:30}.savebar.show{transform:none}.savebar span{font-size:12px;color:var(--color-lms-muted)}.savebar b{color:var(--color-lms-foreground)}
-.toast{position:fixed;right:24px;bottom:75px;background:var(--color-lms-foreground);color:var(--color-lms-surface);padding:11px 14px;border-radius:9px;font-size:12px;opacity:0;transform:translateY(8px);transition:.2s;z-index:70}.toast.show{opacity:1;transform:none}
-.modalback{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:60}.modalback.open{display:flex}.modal{width:min(520px,calc(100vw - 30px));background:var(--color-lms-surface);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,0.2);overflow:hidden}.modalhead{padding:18px 20px;border-bottom:1px solid var(--color-lms-border);display:flex;justify-content:space-between}.modalhead h3{margin:0;font-size:15px}.close{border:0;background:none;font-size:20px;color:var(--color-lms-muted)}.modal.modalfoot{padding:13px 20px;border-top:1px solid var(--color-lms-border);display:flex;justify-content:flex-end;gap:8px}
-.notice{padding:11px 12px;border-radius:9px;background:color-mix(in oklab, var(--color-lms-warning-text) 15%, transparent);color:var(--color-lms-warning-text);font-size:10px;line-height:1.5;margin-bottom:14px}.danger{padding:11px 12px;border-radius:9px;background:color-mix(in oklab, var(--color-lms-danger-text) 15%, transparent);color:var(--color-lms-danger-text);font-size:10px;line-height:1.5;margin-top:12px;display:none}
-@media(max-width:1100px){.workspace{grid-template-columns:1fr}.preview-hide{display:none}}
-@media(max-width:800px){.app{grid-template-columns:1fr}.sidebar{display:none}.top{padding:0 16px}.usertext{display:none}.content{padding:22px 16px 100px}.head{display:block}.actions{margin-top:15px}.context{flex-direction:column;align-items:flex-start}.role{width:100%}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.savebar{left:0;padding:11px 16px}.tree-row,.tree-row.child{grid-template-columns:22px 22px 32px minmax(100px,1fr) 30px}.typebadge{display:none}.workspace{display:block}.formpanel{margin-top:18px}}
-
-.icon-dropdown {
-	position: absolute;
-	top: calc(100% + 4px);
-	left: 0;
-	right: 0;
-	background: var(--color-lms-surface);
-	border: 1px solid var(--color-lms-border);
-	border-radius: 8px;
-	box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-	max-height: 200px;
-	overflow-y: auto;
-	z-index: 100;
-	margin: 0;
-	padding: 4px;
-	list-style: none;
-}
-.icon-dropdown li {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 8px 12px;
-	border-radius: 6px;
-	cursor: pointer;
-	font-size: 11px;
-	color: var(--color-lms-foreground);
-}
-.icon-dropdown li:hover {
-	background: var(--color-lms-background);
-}
-
-</style>
+{/snippet}

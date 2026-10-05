@@ -465,7 +465,7 @@
 					<h2 id="{reasonId}-remedial" class="text-base font-bold">
 						{i18n.t('dashboard.student.remedial')}
 					</h2>
-					<span class="preset-tonal-error rounded-full px-2.5 py-1 text-[11px] font-bold">
+					<span class="lms-tone-danger rounded-full px-2.5 py-1 text-[11px] font-bold">
 						{i18n.t('dashboard.student.remedial_count', {
 							count: dashboard.remedials.length,
 							target

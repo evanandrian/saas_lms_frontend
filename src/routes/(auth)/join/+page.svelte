@@ -339,7 +339,7 @@
 								<p class="lms-text-helper">{session.organizer} · {session.window}</p>
 							</div>
 							<span
-								class="preset-tonal-success flex items-center gap-2 rounded-full px-2.5 py-1.5 font-mono text-xs font-semibold uppercase"
+								class="lms-tone-success flex items-center gap-2 rounded-full px-2.5 py-1.5 font-mono text-xs font-semibold uppercase"
 							>
 								<span class="bg-lms-progress size-2 rounded-full"></span>
 								{i18n.t('auth.join.closes_in', { time: closesIn })}

@@ -32,10 +32,9 @@ Root domain (`<root>/`) juga membuka `/login` (ADR-019 Revisi 1). Sesi bersifat 
 
 ## 3. Authentication redirect flow
 
-- Anonim membuka route terlindungi (`/console/*`, `/app/*`, `/select-context`) → `303 /login?redirectTo=<path relatif>` (ADR-019 §4).
-- Setelah autentikasi, halaman login **hanya** memanggil `resolvePostAuthDestination(session, host, redirectTo)`:
-  - `redirectTo` dihormati hanya bila path relatif aman (bukan `//…`, bukan `\`, bukan URL absolut), route terlindungi, dan diizinkan untuk sesi baru;
-  - selain itu → landing dari policy.
+- Anonim membuka route terlindungi (`/console/*`, `/app/*`, `/settings/*`, `/select-context`) → `303 /login`.
+- Setelah autentikasi, halaman login **hanya** memanggil `resolvePostAuthDestination(session, host)` → selalu landing dari policy (dashboard peran, atau pemilihan konteks bila lebih dari satu).
+- Revisi keputusan pemilik 5 Okt 2026: `redirectTo` (halaman sebelum login, ADR-019 §4) **tidak dipakai lagi**; setiap login selalu mendarat di dashboard.
 - Login tidak mengetahui pemetaan peran → dashboard.
 
 ## 4. Dashboard Routing Policy (single source of truth)
@@ -62,7 +61,7 @@ API modul:
 | `resolveLanding(session, host)` | Tujuan awal: login / dashboard / select-context / access-denied |
 | `authorizeRoute(session, host, url)` | Keputusan akses route terlindungi |
 | `enforceRouteAccess(session, host, url)` | Dipanggil load layout `(platform)` dan `(school)`; melempar redirect |
-| `resolvePostAuthDestination(session, host, redirectTo)` | Tujuan setelah autentikasi |
+| `resolvePostAuthDestination(session, host)` | Tujuan setelah autentikasi (selalu landing policy) |
 
 ## 5. Role / context resolution
 
@@ -82,7 +81,7 @@ Membership    = { id, area: WorkspaceArea, tenant: string | null, label }
 
 | Kondisi | Hasil |
 |---|---|
-| Anonim → `/console/*`, `/app/*`, `/select-context` | `303 /login?redirectTo=…` |
+| Anonim → `/console/*`, `/app/*`, `/settings/*`, `/select-context` | `303 /login` |
 | Terautentikasi, punya area yang diminta di host ini | diizinkan |
 | Terautentikasi, area lain (mis. murid → `/app/admin`) | `303 /access-denied` → **403** |
 | Terautentikasi di tenant lain (membership `lembaga-lain` di host `demo`) | `/access-denied` |

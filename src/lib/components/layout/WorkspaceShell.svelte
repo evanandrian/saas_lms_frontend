@@ -5,10 +5,26 @@
 	export interface WorkspaceNavItem {
 		label: string;
 		icon: LucideIcon;
-		/** Tanpa `href`: halaman belum tersedia → item dirender nonaktif (FE-04 D6). */
+		/** Tanpa `href`/`externalHref`: halaman belum tersedia → item dirender nonaktif (FE-04 D6). */
 		href?: Pathname;
+		/** Tautan luar (https://…) dari Menu & navigasi. */
+		externalHref?: string;
+		newTab?: boolean;
 		badge?: number;
-		children?: WorkspaceNavItem[];
+	}
+
+	/** Grup sidebar dari Menu & navigasi (referensi MenuMaster): judul kecil opsional, bisa tertutup. */
+	export interface WorkspaceNavGroup {
+		label: string;
+		showLabel: boolean;
+		defaultOpen: boolean;
+		items: WorkspaceNavItem[];
+	}
+
+	export type WorkspaceNavEntry = WorkspaceNavItem | WorkspaceNavGroup;
+
+	function isNavGroup(entry: WorkspaceNavEntry): entry is WorkspaceNavGroup {
+		return 'items' in entry;
 	}
 
 	export interface WorkspaceIdentity {
@@ -30,6 +46,7 @@
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { describeDevice } from '$lib/utils/user-agent';
 	import Bell from '@lucide/svelte/icons/bell';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Clock from '@lucide/svelte/icons/clock';
 	import Monitor from '@lucide/svelte/icons/monitor';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -43,7 +60,7 @@
 	interface Props {
 		/** Nama area (mis. "Konsol Platform") — label navigasi dan fallback identitas. */
 		areaLabel: string;
-		navItems: readonly WorkspaceNavItem[];
+		navItems: readonly WorkspaceNavEntry[];
 		/** Identitas tenant/lembaga; dari sesi kelak (BLOCKED-02). Kosong = tidak ditampilkan. */
 		tenant?: WorkspaceIdentity;
 		/** Identitas pengguna; dari sesi kelak (BLOCKED-02). Kosong = tidak ditampilkan. */
@@ -62,6 +79,8 @@
 	let isSidebarCollapsed = $state(false);
 	let isDrawerOpen = $state(false);
 	let isLogoutOpen = $state(false);
+	/** Buka/tutup grup oleh pengguna (per indeks); default dari konfigurasi `defaultOpen`. */
+	let groupOpenOverrides = $state<Record<number, boolean>>({});
 	let logoutDetails = $state<ConfirmDialogDetail[]>([]);
 
 	// Rincian dialog keluar (referensi v3): perangkat dari User-Agent, waktu masuk dari metadata sesi.
@@ -126,94 +145,107 @@
 	</div>
 {/snippet}
 
+{#snippet navItem(item: WorkspaceNavItem, labelVisibility: 'always' | 'from-lg' | 'hidden')}
+	{#if item.href || item.externalHref}
+		<NavigationLink
+			href={item.href}
+			externalHref={item.externalHref}
+			newTab={item.newTab}
+			icon={item.icon}
+			badge={item.badge}
+			badgeLabel={item.badge
+				? i18n.t('common.workspace.badge_pending', { count: item.badge })
+				: undefined}
+			{labelVisibility}
+			tooltip={item.label}
+		>
+			{item.label}
+		</NavigationLink>
+	{:else}
+		<!-- Halaman belum dibangun: bukan tautan (tidak menuju 404), tetap terlihat sebagai struktur IA. -->
+		<span
+			class={[
+				'btn text-lms-muted relative w-full cursor-not-allowed justify-start',
+				labelVisibility === 'hidden' && 'justify-center',
+				labelVisibility === 'from-lg' && 'max-lg:justify-center'
+			]}
+			aria-disabled="true"
+			title={i18n.t('common.workspace.unavailable', { item: item.label })}
+		>
+			<Icon icon={item.icon} />
+			<span
+				class={[
+					'min-w-0 flex-1 truncate text-start',
+					labelVisibility === 'hidden' && 'sr-only',
+					labelVisibility === 'from-lg' && 'sr-only lg:not-sr-only'
+				]}
+			>
+				{item.label}
+				<span class="sr-only">({i18n.t('common.workspace.not_available_yet')})</span>
+			</span>
+			{#if item.badge}
+				<span
+					class={[
+						'lms-action-primary text-lms-caption rounded-full px-2 font-semibold',
+						labelVisibility === 'from-lg' && 'max-lg:absolute max-lg:top-0 max-lg:right-0',
+						labelVisibility === 'hidden' && 'absolute top-0 right-0'
+					]}
+				>
+					<span aria-hidden="true">{item.badge}</span>
+					<span class="sr-only">
+						{i18n.t('common.workspace.badge_pending', { count: item.badge })}
+					</span>
+				</span>
+			{/if}
+		</span>
+	{/if}
+{/snippet}
+
 {#snippet navList(labelVisibility: 'always' | 'from-lg' | 'hidden')}
 	<ul class="space-y-1">
-		{#each navItems as item (item.label)}
-			<li>
-				{#if item.children && item.children.length > 0}
-					<details class="group/nav" open={item.children.some(c => c.href === page.url.pathname)}>
-						<summary class="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-lms-body hover:bg-lms-interactive-soft text-lms-muted font-medium transition-colors">
-							<div class="flex items-center gap-3">
-								<Icon icon={item.icon} />
-								<span class={[
-										'min-w-0 flex-1 truncate text-start',
-										labelVisibility === 'hidden' && 'sr-only',
-										labelVisibility === 'from-lg' && 'sr-only lg:not-sr-only'
-									].filter(Boolean).join(' ')}>
-									{item.label}
-								</span>
-							</div>
-							{#if labelVisibility !== 'hidden'}
-								<svg class="h-4 w-4 transition-transform group-open/nav:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-							{/if}
-						</summary>
-						<ul class="mt-1 space-y-1 ml-4 pl-4 border-l border-lms-line">
-							{#each item.children as child}
-								<li>
-									{#if child.href}
-										<NavigationLink href={child.href} icon={child.icon} {labelVisibility}>{child.label}</NavigationLink>
-									{:else}
-										<span class="btn text-lms-muted relative w-full cursor-not-allowed justify-start">
-											<Icon icon={child.icon} />
-											<span class="truncate">{child.label}</span>
-										</span>
-									{/if}
-								</li>
-							{/each}
-						</ul>
-					</details>
-				{:else if item.href}
-					<NavigationLink
-						href={item.href}
-						icon={item.icon}
-						badge={item.badge}
-						badgeLabel={item.badge
-							? i18n.t('common.workspace.badge_pending', { count: item.badge })
-							: undefined}
-						{labelVisibility}
-						tooltip={item.label}
-					>
-						{item.label}
-					</NavigationLink>
-				{:else}
-					<!-- Halaman belum dibangun: bukan tautan (tidak menuju 404), tetap terlihat sebagai struktur IA. -->
-					<span
-						class={[
-							'btn text-lms-muted relative w-full cursor-not-allowed justify-start',
-							labelVisibility === 'hidden' && 'justify-center',
-							labelVisibility === 'from-lg' && 'max-lg:justify-center'
-						]}
-						aria-disabled="true"
-						title={i18n.t('common.workspace.unavailable', { item: item.label })}
-					>
-						<Icon icon={item.icon} />
-						<span
+		{#each navItems as entry, index (index)}
+			{#if isNavGroup(entry)}
+				{@const isOpen =
+					groupOpenOverrides[index] ??
+					(entry.defaultOpen || entry.items.some((item) => item.href === page.url.pathname))}
+				<!-- Judul tampil bila diaktifkan atau grup tertutup; grup tanpa judul selalu terbuka (referensi). -->
+				{@const hasLabel = entry.showLabel || !entry.defaultOpen}
+				{@const itemsVisible = isOpen || !hasLabel}
+				<li
+					class={[
+						'pt-1.5',
+						index > 0 && labelVisibility !== 'always' && 'max-lg:border-lms-border max-lg:border-t'
+					]}
+				>
+					{#if hasLabel && labelVisibility !== 'hidden'}
+						<button
+							type="button"
 							class={[
-								'min-w-0 flex-1 truncate text-start',
-								labelVisibility === 'hidden' && 'sr-only',
-								labelVisibility === 'from-lg' && 'sr-only lg:not-sr-only'
+								'text-lms-muted lms-focus-ring hover:text-lms-foreground flex w-full items-center justify-between rounded-md px-3 py-1 text-start text-[10px] font-bold tracking-[0.1em] uppercase',
+								labelVisibility === 'from-lg' && 'max-lg:hidden'
 							]}
+							aria-expanded={isOpen}
+							onclick={() => (groupOpenOverrides[index] = !isOpen)}
 						>
-							{item.label}
-							<span class="sr-only">({i18n.t('common.workspace.not_available_yet')})</span>
-						</span>
-						{#if item.badge}
-							<span
-								class={[
-									'lms-action-primary text-lms-caption rounded-full px-2 font-semibold',
-									labelVisibility === 'from-lg' && 'max-lg:absolute max-lg:top-0 max-lg:right-0',
-									labelVisibility === 'hidden' && 'absolute top-0 right-0'
-								]}
-							>
-								<span aria-hidden="true">{item.badge}</span>
-								<span class="sr-only">
-									{i18n.t('common.workspace.badge_pending', { count: item.badge })}
-								</span>
-							</span>
-						{/if}
-					</span>
-				{/if}
-			</li>
+							{entry.label}
+							{#if !isOpen}<Icon icon={ChevronRight} size="sm" />{/if}
+						</button>
+					{/if}
+					<ul
+						class={[
+							'space-y-1',
+							!itemsVisible && labelVisibility === 'from-lg' && 'lg:hidden',
+							!itemsVisible && labelVisibility === 'always' && 'hidden'
+						]}
+					>
+						{#each entry.items as item, itemIndex (itemIndex)}
+							<li>{@render navItem(item, labelVisibility)}</li>
+						{/each}
+					</ul>
+				</li>
+			{:else}
+				<li>{@render navItem(entry, labelVisibility)}</li>
+			{/if}
 		{/each}
 	</ul>
 {/snippet}

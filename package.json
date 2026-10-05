@@ -15,7 +15,9 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"lint": "eslint .",
 		"format": "prettier --write .",
-		"format:check": "prettier --check ."
+		"format:check": "prettier --check .",
+		"api:generate": "orval && prettier --write src/lib/api/generated",
+		"api:check": "pnpm api:generate && git diff --exit-code -- src/lib/api/generated"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -28,6 +30,7 @@
 		"eslint": "^10.11.0",
 		"eslint-plugin-svelte": "^3.23.0",
 		"globals": "^17.13.0",
+		"orval": "8.39.0",
 		"prettier": "^3.9.9",
 		"prettier-plugin-svelte": "^4.1.1",
 		"svelte": "5.57.1",

@@ -34,14 +34,17 @@ export const DASHBOARD_ROUTING_POLICY: DashboardRoutingPolicy = {
 };
 
 /** Route yang mewajibkan sesi terautentikasi (ADR-019 §4: `/app/*`, `/console/*`). */
+/** Halaman pengaturan platform di luar `/console` (Menu & navigasi, Master data): wajib area platform. */
+const PLATFORM_SETTINGS_PREFIX = '/settings';
+
 const PROTECTED_PATH_PREFIXES = [
 	APP_PATHS.PLATFORM_HOME,
 	APP_PATHS.SCHOOL_HOME,
-	APP_PATHS.SELECT_CONTEXT
+	APP_PATHS.SELECT_CONTEXT,
+	PLATFORM_SETTINGS_PREFIX
 ] as const;
 
 const SEE_OTHER_STATUS = 303;
-const REDIRECT_TO_PARAM = 'redirectTo';
 
 export type LandingResolution =
 	| { readonly kind: 'login' }
@@ -111,19 +114,6 @@ export function landingLocation(resolution: LandingResolution): string {
 	}
 }
 
-/** Hanya path relatif internal; mencegah open redirect (ADR-019 §6). */
-export function safeRedirectTarget(value: string | null): string | null {
-	if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
-		return null;
-	}
-	return value;
-}
-
-function loginLocation(pathname: string, search: string): string {
-	const params = new URLSearchParams({ [REDIRECT_TO_PARAM]: `${pathname}${search}` });
-	return `${APP_PATHS.LOGIN}?${params}`;
-}
-
 /**
  * Pemeriksaan akses route (UX + pencegahan salah arah; bukan pengganti otorisasi backend).
  * Anonim → login; terautentikasi tanpa hak atas area → akses ditolak (tidak pernah ke area lain).
@@ -139,16 +129,18 @@ export function authorizeRoute(
 		return { kind: 'allow' };
 	}
 	if (!authenticatedContext(session)) {
-		return { kind: 'redirect', location: loginLocation(pathname, url.search) };
+		return { kind: 'redirect', location: APP_PATHS.LOGIN };
 	}
 
 	const memberships = eligibleMemberships(session, host, policy);
 	if (memberships.length === 0) return { kind: 'redirect', location: APP_PATHS.ACCESS_DENIED };
 
 	// Path di luar area tertentu (`/app` pemilih area, `/select-context`) cukup butuh satu konteks sah.
-	const requiredArea = (Object.keys(policy) as WorkspaceArea[]).find((area) =>
-		isWithin(pathname, policy[area].landingPath)
-	);
+	const requiredArea: WorkspaceArea | undefined = isWithin(pathname, PLATFORM_SETTINGS_PREFIX)
+		? 'platform'
+		: (Object.keys(policy) as WorkspaceArea[]).find((area) =>
+				isWithin(pathname, policy[area].landingPath)
+			);
 	if (requiredArea && !memberships.some((membership) => membership.area === requiredArea)) {
 		return { kind: 'redirect', location: APP_PATHS.ACCESS_DENIED };
 	}
@@ -166,23 +158,10 @@ export function enforceRouteAccess(
 }
 
 /**
- * Tujuan setelah autentikasi berhasil. Login hanya memanggil fungsi ini; `redirectTo` dihormati
- * hanya bila aman dan diizinkan untuk sesi baru, selain itu landing dari policy.
+ * Tujuan setelah autentikasi berhasil: selalu dashboard sesuai peran (atau pemilihan konteks bila
+ * pengguna punya lebih dari satu konteks). Keputusan pemilik 5 Okt 2026: halaman yang dibuka sebelum
+ * login (`redirectTo`, ADR-019 §4) tidak lagi dipakai.
  */
-export function resolvePostAuthDestination(
-	session: SessionState,
-	host: HostContext,
-	redirectTo: string | null
-): string {
-	const target = safeRedirectTarget(redirectTo);
-	if (target) {
-		const targetUrl = new URL(target, 'http://internal.invalid');
-		const isProtectedTarget = PROTECTED_PATH_PREFIXES.some((prefix) =>
-			isWithin(targetUrl.pathname, prefix)
-		);
-		if (isProtectedTarget && authorizeRoute(session, host, targetUrl).kind === 'allow') {
-			return `${targetUrl.pathname}${targetUrl.search}`;
-		}
-	}
+export function resolvePostAuthDestination(session: SessionState, host: HostContext): string {
 	return landingLocation(resolveLanding(session, host));
 }

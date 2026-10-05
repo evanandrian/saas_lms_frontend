@@ -1,10 +1,11 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/Button.svelte';
+	import { resolve } from '$app/paths';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import { useI18n } from '$lib/i18n';
+	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { formatHourMinute, greetingPeriod } from '$lib/utils/clock';
 	import { createDashboardClock } from '$lib/utils/dashboard-clock.svelte';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -224,9 +225,12 @@
 						</button>
 					{/each}
 				</div>
-				<Button variant="on-hero" disabled aria-describedby={reasonId}>
+				<a
+					href={resolve(APP_PATHS.PLATFORM_PLANS)}
+					class="btn btn-base lms-focus-ring bg-lms-on-hero text-lms-brand-deep-neutral hover:bg-lms-on-hero/90"
+				>
 					<Icon icon={Package} size="sm" />{i18n.t('dashboard.platform.manage_plans')}
-				</Button>
+				</a>
 			{/snippet}
 			<ul
 				class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"

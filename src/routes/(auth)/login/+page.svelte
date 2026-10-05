@@ -183,7 +183,7 @@
 
 				{#if data.sessionEnded}
 					<p
-						class="preset-tonal-warning text-lms-body-sm flex items-start gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
+						class="lms-tone-warning text-lms-body-sm flex items-start gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
 						role="status"
 					>
 						<span class="mt-0.5 shrink-0"><Icon icon={Info} size="sm" /></span>
@@ -352,17 +352,16 @@
 
 					{#if loginError}
 						<p
-							class="preset-tonal-error text-lms-body-sm flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
+							class="lms-tone-danger text-lms-body-sm flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
 							role="alert"
 						>
 							<Icon icon={CircleAlert} size="sm" />{i18n.t(`auth.login.errors.${loginError}`)}
 						</p>
 					{/if}
 
-					<input type="hidden" name="redirectTo" value={data.redirectTo ?? ''} />
 					<button
 						type="submit"
-						class="lms-action-primary lms-focus-ring text-lms-body relative h-12.5 overflow-hidden rounded-[10px] font-semibold"
+						class="lms-action-deep lms-focus-ring text-lms-body relative h-12.5 overflow-hidden rounded-[10px] font-semibold"
 						disabled={phase !== 'idle'}
 						aria-busy={phase !== 'idle'}
 					>

@@ -40,9 +40,23 @@ export type LoginResult =
  */
 export type BackendSessionStatus = 'active' | 'revoked' | 'expired' | 'unavailable' | 'none';
 
+function apiBaseUrl(): string {
+	return (env.LMS_API_INTERNAL_URL || (dev ? DEV_API_FALLBACK_URL : '')).replace(/\/+$/, '');
+}
+
 function authUrl(path: string): string | null {
-	const base = env.LMS_API_INTERNAL_URL || (dev ? DEV_API_FALLBACK_URL : '');
-	return base ? `${base.replace(/\/+$/, '')}${AUTH_API_PATH}${path}` : null;
+	const base = apiBaseUrl();
+	return base ? `${base}${AUTH_API_PATH}${path}` : null;
+}
+
+/**
+ * Akses SSR ke API backend untuk feature API (ADR-019 §2): URL internal + access token dari cookie
+ * HttpOnly. `null` bila belum masuk lewat backend atau URL backend tidak dikonfigurasi (fail-closed).
+ */
+export function backendApiAccess(cookies: Cookies): { baseUrl: string; token: string } | null {
+	const baseUrl = apiBaseUrl();
+	const token = cookies.get(ACCESS_TOKEN_COOKIE);
+	return baseUrl && token ? { baseUrl, token } : null;
 }
 
 async function readErrorCode(response: Response): Promise<string | null> {

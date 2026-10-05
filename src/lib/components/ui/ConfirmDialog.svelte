@@ -16,8 +16,12 @@
 		detail: string;
 	}
 
+	/** Nada referensi ConfirmDialog: `danger` (hapus/keluar) atau `primary` (publikasi). */
+	export type ConfirmDialogTone = 'danger' | 'primary';
+
 	interface Props {
 		open: boolean;
+		tone?: ConfirmDialogTone;
 		icon: LucideIcon;
 		title: string;
 		message: string;
@@ -32,11 +36,14 @@
 		/** Petunjuk keyboard, mis. "ESC untuk batal · ENTER untuk keluar". */
 		keyHint?: string;
 		/** Konfirmasi mengirim form POST ke URL ini (navigasi dokumen penuh). */
-		action: string;
+		action?: string;
+		/** Alternatif `action`: konfirmasi memanggil fungsi ini (tanpa navigasi), lalu dialog ditutup. */
+		onconfirm?: () => void | Promise<void>;
 	}
 
 	let {
 		open = $bindable(false),
+		tone = 'danger',
 		icon,
 		title,
 		message,
@@ -48,7 +55,8 @@
 		busyLabel,
 		cancelLabel,
 		keyHint,
-		action
+		action,
+		onconfirm
 	}: Props = $props();
 
 	const titleId = $props.id();
@@ -66,6 +74,17 @@
 		isBusy = false;
 	}
 
+	async function handleSubmit(event: SubmitEvent) {
+		isBusy = true;
+		if (!onconfirm) return;
+		event.preventDefault();
+		try {
+			await onconfirm();
+		} finally {
+			dialog?.close();
+		}
+	}
+
 	function handleBackdrop(event: MouseEvent) {
 		if (event.target === dialog && !isBusy) dialog?.close();
 	}
@@ -79,9 +98,14 @@
 	onclose={handleClose}
 	onclick={handleBackdrop}
 >
-	<form method="POST" {action} class="flex flex-col gap-5" onsubmit={() => (isBusy = true)}>
+	<form method="POST" {action} class="flex flex-col gap-5" onsubmit={handleSubmit}>
 		<span
-			class="preset-tonal-error ring-error-500/20 inline-flex size-15 items-center justify-center rounded-2xl ring-4"
+			class={[
+				'inline-flex size-15 items-center justify-center rounded-2xl ring-4',
+				tone === 'primary'
+					? 'lms-tone-info ring-lms-interactive/25'
+					: 'lms-tone-danger ring-lms-danger-text/20'
+			]}
 			aria-hidden="true"
 		>
 			<Icon {icon} />
@@ -119,7 +143,7 @@
 		<div class="grid grid-cols-2 gap-2.5">
 			<button
 				type="button"
-				class="border-lms-input-border bg-lms-surface lms-focus-ring hover:border-lms-interactive h-12 rounded-xl border font-semibold"
+				class="border-lms-border-strong bg-lms-surface lms-focus-ring hover:border-lms-interactive h-12 rounded-xl border font-semibold"
 				disabled={isBusy}
 				onclick={() => dialog?.close()}
 			>
@@ -128,7 +152,10 @@
 			<!-- svelte-ignore a11y_autofocus -->
 			<button
 				type="submit"
-				class="lms-action-destructive lms-focus-ring flex h-12 items-center justify-center gap-2 rounded-xl font-semibold"
+				class={[
+					'lms-focus-ring flex h-12 items-center justify-center gap-2 rounded-xl font-semibold',
+					tone === 'primary' ? 'lms-action-primary' : 'lms-action-destructive'
+				]}
 				aria-busy={isBusy}
 				autofocus
 			>

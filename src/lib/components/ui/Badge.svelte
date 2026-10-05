@@ -14,9 +14,9 @@
 	const TONE_CLASSES: Record<BadgeTone, string> = {
 		neutral: 'lms-action-secondary',
 		info: 'lms-tone-info',
-		success: 'preset-tonal-success',
-		warning: 'preset-tonal-warning',
-		error: 'preset-tonal-error'
+		success: 'lms-tone-success',
+		warning: 'lms-tone-warning',
+		error: 'lms-tone-danger'
 	};
 </script>
 

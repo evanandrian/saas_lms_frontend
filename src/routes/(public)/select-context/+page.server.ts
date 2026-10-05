@@ -39,6 +39,6 @@ export const actions: Actions = {
 		const personaId = devSession.currentDevPersonaId(cookies);
 		if (!personaId) error(HTTP_BAD_REQUEST, { message: 'Bad Request' });
 		const session = devSession.writeDevSession(cookies, personaId, membershipId);
-		redirect(SEE_OTHER_STATUS, resolvePostAuthDestination(session, locals.host, null));
+		redirect(SEE_OTHER_STATUS, resolvePostAuthDestination(session, locals.host));
 	}
 };

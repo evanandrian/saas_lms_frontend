@@ -16,3 +16,6 @@ pnpm-lock.yaml
 
 # Aset statis
 static/
+
+# Kontrak OpenAPI ter-pin disalin apa adanya dari backend (ADR-021); hasil generate diformat oleh `api:generate`.
+contract/

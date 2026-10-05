@@ -91,108 +91,77 @@
 }
 
 /*
- * 2. SEMANTIC TOKENS — makna UI. Nilai light diturunkan dari warna brand (color-mix antar warna brand).
- * Nilai dark hanya menjaga perilaku yang sudah ada (regresi); kebijakan dark mode = HUMAN_DECISION_REQUIRED.
- * Rasio kontras setiap pasangan: design-system.md §13.
+ * 2. SEMANTIC TOKENS — makna UI. Nilai kedua mode = palet referensi FLIXARE App v3 (`[data-mode]`:
+ * --bg/--card/--card2/--line/--ink/--muted/...; keputusan pemilik 5 Okt 2026): dark = biru tua (navy),
+ * bukan neutral Skeleton. Pengecualian: border kontrol form tetap ≥ 3:1 (WCAG 1.4.11), lebih kuat dari
+ * `--line2` referensi (1.5:1). Rasio kontras setiap pasangan: design-system.md §13.
  */
 @theme inline {
-	--color-lms-background: light-dark(
-		var(--color-lms-brand-soft-background),
-		var(--color-surface-950)
-	);
-	--color-lms-surface: light-dark(#ffffff, var(--color-surface-900));
-	--color-lms-surface-muted: light-dark(
-		color-mix(
-			in oklab,
-			var(--color-lms-brand-deep-neutral) 6%,
-			var(--color-lms-brand-soft-background)
-		),
-		var(--color-surface-800)
-	);
-	--color-lms-foreground: light-dark(var(--color-lms-brand-deep-neutral), var(--color-surface-50));
-	--color-lms-muted: light-dark(
-		color-mix(
-			in oklab,
-			var(--color-lms-brand-deep-neutral) 70%,
-			var(--color-lms-brand-soft-background)
-		),
-		var(--color-surface-300)
-	);
-	--color-lms-border: light-dark(
-		color-mix(
-			in oklab,
-			var(--color-lms-brand-deep-neutral) 12%,
-			var(--color-lms-brand-soft-background)
-		),
-		var(--color-surface-800)
-	);
+	--color-lms-background: light-dark(var(--color-lms-brand-soft-background), #0a1029);
+	--color-lms-surface: light-dark(#ffffff, #111a3a);
+	--color-lms-surface-muted: light-dark(#f1f4f9, #18234a);
+	--color-lms-foreground: light-dark(var(--color-lms-brand-deep-neutral), #eef1f8);
+	--color-lms-muted: light-dark(#475569, #aeb9dc);
+	--color-lms-border: light-dark(#e2e8f0, #212d58);
+	/* Referensi `--line2`: garis tombol sekunder & pemisah kuat (dekoratif; tombol berlabel teks). */
+	--color-lms-border-strong: light-dark(#cbd5e1, #2e3b6b);
 	--color-lms-input-border: light-dark(
 		color-mix(in oklab, var(--color-lms-brand-deep-neutral) 55%, #ffffff),
-		var(--color-surface-400)
+		#5a6aa6
 	);
 
 	/* Interaksi: Royal Blue kanonik dipakai langsung (putih di atasnya 4.85:1). */
 	--color-lms-interactive: var(--color-lms-brand-royal-blue);
 	--color-lms-on-interactive: #ffffff;
 	/* Turunan aksesibel untuk hover — BUKAN pengganti warna brand. */
-	--color-lms-interactive-hover: color-mix(
-		in oklab,
-		var(--color-lms-brand-royal-blue) 80%,
-		var(--color-lms-brand-deep-neutral)
-	);
-	--color-lms-interactive-subtle: light-dark(
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 10%, #ffffff),
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 25%, var(--color-surface-900))
-	);
+	--color-lms-interactive-hover: light-dark(#3355c4, #6a88e9);
+	/* Referensi `--tint` / `--tint-ink`: latar & teks/ikon bernuansa biru (info, item terpilih). */
+	--color-lms-interactive-subtle: light-dark(#eef2fd, #1a2860);
+	--color-lms-interactive-subtle-text: light-dark(#2a45a0, #c4d2fa);
 	--color-lms-focus: var(--color-lms-brand-royal-blue);
 
 	/* Progres: Growth Green. BUKAN semantic success; tidak untuk teks di atas terang (2.79:1). */
 	--color-lms-progress: var(--color-lms-brand-growth-green);
 
 	/* Semantic state — independen dari warna brand (primitif Skeleton). */
-	--color-lms-danger-text: light-dark(var(--color-error-700), var(--color-error-300));
-	--color-lms-warning-text: light-dark(var(--color-warning-950), var(--color-warning-300));
+	/* Referensi `--err-*`, `--warn-*`, `--green-*`: teks + latar nada status (badge, alert). */
+	--color-lms-danger-text: light-dark(#b42323, #f29b9b);
+	--color-lms-danger-subtle: light-dark(#fdf0f0, #3a1519);
+	--color-lms-warning-text: light-dark(#7e3f10, #fcc24d);
+	--color-lms-warning-subtle: light-dark(#fff8eb, #33250c);
+	--color-lms-success-text: light-dark(#267d53, #7fcea7);
+	--color-lms-success-subtle: light-dark(#ecf8f2, #10322a);
 
 	/*
 	 * FE-04 (keputusan D3) — token minimal untuk pola produk. Semua turunan brand/semantic,
 	 * rasio kontras: design-system.md §13.
 	 */
 	/* Teks bernuansa progres (delta positif); Growth Green murni gagal sebagai teks di latar terang. */
-	--color-lms-progress-text: light-dark(
-		color-mix(
-			in oklab,
-			var(--color-lms-brand-growth-green) 55%,
-			var(--color-lms-brand-deep-neutral)
-		),
-		var(--color-lms-brand-growth-green)
-	);
+	--color-lms-progress-text: var(--color-lms-success-text);
 	/* Track bar progres (dekoratif; nilai selalu disertai angka). */
 	--color-lms-progress-track: light-dark(
 		color-mix(in oklab, var(--color-lms-brand-deep-neutral) 10%, #ffffff),
-		var(--color-surface-700)
+		#212d58
 	);
 	/* Skala 3 tingkat untuk sel data (heatmap/presensi); angka selalu tampil di sel. */
 	--color-lms-scale-high: light-dark(
 		color-mix(in oklab, var(--color-lms-brand-growth-green) 40%, #ffffff),
-		color-mix(in oklab, var(--color-lms-brand-growth-green) 45%, var(--color-surface-900))
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 45%, #111a3a)
 	);
 	--color-lms-scale-mid: light-dark(
 		color-mix(in oklab, var(--color-lms-brand-growth-green) 15%, #ffffff),
-		color-mix(in oklab, var(--color-lms-brand-growth-green) 18%, var(--color-surface-900))
+		color-mix(in oklab, var(--color-lms-brand-growth-green) 18%, #111a3a)
 	);
 	--color-lms-scale-low: light-dark(
 		color-mix(in oklab, var(--color-warning-500) 35%, #ffffff),
-		color-mix(in oklab, var(--color-warning-500) 35%, var(--color-surface-900))
+		color-mix(in oklab, var(--color-warning-500) 35%, #111a3a)
 	);
 	/* Hero produk (keputusan D4): Deep Neutral solid, tanpa gradient dan tanpa kurva. */
-	--color-lms-hero: var(--color-lms-brand-deep-neutral);
+	--color-lms-hero: light-dark(var(--color-lms-brand-deep-neutral), #16235c);
 	--color-lms-on-hero: #ffffff;
 	--color-lms-on-hero-muted: color-mix(in oklab, #ffffff 82%, var(--color-lms-brand-deep-neutral));
 	/* FE-06 (referensi v3 `--link`): warna tautan teks, turunan Royal Blue yang lolos 4.5:1 di kedua mode. */
-	--color-lms-link: light-dark(
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 80%, var(--color-lms-brand-deep-neutral)),
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 45%, #ffffff)
-	);
+	--color-lms-link: light-dark(#3355c4, #9db3f3);
 	/* FE-05R (referensi): hijau muda teks progres di atas hero (≈ #7FCEA7). */
 	--color-lms-on-hero-progress: color-mix(
 		in oklab,
@@ -200,10 +169,7 @@
 		#ffffff
 	);
 	/* FE-05R (referensi `--tint3`): biru redup untuk batang periode lain & kategori ketiga (non-teks). */
-	--color-lms-interactive-muted: light-dark(
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 35%, #ffffff),
-		color-mix(in oklab, var(--color-lms-brand-royal-blue) 45%, var(--color-surface-900))
-	);
+	--color-lms-interactive-muted: light-dark(#b9c9f6, #3a50a0);
 	/* FE-07 (referensi v3 `#FCC24D`): teks peringatan di atas hero; tema warning, bukan warna brand baru. */
 	--color-lms-on-hero-warning: var(--color-warning-300);
 	--color-lms-hero-raised: color-mix(in oklab, #ffffff 8%, var(--color-lms-brand-deep-neutral));
@@ -233,6 +199,8 @@
 	--color-brand-light: var(--color-lms-brand-royal-blue);
 	--color-brand-dark: var(--color-lms-brand-royal-blue);
 	--color-root-bg-light: var(--color-lms-brand-soft-background);
+	--color-root-bg-dark: #0a1029;
+	--typo-base--color-dark: #eef1f8;
 	--typo-base--color-light: var(--color-lms-brand-deep-neutral);
 	--typo-base--font-family: var(--font-lms-sans);
 	--typo-base--font-size: var(--text-lms-body);
@@ -312,6 +280,20 @@
 	}
 }
 
+/*
+ * Tombol "Masuk" halaman login (permintaan pemilik 5 Okt 2026): Deep Neutral di light mode;
+ * dark mode tetap sama dengan `lms-action-primary` (Royal Blue).
+ */
+@utility lms-action-deep {
+	background-color: light-dark(var(--color-lms-brand-deep-neutral), var(--color-lms-interactive));
+	color: var(--color-lms-on-interactive);
+
+	&:is(&):hover:not(:disabled) {
+		filter: none;
+		background-color: light-dark(#22346f, var(--color-lms-interactive-hover));
+	}
+}
+
 @utility lms-action-secondary {
 	background-color: var(--color-lms-surface-muted);
 	color: var(--color-lms-foreground);
@@ -324,13 +306,14 @@
 	}
 }
 
+/* Aksi destruktif: merah referensi `--err-ink` (light) + putih (6.55:1) di kedua mode. */
 @utility lms-action-destructive {
-	background-color: var(--color-error-800);
-	color: var(--color-error-contrast-800);
+	background-color: #b42323;
+	color: #ffffff;
 
 	&:is(&):hover:not(:disabled) {
 		filter: none;
-		background-color: var(--color-error-900);
+		background-color: #8f1c1c;
 	}
 }
 
@@ -343,7 +326,21 @@
 /* Nada informasi (Alert info): sama dengan latar subtle interaktif. */
 @utility lms-tone-info {
 	background-color: var(--color-lms-interactive-subtle);
-	color: var(--color-lms-foreground);
+	color: var(--color-lms-interactive-subtle-text);
+}
+
+/* Nada status (referensi `--green-*`/`--warn-*`/`--err-*`); pengganti `preset-tonal-*` Skeleton. */
+@utility lms-tone-success {
+	background-color: var(--color-lms-success-subtle);
+	color: var(--color-lms-success-text);
+}
+@utility lms-tone-warning {
+	background-color: var(--color-lms-warning-subtle);
+	color: var(--color-lms-warning-text);
+}
+@utility lms-tone-danger {
+	background-color: var(--color-lms-danger-subtle);
+	color: var(--color-lms-danger-text);
 }
 
 /* Permukaan kartu/panel produk: surface + border dekoratif, radius container (FE-04). */

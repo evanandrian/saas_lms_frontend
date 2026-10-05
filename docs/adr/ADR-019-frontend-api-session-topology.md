@@ -62,7 +62,7 @@ SAD §9.1 menetapkan JWT akses 15 menit dan refresh token di cookie `HttpOnly; S
 
 | Kondisi | Perilaku frontend |
 |---|---|
-| Tidak terautentikasi di `/app/*` atau `/console/*` | Redirect `/login?redirectTo=<path relatif tervalidasi>` |
+| Tidak terautentikasi di `/app/*` atau `/console/*` | Redirect `/login`; setelah login selalu ke dashboard peran (revisi pemilik 5 Okt 2026: `redirectTo` tidak dipakai) |
 | `401 UNAUTHENTICATED` | Ke `/login` |
 | `401 TOKEN_EXPIRED` | Refresh sekali |
 | `403 FORBIDDEN` | Pesan tidak punya akses; tidak logout |

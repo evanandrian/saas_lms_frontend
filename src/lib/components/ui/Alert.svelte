@@ -13,9 +13,9 @@
 
 	const TONE_CLASSES: Record<AlertTone, string> = {
 		info: 'lms-tone-info',
-		success: 'preset-tonal-success',
-		warning: 'preset-tonal-warning',
-		error: 'preset-tonal-error'
+		success: 'lms-tone-success',
+		warning: 'lms-tone-warning',
+		error: 'lms-tone-danger'
 	};
 
 	// Error diumumkan segera; tone lain sopan (tidak memotong pembaca layar).

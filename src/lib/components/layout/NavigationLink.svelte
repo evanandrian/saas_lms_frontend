@@ -10,7 +10,12 @@
 	type LabelVisibility = 'always' | 'from-lg' | 'hidden';
 
 	interface Props {
-		href: Pathname;
+		/** Rute internal aplikasi. Abaikan bila `externalHref` diisi. */
+		href?: Pathname;
+		/** Tautan luar (https://…) dari konfigurasi Menu & navigasi. */
+		externalHref?: string;
+		/** Buka di tab baru (Menu & navigasi: "Buka di → Tab baru"). */
+		newTab?: boolean;
 		children: Snippet;
 		/** Opsional (FE-04): ikon navigasi sidebar. Tanpa ikon = perilaku FE-01. */
 		icon?: LucideIcon;
@@ -25,6 +30,8 @@
 
 	let {
 		href,
+		externalHref,
+		newTab = false,
 		children,
 		icon,
 		badge,
@@ -39,12 +46,16 @@
 		hidden: 'sr-only'
 	};
 
-	const resolvedHref = $derived(resolve(href));
+	const resolvedHref = $derived(externalHref ?? (href ? resolve(href) : '#'));
 	// Saat SSR `resolve()` dapat menghasilkan path relatif (mis. `./app`), jadi bandingkan URL absolutnya.
-	const isCurrent = $derived(page.url.pathname === new URL(resolvedHref, page.url).pathname);
+	const isCurrent = $derived(
+		!externalHref && page.url.pathname === new URL(resolvedHref, page.url).pathname
+	);
 	const isRail = $derived(labelVisibility !== 'always');
 </script>
 
+<!-- Rute internal sudah lewat resolve(); tautan luar dari Menu & navigasi memang tidak di-resolve. -->
+<!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a
 	href={resolvedHref}
 	class={[
@@ -55,6 +66,8 @@
 		isCurrent ? 'lms-nav-active font-semibold' : 'lms-action-ghost'
 	]}
 	aria-current={isCurrent ? 'page' : undefined}
+	target={newTab ? '_blank' : undefined}
+	rel={newTab || externalHref ? 'noopener noreferrer' : undefined}
 	title={isRail ? tooltip : undefined}
 >
 	{#if icon}<Icon {icon} />{/if}
@@ -74,3 +87,4 @@
 		</span>
 	{/if}
 </a>
+<!-- eslint-enable svelte/no-navigation-without-resolve -->

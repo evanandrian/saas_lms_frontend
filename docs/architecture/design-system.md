@@ -667,3 +667,37 @@ Perbedaan yang disengaja:
 - Tautan ke halaman yang belum ada tampil sebagai `UnavailableLink`.
 - Teks tidak memakai opacity agar kontras ≥ 4.5:1.
 - Kartu memakai radius 12px seperti v3.
+
+## 26. Menu & navigasi (`FLIXARE App v3.html` layar 04c · MenuMaster)
+
+- Route `(platform)/settings/navigation`: tab 5 peran, pohon grup → menu (urut naik/turun, sembunyikan, pindah grup), editor (nama ≤ 28, status, grup induk, buka di, rute, angka badge, 33 ikon, perilaku grup), pratinjau sidebar, bar simpan sticky (Susunan bawaan / Batalkan / Simpan sidebar), konfirmasi hapus & reset lewat `ConfirmDialog` mode `onconfirm`.
+- Data: backend (`/api/v1/platform/navigation/roles/{role}`) lewat generated client Orval; dev tanpa backend → susunan bawaan + simpan disimulasikan lokal (banner peringatan). Produksi tanpa backend → status gagal.
+- Sidebar platform (`WorkspaceShell`) kini dibaca dari susunan peran platform (`WorkspaceNavGroup`: judul kecil 10px uppercase, grup tertutup dengan chevron, tautan luar/tab baru). Cadangan: susunan bawaan. Rute yang belum dibangun tetap tampil nonaktif.
+- Warna aksen per peran dari referensi (`#4169E1`, `#0B7F82`, `#A8620A`, `#6D4AE0`, `#2A8A5D`) hanya untuk penanda tab, seleksi, dan pratinjau.
+- Deviasi diketahui: font mono memakai fallback sistem (IBM Plex Mono belum ada di aset); sidebar shell referensi berbentuk daftar datar, sedangkan aplikasi memakai susunan bergrup sesuai keputusan pemilik (5 Okt 2026).
+
+## 27. Master data (`FLIXARE App v3.html` layar 04d · DataMaster)
+
+- Route `(platform)/settings/master-data`: panel daftar master (cari, seksi mono, ikon terpilih biru), tabel master (Ekspor CSV, Tambah, cari nama/kode, filter Semua/Aktif/Nonaktif/Arsip + jumlah, baris grid nama·kode/ringkasan/status), panel kanan 540px (`<dialog>` native) dengan isian dua kolom, status, hapus (redup bila masih dipakai), konfirmasi buang perubahan & hapus, toast.
+- Cakupan (revisi keputusan pemilik 5 Okt 2026): **11 master persis referensi**, 3 seksi — PLATFORM & ORGANISASI (Institusi = `tenants`, Jenis institusi, Jenjang pendidikan), AKADEMIK & REFERENSI (Tahun akademik & Tingkat kelas = acuan platform `academic_year_g`/`grade_level_g`, Kurikulum, Mata pelajaran), IDENTITAS & SISTEM (Pengguna = `users` + keanggotaan utama, Peran `role_g`, Permission `permissions`, Template notifikasi `notification_template_g`).
+- Tipe isian referensi: text, code, key (`modul.aksi`, kunci permission terisi otomatis dari modul+aksi sampai diubah manual), email, tel, number, date, textarea, select (master lain/pilihan tetap), seg, toggle (periode berjalan), chips (kanal). Template notifikasi: tombol sisip variabel + pratinjau contoh data. Badge baris: "Berjalan" (tahun akademik), "Belum diprovisi" (institusi PENDING).
+- Aturan khusus: institusi baru = PENDING tanpa provisioning (hanya Nonaktif/hapus; Aktif setelah database diprovisi); periode berjalan tunggal; akun sendiri tidak bisa dinonaktifkan/dihapus; tenant platform `lms_core` sah sebagai tenant pengguna.
+- Kode terkunci setelah dibuat (PK + FK). Kode jenis institusi tetap huruf kecil (`school/personal/event`).
+- Data: backend `/api/v1/platform/master-data/{master}` lewat generated client; dev tanpa backend → data seeder + simpan disimulasikan lokal.
+
+## 28. Palet light & dark sesuai referensi (`FLIXARE App v3.html` `[data-mode]`)
+
+- Keputusan pemilik 5 Okt 2026 ("token global"): token semantik `app.css` memakai nilai palet referensi untuk **kedua mode**; dark = biru tua (navy), bukan neutral Skeleton. Ini mencabut catatan §12 bahwa dark mode belum dirancang.
+- Pemetaan (light / dark): background `--bg` #F8FAFC / #0A1029 · surface `--card` #FFFFFF / #111A3A · surface-muted `--card2` #F1F4F9 / #18234A · border `--line` #E2E8F0 / #212D58 · border-strong `--line2` #CBD5E1 / #2E3B6B · foreground `--ink` #172554 / #EEF1F8 · muted `--muted` #475569 / #AEB9DC · interactive-subtle `--tint` #EEF2FD / #1A2860 (+ teks `--tint-ink` #2A45A0 / #C4D2FA) · link #3355C4 / #9DB3F3 · hover #3355C4 / #6A88E9 · danger/warning/success teks + latar (`--err-*`, `--warn-*`, `--green-*`) · hero dark #16235C · root bg Skeleton dark #0A1029.
+- `preset-tonal-success|warning|error` Skeleton diganti utilitas `lms-tone-success|warning|danger` (nada referensi); `lms-tone-info` memakai `--tint-ink`. Tombol sekunder/hapus di Menu & navigasi, Master data, dan ConfirmDialog memakai `border-lms-border-strong` (= `--line2`, seperti tombol "Hapus menu" referensi). `lms-action-destructive` = #B42323 + putih (6.55:1) di kedua mode.
+- Deviasi sadar: border **kontrol form** (`lms-input-border`) tetap ≥ 3:1 (WCAG 1.4.11) — light tetap, dark #5A6AA6 (3.28:1 di atas #111A3A) — karena `--line2` referensi hanya ±1.5:1.
+- Kontras teks dihitung (WCAG relatif luminans): semua pasangan teks ≥ 4.5:1 di kedua mode (contoh dark: muted 8.74, link 8.26, danger 8.06, warning/latar 9.19, success/latar 7.47; light: success/latar 4.66). Belum diverifikasi ulang dengan Lighthouse/axe.
+- Sisa primitif Skeleton di luar cakupan form (dekoratif dashboard murid/orang tua: `bg-error-100`, `bg-warning-*`) belum dipetakan.
+
+## 29. Master Paket (`FLIXARE App v3.html` layar 04b · PlanMaster)
+
+- Route `(platform)/settings/plans` (izin `platform.plan.manage`); tombol "Kelola paket" di dashboard platform dan menu "Paket & fitur" mengarah ke sini.
+- Tata letak persis referensi: daftar paket kiri (cari, tab Semua/Sekolah/Guru/Sesi, status Draf/Aktif/Arsip), kartu Identitas, Harga (model per murid/tetap; sesi ujian: diskon bertingkat + top-up), Batas pemakaian atau Aturan sesi, Trial gratis, Fitur (12 fitur, 5 grup), Pratinjau kartu pendaftaran, bar simpan menempel (Simpan / Publikasikan → konfirmasi `tone="primary"`, "Terapkan perubahan" bila sudah Aktif).
+- Tambahan atas keputusan pemilik (tidak ada di referensi): ikon hapus di bar bawah, hanya untuk paket tanpa langganan (selain itu toast "Arsipkan saja").
+- `ConfirmDialog` mendapat prop `tone` (`danger` bawaan, `primary` untuk publikasi) sesuai referensi.
+

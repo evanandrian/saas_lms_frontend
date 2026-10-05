@@ -248,7 +248,7 @@ Tidak ada perubahan pada route/komponen yang sudah ada, karena keduanya tidak pe
 
 1. Kontrak auth tersedia di OpenAPI (BLOCKED-02) dan OQ-1..OQ-3 terjawab.
 2. `src/lib/auth/access-context.ts`: sesuaikan `toAccessContext()` dengan respons identitas/membership backend (satu-satunya adapter).
-3. `hooks.server.ts`: ganti sesi contoh dev dengan sesi dari backend. Guard `/app` & `/console` → `/login?redirectTo=…` **sudah ada** (FE-05, `enforceRouteAccess`).
+3. `hooks.server.ts`: ganti sesi contoh dev dengan sesi dari backend. Guard `/app` & `/console` → `/login` (setelah login selalu dashboard) **sudah ada** (FE-05, `enforceRouteAccess`).
 4. `client.ts`: refresh single-flight antar-tab (Web Locks) + retry sekali.
 5. Halaman login memakai form action + Zod schema di feature `auth`.
 

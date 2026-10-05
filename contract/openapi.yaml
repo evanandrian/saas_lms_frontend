@@ -1,0 +1,1528 @@
+openapi: 3.0.3
+info:
+  title: SaaS LMS API
+  description: Foundation API for multi-tenant SaaS LMS
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Returns process liveness status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "ok"
+  /ready:
+    get:
+      summary: Readiness check
+      description: Returns dependency readiness status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "ready"
+        '503':
+          description: Service Unavailable
+  /api/v1/auth/login:
+    post:
+      summary: Login
+      description: >-
+        Single-device policy: a successful login revokes every other session of the user,
+        so access tokens issued to other devices are rejected with 401 `session_revoked`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+        '401':
+          description: Unauthorized
+  /api/v1/auth/me:
+    get:
+      summary: Current user info
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User info and memberships
+        '401':
+          description: >-
+            `invalid_token` (missing, invalid, or expired token) or `session_revoked`
+            (the session ended because the user logged in or out on another device).
+  /api/v1/auth/refresh:
+    post:
+      summary: Refresh Access Token
+      description: Rotates the refresh token within the same session; a reused refresh token is rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: New Access and Refresh Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      refresh_token:
+                        type: string
+        '401':
+          description: Unauthorized
+  /api/v1/auth/logout:
+    post:
+      summary: Logout
+      description: Ends the user's sessions on all devices (all refresh tokens are revoked).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully logged out
+  /api/v1/tenant/institutions:
+    get:
+      summary: List Institutions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of institutions
+    post:
+      summary: Create Institution
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                institution_type:
+                  type: string
+      responses:
+        '201':
+          description: Institution created
+        '409':
+          description: Quota exceeded
+  /api/v1/tenant/institutions/{id}:
+    get:
+      summary: Get Institution
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Institution details
+        '404':
+          description: Not found
+
+  /api/v1/institutions/{institutionID}/school-profile:
+    get:
+      summary: Get School Profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: School profile details
+    post:
+      summary: Create School Profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                npsn:
+                  type: string
+                address:
+                  type: string
+                district_code:
+                  type: string
+                principal_name:
+                  type: string
+                principal_employee_number:
+                  type: string
+                accreditation:
+                  type: string
+      responses:
+        '201':
+          description: School profile created
+
+  /api/v1/institutions/{institutionID}/grade-levels:
+    get:
+      summary: List Grade Levels
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of grade levels
+    post:
+      summary: Create Grade Level
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                education_level_code:
+                  type: string
+                grade:
+                  type: integer
+                phase_code:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Grade level created
+
+  /api/v1/institutions/{institutionID}/subjects:
+    get:
+      summary: List Subjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of subjects
+    post:
+      summary: Create Subject
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                subject_catalog_code:
+                  type: string
+                passing_criteria:
+                  type: number
+                sort_order:
+                  type: integer
+      responses:
+        '201':
+          description: Subject created
+
+  /api/v1/institutions/{institutionID}/classes:
+    get:
+      summary: List Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: academic_year_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of classes
+    post:
+      summary: Create Class
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                academic_year_id:
+                  type: string
+                grade_level_id:
+                  type: string
+                name:
+                  type: string
+                capacity:
+                  type: integer
+      responses:
+        '201':
+          description: Class created
+
+  /api/v1/institutions/{institutionID}/learning-objectives:
+    get:
+      summary: List Learning Objectives
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: subject_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of learning objectives
+    post:
+      summary: Create Learning Objective
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: institutionID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject_id:
+                  type: string
+                phase_code:
+                  type: string
+                grade_level_id:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+                sort_order:
+                  type: integer
+      responses:
+        '201':
+          description: Learning objective created
+  /api/v1/platform/navigation/roles/{role}:
+    parameters:
+      - $ref: '#/components/parameters/NavigationRole'
+    get:
+      operationId: getNavigationLayout
+      tags: [navigation]
+      summary: Load the sidebar layout of a role (Menu & navigasi)
+      description: >-
+        Returns every group and menu including hidden ones. The default FLIXARE layout is
+        created on first load. Requires membership in the platform tenant with
+        `platform.navigation.manage`.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/NavigationLayout'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+    put:
+      operationId: saveNavigationLayout
+      tags: [navigation]
+      summary: Save the whole sidebar layout of a role
+      description: >-
+        Replaces the layout in one transaction. Nodes without `id` are created, stored nodes
+        missing from the request are deleted, array order is the display order. Every
+        create/update/delete is written to `activity_log_g` with before/after data.
+        `version` must equal the stored version (optimistic locking).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveNavigationLayoutRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NavigationLayout'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/platform/navigation/roles/{role}/reset:
+    parameters:
+      - $ref: '#/components/parameters/NavigationRole'
+    post:
+      operationId: resetNavigationLayout
+      tags: [navigation]
+      summary: Restore the default FLIXARE layout of a role
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetNavigationLayoutRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NavigationLayout'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/navigation/sidebar/{role}:
+    parameters:
+      - $ref: '#/components/parameters/NavigationRole'
+    get:
+      operationId: getNavigationSidebar
+      tags: [navigation]
+      summary: Visible sidebar of a role for the application shell
+      description: >-
+        Hidden groups/menus and groups without visible menus are omitted. Requires
+        authentication only; hiding a menu is not an access boundary.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/NavigationLayout'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/v1/platform/master-data/{master}:
+    parameters:
+      - $ref: '#/components/parameters/MasterKind'
+    get:
+      operationId: listMasterRecords
+      tags: [master-data]
+      summary: List records of a platform/general master (Master data)
+      description: >-
+        Includes inactive and archived records and, per record, how many other records reference it
+        (`usage`). Requires membership in the platform tenant with `platform.master_data.manage`.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/MasterRecordList'
+        '401':
+          $ref: '#/components/responses/MasterError'
+        '403':
+          $ref: '#/components/responses/MasterError'
+        '404':
+          $ref: '#/components/responses/MasterError'
+    post:
+      operationId: createMasterRecord
+      tags: [master-data]
+      summary: Add a master record
+      description: Logged to `activity_log_g` as `master_data.<master>.create` with the new data.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveMasterRecordRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/MasterRecord'
+        '400':
+          $ref: '#/components/responses/MasterError'
+        '401':
+          $ref: '#/components/responses/MasterError'
+        '403':
+          $ref: '#/components/responses/MasterError'
+        '404':
+          $ref: '#/components/responses/MasterError'
+        '422':
+          $ref: '#/components/responses/MasterError'
+  /api/v1/platform/master-data/{master}/{code}:
+    parameters:
+      - $ref: '#/components/parameters/MasterKind'
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: updateMasterRecord
+      tags: [master-data]
+      summary: Update a master record
+      description: >-
+        The code cannot be changed. `updated_at` must equal the stored value (optimistic locking,
+        409 `version_conflict`). Logged with before/after data.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveMasterRecordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/MasterRecord'
+        '400':
+          $ref: '#/components/responses/MasterError'
+        '401':
+          $ref: '#/components/responses/MasterError'
+        '403':
+          $ref: '#/components/responses/MasterError'
+        '404':
+          $ref: '#/components/responses/MasterError'
+        '409':
+          $ref: '#/components/responses/MasterError'
+        '422':
+          $ref: '#/components/responses/MasterError'
+    delete:
+      operationId: deleteMasterRecord
+      tags: [master-data]
+      summary: Delete an unused master record
+      description: >-
+        Rejected with 409 `in_use` (details = usage) while other records still reference it;
+        archive it instead. Logged with the deleted data.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/MasterError'
+        '403':
+          $ref: '#/components/responses/MasterError'
+        '404':
+          $ref: '#/components/responses/MasterError'
+        '409':
+          $ref: '#/components/responses/MasterError'
+  /api/v1/platform/plans:
+    get:
+      operationId: listPlans
+      tags: [plans]
+      summary: List subscription plans (Master Paket)
+      description: >-
+        All plans with tiers, enabled feature flags, and the number of subscriptions using each plan.
+        Requires membership in the platform tenant with `platform.plan.manage`.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/PlanList'
+        '401':
+          $ref: '#/components/responses/PlanError'
+        '403':
+          $ref: '#/components/responses/PlanError'
+    post:
+      operationId: createPlan
+      tags: [plans]
+      summary: Create a subscription plan
+      description: Logged to activity_log_g as `plan.create`.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavePlanRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/Plan'
+        '400':
+          $ref: '#/components/responses/PlanError'
+        '401':
+          $ref: '#/components/responses/PlanError'
+        '403':
+          $ref: '#/components/responses/PlanError'
+        '422':
+          $ref: '#/components/responses/PlanError'
+  /api/v1/platform/plans/{code}:
+    parameters:
+      - in: path
+        name: code
+        required: true
+        description: Current plan code
+        schema:
+          type: string
+    put:
+      operationId: updatePlan
+      tags: [plans]
+      summary: Update a subscription plan
+      description: >-
+        `code` in the body may differ from the path only while the plan has no subscriptions
+        (422 `locked`). `updated_at` must equal the stored value (409 `version_conflict`).
+        Logged with before/after data as `plan.update`.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavePlanRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/Plan'
+        '400':
+          $ref: '#/components/responses/PlanError'
+        '401':
+          $ref: '#/components/responses/PlanError'
+        '403':
+          $ref: '#/components/responses/PlanError'
+        '404':
+          $ref: '#/components/responses/PlanError'
+        '409':
+          $ref: '#/components/responses/PlanError'
+        '422':
+          $ref: '#/components/responses/PlanError'
+    delete:
+      operationId: deletePlan
+      tags: [plans]
+      summary: Delete a plan without subscriptions
+      description: >-
+        Rejected with 409 `in_use` while subscriptions use the plan; archive it instead.
+        Tiers and feature flags are deleted with it. Logged as `plan.delete`.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/PlanError'
+        '403':
+          $ref: '#/components/responses/PlanError'
+        '404':
+          $ref: '#/components/responses/PlanError'
+        '409':
+          $ref: '#/components/responses/PlanError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    MasterKind:
+      in: path
+      name: master
+      required: true
+      schema:
+        $ref: '#/components/schemas/MasterKind'
+    NavigationRole:
+      in: path
+      name: role
+      required: true
+      schema:
+        $ref: '#/components/schemas/NavigationRole'
+  responses:
+    PlanError:
+      description: >-
+        Error envelope. Plan codes: `forbidden`, `not_found`, `invalid_request`, `version_conflict`,
+        `in_use` (details = [{entity: subscription, count}]), `validation_failed` (details = MasterIssue[]),
+        `internal_error`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MasterErrorResponse'
+    Plan:
+      description: One plan
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/Plan'
+    PlanList:
+      description: Plans
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plan'
+    MasterError:
+      description: >-
+        Error envelope. Master data codes: `forbidden`, `not_found`, `invalid_request`,
+        `version_conflict`, `in_use` (details = MasterUsage[]), `validation_failed`
+        (details = MasterIssue[]), `internal_error`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MasterErrorResponse'
+    MasterRecord:
+      description: One master record
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/MasterRecord'
+    MasterRecordList:
+      description: Master records
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MasterRecord'
+    Error:
+      description: >-
+        Error envelope. Navigation codes: `forbidden`, `unknown_role`, `invalid_request`,
+        `version_conflict`, `validation_failed` (with `details`), `internal_error`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NavigationLayout:
+      description: Sidebar layout of a role
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/NavigationLayout'
+  schemas:
+    PlanStatus:
+      type: string
+      enum: [draft, active, archived]
+    PlanPricingModel:
+      type: string
+      enum: [seat, flat, package]
+      description: event plans are always `package`; school/personal use `seat` or `flat`
+    PlanFeature:
+      type: string
+      enum:
+        - lms
+        - question_bank
+        - auto_graded_exam
+        - item_analysis
+        - report_attendance
+        - principal_dashboard
+        - guardian_portal
+        - whatsapp_notification
+        - ai_assistant
+        - white_label
+        - custom_domain
+        - participant_certificate
+    PlanTier:
+      type: object
+      required: [min_sessions, price_idr]
+      properties:
+        min_sessions:
+          type: integer
+        price_idr:
+          type: integer
+          format: int64
+    Plan:
+      type: object
+      required:
+        - code
+        - name
+        - tenant_type_code
+        - status
+        - badge
+        - description
+        - pricing_model
+        - price_idr
+        - tax_mode
+        - free_months
+        - min_seats
+        - max_seats
+        - max_teachers
+        - storage_gb
+        - email_invites_per_month
+        - max_participants_per_session
+        - session_minutes
+        - max_parallel_sessions
+        - session_gap_minutes
+        - proctoring
+        - allow_topup
+        - tiers
+        - trial_enabled
+        - trial_length
+        - trial_unit
+        - trial_manual_approval
+        - trial_max_students
+        - trial_one_per_npsn
+        - features
+        - subscription_count
+        - updated_at
+      properties:
+        code:
+          type: string
+          description: ^[A-Z0-9_]{3,20}$ for new or changed codes
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        tenant_type_code:
+          type: string
+          description: tenant_type_g code (school, personal, event)
+        status:
+          $ref: '#/components/schemas/PlanStatus'
+        badge:
+          type: string
+          maxLength: 40
+        description:
+          type: string
+          maxLength: 80
+        pricing_model:
+          $ref: '#/components/schemas/PlanPricingModel'
+        price_idr:
+          type: integer
+          format: int64
+          description: Per student/month (seat), per month (flat), or base price per session (package)
+        tax_mode:
+          type: string
+          enum: [excl, incl]
+        free_months:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Free months on yearly billing (recurring models)
+        min_seats:
+          type: integer
+          nullable: true
+        max_seats:
+          type: integer
+          nullable: true
+        max_teachers:
+          type: integer
+          nullable: true
+        storage_gb:
+          type: integer
+          nullable: true
+        email_invites_per_month:
+          type: integer
+          nullable: true
+        max_participants_per_session:
+          type: integer
+          nullable: true
+        session_minutes:
+          type: integer
+          nullable: true
+          enum: [60, 90, 120, 180, null]
+        max_parallel_sessions:
+          type: integer
+          nullable: true
+        session_gap_minutes:
+          type: integer
+          nullable: true
+        proctoring:
+          type: string
+          enum: [none, cam, camscreen, human]
+        allow_topup:
+          type: boolean
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanTier'
+          description: Package only; min_sessions ascending (> 1), price descending (< base price)
+        trial_enabled:
+          type: boolean
+        trial_length:
+          type: integer
+          nullable: true
+        trial_unit:
+          type: string
+          nullable: true
+          enum: [hour, day, business_day, null]
+        trial_manual_approval:
+          type: boolean
+        trial_max_students:
+          type: integer
+          nullable: true
+        trial_one_per_npsn:
+          type: boolean
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanFeature'
+        subscription_count:
+          type: integer
+          format: int64
+        updated_at:
+          type: string
+          format: date-time
+    SavePlanRequest:
+      type: object
+      required: [code, name, tenant_type_code, status, pricing_model, price_idr, features]
+      properties:
+        code:
+          type: string
+          description: ^[A-Z0-9_]{3,20}$ for new or changed codes
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        tenant_type_code:
+          type: string
+          description: tenant_type_g code (school, personal, event)
+        status:
+          $ref: '#/components/schemas/PlanStatus'
+        badge:
+          type: string
+          maxLength: 40
+        description:
+          type: string
+          maxLength: 80
+        pricing_model:
+          $ref: '#/components/schemas/PlanPricingModel'
+        price_idr:
+          type: integer
+          format: int64
+          description: Per student/month (seat), per month (flat), or base price per session (package)
+        tax_mode:
+          type: string
+          enum: [excl, incl]
+        free_months:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Free months on yearly billing (recurring models)
+        min_seats:
+          type: integer
+          nullable: true
+        max_seats:
+          type: integer
+          nullable: true
+        max_teachers:
+          type: integer
+          nullable: true
+        storage_gb:
+          type: integer
+          nullable: true
+        email_invites_per_month:
+          type: integer
+          nullable: true
+        max_participants_per_session:
+          type: integer
+          nullable: true
+        session_minutes:
+          type: integer
+          nullable: true
+          enum: [60, 90, 120, 180, null]
+        max_parallel_sessions:
+          type: integer
+          nullable: true
+        session_gap_minutes:
+          type: integer
+          nullable: true
+        proctoring:
+          type: string
+          enum: [none, cam, camscreen, human]
+        allow_topup:
+          type: boolean
+        tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanTier'
+          description: Package only; min_sessions ascending (> 1), price descending (< base price)
+        trial_enabled:
+          type: boolean
+        trial_length:
+          type: integer
+          nullable: true
+        trial_unit:
+          type: string
+          nullable: true
+          enum: [hour, day, business_day, null]
+        trial_manual_approval:
+          type: boolean
+        trial_max_students:
+          type: integer
+          nullable: true
+        trial_one_per_npsn:
+          type: boolean
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanFeature'
+        updated_at:
+          type: string
+          format: date-time
+          description: Required on update; must equal the stored value
+    MasterKind:
+      type: string
+      enum:
+        - institution
+        - tenant_type
+        - education_level
+        - academic_year
+        - curriculum
+        - subject
+        - grade_level
+        - user
+        - role
+        - permission
+        - notification_template
+      description: >-
+        institution = tenants (excluding the platform tenant; created as PENDING without provisioning),
+        tenant_type = tenant_type_g, education_level = education_level_g, academic_year = academic_year_g,
+        curriculum = curriculum_g, subject = subject_catalog_g, grade_level = grade_level_g,
+        user = users + primary tenant membership (record code = email), role = role_g,
+        permission = permissions (code = key), notification_template = notification_template_g (code = key).
+        academic_year and grade_level are platform references; tenant data is not synchronised.
+    MasterStatus:
+      type: string
+      enum: [active, inactive, archived]
+    MasterSubjectGroup:
+      type: string
+      enum: [wajib, peminatan, muatan_lokal]
+    MasterDataRegion:
+      type: string
+      enum: [jakarta, bandung, surabaya]
+    MasterAccountKind:
+      type: string
+      enum: [human, system]
+    MasterRoleScope:
+      type: string
+      enum: [platform, tenant, user]
+    MasterPermissionModule:
+      type: string
+      enum: [platform, nilai, pengguna, kelas, tugas, ujian, rapor]
+    MasterPermissionAction:
+      type: string
+      enum: [read, create, update, delete, manage]
+    MasterNotificationChannel:
+      type: string
+      enum: [in_app, email, push, whatsapp]
+    MasterUsage:
+      type: object
+      required: [entity, count]
+      properties:
+        entity:
+          type: string
+          enum: [plan, plan_price, subscription, subject, tenant, grade, member, database, session, grant, self]
+          description: >-
+            database = institution already provisioned; self = the actor's own account (cannot be deleted).
+        count:
+          type: integer
+          format: int64
+    MasterIssue:
+      type: object
+      required: [field, code, message]
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+          enum: [required, invalid, too_long, duplicate, unknown, archived, pending, self, has_permissions]
+        message:
+          type: string
+    MasterErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+            details:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/MasterIssue'
+                  - $ref: '#/components/schemas/MasterUsage'
+    MasterRecord:
+      type: object
+      required: [code, name, description, status, usage, updated_at]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        pending:
+          type: boolean
+          description: institution only; true while the tenant database is not provisioned
+        sort_order:
+          type: integer
+          description: education_level, grade_level
+        version:
+          type: string
+          description: curriculum
+        subject_group:
+          $ref: '#/components/schemas/MasterSubjectGroup'
+        education_level_code:
+          type: string
+          description: subject, grade_level, institution (empty when not set)
+        curriculum_code:
+          type: string
+          description: subject; empty when not set
+        tenant_type_code:
+          type: string
+          description: institution
+        email:
+          type: string
+          description: institution, user
+        phone:
+          type: string
+          description: institution, user
+        data_region:
+          $ref: '#/components/schemas/MasterDataRegion'
+        address:
+          type: string
+          description: institution
+        start_date:
+          type: string
+          format: date
+          description: academic_year
+        end_date:
+          type: string
+          format: date
+          description: academic_year
+        is_current:
+          type: boolean
+          description: academic_year; at most one record is current
+        account_kind:
+          $ref: '#/components/schemas/MasterAccountKind'
+        tenant_code:
+          type: string
+          description: user (primary membership)
+        role_code:
+          type: string
+          description: user (role on the primary membership)
+        note:
+          type: string
+          description: user
+        scope:
+          $ref: '#/components/schemas/MasterRoleScope'
+        module:
+          $ref: '#/components/schemas/MasterPermissionModule'
+        action:
+          $ref: '#/components/schemas/MasterPermissionAction'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/MasterNotificationChannel'
+          description: notification_template
+        subject:
+          type: string
+          description: notification_template
+        body:
+          type: string
+          description: notification_template
+        usage:
+          type: array
+          items:
+            $ref: '#/components/schemas/MasterUsage'
+        updated_at:
+          type: string
+          format: date-time
+    SaveMasterRecordRequest:
+      type: object
+      required: [name, description, status]
+      properties:
+        code:
+          type: string
+          description: >-
+            Create only (locked afterwards). tenant_type: ^[a-z][a-z0-9_]{1,49}$,
+            institution: ^[a-z0-9_-]{3,50}$ (tenant code), grade_level: ^[A-Z0-9_]{1,20}$,
+            user: email, permission & notification_template: ^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$,
+            others: ^[A-Z0-9_]{2,20}$
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        status:
+          $ref: '#/components/schemas/MasterStatus'
+        sort_order:
+          type: integer
+          minimum: 1
+          description: education_level, grade_level (required)
+        version:
+          type: string
+          maxLength: 50
+          description: curriculum
+        subject_group:
+          $ref: '#/components/schemas/MasterSubjectGroup'
+        education_level_code:
+          type: string
+          description: subject, grade_level (required); institution (optional)
+        curriculum_code:
+          type: string
+          description: subject (optional)
+        tenant_type_code:
+          type: string
+          description: institution (required)
+        email:
+          type: string
+          description: institution (required, unique)
+        phone:
+          type: string
+          description: institution, user (optional, 8-16 digits)
+        data_region:
+          $ref: '#/components/schemas/MasterDataRegion'
+        address:
+          type: string
+          description: institution
+        start_date:
+          type: string
+          format: date
+          description: academic_year (required)
+        end_date:
+          type: string
+          format: date
+          description: academic_year (required, after start_date)
+        is_current:
+          type: boolean
+          description: academic_year; saving true releases the previous current period
+        account_kind:
+          $ref: '#/components/schemas/MasterAccountKind'
+        tenant_code:
+          type: string
+          description: user (required)
+        role_code:
+          type: string
+          description: user (required)
+        note:
+          type: string
+          description: user
+        scope:
+          $ref: '#/components/schemas/MasterRoleScope'
+        module:
+          $ref: '#/components/schemas/MasterPermissionModule'
+        action:
+          $ref: '#/components/schemas/MasterPermissionAction'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/MasterNotificationChannel'
+          description: notification_template (at least one)
+        subject:
+          type: string
+          maxLength: 200
+          description: notification_template (required)
+        body:
+          type: string
+          maxLength: 2000
+          description: notification_template (required; variables nama_siswa, nama_tugas, tenggat, nama_kelas, nilai, nama_sekolah)
+        updated_at:
+          type: string
+          format: date-time
+          description: Required on update; must equal the stored value
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/NavigationIssue'
+    NavigationIssue:
+      type: object
+      required: [path, field, code, message]
+      properties:
+        path:
+          type: string
+          example: 'groups[1].items[0]'
+        field:
+          type: string
+          enum: [id, name, icon, route, target, badge, items, groups]
+        code:
+          type: string
+          enum: [too_short, too_long, required, invalid, duplicate, unknown_id, type_mismatch, duplicate_id, too_many]
+        message:
+          type: string
+    NavigationRole:
+      type: string
+      enum: [platform, school_admin, teacher, student, guardian]
+    NavigationTarget:
+      type: string
+      enum: [same, new]
+    NavigationBadge:
+      type: string
+      enum: [none, apps, tasks, msgs, due]
+    NavigationLayout:
+      type: object
+      required: [role, version, updated_at, groups]
+      properties:
+        role:
+          $ref: '#/components/schemas/NavigationRole'
+        version:
+          type: integer
+          format: int32
+        updated_at:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/NavigationGroup'
+    NavigationGroup:
+      type: object
+      required: [id, code, name, icon, route, show_label, default_open, clickable, hidden, items]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          description: Lucide icon name without the `icon-` prefix
+        route:
+          type: string
+        show_label:
+          type: boolean
+        default_open:
+          type: boolean
+        clickable:
+          type: boolean
+        hidden:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NavigationItem'
+    NavigationItem:
+      type: object
+      required: [id, code, name, icon, route, target, hidden, badge]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        route:
+          type: string
+        target:
+          $ref: '#/components/schemas/NavigationTarget'
+        hidden:
+          type: boolean
+        badge:
+          $ref: '#/components/schemas/NavigationBadge'
+    SaveNavigationLayoutRequest:
+      type: object
+      required: [version, groups]
+      properties:
+        version:
+          type: integer
+          format: int32
+        groups:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/NavigationGroupInput'
+    NavigationGroupInput:
+      type: object
+      required: [name, icon, route, show_label, default_open, clickable, hidden, items]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Omit for a new group
+        name:
+          type: string
+          minLength: 2
+          maxLength: 28
+        icon:
+          type: string
+        route:
+          type: string
+          description: Required when `clickable` is true
+        show_label:
+          type: boolean
+        default_open:
+          type: boolean
+        clickable:
+          type: boolean
+        hidden:
+          type: boolean
+        items:
+          type: array
+          maxItems: 30
+          items:
+            $ref: '#/components/schemas/NavigationItemInput'
+    NavigationItemInput:
+      type: object
+      required: [name, icon, route, target, hidden, badge]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Omit for a new menu
+        name:
+          type: string
+          minLength: 2
+          maxLength: 28
+        icon:
+          type: string
+        route:
+          type: string
+          pattern: '^(/[a-z0-9\-/]*|https?://\S+)$'
+        target:
+          $ref: '#/components/schemas/NavigationTarget'
+        hidden:
+          type: boolean
+        badge:
+          $ref: '#/components/schemas/NavigationBadge'
+    ResetNavigationLayoutRequest:
+      type: object
+      required: [version]
+      properties:
+        version:
+          type: integer
+          format: int32

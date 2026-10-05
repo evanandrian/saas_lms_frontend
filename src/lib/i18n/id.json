@@ -639,5 +639,716 @@
 			"afternoon": "Selamat sore, {name}",
 			"evening": "Selamat malam, {name}"
 		}
+	},
+	"navigation": {
+		"eyebrow": "PENGATURAN · MENU & NAVIGASI",
+		"title": "Menu & navigasi",
+		"description": "Susun sidebar setiap peran: grup, urutan, rute, dan visibilitas. Menyembunyikan menu tidak mencabut hak akses; server tetap memeriksa izin.",
+		"simulation": "Mode simulasi (dev): backend tidak terjangkau atau Anda belum masuk lewat backend. Perubahan hanya tersimpan di halaman ini.",
+		"roles_label": "Peran",
+		"roles": {
+			"platform": "Platform",
+			"school_admin": "Admin sekolah",
+			"teacher": "Guru",
+			"student": "Murid",
+			"guardian": "Orang tua"
+		},
+		"unsaved": "Belum disimpan",
+		"summary": "{groups} grup · {items} menu",
+		"summary_hidden": "{count} disembunyikan",
+		"untitled": "Tanpa nama",
+		"has_error": "Ada isian yang perlu diperbaiki",
+		"actions": {
+			"new_group": "Grup baru",
+			"new_item": "Menu baru",
+			"reset": "Susunan bawaan",
+			"discard": "Batalkan",
+			"save": "Simpan sidebar {role}",
+			"saving": "Menyimpan…"
+		},
+		"tree": {
+			"search": "Cari nama menu atau rute",
+			"search_label": "Cari menu",
+			"hint": "Pakai panah untuk mengubah urutan. Klik ikon mata untuk menyembunyikan.",
+			"toggle_group": "Buka atau tutup grup",
+			"move_up": "Naikkan",
+			"move_down": "Turunkan",
+			"toggle_visibility": "Tampilkan atau sembunyikan",
+			"add_item": "Tambah menu di grup ini",
+			"add_first": "Tambah menu pertama",
+			"count": "{count} menu",
+			"route_empty": "rute kosong",
+			"hidden": "disembunyikan",
+			"no_title": "tanpa judul",
+			"route_missing": "Rute belum diisi",
+			"no_result": "Tidak ada menu yang cocok dengan “{query}”."
+		},
+		"status": {
+			"shown": "Tampil",
+			"hidden": "Disembunyikan",
+			"hide": "Sembunyikan"
+		},
+		"editor": {
+			"kind_item": "MENU · DI GRUP {group}",
+			"kind_group": "GRUP · {count} MENU",
+			"delete_item": "Hapus menu",
+			"delete_group": "Hapus grup",
+			"empty_group_warning": "Grup ini belum punya menu dan tidak bisa diklik, jadi tidak akan tampil di sidebar. Tambahkan menu atau aktifkan “Grup bisa diklik”.",
+			"name_item": "Nama menu",
+			"name_group": "Nama grup",
+			"chars_left": "{count} karakter tersisa",
+			"status": "Status",
+			"parent": "Grup induk",
+			"parent_hint": "Memindahkan menu ke akhir grup tujuan.",
+			"target": "Buka di",
+			"target_same": "Halaman yang sama",
+			"target_new": "Tab baru",
+			"route": "Rute",
+			"route_placeholder": "/platform/tenant atau https://…",
+			"address": "Alamat: {host}",
+			"badge": "Angka di samping menu",
+			"icon": "Ikon",
+			"group_behavior": "Perilaku grup",
+			"empty": "Pilih grup atau menu di kiri untuk mengubahnya."
+		},
+		"badges": {
+			"none": "Tidak ada",
+			"apps": "Pengajuan menunggu",
+			"tasks": "Tugas belum dinilai",
+			"msgs": "Pesan belum dibaca",
+			"due": "Tenggat dekat"
+		},
+		"toggles": {
+			"show_label": "Tampilkan judul grup",
+			"show_label_hint": "Judul kecil di atas daftar menu. Matikan untuk grup utama.",
+			"default_open": "Terbuka saat masuk",
+			"default_open_hint": "Menu di dalamnya langsung terlihat.",
+			"clickable": "Grup bisa diklik",
+			"clickable_hint": "Grup punya halaman sendiri dan butuh rute."
+		},
+		"errors": {
+			"name_short": "Nama minimal 2 karakter.",
+			"route_required": "Rute wajib diisi.",
+			"route_invalid": "Awali dengan / lalu huruf kecil, angka, atau tanda -. Tautan luar pakai https://",
+			"route_duplicate": "Rute sama dengan “{other}”."
+		},
+		"preview": {
+			"title": "PRATINJAU · {role}",
+			"school": "Sekolah",
+			"hidden_note": "{count} menu tersembunyi tidak tampil di pratinjau.",
+			"click_note": "Klik menu di pratinjau untuk mengubahnya."
+		},
+		"bar": {
+			"errors": "{count} isian perlu diperbaiki sebelum disimpan",
+			"dirty": "Perubahan sidebar {role} belum disimpan",
+			"saved": "Tersimpan {time}",
+			"clean": "Tidak ada perubahan"
+		},
+		"failure": {
+			"unauthenticated": "Sesi berakhir atau Anda belum masuk lewat server. Masuk ulang untuk mengelola menu.",
+			"forbidden": "Anda tidak memiliki izin mengelola menu & navigasi.",
+			"not_found": "Peran tidak dikenal.",
+			"conflict": "Susunan ini baru saja diubah orang lain. Muat ulang halaman sebelum menyimpan.",
+			"validation": "Isian ditolak server. Periksa kembali lalu simpan.",
+			"unavailable": "Server tidak dapat dihubungi. Coba lagi beberapa saat."
+		},
+		"confirm": {
+			"reset_title": "Kembalikan susunan bawaan?",
+			"reset_message": "Sidebar {role} diganti susunan bawaan FLIXARE, termasuk perubahan yang sudah disimpan.",
+			"reset_confirm": "Ya, kembalikan",
+			"current_layout": "Susunan saat ini",
+			"delete_item_title": "Hapus menu “{name}”?",
+			"delete_item_message": "Menu ini hilang dari sidebar {role} setelah Anda menyimpan. Halaman tujuannya tetap ada.",
+			"delete_group_title": "Hapus grup “{name}”?",
+			"delete_group_message": "Grup beserta {count} menu di dalamnya hilang dari sidebar {role} setelah Anda menyimpan.",
+			"delete_confirm": "Ya, hapus",
+			"items_deleted": "Menu ikut terhapus",
+			"busy": "Memproses…",
+			"cancel": "Batal",
+			"key_hint": "ESC untuk batal · ENTER untuk konfirmasi"
+		}
+	},
+	"master_data": {
+		"eyebrow": "MASTER DATA · REFERENSI PLATFORM",
+		"title": "Master data",
+		"description": "Data acuan yang dipakai semua tenant. Data yang masih dipakai tidak bisa dihapus; arsipkan agar tidak muncul di pilihan baru.",
+		"simulation": "Mode simulasi (dev): backend tidak terjangkau atau Anda belum masuk lewat backend. Data contoh = seeder; perubahan hanya tersimpan di halaman ini.",
+		"masters_label": "Daftar master",
+		"search_master": "Cari master",
+		"search_rows": "Cari nama atau kode",
+		"sections": {
+			"platform": "PLATFORM & ORGANISASI",
+			"academic": "AKADEMIK & REFERENSI",
+			"identity": "IDENTITAS & SISTEM"
+		},
+		"masters": {
+			"institution": {
+				"name": "Institusi",
+				"sub": "Pelanggan / tenant",
+				"desc": "Organisasi yang memakai FLIXARE. Nonaktifkan untuk menghentikan akses tanpa menghapus histori."
+			},
+			"tenant_type": {
+				"name": "Jenis institusi",
+				"sub": "Kategori pelanggan",
+				"desc": "Menentukan alur pendaftaran dan paket yang ditawarkan."
+			},
+			"education_level": {
+				"name": "Jenjang pendidikan",
+				"sub": "Referensi jenjang",
+				"desc": "Dipakai oleh institusi, mata pelajaran, dan tingkat kelas."
+			},
+			"academic_year": {
+				"name": "Tahun akademik",
+				"sub": "Periode belajar",
+				"desc": "Konteks kelas, nilai, dan rapor. Hanya satu periode yang berjalan pada satu waktu."
+			},
+			"curriculum": {
+				"name": "Kurikulum",
+				"sub": "Referensi kurikulum",
+				"desc": "Kurikulum yang bisa dipilih tenant saat menyiapkan tahun ajaran."
+			},
+			"subject": {
+				"name": "Mata pelajaran",
+				"sub": "Referensi mapel",
+				"desc": "Mapel acuan untuk kelas, bank soal, dan rapor."
+			},
+			"grade_level": {
+				"name": "Tingkat kelas",
+				"sub": "Level belajar",
+				"desc": "Tingkat yang dipakai saat membuat rombel di setiap tenant."
+			},
+			"user": {
+				"name": "Pengguna",
+				"sub": "Identitas login",
+				"desc": "Identitas login. Keanggotaan tenant dan peran disimpan terpisah agar satu orang bisa punya beberapa peran."
+			},
+			"role": {
+				"name": "Peran",
+				"sub": "Kumpulan akses",
+				"desc": "Peran dasar. Izin rinci diatur di master Permission."
+			},
+			"permission": {
+				"name": "Permission",
+				"sub": "Izin atomik",
+				"desc": "Izin terkecil yang dipakai kebijakan otorisasi. Kunci dibentuk otomatis dari modul dan aksi."
+			},
+			"notification_template": {
+				"name": "Template notifikasi",
+				"sub": "Pesan sistem",
+				"desc": "Pesan otomatis dengan variabel. Variabel diisi data nyata saat dikirim."
+			}
+		},
+		"fields": {
+			"institution": {
+				"name": "Nama institusi",
+				"code": "Kode institusi",
+				"code_help": "Kode tenant unik (huruf kecil); dipakai untuk subdomain & database tenant.",
+				"tenant_type_code": "Jenis institusi",
+				"education_level_code": "Jenjang",
+				"education_level_code_none": "Tidak berlaku",
+				"email": "Email utama",
+				"email_ph": "admin@sekolah.sch.id",
+				"phone": "Telepon",
+				"phone_ph": "021-555-0188",
+				"data_region": "Region data",
+				"data_region_help": "Lokasi cluster database tenant. Tidak bisa dipindah setelah aktif.",
+				"address": "Alamat"
+			},
+			"tenant_type": {
+				"name": "Nama jenis",
+				"code": "Kode",
+				"code_help": "Kode stabil yang dibaca sistem (huruf kecil).",
+				"description": "Deskripsi"
+			},
+			"education_level": {
+				"name": "Nama jenjang",
+				"code": "Kode",
+				"sort_order": "Urutan",
+				"sort_order_help": "Menentukan urutan di daftar pilihan.",
+				"description": "Deskripsi"
+			},
+			"academic_year": {
+				"name": "Nama periode",
+				"name_ph": "2026/2027",
+				"name_help": "Format TTTT/TTTT, tahun berurutan.",
+				"code": "Kode",
+				"code_ph": "TA_2026",
+				"start_date": "Tanggal mulai",
+				"end_date": "Tanggal selesai",
+				"is_current": "Periode berjalan",
+				"is_current_on": "Jadikan periode berjalan",
+				"is_current_help": "Periode berjalan sebelumnya otomatis dilepas saat disimpan."
+			},
+			"curriculum": {
+				"name": "Nama kurikulum",
+				"code": "Kode",
+				"version": "Versi",
+				"version_ph": "2025",
+				"description": "Deskripsi"
+			},
+			"subject": {
+				"name": "Nama mapel",
+				"code": "Kode",
+				"subject_group": "Kelompok",
+				"education_level_code": "Jenjang",
+				"curriculum_code": "Kurikulum",
+				"curriculum_code_none": "Tidak terikat kurikulum",
+				"description": "Deskripsi"
+			},
+			"grade_level": {
+				"name": "Nama tingkat",
+				"name_ph": "Kelas X",
+				"code": "Kode",
+				"education_level_code": "Jenjang",
+				"sort_order": "Urutan"
+			},
+			"user": {
+				"name": "Nama lengkap",
+				"code": "Email",
+				"code_help": "Dipakai untuk login dan deteksi peran.",
+				"phone": "Telepon",
+				"account_kind": "Jenis akun",
+				"account_kind_help": "Akun sistem dipakai integrasi dan tidak bisa login lewat form.",
+				"tenant_code": "Tenant",
+				"role_code": "Peran",
+				"note": "Catatan"
+			},
+			"role": {
+				"name": "Nama peran",
+				"code": "Kode",
+				"code_help": "Kode stabil yang dibaca sistem.",
+				"scope": "Cakupan",
+				"description": "Deskripsi"
+			},
+			"permission": {
+				"module": "Modul",
+				"action": "Aksi",
+				"code": "Kunci permission",
+				"code_help": "Format modul.aksi, huruf kecil. Terisi otomatis; ubah bila perlu.",
+				"name": "Nama tampil",
+				"description": "Deskripsi"
+			},
+			"notification_template": {
+				"name": "Nama template",
+				"code": "Kunci template",
+				"code_ph": "tugas.tenggat_dekat",
+				"channels": "Kanal",
+				"subject": "Judul",
+				"body": "Isi pesan"
+			}
+		},
+		"status": {
+			"active": "Aktif",
+			"inactive": "Nonaktif",
+			"archived": "Arsip"
+		},
+		"status_label": "Status",
+		"status_note": {
+			"active": "Muncul di pilihan untuk tenant.",
+			"inactive": "Disembunyikan sementara dari pilihan baru. Data lama tetap memakainya.",
+			"archived": "Diarsipkan: tidak muncul di pilihan baru, histori tetap utuh."
+		},
+		"filter_all": "Semua",
+		"order": "Urutan {n}",
+		"export_csv": "Ekspor CSV",
+		"add": "Tambah {name}",
+		"choose": "Pilih {label}",
+		"empty": "Belum ada data.",
+		"empty_filtered": "Tidak ada data yang cocok dengan filter.",
+		"clear_filter": "Hapus filter",
+		"footnote": "{shown} dari {total} data · klik baris untuk mengubah",
+		"untitled": "Tanpa nama",
+		"new_data": "data baru",
+		"usage": {
+			"plan": "{count} paket",
+			"plan_price": "{count} harga paket",
+			"subscription": "{count} langganan",
+			"subject": "{count} mata pelajaran",
+			"other": "data lain",
+			"tenant": "{count} institusi",
+			"grade": "{count} tingkat kelas",
+			"member": "{count} keanggotaan",
+			"database": "database tenant aktif",
+			"session": "{count} sesi login",
+			"grant": "{count} pemberian izin",
+			"self": "akun Anda sendiri"
+		},
+		"errors": {
+			"required": "Wajib diisi.",
+			"code_upper": "Huruf besar, angka, atau garis bawah (2–20).",
+			"code_lower": "Huruf kecil, angka, atau garis bawah (2–50), diawali huruf.",
+			"number": "Isi angka lebih dari 0.",
+			"duplicate": "Sudah dipakai “{other}”.",
+			"channels_required": "Pilih minimal satu kanal.",
+			"code_grade": "Huruf besar, angka, atau garis bawah (1–20).",
+			"code_institution": "Huruf kecil, angka, - atau _ (3–50).",
+			"key": "Format modul.aksi, huruf kecil. Contoh: nilai.read",
+			"email": "Format email belum benar.",
+			"tel": "Nomor 8–16 digit.",
+			"year_name": "Gunakan dua tahun berurutan, mis. 2026/2027.",
+			"end_date": "Harus setelah tanggal mulai.",
+			"current_active": "Periode berjalan harus berstatus Aktif.",
+			"unknown_vars": "Variabel tidak dikenal: {other}"
+		},
+		"panel": {
+			"new_eyebrow": "DATA BARU",
+			"required_hint": "Isian bertanda * wajib diisi.",
+			"used_by": "Dipakai oleh {usage}.",
+			"unused": "Belum dipakai data lain.",
+			"close": "Tutup",
+			"code_locked": "Kode terkunci setelah dibuat agar rujukan data lain tetap utuh.",
+			"delete": "Hapus data",
+			"delete_blocked": "Tidak bisa dihapus: masih dipakai",
+			"cancel": "Batal",
+			"save": "Simpan",
+			"saving": "Menyimpan…"
+		},
+		"bar": {
+			"errors": "{count} isian perlu diperbaiki",
+			"dirty": "Belum disimpan",
+			"new": "Data baru",
+			"clean": "Tidak ada perubahan"
+		},
+		"failure": {
+			"unauthenticated": "Sesi berakhir atau Anda belum masuk lewat server. Masuk ulang untuk mengelola master data.",
+			"forbidden": "Anda tidak memiliki izin mengelola master data.",
+			"not_found": "Data tidak ditemukan; mungkin sudah dihapus. Muat ulang halaman.",
+			"conflict": "Data ini baru saja diubah orang lain. Tutup lalu buka ulang sebelum menyimpan.",
+			"in_use": "Data masih dipakai data lain.",
+			"validation": "Isian ditolak server. Periksa kembali lalu simpan.",
+			"unavailable": "Server tidak dapat dihubungi. Coba lagi beberapa saat."
+		},
+		"toast": {
+			"created": "Ditambahkan: {name}",
+			"saved": "Disimpan: {name}",
+			"deleted": "Dihapus: {name}",
+			"in_use": "Masih dipakai {usage}. Arsipkan saja.",
+			"csv": "CSV {name} diunduh ({count} baris)"
+		},
+		"confirm": {
+			"discard_title": "Buang perubahan?",
+			"discard_message": "Isian yang Anda ubah di {name} belum disimpan dan akan hilang.",
+			"discard_confirm": "Ya, buang",
+			"discard_cancel": "Lanjut mengisi",
+			"delete_title": "Hapus “{name}”?",
+			"delete_message": "Data {master} ini dihapus permanen dari platform. Tindakan ini tidak bisa dibatalkan.",
+			"delete_confirm": "Ya, hapus",
+			"cancel": "Batal",
+			"busy": "Memproses…",
+			"key_hint": "ESC untuk batal · ENTER untuk konfirmasi"
+		},
+		"options": {
+			"groups": {
+				"wajib": "Wajib",
+				"peminatan": "Peminatan",
+				"muatan_lokal": "Muatan lokal"
+			},
+			"regions": {
+				"jakarta": "Jakarta",
+				"bandung": "Bandung",
+				"surabaya": "Surabaya"
+			},
+			"kinds": {
+				"human": "Manusia",
+				"system": "Sistem"
+			},
+			"scopes": {
+				"platform": "Platform",
+				"tenant": "Tenant",
+				"user": "Pengguna"
+			},
+			"modules": {
+				"platform": "Platform",
+				"nilai": "Nilai",
+				"pengguna": "Pengguna",
+				"kelas": "Kelas",
+				"tugas": "Tugas",
+				"ujian": "Ujian",
+				"rapor": "Rapor"
+			},
+			"actions": {
+				"read": "read",
+				"create": "create",
+				"update": "update",
+				"delete": "delete",
+				"manage": "manage"
+			},
+			"channels": {
+				"in_app": "In-app",
+				"email": "Email",
+				"push": "Push",
+				"whatsapp": "WhatsApp"
+			}
+		},
+		"platform_tenant": "FLIXARE Platform (lms_core)",
+		"current": "Berjalan",
+		"pending": "Belum diprovisi",
+		"yes": "Ya",
+		"no": "Tidak",
+		"variables": "Sisipkan variabel ke isi pesan",
+		"preview": {
+			"label": "PRATINJAU · CONTOH DATA",
+			"subject_empty": "Judul notifikasi",
+			"body_empty": "Isi pesan akan tampil di sini.",
+			"channels": "Dikirim lewat {channels}"
+		},
+		"sample": {
+			"nama_siswa": "Dimas Prasetyo",
+			"nama_tugas": "Laporan Praktikum Asam Basa",
+			"tenggat": "Jumat, 9 Okt 23.59",
+			"nama_kelas": "XI-A",
+			"nilai": "86",
+			"nama_sekolah": "SMA Nusantara Jakarta"
+		}
+	},
+	"plans": {
+		"head_title": "Master paket",
+		"eyebrow": "MASTER DATA · PAKET & FITUR",
+		"title": "Paket langganan",
+		"description": "Atur harga, batas, trial, dan fitur. Perubahan berlaku untuk langganan baru; pelanggan lama tetap di harga lamanya.",
+		"new_plan": "Paket baru",
+		"search": "Cari kode atau nama",
+		"list_label": "Daftar paket",
+		"filter_label": "Saring jenis lembaga",
+		"empty": "Tidak ada paket yang cocok.",
+		"simulation": "Mode simulasi (dev): backend tidak terjangkau atau Anda belum masuk lewat backend. Data contoh = seeder; perubahan hanya tersimpan di halaman ini.",
+		"filter": {
+			"all": "Semua",
+			"school": "Sekolah",
+			"personal": "Guru",
+			"event": "Sesi"
+		},
+		"type": {
+			"school": "Sekolah",
+			"personal": "Guru pribadi",
+			"event": "Sesi ujian"
+		},
+		"status": {
+			"draft": "Draf",
+			"active": "Aktif",
+			"archived": "Arsip"
+		},
+		"identity": {
+			"title": "Identitas paket",
+			"code": "Kode",
+			"code_ph": "SCH_BASIC",
+			"code_hint": "Dipakai sistem dan tidak bisa diubah setelah ada pelanggan.",
+			"name": "Nama tampil",
+			"badge": "Label sorotan",
+			"optional": "(opsional)",
+			"badge_ph": "mis. Paling dipilih",
+			"type": "Jenis lembaga",
+			"status": "Status",
+			"description": "Deskripsi singkat",
+			"usage": "{count} tenant memakai paket ini",
+			"usage_none": "Belum ada pelanggan"
+		},
+		"price": {
+			"title": "Harga",
+			"model": {
+				"seat": "Per murid / bulan",
+				"flat": "Tetap / bulan",
+				"package": "Per sesi"
+			},
+			"unit": {
+				"seat": "/murid/bulan",
+				"flat": "/bulan",
+				"package": "/sesi"
+			},
+			"unit_label": {
+				"seat": "per murid per bulan",
+				"flat": "per bulan",
+				"package": "dasar per sesi"
+			},
+			"price": "Harga {unit}",
+			"yearly": "Bonus tahunan",
+			"free_months": {
+				"0": "Tanpa bonus",
+				"1": "Gratis 1 bulan",
+				"2": "Gratis 2 bulan",
+				"3": "Gratis 3 bulan"
+			},
+			"year_note_bonus": "Bayar {months} bulan untuk 12 bulan",
+			"year_note": "Tahunan = 12 × harga bulanan",
+			"tax": "PPN 11%",
+			"tax_mode": {
+				"excl": "Belum termasuk",
+				"incl": "Sudah termasuk"
+			}
+		},
+		"tiers": {
+			"title": "Diskon bertingkat",
+			"count": "{count} tingkat harga",
+			"none": "Tanpa diskon",
+			"from": "MULAI DARI",
+			"price": "HARGA PER SESI",
+			"discount": "DISKON",
+			"one_session": "1 sesi",
+			"base": "Dasar",
+			"sessions_suffix": "sesi+",
+			"remove": "Hapus tier",
+			"add": "Tambah tier",
+			"example": "Contoh: beli {n} sesi = {n} × {price} = {total}.",
+			"hint": "Pelanggan memilih jumlah sesi saat membeli; harga per sesi mengikuti tier tertinggi yang tercapai."
+		},
+		"topup": {
+			"title": "Izinkan top-up sesi",
+			"on": "Sesi tambahan dihitung dengan harga dasar {price}/sesi, tanpa diskon tier.",
+			"off": "Pelanggan harus membeli paket baru saat kuota habis."
+		},
+		"limits": {
+			"title": "Batas pemakaian",
+			"unlimited": "Tanpa batas",
+			"min_seats": "Kursi minimum",
+			"max_seats": "Kursi maksimum",
+			"max_seats_flat": "Murid aktif",
+			"max_teachers": "Guru",
+			"storage_gb": "Penyimpanan",
+			"email_invites_per_month": "Undangan email",
+			"max_participants_per_session": "Maks. peserta per sesi",
+			"max_parallel_sessions": "Maks. jadwal paralel",
+			"session_gap_minutes": "Jeda antar sesi",
+			"unit": {
+				"students": "murid",
+				"accounts": "akun",
+				"gb": "GB",
+				"per_month": "/bulan",
+				"people": "orang",
+				"schedules": "jadwal",
+				"minutes": "menit"
+			}
+		},
+		"sessions": {
+			"title": "Aturan sesi",
+			"duration": "Durasi per sesi",
+			"minutes": "{n} mnt",
+			"duration_note": "Ujian tidak bisa melebihi durasi ini.",
+			"proctoring": "Pengawasan (proctoring)",
+			"proctor": {
+				"none": "Tanpa",
+				"cam": "Kamera",
+				"camscreen": "Kamera + layar",
+				"human": "Pengawas manusia"
+			},
+			"proctor_note": {
+				"none": "Peserta tidak dipantau.",
+				"cam": "Wajah peserta direkam selama ujian.",
+				"camscreen": "Wajah dan layar peserta direkam selama ujian.",
+				"human": "Pengawas memantau peserta secara langsung."
+			},
+			"parallel_note": "Sesi yang boleh berjalan bersamaan.",
+			"gap_note": "Waktu persiapan sebelum sesi berikutnya.",
+			"info": "Kuota sesi tidak punya masa berlaku. Kuota berkurang 1 setiap jadwal ujian dimulai, berapa pun pesertanya selama tidak melebihi batas. Jika kuota habis, pelanggan membeli sesi baru."
+		},
+		"trial": {
+			"title": "Trial gratis",
+			"duration": "Durasi",
+			"unit_label": "Satuan durasi",
+			"unit": {
+				"hour": "jam",
+				"day": "hari",
+				"business_day": "hari kerja"
+			},
+			"max": "Maks. murid saat trial",
+			"trial_manual_approval": "Perlu persetujuan manual",
+			"trial_manual_approval_sub": "Pengajuan ditinjau tim FLIXARE sebelum database dibuat.",
+			"trial_one_per_npsn": "Satu trial per NPSN",
+			"trial_one_per_npsn_sub": "Mencegah trial berulang dari sekolah yang sama."
+		},
+		"features": {
+			"title": "Fitur",
+			"count": "{count} fitur aktif",
+			"groups": {
+				"learning": "PEMBELAJARAN",
+				"assessment": "PENILAIAN",
+				"administration": "ADMINISTRASI",
+				"communication": "KOMUNIKASI",
+				"advanced": "LANJUTAN"
+			},
+			"lms": "LMS, materi & tugas",
+			"question_bank": "Bank soal",
+			"auto_graded_exam": "Ujian dinilai otomatis",
+			"item_analysis": "Analisis butir soal",
+			"report_attendance": "Rapor & presensi",
+			"principal_dashboard": "Dasbor kepala sekolah",
+			"guardian_portal": "Portal orang tua",
+			"whatsapp_notification": "Notifikasi WhatsApp",
+			"ai_assistant": "Asisten AI",
+			"white_label": "White-label",
+			"custom_domain": "Domain sendiri",
+			"participant_certificate": "Sertifikat peserta"
+		},
+		"preview": {
+			"title": "Pratinjau di halaman pendaftaran",
+			"desc": "Kartu ini tampil di langkah Paket saat lembaga mendaftar. Paket berstatus Draf atau Arsip tidak tampil.",
+			"name": "Nama paket",
+			"desc_empty": "Deskripsi singkat paket",
+			"more": "+{count} fitur lain",
+			"tier": "{n}+ sesi",
+			"session": "{minutes} menit · maks. {max} peserta · {proctor}",
+			"trial": "Trial {length} {unit} · maks. {max} murid",
+			"no_trial": "Tanpa trial"
+		},
+		"bar": {
+			"errors": "{count} isian perlu diperbaiki",
+			"dirty": "Ada perubahan yang belum disimpan",
+			"saved": "Tersimpan {time}",
+			"clean": "Tidak ada perubahan",
+			"save": "Simpan",
+			"saving": "Menyimpan…",
+			"publish": "Publikasikan",
+			"apply": "Terapkan perubahan",
+			"delete": "Hapus paket",
+			"delete_blocked": "Tidak bisa dihapus: sudah punya pelanggan"
+		},
+		"confirm": {
+			"publish_title": "Publikasikan {name}?",
+			"apply_title": "Terapkan perubahan paket?",
+			"publish_label": "Ya, publikasikan",
+			"apply_label": "Ya, terapkan",
+			"publish_message": "Paket akan tampil di halaman pendaftaran untuk {type}.",
+			"apply_message": "Harga dan fitur baru berlaku untuk langganan baru dan perpanjangan berikutnya. Tagihan yang sudah terbit tidak berubah.",
+			"price": "Harga",
+			"features": "Fitur",
+			"features_value": "{count} aktif",
+			"customers": "Pelanggan saat ini",
+			"busy": "Menyimpan…",
+			"cancel": "Batal",
+			"key_hint": "ESC untuk batal · ENTER untuk konfirmasi",
+			"fallback_name": "paket",
+			"delete_title": "Hapus paket “{name}”?",
+			"delete_message": "Paket ini dihapus permanen beserta tier dan fiturnya. Tindakan ini tidak bisa dibatalkan.",
+			"delete_label": "Ya, hapus",
+			"delete_busy": "Memproses…",
+			"code": "Kode"
+		},
+		"errors": {
+			"code": "Kode 3–20 karakter: huruf besar, angka, garis bawah.",
+			"code_duplicate": "Kode sudah dipakai paket lain.",
+			"name": "Nama wajib diisi.",
+			"price": "Harga harus lebih dari 0.",
+			"max_seats": "Maksimum harus ≥ minimum.",
+			"per_session": "Isi maks. peserta per sesi.",
+			"parallel": "Minimal 1 jadwal.",
+			"tiers": "Tier harus naik jumlahnya dan turun harganya.",
+			"trial_length": "Durasi trial wajib diisi.",
+			"trial_max": "Isi batas murid trial.",
+			"features": "Aktifkan minimal satu fitur."
+		},
+		"failure": {
+			"unauthenticated": "Sesi berakhir atau Anda belum masuk lewat server. Masuk ulang untuk mengelola paket.",
+			"forbidden": "Anda tidak memiliki izin mengelola paket.",
+			"not_found": "Paket tidak ditemukan; mungkin sudah dihapus. Muat ulang halaman.",
+			"conflict": "Paket ini baru saja diubah orang lain. Muat ulang halaman sebelum menyimpan.",
+			"in_use": "Paket sudah dipakai pelanggan.",
+			"validation": "Isian ditolak server. Periksa kembali lalu simpan.",
+			"unavailable": "Server tidak dapat dihubungi. Coba lagi beberapa saat."
+		},
+		"toast": {
+			"saved": "Disimpan: {name}",
+			"published": "Dipublikasikan: {name}",
+			"deleted": "Dihapus: {name}",
+			"in_use": "Masih dipakai {count} langganan. Arsipkan saja."
+		}
 	}
 }

@@ -31,7 +31,6 @@ export const load: PageServerLoad = async ({ locals, url, cookies }) => {
 	return {
 		// Pendaftaran lembaga berada di host publik (root domain).
 		registerUrl: buildPublicUrl(url, rootDomain, APP_PATHS.REGISTER),
-		redirectTo: url.searchParams.get('redirectTo'),
 		// Peserta tryout (kode sesi) dilayani di host publik/tenant, bukan konsol platform.
 		showTryoutLink: locals.host.kind !== 'platform',
 		// Email tidak pernah ditaruh di URL; dibaca dari cookie HttpOnly yang ditulis saat keluar.
@@ -51,7 +50,6 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const email = form.get('email');
 		const password = form.get('password');
-		const redirectTo = form.get('redirectTo');
 
 		const loginFailure = (status: number, code: LoginErrorCode) =>
 			fail(status, { email: typeof email === 'string' ? email : '', error: code });
@@ -77,17 +75,11 @@ export const actions: Actions = {
 		const devSession = dev ? await import('$lib/auth/dev-session.fixture') : null;
 		if (devSession) {
 			const session = devSession.writeDevSession(cookies, devSession.personaIdForEmail(email));
-			redirect(
-				SEE_OTHER_STATUS,
-				resolvePostAuthDestination(
-					session,
-					locals.host,
-					typeof redirectTo === 'string' ? redirectTo : null
-				)
-			);
+			redirect(SEE_OTHER_STATUS, resolvePostAuthDestination(session, locals.host));
 		}
 
-		redirect(SEE_OTHER_STATUS, typeof redirectTo === 'string' && redirectTo ? redirectTo : '/app');
+		// Root (`/`) meneruskan ke dashboard sesuai peran (Dashboard Routing Policy).
+		redirect(SEE_OTHER_STATUS, '/');
 	},
 	devSignIn: async ({ locals, request, cookies }) => {
 		// Ternary `dev ? import : null` agar modul sesi contoh tereliminasi dari build produksi.
@@ -96,21 +88,13 @@ export const actions: Actions = {
 		assertHostKind(locals.host, ['platform', 'tenant', 'unified']);
 		const form = await request.formData();
 		const personaId = form.get('persona');
-		const redirectTo = form.get('redirectTo');
 		if (typeof personaId !== 'string') error(HTTP_BAD_REQUEST, { message: 'Bad Request' });
 
 		const session = devSession.writeDevSession(cookies, personaId);
 		if (session.status !== 'authenticated') error(HTTP_BAD_REQUEST, { message: 'Bad Request' });
 		writeSessionMeta(cookies, null);
 
-		redirect(
-			SEE_OTHER_STATUS,
-			resolvePostAuthDestination(
-				session,
-				locals.host,
-				typeof redirectTo === 'string' ? redirectTo : null
-			)
-		);
+		redirect(SEE_OTHER_STATUS, resolvePostAuthDestination(session, locals.host));
 	},
 	devSignOut: async ({ cookies }) => {
 		const devSession = dev ? await import('$lib/auth/dev-session.fixture') : null;

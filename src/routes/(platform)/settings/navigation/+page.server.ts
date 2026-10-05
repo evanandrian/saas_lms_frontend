@@ -1,46 +1,105 @@
-import type { PageServerLoad } from './$types';
+import { dev } from '$app/environment';
+import { env } from '$env/dynamic/public';
+import {
+	loadNavigationLayout,
+	resetNavigationLayoutForRole,
+	saveNavigationLayoutForRole,
+	type NavigationFailure
+} from '$lib/features/navigation/navigation.api';
+import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
+import {
+	NAVIGATION_ROLES,
+	isNavigationRole,
+	type NavigationGroupInput,
+	type NavigationLayout,
+	type NavigationRole
+} from '$lib/features/navigation/navigation.model';
+import { fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	// Initialize with dummy data matching the reference
-	const menus = [
-		{
-			id: 'beranda',
-			type: 'group',
-			name: 'Beranda',
-			description: 'Grup navigasi utama workspace',
-			icon: 'layout-dashboard',
-			position: 1,
-			isVisible: true,
-			roles: ['Platform Admin'],
-			children: [
-				{ id: 'dashboard', type: 'item', name: 'Dashboard', url: '/console', icon: 'layout-dashboard', position: 1, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'applications', type: 'item', name: 'Aplikasi', url: '/console/applications', icon: 'inbox', position: 2, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'tenants', type: 'item', name: 'Penyewa', url: '/console/tenants', icon: 'building-2', position: 3, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'plans', type: 'item', name: 'Paket Langganan', url: '/console/plans', icon: 'package', position: 4, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'invoices', type: 'item', name: 'Tagihan', url: '/console/invoices', icon: 'receipt', position: 5, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'payments', type: 'item', name: 'Pembayaran', url: '/console/payments', icon: 'wallet', position: 6, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'clusters', type: 'item', name: 'Klaster', url: '/console/clusters', icon: 'server', position: 7, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'audit', type: 'item', name: 'Audit Log', url: '/console/audit', icon: 'scroll-text', position: 8, isVisible: true, roles: ['Platform Admin'] }
-			]
-		},
-		{
-			id: 'settings',
-			type: 'group',
-			name: 'Pengaturan',
-			description: 'Grup untuk konfigurasi workspace dan akun',
-			icon: 'settings',
-			position: 2,
-			isVisible: true,
-			roles: ['Platform Admin'],
-			children: [
-				{ id: 'menu-nav', type: 'item', name: 'Menu & Navigasi', url: '/settings/navigation', icon: 'layout-dashboard', position: 1, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'roles', type: 'item', name: 'Peran & Akses', url: '/settings/roles', icon: 'users', position: 2, isVisible: true, roles: ['Platform Admin'] },
-				{ id: 'configuration', type: 'item', name: 'Konfigurasi', url: '/settings/configuration', icon: 'settings', position: 3, isVisible: true, roles: ['Platform Admin'] }
-			]
+/** Kegagalan yang boleh diganti data simulasi saat dev (backend mati / belum masuk lewat backend). */
+const SIMULATABLE_FAILURES: ReadonlySet<NavigationFailure> = new Set([
+	'unavailable',
+	'unauthenticated'
+]);
+
+const HTTP_STATUS_BY_FAILURE: Record<NavigationFailure, number> = {
+	unauthenticated: 401,
+	forbidden: 403,
+	not_found: 404,
+	conflict: 409,
+	validation: 422,
+	unavailable: 503
+};
+
+export const load: PageServerLoad = async ({ fetch, cookies }) => {
+	const results = await Promise.all(
+		NAVIGATION_ROLES.map(({ key }) => loadNavigationLayout({ fetch, cookies }, key))
+	);
+	const failure = results.find((r) => !r.ok);
+	const preview = dev ? (await import('./navigation.fixture')).navigationPreviewFixture : null;
+	const rootDomain = env.PUBLIC_LMS_ROOT_DOMAIN ?? '';
+
+	if (!failure) {
+		const layouts = {} as Record<NavigationRole, NavigationLayout>;
+		for (const result of results) if (result.ok) layouts[result.layout.role] = result.layout;
+		return { layouts, failure: null, simulate: false, preview, rootDomain };
+	}
+	const reason = failure.ok ? 'unavailable' : failure.reason;
+	// Dev tanpa backend: susunan bawaan FLIXARE, simpan disimulasikan lokal (D6). Produksi: status gagal.
+	if (dev && SIMULATABLE_FAILURES.has(reason)) {
+		const layouts = Object.fromEntries(
+			NAVIGATION_ROLES.map(({ key }) => [key, defaultNavigationLayout(key)])
+		) as Record<NavigationRole, NavigationLayout>;
+		return { layouts, failure: reason, simulate: true, preview, rootDomain };
+	}
+	return { layouts: null, failure: reason, simulate: false, preview, rootDomain };
+};
+
+function readRole(form: FormData): NavigationRole | null {
+	const role = String(form.get('role') ?? '');
+	return isNavigationRole(role) ? role : null;
+}
+
+function readVersion(form: FormData): number | null {
+	const version = Number(form.get('version'));
+	return Number.isInteger(version) ? version : null;
+}
+
+export const actions: Actions = {
+	save: async ({ request, fetch, cookies }) => {
+		const form = await request.formData();
+		const role = readRole(form);
+		const version = readVersion(form);
+		let groups: NavigationGroupInput[];
+		try {
+			groups = JSON.parse(String(form.get('groups') ?? ''));
+		} catch {
+			return fail(400, { reason: 'validation' as NavigationFailure, issues: [] });
 		}
-	];
-
-	return {
-		menus
-	};
+		if (!role || version === null || !Array.isArray(groups)) {
+			return fail(400, { reason: 'validation' as NavigationFailure, issues: [] });
+		}
+		const result = await saveNavigationLayoutForRole({ fetch, cookies }, role, { version, groups });
+		if (!result.ok) {
+			return fail(HTTP_STATUS_BY_FAILURE[result.reason], {
+				reason: result.reason,
+				issues: result.issues ?? []
+			});
+		}
+		return { layout: result.layout };
+	},
+	reset: async ({ request, fetch, cookies }) => {
+		const form = await request.formData();
+		const role = readRole(form);
+		const version = readVersion(form);
+		if (!role || version === null) {
+			return fail(400, { reason: 'validation' as NavigationFailure, issues: [] });
+		}
+		const result = await resetNavigationLayoutForRole({ fetch, cookies }, role, version);
+		if (!result.ok) {
+			return fail(HTTP_STATUS_BY_FAILURE[result.reason], { reason: result.reason, issues: [] });
+		}
+		return { layout: result.layout };
+	}
 };

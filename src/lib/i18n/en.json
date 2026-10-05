@@ -639,5 +639,716 @@
 			"afternoon": "Good afternoon, {name}",
 			"evening": "Good evening, {name}"
 		}
+	},
+	"navigation": {
+		"eyebrow": "SETTINGS · MENU & NAVIGATION",
+		"title": "Menu & navigation",
+		"description": "Arrange each role's sidebar: groups, order, routes, and visibility. Hiding a menu does not revoke access; the server still checks permissions.",
+		"simulation": "Simulation mode (dev): the backend is unreachable or you did not sign in through it. Changes are kept on this page only.",
+		"roles_label": "Role",
+		"roles": {
+			"platform": "Platform",
+			"school_admin": "School admin",
+			"teacher": "Teacher",
+			"student": "Student",
+			"guardian": "Parent"
+		},
+		"unsaved": "Not saved",
+		"summary": "{groups} groups · {items} menus",
+		"summary_hidden": "{count} hidden",
+		"untitled": "Untitled",
+		"has_error": "Some fields need fixing",
+		"actions": {
+			"new_group": "New group",
+			"new_item": "New menu",
+			"reset": "Default layout",
+			"discard": "Discard",
+			"save": "Save {role} sidebar",
+			"saving": "Saving…"
+		},
+		"tree": {
+			"search": "Search menu name or route",
+			"search_label": "Search menus",
+			"hint": "Use the arrows to reorder. Click the eye icon to hide.",
+			"toggle_group": "Expand or collapse group",
+			"move_up": "Move up",
+			"move_down": "Move down",
+			"toggle_visibility": "Show or hide",
+			"add_item": "Add menu to this group",
+			"add_first": "Add the first menu",
+			"count": "{count} menus",
+			"route_empty": "empty route",
+			"hidden": "hidden",
+			"no_title": "no title",
+			"route_missing": "Route not set",
+			"no_result": "No menu matches “{query}”."
+		},
+		"status": {
+			"shown": "Shown",
+			"hidden": "Hidden",
+			"hide": "Hide"
+		},
+		"editor": {
+			"kind_item": "MENU · IN GROUP {group}",
+			"kind_group": "GROUP · {count} MENUS",
+			"delete_item": "Delete menu",
+			"delete_group": "Delete group",
+			"empty_group_warning": "This group has no menus and is not clickable, so it will not appear in the sidebar. Add a menu or enable “Clickable group”.",
+			"name_item": "Menu name",
+			"name_group": "Group name",
+			"chars_left": "{count} characters left",
+			"status": "Status",
+			"parent": "Parent group",
+			"parent_hint": "Moves the menu to the end of the target group.",
+			"target": "Open in",
+			"target_same": "Same page",
+			"target_new": "New tab",
+			"route": "Route",
+			"route_placeholder": "/platform/tenant or https://…",
+			"address": "Address: {host}",
+			"badge": "Counter next to menu",
+			"icon": "Icon",
+			"group_behavior": "Group behavior",
+			"empty": "Select a group or menu on the left to edit it."
+		},
+		"badges": {
+			"none": "None",
+			"apps": "Pending applications",
+			"tasks": "Ungraded tasks",
+			"msgs": "Unread messages",
+			"due": "Due soon"
+		},
+		"toggles": {
+			"show_label": "Show group title",
+			"show_label_hint": "Small title above the menu list. Turn off for the main group.",
+			"default_open": "Open on sign-in",
+			"default_open_hint": "Its menus are visible right away.",
+			"clickable": "Clickable group",
+			"clickable_hint": "The group has its own page and needs a route."
+		},
+		"errors": {
+			"name_short": "Name must be at least 2 characters.",
+			"route_required": "Route is required.",
+			"route_invalid": "Start with / followed by lowercase letters, digits, or -. External links use https://",
+			"route_duplicate": "Same route as “{other}”."
+		},
+		"preview": {
+			"title": "PREVIEW · {role}",
+			"school": "School",
+			"hidden_note": "{count} hidden menus are not shown in the preview.",
+			"click_note": "Click a menu in the preview to edit it."
+		},
+		"bar": {
+			"errors": "{count} fields must be fixed before saving",
+			"dirty": "{role} sidebar changes are not saved",
+			"saved": "Saved {time}",
+			"clean": "No changes"
+		},
+		"failure": {
+			"unauthenticated": "Your session ended or you did not sign in through the server. Sign in again to manage menus.",
+			"forbidden": "You are not allowed to manage menus & navigation.",
+			"not_found": "Unknown role.",
+			"conflict": "This layout was just changed by someone else. Reload the page before saving.",
+			"validation": "The server rejected some fields. Review them and save again.",
+			"unavailable": "The server cannot be reached. Try again shortly."
+		},
+		"confirm": {
+			"reset_title": "Restore the default layout?",
+			"reset_message": "The {role} sidebar is replaced by the FLIXARE default layout, including saved changes.",
+			"reset_confirm": "Yes, restore",
+			"current_layout": "Current layout",
+			"delete_item_title": "Delete menu “{name}”?",
+			"delete_item_message": "This menu disappears from the {role} sidebar after you save. Its target page still exists.",
+			"delete_group_title": "Delete group “{name}”?",
+			"delete_group_message": "The group and its {count} menus disappear from the {role} sidebar after you save.",
+			"delete_confirm": "Yes, delete",
+			"items_deleted": "Menus deleted too",
+			"busy": "Processing…",
+			"cancel": "Cancel",
+			"key_hint": "ESC to cancel · ENTER to confirm"
+		}
+	},
+	"master_data": {
+		"eyebrow": "MASTER DATA · PLATFORM REFERENCE",
+		"title": "Master data",
+		"description": "Reference data used by every tenant. Data still in use cannot be deleted; archive it so it no longer appears in new choices.",
+		"simulation": "Simulation mode (dev): the backend is unreachable or you did not sign in through it. Sample data = seeder; changes are kept on this page only.",
+		"masters_label": "Masters",
+		"search_master": "Search masters",
+		"search_rows": "Search name or code",
+		"sections": {
+			"platform": "PLATFORM & ORGANIZATION",
+			"academic": "ACADEMIC & REFERENCE",
+			"identity": "IDENTITY & SYSTEM"
+		},
+		"masters": {
+			"institution": {
+				"name": "Institutions",
+				"sub": "Customers / tenants",
+				"desc": "Organizations using FLIXARE. Deactivate to stop access without deleting history."
+			},
+			"tenant_type": {
+				"name": "Institution type",
+				"sub": "Customer category",
+				"desc": "Determines the sign-up flow and the plans offered."
+			},
+			"education_level": {
+				"name": "Education level",
+				"sub": "Level reference",
+				"desc": "Used by institutions, subjects, and grade levels."
+			},
+			"academic_year": {
+				"name": "Academic years",
+				"sub": "Study periods",
+				"desc": "Context for classes, grades, and report cards. Only one period runs at a time."
+			},
+			"curriculum": {
+				"name": "Curriculum",
+				"sub": "Curriculum reference",
+				"desc": "Curricula tenants can choose when preparing an academic year."
+			},
+			"subject": {
+				"name": "Subject",
+				"sub": "Subject reference",
+				"desc": "Reference subjects for classes, question banks, and report cards."
+			},
+			"grade_level": {
+				"name": "Grade levels",
+				"sub": "Study levels",
+				"desc": "Levels used when creating class groups in every tenant."
+			},
+			"user": {
+				"name": "Users",
+				"sub": "Login identities",
+				"desc": "Login identities. Tenant membership and role are stored separately so one person can hold several roles."
+			},
+			"role": {
+				"name": "Roles",
+				"sub": "Access bundles",
+				"desc": "Base roles. Detailed permissions are managed in the Permission master."
+			},
+			"permission": {
+				"name": "Permissions",
+				"sub": "Atomic grants",
+				"desc": "Smallest grant used by authorization policies. The key is built from module and action."
+			},
+			"notification_template": {
+				"name": "Notification templates",
+				"sub": "System messages",
+				"desc": "Automatic messages with variables, filled with real data when sent."
+			}
+		},
+		"fields": {
+			"institution": {
+				"name": "Institution name",
+				"code": "Institution code",
+				"code_help": "Unique tenant code (lowercase); used for the tenant subdomain & database.",
+				"tenant_type_code": "Institution type",
+				"education_level_code": "Education level",
+				"education_level_code_none": "Not applicable",
+				"email": "Primary email",
+				"email_ph": "admin@school.sch.id",
+				"phone": "Phone",
+				"phone_ph": "021-555-0188",
+				"data_region": "Data region",
+				"data_region_help": "Tenant database cluster location. Cannot move after activation.",
+				"address": "Address"
+			},
+			"tenant_type": {
+				"name": "Type name",
+				"code": "Code",
+				"code_help": "Stable code read by the system (lowercase).",
+				"description": "Description"
+			},
+			"education_level": {
+				"name": "Level name",
+				"code": "Code",
+				"sort_order": "Order",
+				"sort_order_help": "Determines the order in choice lists.",
+				"description": "Description"
+			},
+			"academic_year": {
+				"name": "Period name",
+				"name_ph": "2026/2027",
+				"name_help": "Format YYYY/YYYY, consecutive years.",
+				"code": "Code",
+				"code_ph": "TA_2026",
+				"start_date": "Start date",
+				"end_date": "End date",
+				"is_current": "Current period",
+				"is_current_on": "Make current period",
+				"is_current_help": "The previous current period is released on save."
+			},
+			"curriculum": {
+				"name": "Curriculum name",
+				"code": "Code",
+				"version": "Version",
+				"version_ph": "2025",
+				"description": "Description"
+			},
+			"subject": {
+				"name": "Subject name",
+				"code": "Code",
+				"subject_group": "Group",
+				"education_level_code": "Level",
+				"curriculum_code": "Curriculum",
+				"curriculum_code_none": "Not tied to a curriculum",
+				"description": "Description"
+			},
+			"grade_level": {
+				"name": "Level name",
+				"name_ph": "Grade 10",
+				"code": "Code",
+				"education_level_code": "Education level",
+				"sort_order": "Order"
+			},
+			"user": {
+				"name": "Full name",
+				"code": "Email",
+				"code_help": "Used for sign-in and role detection.",
+				"phone": "Phone",
+				"account_kind": "Account type",
+				"account_kind_help": "System accounts are for integrations and cannot sign in via the form.",
+				"tenant_code": "Tenant",
+				"role_code": "Role",
+				"note": "Note"
+			},
+			"role": {
+				"name": "Role name",
+				"code": "Code",
+				"code_help": "Stable code read by the system.",
+				"scope": "Scope",
+				"description": "Description"
+			},
+			"permission": {
+				"module": "Module",
+				"action": "Action",
+				"code": "Permission key",
+				"code_help": "Format module.action, lowercase. Filled automatically; edit if needed.",
+				"name": "Display name",
+				"description": "Description"
+			},
+			"notification_template": {
+				"name": "Template name",
+				"code": "Template key",
+				"code_ph": "tugas.tenggat_dekat",
+				"channels": "Channels",
+				"subject": "Title",
+				"body": "Message body"
+			}
+		},
+		"status": {
+			"active": "Active",
+			"inactive": "Inactive",
+			"archived": "Archived"
+		},
+		"status_label": "Status",
+		"status_note": {
+			"active": "Shown in tenant choices.",
+			"inactive": "Temporarily hidden from new choices. Existing data keeps using it.",
+			"archived": "Archived: hidden from new choices, history stays intact."
+		},
+		"filter_all": "All",
+		"order": "Order {n}",
+		"export_csv": "Export CSV",
+		"add": "Add {name}",
+		"choose": "Choose {label}",
+		"empty": "No data yet.",
+		"empty_filtered": "No data matches the filter.",
+		"clear_filter": "Clear filter",
+		"footnote": "{shown} of {total} records · click a row to edit",
+		"untitled": "Untitled",
+		"new_data": "new data",
+		"usage": {
+			"plan": "{count} plans",
+			"plan_price": "{count} plan prices",
+			"subscription": "{count} subscriptions",
+			"subject": "{count} subjects",
+			"other": "other data",
+			"tenant": "{count} institutions",
+			"grade": "{count} grade levels",
+			"member": "{count} memberships",
+			"database": "an active tenant database",
+			"session": "{count} sign-in sessions",
+			"grant": "{count} grants",
+			"self": "your own account"
+		},
+		"errors": {
+			"required": "Required.",
+			"code_upper": "Uppercase letters, digits, or underscore (2–20).",
+			"code_lower": "Lowercase letters, digits, or underscore (2–50), starting with a letter.",
+			"number": "Enter a number greater than 0.",
+			"duplicate": "Already used by “{other}”.",
+			"channels_required": "Choose at least one channel.",
+			"code_grade": "Uppercase letters, digits, or underscore (1–20).",
+			"code_institution": "Lowercase letters, digits, - or _ (3–50).",
+			"key": "Format module.action, lowercase. Example: nilai.read",
+			"email": "Email format is not valid.",
+			"tel": "8–16 digit number.",
+			"year_name": "Use two consecutive years, e.g. 2026/2027.",
+			"end_date": "Must be after the start date.",
+			"current_active": "The current period must be Active.",
+			"unknown_vars": "Unknown variables: {other}"
+		},
+		"panel": {
+			"new_eyebrow": "NEW DATA",
+			"required_hint": "Fields marked * are required.",
+			"used_by": "Used by {usage}.",
+			"unused": "Not used by other data yet.",
+			"close": "Close",
+			"code_locked": "The code is locked after creation so references stay intact.",
+			"delete": "Delete data",
+			"delete_blocked": "Cannot delete: still in use",
+			"cancel": "Cancel",
+			"save": "Save",
+			"saving": "Saving…"
+		},
+		"bar": {
+			"errors": "{count} fields need fixing",
+			"dirty": "Not saved",
+			"new": "New data",
+			"clean": "No changes"
+		},
+		"failure": {
+			"unauthenticated": "Your session ended or you did not sign in through the server. Sign in again to manage master data.",
+			"forbidden": "You are not allowed to manage master data.",
+			"not_found": "Data not found; it may have been deleted. Reload the page.",
+			"conflict": "This data was just changed by someone else. Close and reopen it before saving.",
+			"in_use": "The data is still in use.",
+			"validation": "The server rejected some fields. Review them and save again.",
+			"unavailable": "The server cannot be reached. Try again shortly."
+		},
+		"toast": {
+			"created": "Added: {name}",
+			"saved": "Saved: {name}",
+			"deleted": "Deleted: {name}",
+			"in_use": "Still used by {usage}. Archive it instead.",
+			"csv": "{name} CSV downloaded ({count} rows)"
+		},
+		"confirm": {
+			"discard_title": "Discard changes?",
+			"discard_message": "Your changes to {name} are not saved and will be lost.",
+			"discard_confirm": "Yes, discard",
+			"discard_cancel": "Keep editing",
+			"delete_title": "Delete “{name}”?",
+			"delete_message": "This {master} record is permanently deleted from the platform. This cannot be undone.",
+			"delete_confirm": "Yes, delete",
+			"cancel": "Cancel",
+			"busy": "Processing…",
+			"key_hint": "ESC to cancel · ENTER to confirm"
+		},
+		"options": {
+			"groups": {
+				"wajib": "Core",
+				"peminatan": "Elective",
+				"muatan_lokal": "Local content"
+			},
+			"regions": {
+				"jakarta": "Jakarta",
+				"bandung": "Bandung",
+				"surabaya": "Surabaya"
+			},
+			"kinds": {
+				"human": "Human",
+				"system": "System"
+			},
+			"scopes": {
+				"platform": "Platform",
+				"tenant": "Tenant",
+				"user": "User"
+			},
+			"modules": {
+				"platform": "Platform",
+				"nilai": "Grades",
+				"pengguna": "Users",
+				"kelas": "Classes",
+				"tugas": "Assignments",
+				"ujian": "Exams",
+				"rapor": "Report cards"
+			},
+			"actions": {
+				"read": "read",
+				"create": "create",
+				"update": "update",
+				"delete": "delete",
+				"manage": "manage"
+			},
+			"channels": {
+				"in_app": "In-app",
+				"email": "Email",
+				"push": "Push",
+				"whatsapp": "WhatsApp"
+			}
+		},
+		"platform_tenant": "FLIXARE Platform (lms_core)",
+		"current": "Current",
+		"pending": "Not provisioned",
+		"yes": "Yes",
+		"no": "No",
+		"variables": "Insert a variable into the message",
+		"preview": {
+			"label": "PREVIEW · SAMPLE DATA",
+			"subject_empty": "Notification title",
+			"body_empty": "The message body appears here.",
+			"channels": "Sent via {channels}"
+		},
+		"sample": {
+			"nama_siswa": "Dimas Prasetyo",
+			"nama_tugas": "Acid–Base Lab Report",
+			"tenggat": "Fri, 9 Oct 23:59",
+			"nama_kelas": "XI-A",
+			"nilai": "86",
+			"nama_sekolah": "SMA Nusantara Jakarta"
+		}
+	},
+	"plans": {
+		"head_title": "Plan master",
+		"eyebrow": "MASTER DATA · PLANS & FEATURES",
+		"title": "Subscription plans",
+		"description": "Set prices, limits, trials, and features. Changes apply to new subscriptions; existing customers keep their current price.",
+		"new_plan": "New plan",
+		"search": "Search code or name",
+		"list_label": "Plan list",
+		"filter_label": "Filter by institution type",
+		"empty": "No plans match.",
+		"simulation": "Simulation mode (dev): the backend is unreachable or you are not signed in through the backend. Sample data = seeder; changes are kept on this page only.",
+		"filter": {
+			"all": "All",
+			"school": "School",
+			"personal": "Teacher",
+			"event": "Session"
+		},
+		"type": {
+			"school": "School",
+			"personal": "Private teacher",
+			"event": "Exam session"
+		},
+		"status": {
+			"draft": "Draft",
+			"active": "Active",
+			"archived": "Archived"
+		},
+		"identity": {
+			"title": "Plan identity",
+			"code": "Code",
+			"code_ph": "SCH_BASIC",
+			"code_hint": "Used by the system; cannot change once the plan has customers.",
+			"name": "Display name",
+			"badge": "Highlight label",
+			"optional": "(optional)",
+			"badge_ph": "e.g. Most popular",
+			"type": "Institution type",
+			"status": "Status",
+			"description": "Short description",
+			"usage": "{count} tenants use this plan",
+			"usage_none": "No customers yet"
+		},
+		"price": {
+			"title": "Price",
+			"model": {
+				"seat": "Per student / month",
+				"flat": "Flat / month",
+				"package": "Per session"
+			},
+			"unit": {
+				"seat": "/student/month",
+				"flat": "/month",
+				"package": "/session"
+			},
+			"unit_label": {
+				"seat": "per student per month",
+				"flat": "per month",
+				"package": "base per session"
+			},
+			"price": "Price {unit}",
+			"yearly": "Yearly bonus",
+			"free_months": {
+				"0": "No bonus",
+				"1": "1 month free",
+				"2": "2 months free",
+				"3": "3 months free"
+			},
+			"year_note_bonus": "Pay {months} months for 12 months",
+			"year_note": "Yearly = 12 × monthly price",
+			"tax": "VAT 11%",
+			"tax_mode": {
+				"excl": "Excluded",
+				"incl": "Included"
+			}
+		},
+		"tiers": {
+			"title": "Volume discount",
+			"count": "{count} price levels",
+			"none": "No discount",
+			"from": "FROM",
+			"price": "PRICE PER SESSION",
+			"discount": "DISCOUNT",
+			"one_session": "1 session",
+			"base": "Base",
+			"sessions_suffix": "sessions+",
+			"remove": "Remove tier",
+			"add": "Add tier",
+			"example": "Example: buy {n} sessions = {n} × {price} = {total}.",
+			"hint": "Customers choose the number of sessions at purchase; the per-session price follows the highest tier reached."
+		},
+		"topup": {
+			"title": "Allow session top-up",
+			"on": "Extra sessions use the base price {price}/session, without tier discounts.",
+			"off": "Customers must buy a new package when the quota runs out."
+		},
+		"limits": {
+			"title": "Usage limits",
+			"unlimited": "Unlimited",
+			"min_seats": "Minimum seats",
+			"max_seats": "Maximum seats",
+			"max_seats_flat": "Active students",
+			"max_teachers": "Teachers",
+			"storage_gb": "Storage",
+			"email_invites_per_month": "Email invites",
+			"max_participants_per_session": "Max. participants per session",
+			"max_parallel_sessions": "Max. parallel schedules",
+			"session_gap_minutes": "Gap between sessions",
+			"unit": {
+				"students": "students",
+				"accounts": "accounts",
+				"gb": "GB",
+				"per_month": "/month",
+				"people": "people",
+				"schedules": "schedules",
+				"minutes": "minutes"
+			}
+		},
+		"sessions": {
+			"title": "Session rules",
+			"duration": "Duration per session",
+			"minutes": "{n} min",
+			"duration_note": "Exams cannot exceed this duration.",
+			"proctoring": "Proctoring",
+			"proctor": {
+				"none": "None",
+				"cam": "Camera",
+				"camscreen": "Camera + screen",
+				"human": "Human proctor"
+			},
+			"proctor_note": {
+				"none": "Participants are not monitored.",
+				"cam": "Participants' faces are recorded during the exam.",
+				"camscreen": "Participants' faces and screens are recorded during the exam.",
+				"human": "A proctor monitors participants live."
+			},
+			"parallel_note": "Sessions allowed to run at the same time.",
+			"gap_note": "Preparation time before the next session.",
+			"info": "Session quota never expires. One session is used each time an exam schedule starts, regardless of participants within the limit. When the quota runs out, the customer buys new sessions."
+		},
+		"trial": {
+			"title": "Free trial",
+			"duration": "Duration",
+			"unit_label": "Duration unit",
+			"unit": {
+				"hour": "hours",
+				"day": "days",
+				"business_day": "business days"
+			},
+			"max": "Max. students during trial",
+			"trial_manual_approval": "Requires manual approval",
+			"trial_manual_approval_sub": "Applications are reviewed by the FLIXARE team before the database is created.",
+			"trial_one_per_npsn": "One trial per NPSN",
+			"trial_one_per_npsn_sub": "Prevents repeated trials from the same school."
+		},
+		"features": {
+			"title": "Features",
+			"count": "{count} features enabled",
+			"groups": {
+				"learning": "LEARNING",
+				"assessment": "ASSESSMENT",
+				"administration": "ADMINISTRATION",
+				"communication": "COMMUNICATION",
+				"advanced": "ADVANCED"
+			},
+			"lms": "LMS, materials & assignments",
+			"question_bank": "Question bank",
+			"auto_graded_exam": "Auto-graded exams",
+			"item_analysis": "Item analysis",
+			"report_attendance": "Report cards & attendance",
+			"principal_dashboard": "Principal dashboard",
+			"guardian_portal": "Parent portal",
+			"whatsapp_notification": "WhatsApp notifications",
+			"ai_assistant": "AI assistant",
+			"white_label": "White-label",
+			"custom_domain": "Custom domain",
+			"participant_certificate": "Participant certificates"
+		},
+		"preview": {
+			"title": "Preview on the sign-up page",
+			"desc": "This card appears in the Plan step when an institution signs up. Draft or Archived plans are hidden.",
+			"name": "Plan name",
+			"desc_empty": "Short plan description",
+			"more": "+{count} more features",
+			"tier": "{n}+ sessions",
+			"session": "{minutes} minutes · max. {max} participants · {proctor}",
+			"trial": "{length} {unit} trial · max. {max} students",
+			"no_trial": "No trial"
+		},
+		"bar": {
+			"errors": "{count} fields need fixing",
+			"dirty": "Unsaved changes",
+			"saved": "Saved {time}",
+			"clean": "No changes",
+			"save": "Save",
+			"saving": "Saving…",
+			"publish": "Publish",
+			"apply": "Apply changes",
+			"delete": "Delete plan",
+			"delete_blocked": "Cannot delete: the plan has customers"
+		},
+		"confirm": {
+			"publish_title": "Publish {name}?",
+			"apply_title": "Apply plan changes?",
+			"publish_label": "Yes, publish",
+			"apply_label": "Yes, apply",
+			"publish_message": "The plan will appear on the sign-up page for {type}.",
+			"apply_message": "New prices and features apply to new subscriptions and the next renewal. Issued invoices do not change.",
+			"price": "Price",
+			"features": "Features",
+			"features_value": "{count} enabled",
+			"customers": "Current customers",
+			"busy": "Saving…",
+			"cancel": "Cancel",
+			"key_hint": "ESC to cancel · ENTER to confirm",
+			"fallback_name": "plan",
+			"delete_title": "Delete plan “{name}”?",
+			"delete_message": "This plan is permanently deleted with its tiers and features. This cannot be undone.",
+			"delete_label": "Yes, delete",
+			"delete_busy": "Processing…",
+			"code": "Code"
+		},
+		"errors": {
+			"code": "Code 3–20 characters: uppercase letters, digits, underscore.",
+			"code_duplicate": "Code is already used by another plan.",
+			"name": "Name is required.",
+			"price": "Price must be greater than 0.",
+			"max_seats": "Maximum must be ≥ minimum.",
+			"per_session": "Enter max. participants per session.",
+			"parallel": "At least 1 schedule.",
+			"tiers": "Tiers must increase in sessions and decrease in price.",
+			"trial_length": "Trial duration is required.",
+			"trial_max": "Enter the trial student limit.",
+			"features": "Enable at least one feature."
+		},
+		"failure": {
+			"unauthenticated": "Your session ended or you are not signed in through the server. Sign in again to manage plans.",
+			"forbidden": "You do not have permission to manage plans.",
+			"not_found": "Plan not found; it may have been deleted. Reload the page.",
+			"conflict": "This plan was just changed by someone else. Reload the page before saving.",
+			"in_use": "The plan already has customers.",
+			"validation": "The server rejected some fields. Check and save again.",
+			"unavailable": "The server cannot be reached. Try again shortly."
+		},
+		"toast": {
+			"saved": "Saved: {name}",
+			"published": "Published: {name}",
+			"deleted": "Deleted: {name}",
+			"in_use": "Still used by {count} subscriptions. Archive it instead."
+		}
 	}
 }

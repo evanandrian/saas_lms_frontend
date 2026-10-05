@@ -52,8 +52,8 @@
 	};
 	const ABSENCE_CLASSES: Record<AbsenceStatus, string> = {
 		sick: 'bg-lms-interactive-subtle text-lms-link',
-		permit: 'preset-tonal-warning',
-		absent: 'preset-tonal-error'
+		permit: 'lms-tone-warning',
+		absent: 'lms-tone-danger'
 	};
 
 	const clock = createDashboardClock(() => data.dashboard?.clockStartSeconds ?? null);
