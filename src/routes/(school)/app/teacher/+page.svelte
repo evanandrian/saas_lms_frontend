@@ -5,6 +5,8 @@
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
+	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
+	import { greetingParts, semesterKey } from '$lib/features/dashboards/dashboards.model';
 	import { useI18n } from '$lib/i18n';
 	import { initialsOf } from '$lib/utils/initials';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -32,6 +34,7 @@
 		secondsUntil,
 		type AgendaKind
 	} from './teacher-dashboard';
+	import TeacherPanels from './TeacherPanels.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -96,7 +99,18 @@
 				)
 	);
 	const visibleToast = $derived(toast && elapsedSeconds < toast.until ? toast : null);
-	const simulationNote = $derived(i18n.t('dashboard.teacher.simulation_note'));
+	const simulationNote = $derived(i18n.t('dashboard.sample.simulation_note'));
+	// Sapaan & semester dari backend; data contoh (referensi) bila backend belum menjawab.
+	const greetingName = $derived.by(() => {
+		if (!data.live) return dashboard?.greetingName ?? '';
+		const { name, honorific } = greetingParts(data.live.viewer);
+		return honorific ? i18n.t(`dashboard.honorific.${honorific}`, { name }) : name;
+	});
+	const semesterLabel = $derived.by(() => {
+		if (!data.live) return dashboard?.semesterLabel ?? '';
+		const key = semesterKey(data.live.period.semester);
+		return key ? i18n.t(`dashboard.semester.${key}`) : '';
+	});
 
 	function showToast(message: string, icon: LucideIcon = CircleCheck) {
 		toast = {
@@ -138,18 +152,19 @@
 	}
 </script>
 
-<!-- Struktur & data contoh mengikuti FLIXARE App v3.html layar 06 (FE-07). -->
+<!-- Struktur & data contoh mengikuti FLIXARE App v3.html layar 06 + panel mapel (FE-07). -->
 <div class="flex min-w-0 flex-col gap-5">
 	{#if dashboard}
 		{@const actionsDisabled = !data.canSimulate}
 		<p id={reasonId} class="sr-only">{i18n.t('common.state.action_unavailable')}</p>
 
 		<HeroBanner
-			eyebrow={`${formatLongDate(dashboard.date, 'id-ID')} · ${dashboard.semesterLabel}`}
+			eyebrow={[formatLongDate(dashboard.date, 'id-ID'), semesterLabel].filter(Boolean).join(' · ')}
 			title={i18n.t(`dashboard.greeting.${greetingPeriod(nowSeconds)}`, {
-				name: dashboard.greetingName
+				name: greetingName
 			})}
 			description={i18n.t('dashboard.teacher.summary', {
+				classes: data.panels.classCount,
 				agenda: dashboard.agenda.length,
 				pending: gradeLeft
 			})}
@@ -174,9 +189,9 @@
 					>
 						<p class="flex items-center justify-between gap-2">
 							<span
-								class="text-lms-on-hero-muted text-[11px] font-bold tracking-[0.16em] uppercase"
+								class="text-lms-on-hero-muted flex items-center gap-2 text-[11px] font-bold tracking-[0.16em] uppercase"
 							>
-								{i18n.t('dashboard.teacher.next')}
+								{i18n.t('dashboard.teacher.next')}<SampleBadge tone="on-hero" />
 							</span>
 							<span
 								class="bg-lms-progress/22 text-lms-on-hero-progress inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-semibold"
@@ -266,8 +281,8 @@
 				aria-labelledby="{reasonId}-agenda"
 			>
 				<div class="border-lms-border flex items-center justify-between border-b px-5 py-4">
-					<h2 id="{reasonId}-agenda" class="text-base font-bold">
-						{i18n.t('dashboard.teacher.agenda')}
+					<h2 id="{reasonId}-agenda" class="flex items-center gap-2 text-base font-bold">
+						{i18n.t('dashboard.teacher.agenda')}<SampleBadge />
 					</h2>
 					<UnavailableLink
 						label={i18n.t('dashboard.teacher.calendar')}
@@ -335,8 +350,8 @@
 				aria-labelledby="{reasonId}-pile"
 			>
 				<div class="mb-2.5 flex items-baseline justify-between">
-					<h2 id="{reasonId}-pile" class="text-base font-bold">
-						{i18n.t('dashboard.teacher.grading_pile')}
+					<h2 id="{reasonId}-pile" class="flex items-center gap-2 text-base font-bold">
+						{i18n.t('dashboard.teacher.grading_pile')}<SampleBadge />
 					</h2>
 					<span class="text-lms-muted text-[0.8125rem]">
 						<strong class="text-lms-foreground">{gradeLeft}</strong>
@@ -416,8 +431,8 @@
 			>
 				<div class="flex flex-wrap items-start justify-between gap-3">
 					<div>
-						<h2 id="{reasonId}-gradebook" class="text-base font-bold">
-							{i18n.t('dashboard.teacher.gradebook')}
+						<h2 id="{reasonId}-gradebook" class="flex items-center gap-2 text-base font-bold">
+							{i18n.t('dashboard.teacher.gradebook')}<SampleBadge />
 						</h2>
 						<p class="text-lms-muted text-[0.8125rem]">
 							{i18n.t('dashboard.teacher.gradebook_description', {
@@ -544,6 +559,8 @@
 				</div>
 			</section>
 		{/if}
+
+		<TeacherPanels panels={data.panels} notify={showToast} />
 
 		<Toast message={visibleToast?.message ?? null} icon={visibleToast?.icon} />
 	{:else}

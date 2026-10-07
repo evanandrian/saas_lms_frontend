@@ -31,7 +31,7 @@
 			icon: MessageSquare,
 			badge: data.identity?.navBadges.messages
 		},
-		{ label: i18n.t('nav.guardian.settings'), icon: Settings }
+		{ label: i18n.t('nav.guardian.settings'), icon: Settings, href: APP_PATHS.GUARDIAN_ACCOUNT }
 	]);
 </script>
 

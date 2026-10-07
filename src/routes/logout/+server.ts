@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { logoutEverywhere } from '$lib/auth/backend-auth';
+import { logoutCurrentDevice } from '$lib/auth/backend-auth';
 import { eligibleMemberships } from '$lib/auth/dashboard-routing';
 import {
 	clearSessionMeta,
@@ -33,8 +33,8 @@ export const POST: RequestHandler = async ({ cookies, fetch, locals }) => {
 		});
 	}
 
-	// Keluar = akhiri sesi di semua perangkat (kebijakan sesi tunggal, FE-06).
-	await logoutEverywhere(fetch, cookies);
+	// Keluar = akhiri sesi perangkat ini (multi-sesi, keputusan pemilik 6 Okt 2026).
+	await logoutCurrentDevice(fetch, cookies);
 	if (dev) (await import('$lib/auth/dev-session.fixture')).clearDevSession(cookies);
 	clearSessionMeta(cookies);
 	// Tombol "Masuk kembali" di halaman keluar mengisi email ini (cookie HttpOnly, bukan URL).

@@ -30,6 +30,13 @@ export const devAccounts: readonly DevAccount[] = [
 		tenant: 'SMA Nusantara Jakarta'
 	},
 	{
+		email: 'principal@school.com',
+		name: 'Sri Wahyuni',
+		initials: 'SW',
+		area: 'school_admin',
+		tenant: 'SMA Nusantara Jakarta'
+	},
+	{
 		email: 'teacher@school.com',
 		name: 'Rina Pratiwi',
 		initials: 'RP',

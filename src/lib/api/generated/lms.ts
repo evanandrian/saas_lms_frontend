@@ -6,6 +6,683 @@
  * OpenAPI spec version: 1.0.0
  */
 import { lmsFetch } from '../client';
+export interface RequestDocument {
+	id: string;
+	file_name: string;
+	content_type: string;
+	created_at: string;
+}
+
+export type RequestLogEntryAction =
+	(typeof RequestLogEntryAction)[keyof typeof RequestLogEntryAction];
+
+export const RequestLogEntryAction = {
+	submitted: 'submitted',
+	updated: 'updated',
+	cancelled: 'cancelled',
+	docs_requested: 'docs_requested',
+	docs_uploaded: 'docs_uploaded',
+	approved: 'approved',
+	declined: 'declined',
+	dismissed: 'dismissed',
+	applied: 'applied'
+} as const;
+
+export interface RequestLogEntry {
+	actor: string;
+	action: RequestLogEntryAction;
+	detail: string;
+	created_at: string;
+}
+
+export type RequestViewKind = (typeof RequestViewKind)[keyof typeof RequestViewKind];
+
+export const RequestViewKind = {
+	name: 'name',
+	identity: 'identity',
+	deletion: 'deletion'
+} as const;
+
+export type RequestViewStatus = (typeof RequestViewStatus)[keyof typeof RequestViewStatus];
+
+export const RequestViewStatus = {
+	pending: 'pending',
+	need_docs: 'need_docs',
+	approved: 'approved',
+	declined: 'declined'
+} as const;
+
+export interface RequestView {
+	id: string;
+	/** Display number (APV-<number>) */
+	number: number;
+	kind: RequestViewKind;
+	status: RequestViewStatus;
+	/** Identity type of the requester role (employee_id, nip, nuptk, nisn, nik) */
+	identity_kind: string;
+	from: string;
+	to: string;
+	reason: string;
+	created_at: string;
+	/** created_at + 72 h + time spent waiting for documents */
+	due_at: string;
+	paused: boolean;
+	docs_requested: string[];
+	docs_note: string;
+	documents: RequestDocument[];
+	/** @nullable */
+	decided_at: string | null;
+	decided_by: string;
+	decision_note: string;
+	/**
+	 * Deletion only — the account is deactivated at this time
+	 * @nullable
+	 */
+	effective_at: string | null;
+	log: RequestLogEntry[];
+}
+
+export interface InboxRequester {
+	id: string;
+	name: string;
+	email: string;
+	role_name: string;
+}
+
+export type InboxItem = RequestView & {
+	requester: InboxRequester;
+	self: boolean;
+};
+
+export type InboxApproverRole = (typeof InboxApproverRole)[keyof typeof InboxApproverRole];
+
+export const InboxApproverRole = {
+	platform: 'platform',
+	principal: 'principal',
+	school_admin: 'school_admin'
+} as const;
+
+export interface Inbox {
+	approver_role: InboxApproverRole;
+	tenant_name: string;
+	sla_hours: number;
+	items: InboxItem[];
+}
+
+export interface InboxSummary {
+	pending: number;
+}
+
+export type DocumentUploadContentType =
+	(typeof DocumentUploadContentType)[keyof typeof DocumentUploadContentType];
+
+export const DocumentUploadContentType = {
+	'image/png': 'image/png',
+	'image/jpeg': 'image/jpeg',
+	'application/pdf': 'application/pdf'
+} as const;
+
+export interface DocumentUpload {
+	file_name: string;
+	content_type: DocumentUploadContentType;
+	/** Base64 file, max 5 MB */
+	data: string;
+}
+
+export interface DecisionRequest {
+	note: string;
+}
+
+export interface DeclineRequestInput {
+	reason: string;
+}
+
+export interface DocsRequestInput {
+	documents: string[];
+	note: string;
+}
+
+export interface BulkApproveRequest {
+	ids: string[];
+}
+
+export interface BulkApproveResult {
+	approved: number;
+	inbox: Inbox;
+}
+
+export type AccountArea = (typeof AccountArea)[keyof typeof AccountArea];
+
+export const AccountArea = {
+	platform: 'platform',
+	school_admin: 'school_admin',
+	teacher: 'teacher',
+	student: 'student',
+	guardian: 'guardian'
+} as const;
+
+export type OAuthProvider = (typeof OAuthProvider)[keyof typeof OAuthProvider];
+
+export const OAuthProvider = {
+	google: 'google',
+	belajar: 'belajar'
+} as const;
+
+export interface AccountIssue {
+	field: string;
+	code: string;
+}
+
+export type AccountErrorResponseError = {
+	code: string;
+	message: string;
+	request_id?: string;
+	/** AccountIssue[] for `validation_failed`; otherwise an object (remaining, retry_at). */
+	details?: unknown;
+};
+
+export interface AccountErrorResponse {
+	error: AccountErrorResponseError;
+}
+
+export type ClientInfoKind = (typeof ClientInfoKind)[keyof typeof ClientInfoKind];
+
+export const ClientInfoKind = {
+	desktop: 'desktop',
+	mobile: 'mobile',
+	tablet: 'tablet'
+} as const;
+
+export interface ClientInfo {
+	browser: string;
+	os: string;
+	kind: ClientInfoKind;
+}
+
+export type AccountContextIdentityKind =
+	(typeof AccountContextIdentityKind)[keyof typeof AccountContextIdentityKind];
+
+export const AccountContextIdentityKind = {
+	employee_id: 'employee_id',
+	nip: 'nip',
+	nuptk: 'nuptk',
+	nisn: 'nisn',
+	nik: 'nik'
+} as const;
+
+export type AccountContextApprover =
+	(typeof AccountContextApprover)[keyof typeof AccountContextApprover];
+
+export const AccountContextApprover = {
+	super_admin: 'super_admin',
+	principal: 'principal',
+	school_admin: 'school_admin'
+} as const;
+
+export interface AccountContext {
+	area: AccountArea;
+	tenant_code: string;
+	tenant_name: string;
+	role_name: string;
+	identity_kind: AccountContextIdentityKind;
+	approver: AccountContextApprover;
+	/** Students may only change photo, phone, and password. */
+	restricted: boolean;
+}
+
+/**
+ * @nullable
+ */
+export type AccountProfileGender =
+	(typeof AccountProfileGender)[keyof typeof AccountProfileGender] | null;
+
+export const AccountProfileGender = {
+	L: 'L',
+	P: 'P'
+} as const;
+
+export interface AccountProfile {
+	full_name: string;
+	nickname: string;
+	/** @nullable */
+	gender: AccountProfileGender;
+	/** @nullable */
+	birth_date: string | null;
+	address: string;
+	email: string;
+	/** National digits without the leading 0/62, e.g. 81234567890. */
+	phone: string;
+	identity_number: string;
+	has_photo: boolean;
+	photo_version: number;
+	updated_at: string;
+}
+
+export type PasswordHistoryEntryMethod =
+	(typeof PasswordHistoryEntryMethod)[keyof typeof PasswordHistoryEntryMethod];
+
+export const PasswordHistoryEntryMethod = {
+	settings: 'settings',
+	reset_link: 'reset_link',
+	initial: 'initial'
+} as const;
+
+export interface PasswordHistoryEntry {
+	method: PasswordHistoryEntryMethod;
+	client: ClientInfo | null;
+	ip: string;
+	created_at: string;
+}
+
+export type OtpChannelChannel = (typeof OtpChannelChannel)[keyof typeof OtpChannelChannel];
+
+export const OtpChannelChannel = {
+	whatsapp: 'whatsapp',
+	email: 'email'
+} as const;
+
+export interface OtpChannel {
+	channel: OtpChannelChannel;
+	target: string;
+}
+
+export interface PasswordView {
+	last_changed_at: string;
+	history: PasswordHistoryEntry[];
+	otp_channel: OtpChannel;
+	reset_link_sent: boolean;
+	failures_left: number;
+}
+
+/**
+ * @nullable
+ */
+export type SecurityViewTwoFactorMethod =
+	(typeof SecurityViewTwoFactorMethod)[keyof typeof SecurityViewTwoFactorMethod] | null;
+
+export const SecurityViewTwoFactorMethod = {
+	app: 'app',
+	whatsapp: 'whatsapp'
+} as const;
+
+export interface SecurityView {
+	two_factor_enabled: boolean;
+	/** @nullable */
+	two_factor_method: SecurityViewTwoFactorMethod;
+	whatsapp_available: boolean;
+	backup_codes_remaining: number;
+	new_device_alert: boolean;
+	lockout_enabled: boolean;
+}
+
+export interface SessionView {
+	id: string;
+	client: ClientInfo;
+	ip: string;
+	last_active_at: string;
+	created_at: string;
+	current: boolean;
+}
+
+export type LoginViewResult = (typeof LoginViewResult)[keyof typeof LoginViewResult];
+
+export const LoginViewResult = {
+	success: 'success',
+	failure: 'failure'
+} as const;
+
+export type LoginViewMethod = (typeof LoginViewMethod)[keyof typeof LoginViewMethod];
+
+export const LoginViewMethod = {
+	password: 'password',
+	google: 'google',
+	belajar: 'belajar'
+} as const;
+
+export type LoginViewReason = (typeof LoginViewReason)[keyof typeof LoginViewReason];
+
+export const LoginViewReason = {
+	'': '',
+	wrong_password: 'wrong_password',
+	wrong_two_factor: 'wrong_two_factor',
+	locked: 'locked',
+	suspended: 'suspended'
+} as const;
+
+export interface LoginView {
+	id: string;
+	result: LoginViewResult;
+	method: LoginViewMethod;
+	reason: LoginViewReason;
+	client: ClientInfo;
+	ip: string;
+	created_at: string;
+}
+
+export interface NotificationEventView {
+	code: string;
+	label: string;
+	description: string;
+	email_locked: boolean;
+	email: boolean;
+	whatsapp: boolean;
+	in_app: boolean;
+}
+
+export interface QuietHours {
+	enabled: boolean;
+	from: string;
+	to: string;
+}
+
+export interface NotificationsView {
+	events: NotificationEventView[];
+	quiet: QuietHours;
+}
+
+export interface LinkedView {
+	provider: OAuthProvider;
+	configured: boolean;
+	/** @nullable */
+	email: string | null;
+	/** @nullable */
+	linked_at: string | null;
+}
+
+export type PrivacyViewPhoneVisibility =
+	(typeof PrivacyViewPhoneVisibility)[keyof typeof PrivacyViewPhoneVisibility];
+
+export const PrivacyViewPhoneVisibility = {
+	admin: 'admin',
+	staff: 'staff',
+	all: 'all'
+} as const;
+
+export interface PrivacyView {
+	phone_visibility: PrivacyViewPhoneVisibility;
+	show_photo: boolean;
+	show_online: boolean;
+}
+
+export type ExportCategory = (typeof ExportCategory)[keyof typeof ExportCategory];
+
+export const ExportCategory = {
+	profile: 'profile',
+	logins: 'logins',
+	activity: 'activity',
+	messages: 'messages'
+} as const;
+
+export type ExportFormat = (typeof ExportFormat)[keyof typeof ExportFormat];
+
+export const ExportFormat = {
+	json: 'json',
+	csv: 'csv'
+} as const;
+
+export interface ExportRecord {
+	id: string;
+	categories: ExportCategory[];
+	format: ExportFormat;
+	created_at: string;
+	expires_at: string;
+}
+
+export interface ExportView {
+	categories: ExportCategory[];
+	latest: ExportRecord | null;
+}
+
+export interface AccountOverview {
+	context: AccountContext;
+	profile: AccountProfile;
+	/** @nullable */
+	pending_email: string | null;
+	/** Name/identity requests still shown on the profile tab (not cancelled or dismissed). */
+	requests: RequestView[];
+	password: PasswordView;
+	security: SecurityView;
+	sessions: SessionView[];
+	session_idle_days: number;
+	logins: LoginView[];
+	notifications: NotificationsView;
+	linked: LinkedView[];
+	privacy: PrivacyView;
+	export: ExportView;
+	deletion_request: RequestView | null;
+}
+
+export type PhotoChangeAction = (typeof PhotoChangeAction)[keyof typeof PhotoChangeAction];
+
+export const PhotoChangeAction = {
+	keep: 'keep',
+	remove: 'remove',
+	replace: 'replace'
+} as const;
+
+export interface PhotoChange {
+	action: PhotoChangeAction;
+	/** image/png or image/jpeg (replace only) */
+	content_type: string;
+	/** Base64 image, max 2 MB (replace only) */
+	data: string;
+}
+
+export interface UpdateProfileRequest {
+	full_name: string;
+	nickname: string;
+	/** L, P, or empty */
+	gender: string;
+	/** YYYY-MM-DD or empty */
+	birth_date: string;
+	address: string;
+	email: string;
+	phone: string;
+	identity_number: string;
+	photo: PhotoChange | null;
+	updated_at: string;
+}
+
+export interface ProfileResult {
+	overview: AccountOverview;
+	verification_sent: boolean;
+	approval_requested: boolean;
+}
+
+export interface TokenRequest {
+	token: string;
+}
+
+export interface ChangePasswordRequest {
+	current_password: string;
+	/** Reset-link token instead of the current password (empty otherwise). */
+	reset_token: string;
+	new_password: string;
+	confirm_password: string;
+	logout_others: boolean;
+}
+
+export type PasswordChallengeChannel =
+	(typeof PasswordChallengeChannel)[keyof typeof PasswordChallengeChannel];
+
+export const PasswordChallengeChannel = {
+	whatsapp: 'whatsapp',
+	email: 'email'
+} as const;
+
+export interface PasswordChallenge {
+	challenge_id: string;
+	channel: PasswordChallengeChannel;
+	target: string;
+	expires_at: string;
+	resend_available_at: string;
+}
+
+export interface ChallengeRequest {
+	challenge_id: string;
+	code: string;
+}
+
+export interface PasswordChangeResult {
+	overview: AccountOverview;
+	logged_out_others: boolean;
+}
+
+export interface ResetLinkRequest {
+	/** Relative path of the settings page opened by the email link. */
+	return_path: string;
+}
+
+export interface ResetTokenStatus {
+	valid: boolean;
+	/** @nullable */
+	expires_at: string | null;
+}
+
+export type TwoFactorSetupRequestMethod =
+	(typeof TwoFactorSetupRequestMethod)[keyof typeof TwoFactorSetupRequestMethod];
+
+export const TwoFactorSetupRequestMethod = {
+	app: 'app',
+	whatsapp: 'whatsapp'
+} as const;
+
+export interface TwoFactorSetupRequest {
+	method: TwoFactorSetupRequestMethod;
+}
+
+export type TwoFactorSetupMethod = (typeof TwoFactorSetupMethod)[keyof typeof TwoFactorSetupMethod];
+
+export const TwoFactorSetupMethod = {
+	app: 'app',
+	whatsapp: 'whatsapp'
+} as const;
+
+export interface TwoFactorSetup {
+	method: TwoFactorSetupMethod;
+	/** @nullable */
+	otpauth_uri: string | null;
+	/**
+	 * PNG data URL
+	 * @nullable
+	 */
+	qr_code: string | null;
+	/** @nullable */
+	manual_key: string | null;
+	/** @nullable */
+	target: string | null;
+}
+
+export interface CodeRequest {
+	code: string;
+}
+
+export interface BackupCodesResult {
+	overview: AccountOverview;
+	codes: string[];
+}
+
+export interface SecurityAlertsRequest {
+	new_device_alert: boolean;
+	lockout_enabled: boolean;
+}
+
+export interface NotificationPrefInput {
+	code: string;
+	email: boolean;
+	whatsapp: boolean;
+	in_app: boolean;
+}
+
+export interface UpdateNotificationsRequest {
+	events: NotificationPrefInput[];
+	quiet: QuietHours;
+}
+
+export interface OAuthStartRequest {
+	return_to: string;
+}
+
+export type PrivacyRequestPhoneVisibility =
+	(typeof PrivacyRequestPhoneVisibility)[keyof typeof PrivacyRequestPhoneVisibility];
+
+export const PrivacyRequestPhoneVisibility = {
+	admin: 'admin',
+	staff: 'staff',
+	all: 'all'
+} as const;
+
+export interface PrivacyRequest {
+	phone_visibility: PrivacyRequestPhoneVisibility;
+	show_photo: boolean;
+	show_online: boolean;
+}
+
+export interface ExportRequest {
+	categories: ExportCategory[];
+	format: ExportFormat;
+}
+
+export interface SecondFactorRequest {
+	challenge_token: string;
+	code?: string;
+}
+
+export type LoginResultMethod = (typeof LoginResultMethod)[keyof typeof LoginResultMethod];
+
+export const LoginResultMethod = {
+	app: 'app',
+	whatsapp: 'whatsapp'
+} as const;
+
+/**
+ * Either `token` + `refresh_token`, or a two-step challenge (`two_factor_required`).
+ */
+export interface LoginResult {
+	token?: string;
+	refresh_token?: string;
+	two_factor_required?: boolean;
+	challenge_token?: string;
+	method?: LoginResultMethod;
+	target?: string;
+	expires_at?: string;
+	resend_available_at?: string;
+}
+
+export interface OAuthProviderStatus {
+	provider: OAuthProvider;
+	configured: boolean;
+}
+
+export interface OAuthCompleteRequest {
+	code: string;
+	state: string;
+}
+
+export type OAuthCompleteResultPurpose =
+	(typeof OAuthCompleteResultPurpose)[keyof typeof OAuthCompleteResultPurpose];
+
+export const OAuthCompleteResultPurpose = {
+	link: 'link'
+} as const;
+
+/**
+ * Login → LoginResult fields; link → purpose `link` with provider and return_to.
+ */
+export interface OAuthCompleteResult {
+	purpose?: OAuthCompleteResultPurpose;
+	provider?: OAuthProvider;
+	return_to?: string;
+	token?: string;
+	refresh_token?: string;
+	two_factor_required?: boolean;
+	challenge_token?: string;
+	method?: string;
+	target?: string;
+	expires_at?: string;
+	resend_available_at?: string;
+}
+
 export type PlanStatus = (typeof PlanStatus)[keyof typeof PlanStatus];
 
 export const PlanStatus = {
@@ -665,6 +1342,351 @@ export interface ResetNavigationLayoutRequest {
 }
 
 /**
+ * @nullable
+ */
+export type DashboardViewerGender =
+	(typeof DashboardViewerGender)[keyof typeof DashboardViewerGender] | null;
+
+export const DashboardViewerGender = {
+	L: 'L',
+	P: 'P'
+} as const;
+
+export interface DashboardViewer {
+	full_name: string;
+	nickname: string;
+	/** @nullable */
+	gender: DashboardViewerGender;
+}
+
+export interface DashboardPeriod {
+	/** @nullable */
+	academic_year: string | null;
+	/** @nullable */
+	semester: number | null;
+}
+
+/**
+ * @nullable
+ */
+export type HomeroomClass = {
+	id: string;
+	name: string;
+	grade_level: number;
+	grade_name: string;
+	/** @nullable */
+	capacity: number | null;
+} | null;
+
+export type DashboardContextArea = (typeof DashboardContextArea)[keyof typeof DashboardContextArea];
+
+export const DashboardContextArea = {
+	school_admin: 'school_admin',
+	teacher: 'teacher'
+} as const;
+
+export type DashboardView = (typeof DashboardView)[keyof typeof DashboardView];
+
+export const DashboardView = {
+	principal: 'principal',
+	school_admin: 'school_admin',
+	teacher: 'teacher',
+	homeroom: 'homeroom'
+} as const;
+
+export interface DashboardContext {
+	area: DashboardContextArea;
+	role_code: string;
+	role_name: string;
+	tenant_code: string;
+	tenant_name: string;
+	viewer: DashboardViewer;
+	views: DashboardView[];
+	default_view: DashboardView;
+	homeroom_class: HomeroomClass | null;
+}
+
+export type DashboardSubscriptionStatus =
+	(typeof DashboardSubscriptionStatus)[keyof typeof DashboardSubscriptionStatus];
+
+export const DashboardSubscriptionStatus = {
+	trial: 'trial',
+	active: 'active',
+	past_due: 'past_due',
+	cancelled: 'cancelled',
+	expired: 'expired'
+} as const;
+
+/**
+ * @nullable
+ */
+export type DashboardSubscription = {
+	plan_name: string;
+	status: DashboardSubscriptionStatus;
+	/** @nullable */
+	seat_count: number | null;
+	seats_used: number;
+	/** @nullable */
+	trial_ends_at: string | null;
+	/** @nullable */
+	period_start: string | null;
+	/** @nullable */
+	period_end: string | null;
+} | null;
+
+export type PrincipalDashboardCounts = {
+	teachers: number;
+	students: number;
+	/** @nullable */
+	classes: number | null;
+};
+
+export type PrincipalDashboardKpisItem = { [key: string]: unknown };
+
+export type PrincipalDashboardAttendanceTrendItem = { [key: string]: unknown };
+
+export type PrincipalDashboardAbsentTeachersItem = { [key: string]: unknown };
+
+export type PrincipalDashboardSubjectScoresItem = { [key: string]: unknown };
+
+export type PrincipalDashboardClassComparisonItem = { [key: string]: unknown };
+
+export type PrincipalDashboardReportPipelineItem = { [key: string]: unknown };
+
+export type PrincipalDashboardTeacherActivityItem = { [key: string]: unknown };
+
+export type PrincipalDashboardStudentsAtRiskItem = { [key: string]: unknown };
+
+export type PrincipalDashboardAgendaItem = { [key: string]: unknown };
+
+export type PrincipalDashboardAnnouncementsItem = { [key: string]: unknown };
+
+export interface PrincipalDashboard {
+	viewer: DashboardViewer;
+	tenant_name: string;
+	period: DashboardPeriod;
+	pending_approvals: number;
+	counts: PrincipalDashboardCounts;
+	subscription: DashboardSubscription | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	kpis?: PrincipalDashboardKpisItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	attendance_trend?: PrincipalDashboardAttendanceTrendItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	absent_teachers?: PrincipalDashboardAbsentTeachersItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	subject_scores?: PrincipalDashboardSubjectScoresItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	class_comparison?: PrincipalDashboardClassComparisonItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	report_pipeline?: PrincipalDashboardReportPipelineItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	teacher_activity?: PrincipalDashboardTeacherActivityItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	students_at_risk?: PrincipalDashboardStudentsAtRiskItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	agenda?: PrincipalDashboardAgendaItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	announcements?: PrincipalDashboardAnnouncementsItem[] | null;
+}
+
+export type HomeroomDashboardStudentsItem = { [key: string]: unknown };
+
+export type HomeroomDashboardAttendanceTodayItem = { [key: string]: unknown };
+
+export type HomeroomDashboardParentRequestsItem = { [key: string]: unknown };
+
+export type HomeroomDashboardThreadsItem = { [key: string]: unknown };
+
+export type HomeroomDashboardGradeRecapItem = { [key: string]: unknown };
+
+export type HomeroomDashboardAttentionItem = { [key: string]: unknown };
+
+export type HomeroomDashboardReportProgressItem = { [key: string]: unknown };
+
+export type HomeroomDashboardScheduleItem = { [key: string]: unknown };
+
+export type HomeroomDashboardBehaviorNotesItem = { [key: string]: unknown };
+
+export interface HomeroomDashboard {
+	viewer: DashboardViewer;
+	tenant_name: string;
+	period: DashboardPeriod;
+	homeroom_class: HomeroomClass | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	students?: HomeroomDashboardStudentsItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	attendance_today?: HomeroomDashboardAttendanceTodayItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	parent_requests?: HomeroomDashboardParentRequestsItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	threads?: HomeroomDashboardThreadsItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	grade_recap?: HomeroomDashboardGradeRecapItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	attention?: HomeroomDashboardAttentionItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	report_progress?: HomeroomDashboardReportProgressItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	schedule?: HomeroomDashboardScheduleItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	behavior_notes?: HomeroomDashboardBehaviorNotesItem[] | null;
+}
+
+export type TeacherDashboardAgendaItem = { [key: string]: unknown };
+
+export type TeacherDashboardNextSessionItem = { [key: string]: unknown };
+
+export type TeacherDashboardGradingPileItem = { [key: string]: unknown };
+
+export type TeacherDashboardGradebookItem = { [key: string]: unknown };
+
+export type TeacherDashboardScheduleItem = { [key: string]: unknown };
+
+export type TeacherDashboardMaterialProgressItem = { [key: string]: unknown };
+
+export type TeacherDashboardQuestionBankItem = { [key: string]: unknown };
+
+export type TeacherDashboardItemAnalysisItem = { [key: string]: unknown };
+
+export interface TeacherDashboard {
+	viewer: DashboardViewer;
+	tenant_name: string;
+	period: DashboardPeriod;
+	homeroom_class: HomeroomClass | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	agenda?: TeacherDashboardAgendaItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	next_session?: TeacherDashboardNextSessionItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	grading_pile?: TeacherDashboardGradingPileItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	gradebook?: TeacherDashboardGradebookItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	schedule?: TeacherDashboardScheduleItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	material_progress?: TeacherDashboardMaterialProgressItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	question_bank?: TeacherDashboardQuestionBankItem[] | null;
+	/**
+	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * @nullable
+	 */
+	item_analysis?: TeacherDashboardItemAnalysisItem[] | null;
+}
+
+/**
+ * Error envelope. Dashboard codes: `unknown_area` (400), `forbidden` (403, role has no such dashboard view), `internal_error`.
+ */
+export type DashboardErrorResponse = AccountErrorResponse;
+
+export type AccountOverviewResponse = {
+	data: AccountOverview;
+};
+
+export type PasswordChallengeResponse = {
+	data: PasswordChallenge;
+};
+
+export type BackupCodesResponse = {
+	data: BackupCodesResult;
+};
+
+export type OAuthStartResponseData = {
+	authorize_url: string;
+};
+
+export type OAuthStartResponse = {
+	data: OAuthStartResponseData;
+};
+
+export type LoginResultResponse = {
+	data: LoginResult;
+};
+
+export type ApprovalInboxResponse = {
+	data: Inbox;
+};
+
+/**
  * Error envelope. Plan codes: `forbidden`, `not_found`, `invalid_request`, `version_conflict`, `in_use` (details = [{entity: subscription, count}]), `validation_failed` (details = MasterIssue[]), `internal_error`.
  */
 export type PlanErrorResponse = MasterErrorResponse;
@@ -689,6 +1711,8 @@ export type NavigationLayoutResponse = {
 	data: NavigationLayout;
 };
 
+export type AccountAreaParameter = AccountArea;
+
 export type GetHealth200Data = {
 	status?: string;
 };
@@ -705,17 +1729,9 @@ export type GetReady200 = {
 	data?: GetReady200Data;
 };
 
-export type PostApiV1AuthLoginBody = {
+export type LoginBody = {
 	email?: string;
 	password?: string;
-};
-
-export type PostApiV1AuthLogin200Data = {
-	token?: string;
-};
-
-export type PostApiV1AuthLogin200 = {
-	data?: PostApiV1AuthLogin200Data;
 };
 
 export type PostApiV1AuthRefreshBody = {
@@ -785,6 +1801,284 @@ export type PostApiV1InstitutionsInstitutionIDLearningObjectivesBody = {
 	sort_order?: number;
 };
 
+export type ListOAuthProviders200 = {
+	data: OAuthProviderStatus[];
+};
+
+export type CompleteOAuth200 = {
+	data: OAuthCompleteResult;
+};
+
+export type GetAccountOverviewParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UpdateAccountProfileParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UpdateAccountProfile200 = {
+	data: ProfileResult;
+};
+
+export type ResendEmailVerificationParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type CancelEmailChangeParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type VerifyAccountEmail200Data = {
+	email: string;
+};
+
+export type VerifyAccountEmail200 = {
+	data: VerifyAccountEmail200Data;
+};
+
+export type VerifyPasswordOtpParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type VerifyPasswordOtp200 = {
+	data: PasswordChangeResult;
+};
+
+export type SendPasswordResetLinkParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type CheckPasswordResetToken200 = {
+	data: ResetTokenStatus;
+};
+
+export type SetupTwoFactor200 = {
+	data: TwoFactorSetup;
+};
+
+export type VerifyTwoFactorParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type RegenerateBackupCodesParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type DisableTwoFactorParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UpdateSecurityAlertsParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type RevokeOtherSessionsParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type RevokeSessionParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UpdateNotificationPreferencesParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type SendTestNotificationParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type StartAccountLinkParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UnlinkAccountParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UpdatePrivacyParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type CreateDataExportParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type RequestAccountDeletionParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type CancelAccountRequestParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type DismissAccountRequestParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type UploadAccountRequestDocumentParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetOwnRequestDocumentParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetApprovalInboxParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetApprovalSummaryParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetApprovalSummary200 = {
+	data: InboxSummary;
+};
+
+export type BulkApproveRequestsParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type BulkApproveRequests200 = {
+	data: BulkApproveResult;
+};
+
+export type ApproveRequestParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type DeclineRequestParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type RequestRequestDocumentsParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetApprovalDocumentParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetDashboardContextParams = {
+	area: GetDashboardContextArea;
+};
+
+export type GetDashboardContextArea =
+	(typeof GetDashboardContextArea)[keyof typeof GetDashboardContextArea];
+
+export const GetDashboardContextArea = {
+	school_admin: 'school_admin',
+	teacher: 'teacher'
+} as const;
+
+export type GetDashboardContext200 = {
+	data: DashboardContext;
+};
+
+export type GetPrincipalDashboard200 = {
+	data: PrincipalDashboard;
+};
+
+export type GetHomeroomDashboard200 = {
+	data: HomeroomDashboard;
+};
+
+export type GetTeacherDashboard200 = {
+	data: TeacherDashboard;
+};
+
 export type getHealthResponse200 = {
 	data: GetHealth200;
 	status: 200;
@@ -848,38 +2142,42 @@ export const getReady = async (
 	});
 };
 
-export type postApiV1AuthLoginResponse200 = {
-	data: PostApiV1AuthLogin200;
+export type loginResponse200 = {
+	data: LoginResultResponse;
 	status: 200;
 };
 
-export type postApiV1AuthLoginResponse401 = {
+export type loginResponse401 = {
 	data: void;
 	status: 401;
 };
 
-export type postApiV1AuthLoginResponseSuccess = postApiV1AuthLoginResponse200 & {
+export type loginResponse423 = {
+	data: AccountErrorResponse;
+	status: 423;
+};
+
+export type loginResponseSuccess = loginResponse200 & {
 	headers: Headers;
 };
-export type postApiV1AuthLoginResponseError = postApiV1AuthLoginResponse401 & {
+export type loginResponseError = (loginResponse401 | loginResponse423) & {
 	headers: Headers;
 };
 
-export type postApiV1AuthLoginResponse =
-	postApiV1AuthLoginResponseSuccess | postApiV1AuthLoginResponseError;
+export type loginResponse = loginResponseSuccess | loginResponseError;
 
-export const getPostApiV1AuthLoginUrl = () => {
+export const getLoginUrl = () => {
 	return `/api/v1/auth/login`;
 };
 
 /**
- * Single-device policy: a successful login revokes every other session of the user, so access tokens issued to other devices are rejected with 401 `session_revoked`.
+ * Multi-session: each login is a new device session; other devices stay signed in. When two-step verification is on, the response is a challenge (`two_factor_required`) completed with `/auth/login/2fa`. 423 `account_locked` after 5 consecutive failures when lockout is on.
  * @summary Login
  */
-export const postApiV1AuthLogin = async (
-	postApiV1AuthLoginBody: PostApiV1AuthLoginBody,
+export const login = async (
+	loginBody: LoginBody,
 	options?: Parameters<typeof lmsFetch>[1]
-): Promise<postApiV1AuthLoginResponse> => {
+): Promise<loginResponse> => {
 	const getHeaders = (
 		h?: NonNullable<RequestInit['headers']>
 	): Record<string, string | readonly string[]> => {
@@ -899,11 +2197,11 @@ export const postApiV1AuthLogin = async (
 		}
 		return headers;
 	};
-	return lmsFetch<postApiV1AuthLoginResponse>(getPostApiV1AuthLoginUrl(), {
+	return lmsFetch<loginResponse>(getLoginUrl(), {
 		...options,
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-		body: JSON.stringify(postApiV1AuthLoginBody)
+		body: JSON.stringify(loginBody)
 	});
 };
 
@@ -1016,7 +2314,7 @@ export const getPostApiV1AuthLogoutUrl = () => {
 };
 
 /**
- * Ends the user's sessions on all devices (all refresh tokens are revoked).
+ * Ends the session of this device only; other devices are signed out from Pengaturan Akun.
  * @summary Logout
  */
 export const postApiV1AuthLogout = async (
@@ -2538,5 +3836,2701 @@ export const deletePlan = async (
 	return lmsFetch<deletePlanResponse>(getDeletePlanUrl(code), {
 		...options,
 		method: 'DELETE'
+	});
+};
+
+export type completeLoginTwoFactorResponse200 = {
+	data: LoginResultResponse;
+	status: 200;
+};
+
+export type completeLoginTwoFactorResponse401 = {
+	data: AccountErrorResponse;
+	status: 401;
+};
+
+export type completeLoginTwoFactorResponseSuccess = completeLoginTwoFactorResponse200 & {
+	headers: Headers;
+};
+export type completeLoginTwoFactorResponseError = completeLoginTwoFactorResponse401 & {
+	headers: Headers;
+};
+
+export type completeLoginTwoFactorResponse =
+	completeLoginTwoFactorResponseSuccess | completeLoginTwoFactorResponseError;
+
+export const getCompleteLoginTwoFactorUrl = () => {
+	return `/api/v1/auth/login/2fa`;
+};
+
+/**
+ * Accepts the authenticator/WhatsApp code or a one-time backup code. Wrong codes count toward the temporary lockout. 401 `invalid_code` (details.remaining) or `challenge_expired`.
+ * @summary Complete a login that requires two-step verification
+ */
+export const completeLoginTwoFactor = async (
+	secondFactorRequest: SecondFactorRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<completeLoginTwoFactorResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<completeLoginTwoFactorResponse>(getCompleteLoginTwoFactorUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(secondFactorRequest)
+	});
+};
+
+export type resendLoginTwoFactorResponse200 = {
+	data: LoginResultResponse;
+	status: 200;
+};
+
+export type resendLoginTwoFactorResponse401 = {
+	data: AccountErrorResponse;
+	status: 401;
+};
+
+export type resendLoginTwoFactorResponse429 = {
+	data: AccountErrorResponse;
+	status: 429;
+};
+
+export type resendLoginTwoFactorResponseSuccess = resendLoginTwoFactorResponse200 & {
+	headers: Headers;
+};
+export type resendLoginTwoFactorResponseError = (
+	resendLoginTwoFactorResponse401 | resendLoginTwoFactorResponse429
+) & {
+	headers: Headers;
+};
+
+export type resendLoginTwoFactorResponse =
+	resendLoginTwoFactorResponseSuccess | resendLoginTwoFactorResponseError;
+
+export const getResendLoginTwoFactorUrl = () => {
+	return `/api/v1/auth/login/2fa/resend`;
+};
+
+/**
+ * @summary Resend the WhatsApp login code (30 s cooldown)
+ */
+export const resendLoginTwoFactor = async (
+	secondFactorRequest: SecondFactorRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<resendLoginTwoFactorResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<resendLoginTwoFactorResponse>(getResendLoginTwoFactorUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(secondFactorRequest)
+	});
+};
+
+export type listOAuthProvidersResponse200 = {
+	data: ListOAuthProviders200;
+	status: 200;
+};
+
+export type listOAuthProvidersResponseSuccess = listOAuthProvidersResponse200 & {
+	headers: Headers;
+};
+export type listOAuthProvidersResponse = listOAuthProvidersResponseSuccess;
+
+export const getListOAuthProvidersUrl = () => {
+	return `/api/v1/auth/oauth/providers`;
+};
+
+/**
+ * @summary OAuth providers and whether they are configured
+ */
+export const listOAuthProviders = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listOAuthProvidersResponse> => {
+	return lmsFetch<listOAuthProvidersResponse>(getListOAuthProvidersUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type startOAuthLoginResponse200 = {
+	data: OAuthStartResponse;
+	status: 200;
+};
+
+export type startOAuthLoginResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type startOAuthLoginResponseSuccess = startOAuthLoginResponse200 & {
+	headers: Headers;
+};
+export type startOAuthLoginResponseError = startOAuthLoginResponse409 & {
+	headers: Headers;
+};
+
+export type startOAuthLoginResponse = startOAuthLoginResponseSuccess | startOAuthLoginResponseError;
+
+export const getStartOAuthLoginUrl = (provider: 'google' | 'belajar') => {
+	return `/api/v1/auth/oauth/${provider}/start`;
+};
+
+/**
+ * @summary Start signing in with a linked provider account
+ */
+export const startOAuthLogin = async (
+	provider: 'google' | 'belajar',
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startOAuthLoginResponse> => {
+	return lmsFetch<startOAuthLoginResponse>(getStartOAuthLoginUrl(provider), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type completeOAuthResponse200 = {
+	data: CompleteOAuth200;
+	status: 200;
+};
+
+export type completeOAuthResponse400 = {
+	data: AccountErrorResponse;
+	status: 400;
+};
+
+export type completeOAuthResponse401 = {
+	data: AccountErrorResponse;
+	status: 401;
+};
+
+export type completeOAuthResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type completeOAuthResponse423 = {
+	data: AccountErrorResponse;
+	status: 423;
+};
+
+export type completeOAuthResponseSuccess = completeOAuthResponse200 & {
+	headers: Headers;
+};
+export type completeOAuthResponseError = (
+	| completeOAuthResponse400
+	| completeOAuthResponse401
+	| completeOAuthResponse409
+	| completeOAuthResponse423
+) & {
+	headers: Headers;
+};
+
+export type completeOAuthResponse = completeOAuthResponseSuccess | completeOAuthResponseError;
+
+export const getCompleteOAuthUrl = () => {
+	return `/api/v1/auth/oauth/complete`;
+};
+
+/**
+ * For `purpose = link` the bearer token of the account that started linking is required. Login only succeeds when the provider account is already linked (401 `oauth_not_linked`); 409 `oauth_linked_elsewhere`, 400 `oauth_state_invalid`, 423 `account_locked`.
+ * @summary Complete the provider callback (login or link)
+ */
+export const completeOAuth = async (
+	oAuthCompleteRequest: OAuthCompleteRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<completeOAuthResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<completeOAuthResponse>(getCompleteOAuthUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(oAuthCompleteRequest)
+	});
+};
+
+export type getAccountOverviewResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type getAccountOverviewResponse400 = {
+	data: AccountErrorResponse;
+	status: 400;
+};
+
+export type getAccountOverviewResponse401 = {
+	data: AccountErrorResponse;
+	status: 401;
+};
+
+export type getAccountOverviewResponse403 = {
+	data: AccountErrorResponse;
+	status: 403;
+};
+
+export type getAccountOverviewResponseSuccess = getAccountOverviewResponse200 & {
+	headers: Headers;
+};
+export type getAccountOverviewResponseError = (
+	getAccountOverviewResponse400 | getAccountOverviewResponse401 | getAccountOverviewResponse403
+) & {
+	headers: Headers;
+};
+
+export type getAccountOverviewResponse =
+	getAccountOverviewResponseSuccess | getAccountOverviewResponseError;
+
+export const getGetAccountOverviewUrl = (params: GetAccountOverviewParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0 ? `/api/v1/account?${stringifiedParams}` : `/api/v1/account`;
+};
+
+/**
+ * Everything the settings page shows for one workspace area. The area is verified against the user's active memberships (403 `forbidden`, 400 `invalid_area`). Every mutation below returns the same overview so the page always reflects stored data.
+ * @summary Pengaturan Akun overview of the signed-in user
+ */
+export const getAccountOverview = async (
+	params: GetAccountOverviewParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getAccountOverviewResponse> => {
+	return lmsFetch<getAccountOverviewResponse>(getGetAccountOverviewUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getAccountPhotoResponse200ImagePng = {
+	data: Blob;
+	status: 200;
+};
+
+export type getAccountPhotoResponse200ImageJpeg = {
+	data: Blob;
+	status: 200;
+};
+
+export type getAccountPhotoResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type getAccountPhotoResponseSuccess = (
+	getAccountPhotoResponse200ImagePng | getAccountPhotoResponse200ImageJpeg
+) & {
+	headers: Headers;
+};
+export type getAccountPhotoResponseError = getAccountPhotoResponse404 & {
+	headers: Headers;
+};
+
+export type getAccountPhotoResponse = getAccountPhotoResponseSuccess | getAccountPhotoResponseError;
+
+export const getGetAccountPhotoUrl = () => {
+	return `/api/v1/account/photo`;
+};
+
+/**
+ * @summary Profile photo of the signed-in user (PNG/JPEG)
+ */
+export const getAccountPhoto = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getAccountPhotoResponse> => {
+	return lmsFetch<getAccountPhotoResponse>(getGetAccountPhotoUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateAccountProfileResponse200 = {
+	data: UpdateAccountProfile200;
+	status: 200;
+};
+
+export type updateAccountProfileResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type updateAccountProfileResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type updateAccountProfileResponseSuccess = updateAccountProfileResponse200 & {
+	headers: Headers;
+};
+export type updateAccountProfileResponseError = (
+	updateAccountProfileResponse409 | updateAccountProfileResponse422
+) & {
+	headers: Headers;
+};
+
+export type updateAccountProfileResponse =
+	updateAccountProfileResponseSuccess | updateAccountProfileResponseError;
+
+export const getUpdateAccountProfileUrl = (params: UpdateAccountProfileParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/profile?${stringifiedParams}`
+		: `/api/v1/account/profile`;
+};
+
+/**
+ * Nickname, gender, birth date, address, phone, and photo are saved directly. A new email waits for its verification link; full name and identity number wait for reviewer approval. Students may only change phone and photo (422 `restricted`). `updated_at` must match (409 `version_conflict`). Logged as `account.profile.update`.
+ * @summary Save the profile
+ */
+export const updateAccountProfile = async (
+	updateProfileRequest: UpdateProfileRequest,
+	params: UpdateAccountProfileParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateAccountProfileResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateAccountProfileResponse>(getUpdateAccountProfileUrl(params), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(updateProfileRequest)
+	});
+};
+
+export type resendEmailVerificationResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type resendEmailVerificationResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type resendEmailVerificationResponse429 = {
+	data: AccountErrorResponse;
+	status: 429;
+};
+
+export type resendEmailVerificationResponseSuccess = resendEmailVerificationResponse200 & {
+	headers: Headers;
+};
+export type resendEmailVerificationResponseError = (
+	resendEmailVerificationResponse409 | resendEmailVerificationResponse429
+) & {
+	headers: Headers;
+};
+
+export type resendEmailVerificationResponse =
+	resendEmailVerificationResponseSuccess | resendEmailVerificationResponseError;
+
+export const getResendEmailVerificationUrl = (params: ResendEmailVerificationParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/email/resend?${stringifiedParams}`
+		: `/api/v1/account/email/resend`;
+};
+
+/**
+ * @summary Resend the verification link to the pending email (30 s cooldown)
+ */
+export const resendEmailVerification = async (
+	params: ResendEmailVerificationParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<resendEmailVerificationResponse> => {
+	return lmsFetch<resendEmailVerificationResponse>(getResendEmailVerificationUrl(params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type cancelEmailChangeResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type cancelEmailChangeResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type cancelEmailChangeResponseSuccess = cancelEmailChangeResponse200 & {
+	headers: Headers;
+};
+export type cancelEmailChangeResponseError = cancelEmailChangeResponse409 & {
+	headers: Headers;
+};
+
+export type cancelEmailChangeResponse =
+	cancelEmailChangeResponseSuccess | cancelEmailChangeResponseError;
+
+export const getCancelEmailChangeUrl = (params: CancelEmailChangeParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/email/pending?${stringifiedParams}`
+		: `/api/v1/account/email/pending`;
+};
+
+/**
+ * @summary Cancel the pending email change
+ */
+export const cancelEmailChange = async (
+	params: CancelEmailChangeParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<cancelEmailChangeResponse> => {
+	return lmsFetch<cancelEmailChangeResponse>(getCancelEmailChangeUrl(params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type verifyAccountEmailResponse200 = {
+	data: VerifyAccountEmail200;
+	status: 200;
+};
+
+export type verifyAccountEmailResponse410 = {
+	data: AccountErrorResponse;
+	status: 410;
+};
+
+export type verifyAccountEmailResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type verifyAccountEmailResponseSuccess = verifyAccountEmailResponse200 & {
+	headers: Headers;
+};
+export type verifyAccountEmailResponseError = (
+	verifyAccountEmailResponse410 | verifyAccountEmailResponse422
+) & {
+	headers: Headers;
+};
+
+export type verifyAccountEmailResponse =
+	verifyAccountEmailResponseSuccess | verifyAccountEmailResponseError;
+
+export const getVerifyAccountEmailUrl = () => {
+	return `/api/v1/account/email/verify`;
+};
+
+/**
+ * @summary Apply a new login email from its verification link (public)
+ */
+export const verifyAccountEmail = async (
+	tokenRequest: TokenRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifyAccountEmailResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<verifyAccountEmailResponse>(getVerifyAccountEmailUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(tokenRequest)
+	});
+};
+
+export type startPasswordChangeResponse200 = {
+	data: PasswordChallengeResponse;
+	status: 200;
+};
+
+export type startPasswordChangeResponse410 = {
+	data: AccountErrorResponse;
+	status: 410;
+};
+
+export type startPasswordChangeResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type startPasswordChangeResponseSuccess = startPasswordChangeResponse200 & {
+	headers: Headers;
+};
+export type startPasswordChangeResponseError = (
+	startPasswordChangeResponse410 | startPasswordChangeResponse422
+) & {
+	headers: Headers;
+};
+
+export type startPasswordChangeResponse =
+	startPasswordChangeResponseSuccess | startPasswordChangeResponseError;
+
+export const getStartPasswordChangeUrl = () => {
+	return `/api/v1/account/password/change`;
+};
+
+/**
+ * 422 `wrong_current_password` (details.remaining), `password_change_locked` after 3 wrong attempts, `validation_failed` (new_password: min_length | max_length | mixed_case | digit | symbol | contains_name | same_as_current; confirm_password: mismatch). 410 `challenge_expired` for an invalid reset token.
+ * @summary Check the current password (or reset token) and the new password, then send an OTP
+ */
+export const startPasswordChange = async (
+	changePasswordRequest: ChangePasswordRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startPasswordChangeResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<startPasswordChangeResponse>(getStartPasswordChangeUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(changePasswordRequest)
+	});
+};
+
+export type resendPasswordOtpResponse200 = {
+	data: PasswordChallengeResponse;
+	status: 200;
+};
+
+export type resendPasswordOtpResponse410 = {
+	data: AccountErrorResponse;
+	status: 410;
+};
+
+export type resendPasswordOtpResponse429 = {
+	data: AccountErrorResponse;
+	status: 429;
+};
+
+export type resendPasswordOtpResponseSuccess = resendPasswordOtpResponse200 & {
+	headers: Headers;
+};
+export type resendPasswordOtpResponseError = (
+	resendPasswordOtpResponse410 | resendPasswordOtpResponse429
+) & {
+	headers: Headers;
+};
+
+export type resendPasswordOtpResponse =
+	resendPasswordOtpResponseSuccess | resendPasswordOtpResponseError;
+
+export const getResendPasswordOtpUrl = () => {
+	return `/api/v1/account/password/otp/resend`;
+};
+
+/**
+ * @summary Send a new OTP for the same challenge (30 s cooldown)
+ */
+export const resendPasswordOtp = async (
+	challengeRequest: ChallengeRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<resendPasswordOtpResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<resendPasswordOtpResponse>(getResendPasswordOtpUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(challengeRequest)
+	});
+};
+
+export type verifyPasswordOtpResponse200 = {
+	data: VerifyPasswordOtp200;
+	status: 200;
+};
+
+export type verifyPasswordOtpResponse410 = {
+	data: AccountErrorResponse;
+	status: 410;
+};
+
+export type verifyPasswordOtpResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type verifyPasswordOtpResponseSuccess = verifyPasswordOtpResponse200 & {
+	headers: Headers;
+};
+export type verifyPasswordOtpResponseError = (
+	verifyPasswordOtpResponse410 | verifyPasswordOtpResponse422
+) & {
+	headers: Headers;
+};
+
+export type verifyPasswordOtpResponse =
+	verifyPasswordOtpResponseSuccess | verifyPasswordOtpResponseError;
+
+export const getVerifyPasswordOtpUrl = (params: VerifyPasswordOtpParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/password/otp/verify?${stringifiedParams}`
+		: `/api/v1/account/password/otp/verify`;
+};
+
+/**
+ * Optionally signs out every other device. 422 `invalid_code` (details.remaining), 410 `challenge_expired`. Logged as `account.password.change`.
+ * @summary Apply the new password after a correct OTP
+ */
+export const verifyPasswordOtp = async (
+	challengeRequest: ChallengeRequest,
+	params: VerifyPasswordOtpParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifyPasswordOtpResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<verifyPasswordOtpResponse>(getVerifyPasswordOtpUrl(params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(challengeRequest)
+	});
+};
+
+export type sendPasswordResetLinkResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type sendPasswordResetLinkResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type sendPasswordResetLinkResponse429 = {
+	data: AccountErrorResponse;
+	status: 429;
+};
+
+export type sendPasswordResetLinkResponseSuccess = sendPasswordResetLinkResponse200 & {
+	headers: Headers;
+};
+export type sendPasswordResetLinkResponseError = (
+	sendPasswordResetLinkResponse422 | sendPasswordResetLinkResponse429
+) & {
+	headers: Headers;
+};
+
+export type sendPasswordResetLinkResponse =
+	sendPasswordResetLinkResponseSuccess | sendPasswordResetLinkResponseError;
+
+export const getSendPasswordResetLinkUrl = (params: SendPasswordResetLinkParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/password/reset-link?${stringifiedParams}`
+		: `/api/v1/account/password/reset-link`;
+};
+
+/**
+ * @summary Email a 30-minute reset link that opens the settings page in reset mode
+ */
+export const sendPasswordResetLink = async (
+	resetLinkRequest: ResetLinkRequest,
+	params: SendPasswordResetLinkParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<sendPasswordResetLinkResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<sendPasswordResetLinkResponse>(getSendPasswordResetLinkUrl(params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(resetLinkRequest)
+	});
+};
+
+export type checkPasswordResetTokenResponse200 = {
+	data: CheckPasswordResetToken200;
+	status: 200;
+};
+
+export type checkPasswordResetTokenResponseSuccess = checkPasswordResetTokenResponse200 & {
+	headers: Headers;
+};
+export type checkPasswordResetTokenResponse = checkPasswordResetTokenResponseSuccess;
+
+export const getCheckPasswordResetTokenUrl = () => {
+	return `/api/v1/account/password/reset/check`;
+};
+
+/**
+ * @summary Whether a reset link belongs to the signed-in user and is still valid
+ */
+export const checkPasswordResetToken = async (
+	tokenRequest: TokenRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<checkPasswordResetTokenResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<checkPasswordResetTokenResponse>(getCheckPasswordResetTokenUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(tokenRequest)
+	});
+};
+
+export type setupTwoFactorResponse200 = {
+	data: SetupTwoFactor200;
+	status: 200;
+};
+
+export type setupTwoFactorResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type setupTwoFactorResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type setupTwoFactorResponseSuccess = setupTwoFactorResponse200 & {
+	headers: Headers;
+};
+export type setupTwoFactorResponseError = (
+	setupTwoFactorResponse409 | setupTwoFactorResponse422
+) & {
+	headers: Headers;
+};
+
+export type setupTwoFactorResponse = setupTwoFactorResponseSuccess | setupTwoFactorResponseError;
+
+export const getSetupTwoFactorUrl = () => {
+	return `/api/v1/account/two-factor/setup`;
+};
+
+/**
+ * 409 `phone_required` when WhatsApp is chosen without a phone number.
+ * @summary Prepare an authenticator app (QR + manual key) or send a WhatsApp code
+ */
+export const setupTwoFactor = async (
+	twoFactorSetupRequest: TwoFactorSetupRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<setupTwoFactorResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<setupTwoFactorResponse>(getSetupTwoFactorUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(twoFactorSetupRequest)
+	});
+};
+
+export type verifyTwoFactorResponse200 = {
+	data: BackupCodesResponse;
+	status: 200;
+};
+
+export type verifyTwoFactorResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type verifyTwoFactorResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type verifyTwoFactorResponseSuccess = verifyTwoFactorResponse200 & {
+	headers: Headers;
+};
+export type verifyTwoFactorResponseError = (
+	verifyTwoFactorResponse409 | verifyTwoFactorResponse422
+) & {
+	headers: Headers;
+};
+
+export type verifyTwoFactorResponse = verifyTwoFactorResponseSuccess | verifyTwoFactorResponseError;
+
+export const getVerifyTwoFactorUrl = (params: VerifyTwoFactorParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/two-factor/verify?${stringifiedParams}`
+		: `/api/v1/account/two-factor/verify`;
+};
+
+/**
+ * @summary Verify the setup code, enable two-step verification, and issue 8 backup codes
+ */
+export const verifyTwoFactor = async (
+	codeRequest: CodeRequest,
+	params: VerifyTwoFactorParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifyTwoFactorResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<verifyTwoFactorResponse>(getVerifyTwoFactorUrl(params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(codeRequest)
+	});
+};
+
+export type regenerateBackupCodesResponse200 = {
+	data: BackupCodesResponse;
+	status: 200;
+};
+
+export type regenerateBackupCodesResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type regenerateBackupCodesResponseSuccess = regenerateBackupCodesResponse200 & {
+	headers: Headers;
+};
+export type regenerateBackupCodesResponseError = regenerateBackupCodesResponse409 & {
+	headers: Headers;
+};
+
+export type regenerateBackupCodesResponse =
+	regenerateBackupCodesResponseSuccess | regenerateBackupCodesResponseError;
+
+export const getRegenerateBackupCodesUrl = (params: RegenerateBackupCodesParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/two-factor/backup-codes?${stringifiedParams}`
+		: `/api/v1/account/two-factor/backup-codes`;
+};
+
+/**
+ * @summary Replace the backup codes
+ */
+export const regenerateBackupCodes = async (
+	params: RegenerateBackupCodesParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<regenerateBackupCodesResponse> => {
+	return lmsFetch<regenerateBackupCodesResponse>(getRegenerateBackupCodesUrl(params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type disableTwoFactorResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type disableTwoFactorResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type disableTwoFactorResponseSuccess = disableTwoFactorResponse200 & {
+	headers: Headers;
+};
+export type disableTwoFactorResponseError = disableTwoFactorResponse409 & {
+	headers: Headers;
+};
+
+export type disableTwoFactorResponse =
+	disableTwoFactorResponseSuccess | disableTwoFactorResponseError;
+
+export const getDisableTwoFactorUrl = (params: DisableTwoFactorParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/two-factor?${stringifiedParams}`
+		: `/api/v1/account/two-factor`;
+};
+
+/**
+ * @summary Disable two-step verification (backup codes are revoked)
+ */
+export const disableTwoFactor = async (
+	params: DisableTwoFactorParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<disableTwoFactorResponse> => {
+	return lmsFetch<disableTwoFactorResponse>(getDisableTwoFactorUrl(params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type updateSecurityAlertsResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type updateSecurityAlertsResponseSuccess = updateSecurityAlertsResponse200 & {
+	headers: Headers;
+};
+export type updateSecurityAlertsResponse = updateSecurityAlertsResponseSuccess;
+
+export const getUpdateSecurityAlertsUrl = (params: UpdateSecurityAlertsParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/security-alerts?${stringifiedParams}`
+		: `/api/v1/account/security-alerts`;
+};
+
+/**
+ * @summary New-device email alert and temporary lockout after 5 failed logins
+ */
+export const updateSecurityAlerts = async (
+	securityAlertsRequest: SecurityAlertsRequest,
+	params: UpdateSecurityAlertsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSecurityAlertsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSecurityAlertsResponse>(getUpdateSecurityAlertsUrl(params), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(securityAlertsRequest)
+	});
+};
+
+export type revokeOtherSessionsResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type revokeOtherSessionsResponseSuccess = revokeOtherSessionsResponse200 & {
+	headers: Headers;
+};
+export type revokeOtherSessionsResponse = revokeOtherSessionsResponseSuccess;
+
+export const getRevokeOtherSessionsUrl = (params: RevokeOtherSessionsParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/sessions?${stringifiedParams}`
+		: `/api/v1/account/sessions`;
+};
+
+/**
+ * @summary Sign out every other device
+ */
+export const revokeOtherSessions = async (
+	params: RevokeOtherSessionsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<revokeOtherSessionsResponse> => {
+	return lmsFetch<revokeOtherSessionsResponse>(getRevokeOtherSessionsUrl(params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type revokeSessionResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type revokeSessionResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type revokeSessionResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type revokeSessionResponseSuccess = revokeSessionResponse200 & {
+	headers: Headers;
+};
+export type revokeSessionResponseError = (revokeSessionResponse404 | revokeSessionResponse409) & {
+	headers: Headers;
+};
+
+export type revokeSessionResponse = revokeSessionResponseSuccess | revokeSessionResponseError;
+
+export const getRevokeSessionUrl = (id: string, params: RevokeSessionParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/sessions/${id}?${stringifiedParams}`
+		: `/api/v1/account/sessions/${id}`;
+};
+
+/**
+ * @summary Sign out one other device (409 `current_session` for this device)
+ */
+export const revokeSession = async (
+	id: string,
+	params: RevokeSessionParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<revokeSessionResponse> => {
+	return lmsFetch<revokeSessionResponse>(getRevokeSessionUrl(id, params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type updateNotificationPreferencesResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type updateNotificationPreferencesResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type updateNotificationPreferencesResponseSuccess =
+	updateNotificationPreferencesResponse200 & {
+		headers: Headers;
+	};
+export type updateNotificationPreferencesResponseError =
+	updateNotificationPreferencesResponse422 & {
+		headers: Headers;
+	};
+
+export type updateNotificationPreferencesResponse =
+	updateNotificationPreferencesResponseSuccess | updateNotificationPreferencesResponseError;
+
+export const getUpdateNotificationPreferencesUrl = (
+	params: UpdateNotificationPreferencesParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/notifications?${stringifiedParams}`
+		: `/api/v1/account/notifications`;
+};
+
+/**
+ * @summary Save event × channel preferences and quiet hours (security email is always on)
+ */
+export const updateNotificationPreferences = async (
+	updateNotificationsRequest: UpdateNotificationsRequest,
+	params: UpdateNotificationPreferencesParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateNotificationPreferencesResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateNotificationPreferencesResponse>(
+		getUpdateNotificationPreferencesUrl(params),
+		{
+			...options,
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+			body: JSON.stringify(updateNotificationsRequest)
+		}
+	);
+};
+
+export type sendTestNotificationResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type sendTestNotificationResponseSuccess = sendTestNotificationResponse200 & {
+	headers: Headers;
+};
+export type sendTestNotificationResponse = sendTestNotificationResponseSuccess;
+
+export const getSendTestNotificationUrl = (params: SendTestNotificationParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/notifications/test?${stringifiedParams}`
+		: `/api/v1/account/notifications/test`;
+};
+
+/**
+ * @summary Send a test notification by email and WhatsApp
+ */
+export const sendTestNotification = async (
+	params: SendTestNotificationParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<sendTestNotificationResponse> => {
+	return lmsFetch<sendTestNotificationResponse>(getSendTestNotificationUrl(params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type startAccountLinkResponse200 = {
+	data: OAuthStartResponse;
+	status: 200;
+};
+
+export type startAccountLinkResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type startAccountLinkResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type startAccountLinkResponseSuccess = startAccountLinkResponse200 & {
+	headers: Headers;
+};
+export type startAccountLinkResponseError = (
+	startAccountLinkResponse409 | startAccountLinkResponse422
+) & {
+	headers: Headers;
+};
+
+export type startAccountLinkResponse =
+	startAccountLinkResponseSuccess | startAccountLinkResponseError;
+
+export const getStartAccountLinkUrl = (
+	provider: 'google' | 'belajar',
+	params: StartAccountLinkParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/linked/${provider}/start?${stringifiedParams}`
+		: `/api/v1/account/linked/${provider}/start`;
+};
+
+/**
+ * @summary Start linking a Google/belajar.id account (409 `not_configured`)
+ */
+export const startAccountLink = async (
+	provider: 'google' | 'belajar',
+	oAuthStartRequest: OAuthStartRequest,
+	params: StartAccountLinkParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startAccountLinkResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<startAccountLinkResponse>(getStartAccountLinkUrl(provider, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(oAuthStartRequest)
+	});
+};
+
+export type unlinkAccountResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type unlinkAccountResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type unlinkAccountResponseSuccess = unlinkAccountResponse200 & {
+	headers: Headers;
+};
+export type unlinkAccountResponseError = unlinkAccountResponse404 & {
+	headers: Headers;
+};
+
+export type unlinkAccountResponse = unlinkAccountResponseSuccess | unlinkAccountResponseError;
+
+export const getUnlinkAccountUrl = (
+	provider: 'google' | 'belajar',
+	params: UnlinkAccountParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/linked/${provider}?${stringifiedParams}`
+		: `/api/v1/account/linked/${provider}`;
+};
+
+/**
+ * @summary Disconnect a linked account
+ */
+export const unlinkAccount = async (
+	provider: 'google' | 'belajar',
+	params: UnlinkAccountParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<unlinkAccountResponse> => {
+	return lmsFetch<unlinkAccountResponse>(getUnlinkAccountUrl(provider, params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type updatePrivacyResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type updatePrivacyResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type updatePrivacyResponseSuccess = updatePrivacyResponse200 & {
+	headers: Headers;
+};
+export type updatePrivacyResponseError = updatePrivacyResponse422 & {
+	headers: Headers;
+};
+
+export type updatePrivacyResponse = updatePrivacyResponseSuccess | updatePrivacyResponseError;
+
+export const getUpdatePrivacyUrl = (params: UpdatePrivacyParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/privacy?${stringifiedParams}`
+		: `/api/v1/account/privacy`;
+};
+
+/**
+ * @summary Who can see the phone number, photo, and online status
+ */
+export const updatePrivacy = async (
+	privacyRequest: PrivacyRequest,
+	params: UpdatePrivacyParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updatePrivacyResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updatePrivacyResponse>(getUpdatePrivacyUrl(params), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(privacyRequest)
+	});
+};
+
+export type createDataExportResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type createDataExportResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type createDataExportResponseSuccess = createDataExportResponse200 & {
+	headers: Headers;
+};
+export type createDataExportResponseError = createDataExportResponse422 & {
+	headers: Headers;
+};
+
+export type createDataExportResponse =
+	createDataExportResponseSuccess | createDataExportResponseError;
+
+export const getCreateDataExportUrl = (params: CreateDataExportParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/exports?${stringifiedParams}`
+		: `/api/v1/account/exports`;
+};
+
+/**
+ * @summary Prepare a copy of personal data (valid 7 days)
+ */
+export const createDataExport = async (
+	exportRequest: ExportRequest,
+	params: CreateDataExportParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createDataExportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createDataExportResponse>(getCreateDataExportUrl(params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(exportRequest)
+	});
+};
+
+export type downloadDataExportResponse200ApplicationJson = {
+	data: Blob;
+	status: 200;
+};
+
+export type downloadDataExportResponse200TextCsv = {
+	data: Blob;
+	status: 200;
+};
+
+export type downloadDataExportResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type downloadDataExportResponseSuccess = (
+	downloadDataExportResponse200ApplicationJson | downloadDataExportResponse200TextCsv
+) & {
+	headers: Headers;
+};
+export type downloadDataExportResponseError = downloadDataExportResponse404 & {
+	headers: Headers;
+};
+
+export type downloadDataExportResponse =
+	downloadDataExportResponseSuccess | downloadDataExportResponseError;
+
+export const getDownloadDataExportUrl = (id: string) => {
+	return `/api/v1/account/exports/${id}/download`;
+};
+
+/**
+ * @summary Download a prepared data export (JSON or CSV attachment)
+ */
+export const downloadDataExport = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<downloadDataExportResponse> => {
+	return lmsFetch<downloadDataExportResponse>(getDownloadDataExportUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type requestAccountDeletionResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type requestAccountDeletionResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type requestAccountDeletionResponseSuccess = requestAccountDeletionResponse200 & {
+	headers: Headers;
+};
+export type requestAccountDeletionResponseError = requestAccountDeletionResponse409 & {
+	headers: Headers;
+};
+
+export type requestAccountDeletionResponse =
+	requestAccountDeletionResponseSuccess | requestAccountDeletionResponseError;
+
+export const getRequestAccountDeletionUrl = (params: RequestAccountDeletionParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/deletion-request?${stringifiedParams}`
+		: `/api/v1/account/deletion-request`;
+};
+
+/**
+ * @summary Ask the institution reviewer to delete this account (409 `request_pending`); cancel with DELETE /account/requests/{id}
+ */
+export const requestAccountDeletion = async (
+	params: RequestAccountDeletionParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<requestAccountDeletionResponse> => {
+	return lmsFetch<requestAccountDeletionResponse>(getRequestAccountDeletionUrl(params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type cancelAccountRequestResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type cancelAccountRequestResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type cancelAccountRequestResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type cancelAccountRequestResponseSuccess = cancelAccountRequestResponse200 & {
+	headers: Headers;
+};
+export type cancelAccountRequestResponseError = (
+	cancelAccountRequestResponse404 | cancelAccountRequestResponse409
+) & {
+	headers: Headers;
+};
+
+export type cancelAccountRequestResponse =
+	cancelAccountRequestResponseSuccess | cancelAccountRequestResponseError;
+
+export const getCancelAccountRequestUrl = (id: string, params: CancelAccountRequestParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/requests/${id}?${stringifiedParams}`
+		: `/api/v1/account/requests/${id}`;
+};
+
+/**
+ * @summary Cancel an own request that is still pending or waiting for documents
+ */
+export const cancelAccountRequest = async (
+	id: string,
+	params: CancelAccountRequestParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<cancelAccountRequestResponse> => {
+	return lmsFetch<cancelAccountRequestResponse>(getCancelAccountRequestUrl(id, params), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type dismissAccountRequestResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type dismissAccountRequestResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type dismissAccountRequestResponseSuccess = dismissAccountRequestResponse200 & {
+	headers: Headers;
+};
+export type dismissAccountRequestResponseError = dismissAccountRequestResponse409 & {
+	headers: Headers;
+};
+
+export type dismissAccountRequestResponse =
+	dismissAccountRequestResponseSuccess | dismissAccountRequestResponseError;
+
+export const getDismissAccountRequestUrl = (id: string, params: DismissAccountRequestParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/requests/${id}/dismiss?${stringifiedParams}`
+		: `/api/v1/account/requests/${id}/dismiss`;
+};
+
+/**
+ * @summary Hide an approved/declined request card from the settings page
+ */
+export const dismissAccountRequest = async (
+	id: string,
+	params: DismissAccountRequestParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<dismissAccountRequestResponse> => {
+	return lmsFetch<dismissAccountRequestResponse>(getDismissAccountRequestUrl(id, params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type uploadAccountRequestDocumentResponse200 = {
+	data: AccountOverviewResponse;
+	status: 200;
+};
+
+export type uploadAccountRequestDocumentResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type uploadAccountRequestDocumentResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type uploadAccountRequestDocumentResponseSuccess =
+	uploadAccountRequestDocumentResponse200 & {
+		headers: Headers;
+	};
+export type uploadAccountRequestDocumentResponseError = (
+	uploadAccountRequestDocumentResponse409 | uploadAccountRequestDocumentResponse422
+) & {
+	headers: Headers;
+};
+
+export type uploadAccountRequestDocumentResponse =
+	uploadAccountRequestDocumentResponseSuccess | uploadAccountRequestDocumentResponseError;
+
+export const getUploadAccountRequestDocumentUrl = (
+	id: string,
+	params: UploadAccountRequestDocumentParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/requests/${id}/documents?${stringifiedParams}`
+		: `/api/v1/account/requests/${id}/documents`;
+};
+
+/**
+ * @summary Upload a requested document (JPG/PNG/PDF, max 5 MB); the request is processed again
+ */
+export const uploadAccountRequestDocument = async (
+	id: string,
+	documentUpload: DocumentUpload,
+	params: UploadAccountRequestDocumentParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<uploadAccountRequestDocumentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<uploadAccountRequestDocumentResponse>(
+		getUploadAccountRequestDocumentUrl(id, params),
+		{
+			...options,
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+			body: JSON.stringify(documentUpload)
+		}
+	);
+};
+
+export type getOwnRequestDocumentResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getOwnRequestDocumentResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type getOwnRequestDocumentResponseSuccess = getOwnRequestDocumentResponse200 & {
+	headers: Headers;
+};
+export type getOwnRequestDocumentResponseError = getOwnRequestDocumentResponse404 & {
+	headers: Headers;
+};
+
+export type getOwnRequestDocumentResponse =
+	getOwnRequestDocumentResponseSuccess | getOwnRequestDocumentResponseError;
+
+export const getGetOwnRequestDocumentUrl = (id: string, params: GetOwnRequestDocumentParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/requests/documents/${id}?${stringifiedParams}`
+		: `/api/v1/account/requests/documents/${id}`;
+};
+
+/**
+ * @summary Download an attachment of an own request
+ */
+export const getOwnRequestDocument = async (
+	id: string,
+	params: GetOwnRequestDocumentParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getOwnRequestDocumentResponse> => {
+	return lmsFetch<getOwnRequestDocumentResponse>(getGetOwnRequestDocumentUrl(id, params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getApprovalInboxResponse200 = {
+	data: ApprovalInboxResponse;
+	status: 200;
+};
+
+export type getApprovalInboxResponse403 = {
+	data: AccountErrorResponse;
+	status: 403;
+};
+
+export type getApprovalInboxResponseSuccess = getApprovalInboxResponse200 & {
+	headers: Headers;
+};
+export type getApprovalInboxResponseError = getApprovalInboxResponse403 & {
+	headers: Headers;
+};
+
+export type getApprovalInboxResponse =
+	getApprovalInboxResponseSuccess | getApprovalInboxResponseError;
+
+export const getGetApprovalInboxUrl = (params: GetApprovalInboxParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals?${stringifiedParams}`
+		: `/api/v1/approvals`;
+};
+
+/**
+ * `area=platform` → requests of platform accounts (`platform.account_request.review`); `area=school_admin` → admin sekolah (teachers, parents, students, principal) or kepala sekolah (school admins), both with `account_request.review`. 403 `forbidden` otherwise. SLA 72 hours, paused while waiting for documents.
+ * @summary Kotak Persetujuan of the signed-in reviewer
+ */
+export const getApprovalInbox = async (
+	params: GetApprovalInboxParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getApprovalInboxResponse> => {
+	return lmsFetch<getApprovalInboxResponse>(getGetApprovalInboxUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getApprovalSummaryResponse200 = {
+	data: GetApprovalSummary200;
+	status: 200;
+};
+
+export type getApprovalSummaryResponse403 = {
+	data: AccountErrorResponse;
+	status: 403;
+};
+
+export type getApprovalSummaryResponseSuccess = getApprovalSummaryResponse200 & {
+	headers: Headers;
+};
+export type getApprovalSummaryResponseError = getApprovalSummaryResponse403 & {
+	headers: Headers;
+};
+
+export type getApprovalSummaryResponse =
+	getApprovalSummaryResponseSuccess | getApprovalSummaryResponseError;
+
+export const getGetApprovalSummaryUrl = (params: GetApprovalSummaryParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/summary?${stringifiedParams}`
+		: `/api/v1/approvals/summary`;
+};
+
+/**
+ * @summary Pending count for the "Persetujuan" menu badge
+ */
+export const getApprovalSummary = async (
+	params: GetApprovalSummaryParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getApprovalSummaryResponse> => {
+	return lmsFetch<getApprovalSummaryResponse>(getGetApprovalSummaryUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type bulkApproveRequestsResponse200 = {
+	data: BulkApproveRequests200;
+	status: 200;
+};
+
+export type bulkApproveRequestsResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type bulkApproveRequestsResponseSuccess = bulkApproveRequestsResponse200 & {
+	headers: Headers;
+};
+export type bulkApproveRequestsResponseError = bulkApproveRequestsResponse422 & {
+	headers: Headers;
+};
+
+export type bulkApproveRequestsResponse =
+	bulkApproveRequestsResponseSuccess | bulkApproveRequestsResponseError;
+
+export const getBulkApproveRequestsUrl = (params: BulkApproveRequestsParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/bulk-approve?${stringifiedParams}`
+		: `/api/v1/approvals/bulk-approve`;
+};
+
+/**
+ * @summary Approve several pending requests (own requests are skipped)
+ */
+export const bulkApproveRequests = async (
+	bulkApproveRequest: BulkApproveRequest,
+	params: BulkApproveRequestsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<bulkApproveRequestsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<bulkApproveRequestsResponse>(getBulkApproveRequestsUrl(params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(bulkApproveRequest)
+	});
+};
+
+export type approveRequestResponse200 = {
+	data: ApprovalInboxResponse;
+	status: 200;
+};
+
+export type approveRequestResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type approveRequestResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type approveRequestResponseSuccess = approveRequestResponse200 & {
+	headers: Headers;
+};
+export type approveRequestResponseError = (
+	approveRequestResponse404 | approveRequestResponse409
+) & {
+	headers: Headers;
+};
+
+export type approveRequestResponse = approveRequestResponseSuccess | approveRequestResponseError;
+
+export const getApproveRequestUrl = (id: string, params: ApproveRequestParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/${id}/approve?${stringifiedParams}`
+		: `/api/v1/approvals/${id}/approve`;
+};
+
+/**
+ * 409 `self_review` for own requests, `nothing_pending` when not pending.
+ * @summary Approve (name/identity applied immediately; deletion takes effect after 30 days)
+ */
+export const approveRequest = async (
+	id: string,
+	decisionRequest: DecisionRequest,
+	params: ApproveRequestParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<approveRequestResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<approveRequestResponse>(getApproveRequestUrl(id, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(decisionRequest)
+	});
+};
+
+export type declineRequestResponse200 = {
+	data: ApprovalInboxResponse;
+	status: 200;
+};
+
+export type declineRequestResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type declineRequestResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type declineRequestResponseSuccess = declineRequestResponse200 & {
+	headers: Headers;
+};
+export type declineRequestResponseError = (
+	declineRequestResponse409 | declineRequestResponse422
+) & {
+	headers: Headers;
+};
+
+export type declineRequestResponse = declineRequestResponseSuccess | declineRequestResponseError;
+
+export const getDeclineRequestUrl = (id: string, params: DeclineRequestParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/${id}/decline?${stringifiedParams}`
+		: `/api/v1/approvals/${id}/decline`;
+};
+
+/**
+ * @summary Decline with a reason sent to the requester
+ */
+export const declineRequest = async (
+	id: string,
+	declineRequestInput: DeclineRequestInput,
+	params: DeclineRequestParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<declineRequestResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<declineRequestResponse>(getDeclineRequestUrl(id, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(declineRequestInput)
+	});
+};
+
+export type requestRequestDocumentsResponse200 = {
+	data: ApprovalInboxResponse;
+	status: 200;
+};
+
+export type requestRequestDocumentsResponse409 = {
+	data: AccountErrorResponse;
+	status: 409;
+};
+
+export type requestRequestDocumentsResponse422 = {
+	data: AccountErrorResponse;
+	status: 422;
+};
+
+export type requestRequestDocumentsResponseSuccess = requestRequestDocumentsResponse200 & {
+	headers: Headers;
+};
+export type requestRequestDocumentsResponseError = (
+	requestRequestDocumentsResponse409 | requestRequestDocumentsResponse422
+) & {
+	headers: Headers;
+};
+
+export type requestRequestDocumentsResponse =
+	requestRequestDocumentsResponseSuccess | requestRequestDocumentsResponseError;
+
+export const getRequestRequestDocumentsUrl = (
+	id: string,
+	params: RequestRequestDocumentsParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/${id}/request-documents?${stringifiedParams}`
+		: `/api/v1/approvals/${id}/request-documents`;
+};
+
+/**
+ * @summary Ask the requester for documents (the SLA pauses until they upload)
+ */
+export const requestRequestDocuments = async (
+	id: string,
+	docsRequestInput: DocsRequestInput,
+	params: RequestRequestDocumentsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<requestRequestDocumentsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<requestRequestDocumentsResponse>(getRequestRequestDocumentsUrl(id, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(docsRequestInput)
+	});
+};
+
+export type getApprovalDocumentResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getApprovalDocumentResponse404 = {
+	data: AccountErrorResponse;
+	status: 404;
+};
+
+export type getApprovalDocumentResponseSuccess = getApprovalDocumentResponse200 & {
+	headers: Headers;
+};
+export type getApprovalDocumentResponseError = getApprovalDocumentResponse404 & {
+	headers: Headers;
+};
+
+export type getApprovalDocumentResponse =
+	getApprovalDocumentResponseSuccess | getApprovalDocumentResponseError;
+
+export const getGetApprovalDocumentUrl = (id: string, params: GetApprovalDocumentParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/approvals/documents/${id}?${stringifiedParams}`
+		: `/api/v1/approvals/documents/${id}`;
+};
+
+/**
+ * @summary Download an attachment of a request in this reviewer's inbox
+ */
+export const getApprovalDocument = async (
+	id: string,
+	params: GetApprovalDocumentParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getApprovalDocumentResponse> => {
+	return lmsFetch<getApprovalDocumentResponse>(getGetApprovalDocumentUrl(id, params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getDashboardContextResponse200 = {
+	data: GetDashboardContext200;
+	status: 200;
+};
+
+export type getDashboardContextResponse400 = {
+	data: DashboardErrorResponse;
+	status: 400;
+};
+
+export type getDashboardContextResponse403 = {
+	data: DashboardErrorResponse;
+	status: 403;
+};
+
+export type getDashboardContextResponseSuccess = getDashboardContextResponse200 & {
+	headers: Headers;
+};
+export type getDashboardContextResponseError = (
+	getDashboardContextResponse400 | getDashboardContextResponse403
+) & {
+	headers: Headers;
+};
+
+export type getDashboardContextResponse =
+	getDashboardContextResponseSuccess | getDashboardContextResponseError;
+
+export const getGetDashboardContextUrl = (params: GetDashboardContextParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/dashboards/context?${stringifiedParams}`
+		: `/api/v1/dashboards/context`;
+};
+
+/**
+ * @summary Dashboard views available to the active membership (role toggle)
+ */
+export const getDashboardContext = async (
+	params: GetDashboardContextParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getDashboardContextResponse> => {
+	return lmsFetch<getDashboardContextResponse>(getGetDashboardContextUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getPrincipalDashboardResponse200 = {
+	data: GetPrincipalDashboard200;
+	status: 200;
+};
+
+export type getPrincipalDashboardResponse403 = {
+	data: DashboardErrorResponse;
+	status: 403;
+};
+
+export type getPrincipalDashboardResponseSuccess = getPrincipalDashboardResponse200 & {
+	headers: Headers;
+};
+export type getPrincipalDashboardResponseError = getPrincipalDashboardResponse403 & {
+	headers: Headers;
+};
+
+export type getPrincipalDashboardResponse =
+	getPrincipalDashboardResponseSuccess | getPrincipalDashboardResponseError;
+
+export const getGetPrincipalDashboardUrl = () => {
+	return `/api/v1/dashboards/principal`;
+};
+
+/**
+ * @summary Principal dashboard (PRINCIPAL only)
+ */
+export const getPrincipalDashboard = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getPrincipalDashboardResponse> => {
+	return lmsFetch<getPrincipalDashboardResponse>(getGetPrincipalDashboardUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getHomeroomDashboardResponse200 = {
+	data: GetHomeroomDashboard200;
+	status: 200;
+};
+
+export type getHomeroomDashboardResponse403 = {
+	data: DashboardErrorResponse;
+	status: 403;
+};
+
+export type getHomeroomDashboardResponseSuccess = getHomeroomDashboardResponse200 & {
+	headers: Headers;
+};
+export type getHomeroomDashboardResponseError = getHomeroomDashboardResponse403 & {
+	headers: Headers;
+};
+
+export type getHomeroomDashboardResponse =
+	getHomeroomDashboardResponseSuccess | getHomeroomDashboardResponseError;
+
+export const getGetHomeroomDashboardUrl = () => {
+	return `/api/v1/dashboards/homeroom`;
+};
+
+/**
+ * @summary Homeroom teacher dashboard (HOMEROOM_TEACHER only)
+ */
+export const getHomeroomDashboard = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getHomeroomDashboardResponse> => {
+	return lmsFetch<getHomeroomDashboardResponse>(getGetHomeroomDashboardUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getTeacherDashboardResponse200 = {
+	data: GetTeacherDashboard200;
+	status: 200;
+};
+
+export type getTeacherDashboardResponse403 = {
+	data: DashboardErrorResponse;
+	status: 403;
+};
+
+export type getTeacherDashboardResponseSuccess = getTeacherDashboardResponse200 & {
+	headers: Headers;
+};
+export type getTeacherDashboardResponseError = getTeacherDashboardResponse403 & {
+	headers: Headers;
+};
+
+export type getTeacherDashboardResponse =
+	getTeacherDashboardResponseSuccess | getTeacherDashboardResponseError;
+
+export const getGetTeacherDashboardUrl = () => {
+	return `/api/v1/dashboards/teacher`;
+};
+
+/**
+ * @summary Subject teacher dashboard (TEACHER, HOMEROOM_TEACHER)
+ */
+export const getTeacherDashboard = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTeacherDashboardResponse> => {
+	return lmsFetch<getTeacherDashboardResponse>(getGetTeacherDashboardUrl(), {
+		...options,
+		method: 'GET'
 	});
 };

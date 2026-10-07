@@ -93,7 +93,13 @@
 			"errors": {
 				"missing_fields": "Isi email dan kata sandi terlebih dahulu.",
 				"invalid_credentials": "Email atau kata sandi salah.",
-				"service_unavailable": "Layanan masuk sedang tidak dapat dihubungi. Coba lagi beberapa saat lagi."
+				"service_unavailable": "Layanan masuk sedang tidak dapat dihubungi. Coba lagi beberapa saat lagi.",
+				"account_locked": "Akun dikunci sementara setelah beberapa kali gagal masuk. Coba lagi 15 menit lagi.",
+				"suspended": "Akun ini dinonaktifkan. Hubungi admin lembaga Anda.",
+				"invalid_code": "Kode tidak cocok.",
+				"invalid_code_left": "Kode tidak cocok. Sisa {count} percobaan.",
+				"challenge_expired": "Kode kedaluwarsa. Masuk ulang dengan email dan kata sandi.",
+				"oauth_unavailable": "Masuk dengan Google sedang tidak tersedia."
 			},
 			"preview": {
 				"school": {
@@ -145,10 +151,28 @@
 					"next_sub": "Dimas aktif bertanya di kelas"
 				}
 			},
-			"google_unavailable": "Masuk dengan Google belum tersedia; gunakan email dan kata sandi.",
+			"google_unavailable": "Masuk dengan Google belum tersedia: penyedia belum dikonfigurasi oleh admin platform.",
 			"session_ended": {
-				"revoked": "Sesi Anda berakhir karena akun ini masuk atau keluar di perangkat lain. Satu akun hanya dapat aktif di satu perangkat.",
+				"revoked": "Sesi Anda di perangkat ini berakhir karena dikeluarkan dari Pengaturan Akun atau kata sandi diubah dari perangkat lain.",
 				"expired": "Sesi Anda telah berakhir. Silakan masuk kembali."
+			},
+			"two_factor": {
+				"app": "Masukkan kode 6 digit dari aplikasi autentikator Anda.",
+				"whatsapp": "Kode 6 digit dikirim ke {target}.",
+				"code": "Kode verifikasi",
+				"backup_hint": "Tidak bisa menerima kode? Masukkan salah satu kode cadangan Anda.",
+				"submit": "Verifikasi & masuk",
+				"resend": "Kirim ulang kode",
+				"cancel": "Gunakan akun lain"
+			},
+			"oauth_errors": {
+				"oauth_not_linked": "Akun Google itu belum terhubung ke akun FLIXARE. Masuk dengan email lalu hubungkan di Pengaturan → Akun terhubung.",
+				"oauth_cancelled": "Masuk dengan Google dibatalkan.",
+				"oauth_failed": "Google menolak permintaan masuk. Coba lagi.",
+				"oauth_state_invalid": "Sesi masuk dengan Google kedaluwarsa. Coba lagi.",
+				"account_locked": "Akun dikunci sementara setelah beberapa kali gagal masuk. Coba lagi 15 menit lagi.",
+				"suspended": "Akun ini dinonaktifkan. Hubungi admin lembaga Anda.",
+				"service_unavailable": "Layanan masuk sedang tidak dapat dihubungi. Coba lagi beberapa saat lagi."
 			}
 		},
 		"context": {
@@ -253,7 +277,7 @@
 			"greeting": "Sampai jumpa lagi, {name}. Sesi {role} Anda di FLIXARE sudah ditutup dengan aman.",
 			"greeting_no_role": "Sampai jumpa lagi, {name}. Sesi Anda di FLIXARE sudah ditutup dengan aman.",
 			"greeting_generic": "Sesi Anda di FLIXARE sudah ditutup dengan aman.",
-			"item_closed": "Sesi di semua perangkat sudah ditutup",
+			"item_closed": "Sesi di perangkat ini sudah ditutup",
 			"item_duration": "Durasi sesi {duration}",
 			"duration_hours": "{hours} jam {minutes} menit",
 			"duration_minutes": "{minutes} menit",
@@ -306,7 +330,8 @@
 			"report_cards": "Rapor",
 			"subscription": "Langganan",
 			"settings": "Pengaturan",
-			"search": "Cari kelas, guru, murid…"
+			"search": "Cari kelas, guru, murid…",
+			"approvals": "Persetujuan"
 		},
 		"teacher": {
 			"area": "Ruang Guru",
@@ -343,6 +368,35 @@
 			"messages": "Pesan",
 			"settings": "Pengaturan",
 			"search": "Cari nilai, tugas, pengumuman…"
+		},
+		"principal": {
+			"area": "Ruang Kepala Sekolah",
+			"home": "Beranda",
+			"approvals": "Persetujuan",
+			"attendance": "Presensi",
+			"reports": "Laporan",
+			"classes": "Kelas",
+			"report_cards": "Rapor",
+			"teachers": "Guru",
+			"students": "Murid",
+			"announcements": "Pengumuman",
+			"settings": "Pengaturan",
+			"search": "Cari kelas, guru, murid…"
+		},
+		"homeroom": {
+			"area": "Ruang Wali Kelas",
+			"home": "Beranda",
+			"attendance": "Presensi kelas",
+			"approvals": "Persetujuan",
+			"liaison": "Buku penghubung",
+			"grades": "Rekap nilai",
+			"students": "Murid kelas",
+			"report_cards": "Rapor",
+			"schedule": "Jadwal kelas",
+			"behavior": "Catatan perilaku",
+			"settings": "Pengaturan",
+			"search": "Cari murid {class}, pesan…",
+			"search_any": "Cari murid, pesan…"
 		}
 	},
 	"brand": {
@@ -500,7 +554,7 @@
 		"teacher": {
 			"next": "Berikutnya",
 			"calendar": "Kalender",
-			"summary": "Ada {agenda} agenda hari ini dan {pending} pengumpulan menunggu nilai.",
+			"summary": "Guru mapel · {classes} kelas yang Anda ajar. Ada {agenda} agenda hari ini dan {pending} pengumpulan menunggu nilai.",
 			"create_task": "Buat tugas",
 			"question_bank": "Bank soal",
 			"starts_in": "dalam {time}",
@@ -515,7 +569,7 @@
 			"preview_questions": "Pratinjau soal",
 			"agenda": "Agenda hari ini",
 			"now": "Sekarang",
-			"grading_pile": "Tumpukan koreksi",
+			"grading_pile": "Tumpukan koreksi per kelas",
 			"sheets": "lembar",
 			"grade_one": "Nilai 1 lembar",
 			"graded": "Selesai",
@@ -638,6 +692,336 @@
 			"midday": "Selamat siang, {name}",
 			"afternoon": "Selamat sore, {name}",
 			"evening": "Selamat malam, {name}"
+		},
+		"sample": {
+			"label": "Data contoh",
+			"hint": "Modul untuk bagian ini belum tersedia; angka hanya contoh dan tidak disimpan.",
+			"simulation_note": "(data contoh, tidak disimpan)"
+		},
+		"role_switch": {
+			"label": "Ganti peran",
+			"switched": "Beralih ke peran {role}.",
+			"principal": "Kepala sekolah",
+			"school_admin": "Admin sekolah",
+			"teacher": "Guru mapel",
+			"teacher_short": "Guru",
+			"homeroom": "Wali kelas",
+			"homeroom_class": "Wali kelas {class}",
+			"tenant_detail": "Sekolah · {role}"
+		},
+		"honorific": {
+			"female": "Bu {name}",
+			"male": "Pak {name}"
+		},
+		"semester": {
+			"odd": "Semester Ganjil",
+			"even": "Semester Genap"
+		},
+		"principal": {
+			"academic_year": "TA {year}",
+			"hero_attendance": "Kehadiran murid hari ini {value}.",
+			"hero_pending": "{count} pengajuan menunggu keputusan Anda.",
+			"hero_no_pending": "Tidak ada pengajuan yang menunggu.",
+			"view_mode": "Mode lihat: data sekolah diubah oleh admin sekolah dan guru",
+			"open_approvals": "Buka kotak persetujuan",
+			"download_report": "Unduh laporan bulanan",
+			"toast_download": "Laporan bulanan {month} (PDF) diunduh.",
+			"needs_decision": "Perlu keputusan Anda",
+			"decide_reports": "Rapor kelas",
+			"decide_reports_detail": "Diajukan wali kelas",
+			"decide_leave": "Izin / cuti guru",
+			"decide_leave_detail": "Perlu sebelum tanggal izin",
+			"decide_data": "Perubahan data admin sekolah",
+			"decide_data_detail": "Nama atau NIP",
+			"school_summary": "Ringkasan sekolah",
+			"period_today": "Hari ini",
+			"period_week": "Minggu ini",
+			"period_month": "Bulan ini",
+			"kpi_student_attendance": "Kehadiran murid",
+			"kpi_teacher_attendance": "Kehadiran guru",
+			"kpi_average_score": "Rata-rata nilai",
+			"kpi_at_risk": "Murid berisiko",
+			"kpi_reports": "Rapor disetujui",
+			"kpi_reports_note": "{count} menunggu keputusan Anda",
+			"attendance_trend": "Kehadiran 6 hari terakhir",
+			"attendance_trend_hint": "Arahkan atau ketuk batang untuk melihat angka",
+			"mode_students": "Murid",
+			"mode_teachers": "Guru",
+			"absent_teachers": "Guru tidak hadir hari ini",
+			"present_of": "{present} dari {total} hadir",
+			"absence_duty": "Dinas luar",
+			"absence_sick": "Sakit",
+			"subject_scores": "Capaian akademik per mata pelajaran",
+			"subject_scores_hint": "Rata-rata nilai sumatif · garis putus-putus = KKM {kkm}. Pilih mapel untuk rincian.",
+			"grade_all": "Semua",
+			"grade": "Kelas {grade}",
+			"grade_filter": "Filter jenjang",
+			"detail": "Rincian",
+			"mastery": "{percent}% tuntas",
+			"subject_note_low": "Rata-rata kelas {grade} masih di bawah KKM. Guru mapel sudah menjadwalkan remedial; progres dapat dipantau di Laporan.",
+			"subject_note_ok": "Semua jenjang di atas KKM. Tidak ada tindak lanjut yang diperlukan.",
+			"class_comparison": "Perbandingan antar kelas",
+			"class_comparison_hint": "{count} kelas · rata-rata {average} (garis tipis). Pilih kelas untuk rincian.",
+			"metric_attendance": "Kehadiran",
+			"metric_score": "Rata-rata nilai",
+			"metric_tasks": "Tugas terkumpul",
+			"not_filled_short": "Belum",
+			"not_filled": "belum diisi",
+			"class": "Kelas",
+			"class_meta": "Wali kelas {homeroom} · {count} murid",
+			"class_status_unfilled": "Presensi belum diisi",
+			"class_status_attention": "Perlu perhatian",
+			"class_status_good": "Baik",
+			"stat_attendance": "Kehadiran hari ini",
+			"stat_score": "Rata-rata nilai",
+			"stat_tasks": "Tugas terkumpul",
+			"stat_at_risk": "Murid berisiko",
+			"from_average": "{value} dari rata-rata",
+			"last_7_days": "7 hari terakhir",
+			"of_students": "dari {count} murid",
+			"class_read_only": "Hanya lihat. Perubahan data kelas dilakukan admin sekolah.",
+			"report_approval": "Persetujuan rapor",
+			"report_approval_hint": "{count} kelas · tenggat {date}",
+			"review": "Tinjau",
+			"pipeline_published": "Nilai dipublikasikan",
+			"pipeline_edited": "Deskripsi disunting",
+			"pipeline_submitted": "Diajukan wali kelas",
+			"pipeline_approved": "Disetujui",
+			"class_name": "Kelas {name}",
+			"report_pending": "Menunggu",
+			"subscription": "Langganan & kuota kursi",
+			"subscription_hint": "Paket {plan} · dikelola admin sekolah",
+			"trial_day": "Trial hari ke-{day}/{total}",
+			"subscription_status_trial": "Trial",
+			"subscription_status_active": "Aktif",
+			"subscription_status_past_due": "Lewat jatuh tempo",
+			"subscription_status_cancelled": "Dibatalkan",
+			"subscription_status_expired": "Berakhir",
+			"ends_on": "berakhir {date}",
+			"trial_until": "Trial · berakhir {date}",
+			"seats_of": "/ {total} kursi terpakai",
+			"seats_used": "kursi terpakai",
+			"sub_status": "Status",
+			"sub_active_students": "Murid aktif 7 hari",
+			"sub_active_teachers": "Guru aktif 7 hari",
+			"sub_storage": "Penyimpanan",
+			"teacher_activity": "Kinerja & aktivitas guru",
+			"sort_by": "Urutkan",
+			"sort_pending": "Belum dinilai",
+			"sort_activity": "Aktivitas terendah",
+			"sort_name": "Nama",
+			"col_teacher": "Guru",
+			"col_classes": "Kelas",
+			"col_materials": "Materi baru",
+			"col_pending": "Belum dinilai",
+			"col_login": "Login",
+			"col_status": "Status",
+			"col_action": "Aksi",
+			"classes_count": "{count} kelas",
+			"sheets": "{count} lembar",
+			"teacher_active": "Aktif",
+			"teacher_attention": "Perlu perhatian",
+			"teacher_inactive": "Tidak aktif",
+			"sent": "Terkirim",
+			"remind": "Ingatkan",
+			"toast_reminded": "Pengingat dikirim ke {name}.",
+			"at_risk": "Murid berisiko",
+			"at_risk_hint": "Rata-rata di bawah KKM atau tidak hadir 3 hari atau lebih bulan ini",
+			"risk_all": "Semua · {count}",
+			"risk_score": "Nilai rendah",
+			"risk_absence": "Sering absen",
+			"risk_meta": "{class} · wali kelas {homeroom}",
+			"tag_score": "Nilai {value}",
+			"tag_absent": "Absen {count} hari",
+			"risk_average": "Rata-rata",
+			"risk_absent": "Absen bulan ini",
+			"risk_weak": "Mapel lemah",
+			"days": "{count} hari",
+			"follow_sent": "Permintaan terkirim ke {homeroom}. Tindak lanjut akan tercatat di catatan perilaku kelas.",
+			"follow_none": "Belum ada catatan tindak lanjut dari wali kelas.",
+			"ask_follow": "Minta tindak lanjut wali kelas",
+			"ask_sent": "Permintaan terkirim",
+			"toast_asked": "Permintaan tindak lanjut untuk {name} dikirim ke {homeroom}.",
+			"agenda_announcements": "Agenda & pengumuman",
+			"tab_agenda": "Agenda",
+			"tab_announcements": "Pengumuman",
+			"announcements_by_admin": "Pengumuman dibuat oleh admin sekolah."
+		},
+		"homeroom": {
+			"eyebrow": "Wali kelas {class} · {count} murid",
+			"hero_saved": "Presensi hari ini sudah tersimpan.",
+			"hero_unsaved": "Presensi hari ini belum disimpan.",
+			"hero_rest": "{requests} pengajuan orang tua menunggu dan {unread} pesan belum dibalas.",
+			"fill_attendance": "Isi presensi",
+			"view_attendance": "Lihat presensi",
+			"approvals": "Kotak persetujuan",
+			"toast_open_approvals": "Kotak persetujuan wali kelas dibuka dari menu Persetujuan.",
+			"today_tasks": "Tugas wali kelas hari ini",
+			"task_attendance": "Presensi harian",
+			"task_attendance_saved": "Tersimpan {time}",
+			"task_attendance_progress": "{filled}/{total} murid tercatat",
+			"task_requests": "Pengajuan orang tua",
+			"task_requests_waiting": "{count} menunggu keputusan",
+			"task_requests_done": "Semua sudah diproses",
+			"task_liaison": "Buku penghubung",
+			"task_liaison_unread": "{count} pesan belum dibalas",
+			"task_liaison_done": "Semua sudah dibalas",
+			"task_report": "Rapor semester",
+			"task_report_progress": "{done}/{total} mapel lengkap",
+			"attendance": "Presensi harian {class}",
+			"attendance_today_hint": "{date} · jam pertama {time}",
+			"attendance_recap_hint": "Rekap {month} · {days} hari sekolah",
+			"tab_today": "Hari ini",
+			"tab_recap": "Rekap bulan",
+			"count_present": "Hadir",
+			"count_sick": "Sakit",
+			"count_permit": "Izin",
+			"count_absent": "Alpa",
+			"count_unset": "Belum",
+			"mark_rest": "Tandai sisanya hadir",
+			"code_H": "Hadir",
+			"code_S": "Sakit",
+			"code_I": "Izin",
+			"code_A": "Alpa",
+			"code_T": "Terlambat",
+			"not_recorded": "Belum dicatat",
+			"save_done": "Tersimpan pukul {time}. Orang tua murid yang tidak hadir menerima pemberitahuan.",
+			"save_complete": "Semua murid sudah tercatat.",
+			"save_left": "{count} murid belum dicatat.",
+			"save": "Simpan presensi",
+			"saved": "Tersimpan",
+			"toast_attendance": "Presensi {class} tersimpan. {count} orang tua diberi tahu.",
+			"recap_student": "Murid · {month}",
+			"recap_present": "Hadir",
+			"recap_sick": "Sakit",
+			"recap_permit": "Izin",
+			"recap_absent": "Alpa",
+			"recap_late": "Telat",
+			"recap_rate": "Kehadiran",
+			"parent_requests": "Pengajuan orang tua",
+			"open_all": "Buka semua · {count}",
+			"no_requests": "Tidak ada pengajuan yang menunggu.",
+			"sla_over": "Lewat batas",
+			"sla_hours": "Sisa {count} jam",
+			"sla_days": "Sisa {count} hari",
+			"liaison": "Buku penghubung",
+			"unread": "{count} belum dibalas",
+			"from_parent": "{name} · orang tua {student} · {time}",
+			"from_you": "Anda · {time}",
+			"just_now": "Baru saja",
+			"reply_to": "Balas {name}…",
+			"send": "Kirim",
+			"toast_reply": "Balasan terkirim ke {name}.",
+			"grade_recap": "Rekap nilai semua mapel",
+			"grade_recap_hint": "Nilai diisi guru mapel. Angka berwarna di bawah KKM {kkm}.",
+			"below_kkm_only": "Hanya yang di bawah KKM",
+			"sort_number": "No. absen",
+			"sort_lowest": "Rata-rata terendah",
+			"col_student": "Murid",
+			"col_average": "Rata²",
+			"grades_read_only": "Hanya lihat. Perubahan nilai dilakukan oleh guru mapel masing-masing.",
+			"attention": "Murid perlu perhatian",
+			"students_count": "{count} murid",
+			"tag_low": "{count} mapel < KKM",
+			"tag_absent": "Alpa {count} hari",
+			"record_follow_up": "Catat tindak lanjut",
+			"report": "Rapor semester ganjil",
+			"report_hint": "Diajukan ke kepala sekolah · tenggat {date}",
+			"report_status_pending": "Menunggu kepala sekolah",
+			"report_status_ready": "Siap diajukan",
+			"report_status_drafting": "Disusun",
+			"remind": "Ingatkan",
+			"subject_done": "Lengkap",
+			"subject_reminded": "Diingatkan",
+			"subject_pending": "Belum final",
+			"toast_remind": "Pengingat dikirim ke {name}. Nilai difinalkan dalam 3 detik.",
+			"toast_finalized": "Nilai {subject} sudah difinalkan {name}.",
+			"homeroom_notes": "Catatan wali kelas · {done}/{total}",
+			"draft_notes": "Susun draf",
+			"toast_draft": "Draf catatan wali kelas disusun untuk {count} murid. Silakan sunting bila perlu.",
+			"attendance_recap_auto": "Rekap kehadiran · otomatis dari presensi",
+			"report_msg_pending": "Menunggu keputusan kepala sekolah. Batas 3 hari kerja.",
+			"report_msg_ready": "Semua komponen lengkap. Rapor siap diajukan.",
+			"report_msg_incomplete": "Lengkapi nilai semua mapel dan catatan wali kelas sebelum mengajukan.",
+			"report_submit": "Ajukan ke kepala sekolah",
+			"report_submitted": "Sudah diajukan",
+			"toast_report": "Rapor {class} diajukan ke kepala sekolah.",
+			"schedule": "Jadwal pelajaran {class}",
+			"now": "Sekarang",
+			"behavior": "Catatan perilaku & konseling",
+			"filter_all": "Semua",
+			"filter_positive": "Positif",
+			"filter_attention": "Perhatian",
+			"filter_counseling": "Konseling",
+			"category_positive": "Positif",
+			"category_attention": "Perlu perhatian",
+			"category_counseling": "Konseling",
+			"pick_student": "Pilih murid…",
+			"note_category": "Kategori catatan",
+			"note_placeholder": "Tulis apa yang terjadi dan tindak lanjutnya",
+			"notify_parent": "Beri tahu orang tua",
+			"note_pick_student": "Pilih murid.",
+			"note_min": "Tulis catatan minimal {count} karakter.",
+			"save_note": "Simpan catatan",
+			"toast_note": "Catatan untuk {name} tersimpan.",
+			"toast_note_notified": "Catatan untuk {name} tersimpan dan orang tua diberi tahu.",
+			"parent_notified": "Orang tua diberi tahu"
+		},
+		"teacher_panels": {
+			"notice_view": "Anda melihat",
+			"notice_classes": "{count} kelas",
+			"notice_can_edit": "yang Anda ajar. Anda bisa mengubah",
+			"notice_editable": "materi, tugas, soal kuis/ujian, nilai mapel, dan nilai akhir rapor",
+			"notice_rest": "untuk mata pelajaran Anda. Data murid, presensi, dan jadwal hanya bisa dilihat.",
+			"schedule": "Jadwal mengajar minggu ini",
+			"schedule_hint": "{lessons} JP · {classes} kelas · pilih kelas untuk menyorot",
+			"highlight": "Sorot kelas",
+			"all": "Semua",
+			"today": "{day} · hari ini",
+			"final_assessment": "Penilaian akhir",
+			"progress": "Progres materi & RPP per kelas",
+			"rpp": "RPP {status}",
+			"rpp_approved": "Disetujui",
+			"rpp_submitted": "Diajukan",
+			"rpp_draft": "Draf",
+			"rpp_none": "Belum",
+			"all_done": "Semua bab selesai · {percent}%",
+			"current_chapter": "Sedang: Bab {number} {chapter} · {percent}%",
+			"submit_rpp": "Ajukan RPP",
+			"finished": "Selesai",
+			"mark_chapter": "Tandai bab selesai",
+			"toast_rpp": "RPP {class} diajukan ke wakasek kurikulum.",
+			"toast_chapter": "Bab {chapter} di {class} ditandai selesai.",
+			"bank": "Bank soal terbaru",
+			"new_question": "Soal baru",
+			"search": "Cari soal",
+			"level_easy": "Mudah",
+			"level_medium": "Sedang",
+			"level_hard": "Sulit",
+			"used": "dipakai {count}×",
+			"use": "Pakai di tugas",
+			"added": "Ditambahkan",
+			"no_match": "Tidak ada soal yang cocok.",
+			"draft_question": "Soal baru #{number} · draf (klik untuk sunting di Assessment)",
+			"toast_used": "Soal ditambahkan ke draf tugas berikutnya.",
+			"toast_new_question": "Draf soal baru dibuat di bank soal Matematika.",
+			"item_analysis": "Analisis butir soal",
+			"pick_bar": "pilih batang untuk melihat soal",
+			"bar_title": "Soal {number} · {percent}% benar",
+			"legend_easy": "Mudah ≥ {easy}% benar",
+			"legend_medium": "Sedang",
+			"legend_hard": "Sulit < {hard}%",
+			"question_no": "Soal {number}",
+			"item_label": "Butir {number} · {title}",
+			"correct": "Menjawab benar",
+			"discrimination": "Daya beda",
+			"spread": "Sebaran jawaban",
+			"advice_negative": "Daya beda negatif: murid dengan nilai tinggi justru banyak yang salah. Periksa kunci jawaban.",
+			"advice_low": "Daya beda rendah. Soal kurang membedakan murid yang paham dan yang belum. Pertimbangkan revisi pengecoh.",
+			"advice_hard": "Soal sulit dengan daya beda baik. Layak dipertahankan; ulas materinya di pertemuan berikut.",
+			"advice_ok": "Soal berfungsi baik.",
+			"flag": "Tandai untuk revisi",
+			"flagged": "Ditandai untuk revisi"
 		}
 	},
 	"navigation": {
@@ -1349,6 +1733,746 @@
 			"published": "Dipublikasikan: {name}",
 			"deleted": "Dihapus: {name}",
 			"in_use": "Masih dipakai {count} langganan. Arsipkan saja."
+		}
+	},
+	"account": {
+		"head_title": "Pengaturan Akun",
+		"eyebrow": "PENGATURAN · AKUN SAYA",
+		"title": "Pengaturan",
+		"subtitle": "Kelola data dan keamanan akun yang sedang Anda pakai untuk masuk.",
+		"attention": "Perlu perhatian",
+		"unknown_device": "Perangkat tidak dikenal",
+		"tabs": {
+			"profile": "Profil saya",
+			"password": "Kelola kata sandi",
+			"security": "Keamanan & 2 langkah",
+			"sessions": "Perangkat & sesi aktif",
+			"history": "Riwayat aktivitas login",
+			"notif": "Preferensi notifikasi",
+			"linked": "Akun terhubung",
+			"privacy": "Privasi & data saya"
+		},
+		"channel": {
+			"whatsapp": "WhatsApp {target}",
+			"email": "email {target}"
+		},
+		"approver": {
+			"super_admin": "super admin",
+			"principal": "kepala sekolah",
+			"school_admin": "admin sekolah"
+		},
+		"identity": {
+			"employee_id": {
+				"label": "ID karyawan",
+				"rule": "4–12 huruf/angka"
+			},
+			"nip": {
+				"label": "NIP",
+				"rule": "NIP terdiri dari 18 digit"
+			},
+			"nuptk": {
+				"label": "NUPTK",
+				"rule": "NUPTK terdiri dari 16 digit"
+			},
+			"nisn": {
+				"label": "NISN",
+				"rule": "NISN terdiri dari 10 digit"
+			},
+			"nik": {
+				"label": "NIK",
+				"rule": "NIK terdiri dari 16 digit"
+			}
+		},
+		"failure": {
+			"unauthenticated": {
+				"title": "Masuk lewat akun untuk membuka pengaturan",
+				"text": "Pengaturan akun memakai data akun asli. Keluar lalu masuk dengan email dan kata sandi Anda."
+			},
+			"forbidden": {
+				"title": "Akun ini tidak punya akses ke area ini",
+				"text": "Pengaturan dibuka sesuai peran keanggotaan aktif Anda. Hubungi admin lembaga bila peran Anda belum benar."
+			},
+			"not_found": {
+				"title": "Akun tidak ditemukan",
+				"text": "Masuk ulang lalu coba lagi."
+			},
+			"conflict": {
+				"title": "Data berubah",
+				"text": "Muat ulang halaman."
+			},
+			"validation": {
+				"title": "Permintaan tidak valid",
+				"text": "Muat ulang halaman."
+			},
+			"gone": {
+				"title": "Permintaan kedaluwarsa",
+				"text": "Muat ulang halaman."
+			},
+			"too_many": {
+				"title": "Terlalu banyak permintaan",
+				"text": "Tunggu sebentar lalu muat ulang."
+			},
+			"unavailable": {
+				"title": "Layanan akun sedang tidak dapat dihubungi",
+				"text": "Coba lagi beberapa saat lagi."
+			}
+		},
+		"errors": {
+			"generic": "Gagal memproses permintaan. Coba lagi.",
+			"version_conflict": "Profil diubah di tempat lain. Muat ulang halaman lalu ulangi perubahan.",
+			"nothing_pending": "Tidak ada pengajuan yang menunggu.",
+			"request_pending": "Pengajuan sebelumnya masih diproses.",
+			"resend_too_soon": "Tunggu sebentar sebelum mengirim ulang.",
+			"not_configured": "Penyedia ini belum dikonfigurasi oleh admin platform.",
+			"phone_required": "Isi nomor HP di Profil saya untuk memakai WhatsApp.",
+			"two_factor_state": "Status verifikasi 2 langkah berubah. Muat ulang halaman.",
+			"challenge_expired": "Kode atau tautan sudah kedaluwarsa. Ulangi dari awal.",
+			"current_session": "Perangkat ini keluar lewat tombol Keluar.",
+			"not_found": "Data tidak ditemukan. Muat ulang halaman.",
+			"forbidden": "Anda tidak punya akses untuk aksi ini.",
+			"unauthenticated": "Sesi berakhir. Masuk ulang untuk melanjutkan.",
+			"unavailable": "Layanan sedang tidak dapat dihubungi. Coba lagi."
+		},
+		"profile": {
+			"student_info": "Sebagai murid, Anda bisa mengubah foto, nomor HP, dan kata sandi. Data lain dikelola wali kelas atau admin sekolah.",
+			"pending_email_title": "Menunggu verifikasi email.",
+			"pending_email_text": "Tautan dikirim ke {pending}. Anda tetap masuk dengan {current} sampai tautan dibuka.",
+			"resend": "Kirim ulang",
+			"cancel": "Batalkan",
+			"photo_title": "Foto profil",
+			"photo_hint": "JPG atau PNG, maks. 2 MB. Tampil di sidebar, pesan, dan daftar kelas.",
+			"photo_upload": "Unggah foto",
+			"photo_change": "Ganti foto",
+			"photo_remove": "Hapus foto",
+			"photo_format": "Format harus JPG atau PNG.",
+			"photo_size": "Ukuran foto lebih dari 2 MB.",
+			"personal_title": "Data diri",
+			"full_name": "Nama lengkap",
+			"needs_approval": "PERLU PERSETUJUAN",
+			"nickname": "Nama panggilan / sapaan",
+			"nickname_hint": "Dipakai di sapaan beranda: \"Selamat pagi, {name}\"",
+			"gender": "Jenis kelamin",
+			"gender_L": "Laki-laki",
+			"gender_P": "Perempuan",
+			"birth_date": "Tanggal lahir",
+			"address": "Alamat",
+			"contact_title": "Kontak & identitas",
+			"email": "Email login",
+			"phone": "No. HP / WhatsApp",
+			"phone_placeholder": "812 3456 7890",
+			"identity_number": "Nomor identitas",
+			"role": "Peran & lembaga",
+			"managed_by": "Diatur oleh {approver}",
+			"managed_by_school": "Dikelola admin sekolah",
+			"sent_for_approval": "Perubahan dikirim ke {approver} untuk disetujui",
+			"official_name": "Sesuai dokumen resmi",
+			"email_link_hint": "Tautan verifikasi akan dikirim ke email baru",
+			"email_hint": "Dipakai untuk masuk dan pemulihan akun",
+			"phone_hint": "Untuk kode OTP dan notifikasi WhatsApp",
+			"discard": "Batalkan",
+			"save": "Simpan profil",
+			"bar": {
+				"errors": "{count} isian perlu diperbaiki",
+				"dirty": "Ada perubahan yang belum disimpan",
+				"saved": "Semua perubahan tersimpan"
+			},
+			"errors": {
+				"full_name": {
+					"too_short": "Nama lengkap minimal 3 huruf.",
+					"too_long": "Nama lengkap terlalu panjang.",
+					"restricted": "Nama dikelola admin sekolah."
+				},
+				"nickname": {
+					"too_long": "Nama panggilan terlalu panjang.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"gender": {
+					"invalid": "Pilih jenis kelamin.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"birth_date": {
+					"future": "Tanggal lahir tidak boleh di masa depan.",
+					"invalid": "Tanggal lahir tidak valid.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"address": {
+					"too_long": "Alamat terlalu panjang.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"email": {
+					"invalid": "Format email tidak valid.",
+					"taken": "Email ini sudah dipakai akun lain.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"phone": {
+					"invalid": "Nomor diawali 8, 9–13 digit (tanpa 0 di depan)."
+				},
+				"identity_number": {
+					"invalid": "Nomor identitas tidak sesuai format.",
+					"restricted": "Dikelola admin sekolah."
+				},
+				"photo": {
+					"format": "Format harus JPG atau PNG.",
+					"too_large": "Ukuran foto lebih dari 2 MB.",
+					"invalid": "Berkas foto tidak valid."
+				}
+			},
+			"toast": {
+				"no_changes": "Tidak ada perubahan.",
+				"saved": "Profil tersimpan.",
+				"saved_with": "Profil tersimpan; {notes}.",
+				"note_email": "tautan verifikasi dikirim ke {email}",
+				"note_approval": "perubahan nama/identitas dikirim ke {approver}",
+				"resent": "Tautan verifikasi dikirim ulang ke {email}.",
+				"email_cancelled": "Perubahan email dibatalkan."
+			}
+		},
+		"password": {
+			"title": "Kelola kata sandi",
+			"last_changed": "Terakhir diubah {date}",
+			"current": "Kata sandi saat ini",
+			"forgot": "Lupa kata sandi saat ini?",
+			"current_hint": "Masukkan kata sandi yang Anda pakai untuk masuk.",
+			"current_required": "Masukkan kata sandi saat ini.",
+			"new": "Kata sandi baru",
+			"new_placeholder": "Minimal 8 karakter",
+			"confirm": "Ulangi kata sandi baru",
+			"confirm_hint": "Ketik ulang; fitur tempel dinonaktifkan",
+			"confirm_match": "Kata sandi cocok",
+			"confirm_mismatch": "Belum cocok dengan kata sandi baru",
+			"show": "Tampilkan",
+			"hide": "Sembunyikan",
+			"caps": "Caps Lock aktif",
+			"same": "Harus berbeda dari kata sandi saat ini",
+			"strength": "Kekuatan: {level}",
+			"strength_empty": "Belum diisi",
+			"strength_weak": "Lemah",
+			"strength_fair": "Cukup",
+			"strength_strong": "Kuat",
+			"strength_very_strong": "Sangat kuat",
+			"others": "Keluarkan dari perangkat lain",
+			"others_count": "{count} perangkat lain sedang masuk",
+			"clear": "Kosongkan",
+			"checking": "Memeriksa…",
+			"submit": "Lanjut ke verifikasi OTP",
+			"wrong_current": "Kata sandi saat ini tidak sesuai. Sisa {count} percobaan.",
+			"locked": "Kata sandi saat ini salah 3 kali. Gunakan \"Lupa kata sandi saat ini?\" untuk mengatur ulang lewat email.",
+			"rules_title": "Syarat kata sandi",
+			"rules": {
+				"min_length": "Minimal 8 karakter",
+				"mixed_case": "Huruf besar dan huruf kecil",
+				"digit": "Minimal satu angka",
+				"symbol": "Minimal satu simbol (!@#$…)",
+				"no_name": "Tidak memuat nama Anda"
+			},
+			"issues": {
+				"min_length": "Kata sandi minimal 8 karakter.",
+				"max_length": "Kata sandi maksimal 72 karakter.",
+				"mixed_case": "Gunakan huruf besar dan huruf kecil.",
+				"digit": "Tambahkan minimal satu angka.",
+				"symbol": "Tambahkan minimal satu simbol.",
+				"contains_name": "Kata sandi tidak boleh memuat nama Anda.",
+				"same_as_current": "Kata sandi baru harus berbeda dari kata sandi saat ini.",
+				"mismatch": "Ulangi kata sandi baru dengan benar.",
+				"required": "Masukkan kata sandi saat ini."
+			},
+			"otp_info": "Sebelum disimpan, kami mengirim kode OTP ke {target} untuk memastikan ini memang Anda.",
+			"reset_sent_title": "Tautan reset dikirim",
+			"reset_sent_text": "ke {email}. Berlaku 30 menit.",
+			"reset_sent_toast": "Tautan reset dikirim ke {email}.",
+			"reset_valid_title": "Tautan reset valid.",
+			"reset_valid_text": "Buat kata sandi baru tanpa memasukkan kata sandi lama.",
+			"reset_exit": "Batalkan reset",
+			"reset_invalid": "Tautan reset tidak valid atau sudah kedaluwarsa. Kirim tautan baru lewat \"Lupa kata sandi saat ini?\".",
+			"done_title": "Kata sandi berhasil diubah",
+			"done_others": "Anda tetap masuk di perangkat ini. Perangkat lain sudah dikeluarkan. Email pemberitahuan dikirim ke {email}.",
+			"done_text": "Gunakan kata sandi baru saat masuk berikutnya. Email pemberitahuan dikirim ke {email}.",
+			"done_close": "Selesai",
+			"history_title": "Riwayat perubahan kata sandi",
+			"history": {
+				"settings": "Diubah dari Pengaturan",
+				"reset_link": "Diatur ulang lewat tautan email",
+				"initial": "Kata sandi awal dibuat",
+				"initial_device": "Akun dibuat oleh admin"
+			},
+			"otp": {
+				"title": "Masukkan kode OTP",
+				"text": "Kode 6 digit dikirim ke {target}.",
+				"valid": "Kode berlaku 5 menit.",
+				"too_short": "Masukkan 6 digit kode.",
+				"wrong": "Kode salah. Sisa {count} percobaan.",
+				"expired": "Kode kedaluwarsa atau sudah terlalu sering salah. Ulangi perubahan kata sandi.",
+				"resend": "Kirim ulang kode",
+				"resend_in": "Kirim ulang dalam {seconds} dtk",
+				"resent": "Kode baru dikirim ke {target}.",
+				"cancel": "Batal",
+				"verify": "Verifikasi & simpan"
+			}
+		},
+		"security": {
+			"title": "Verifikasi 2 langkah",
+			"active_sub": "Aktif · {method}",
+			"method_app_short": "aplikasi autentikator",
+			"method_wa_short": "kode via {target}",
+			"inactive_sub": "Lindungi akun dengan kode tambahan saat masuk dari perangkat baru.",
+			"chip_on": "AKTIF",
+			"chip_off": "NONAKTIF",
+			"start": "Aktifkan verifikasi 2 langkah",
+			"step_method": "LANGKAH 1 DARI 3 · PILIH METODE",
+			"step_verify": "LANGKAH 2 DARI 3 · VERIFIKASI",
+			"step_codes": "LANGKAH 3 DARI 3 · KODE CADANGAN",
+			"codes_new": "KODE CADANGAN BARU",
+			"method_app": "Aplikasi autentikator",
+			"method_app_sub": "Paling aman, bisa dipakai tanpa sinyal",
+			"method_wa": "Kode via WhatsApp",
+			"method_wa_sub": "Dikirim ke {target}",
+			"method_wa_no_phone": "Isi nomor HP di Profil saya terlebih dahulu",
+			"method_wa_unavailable": "Pengiriman WhatsApp belum tersedia",
+			"cancel": "Batal",
+			"next": "Lanjut",
+			"back": "Kembali",
+			"verify": "Verifikasi",
+			"qr_alt": "Kode QR untuk aplikasi autentikator",
+			"instr_app": "Pindai kode QR dengan Google Authenticator, Microsoft Authenticator, atau aplikasi sejenis, lalu masukkan kode yang muncul.",
+			"instr_wa": "Kami mengirim kode 6 digit ke {target}.",
+			"manual_key": "Kunci manual:",
+			"code_label": "Kode 6 digit",
+			"code_short": "Masukkan 6 digit kode.",
+			"code_wrong": "Kode tidak cocok. Periksa jam di ponsel Anda.",
+			"codes_text": "Simpan kode cadangan ini di tempat aman. Setiap kode hanya bisa dipakai sekali saat Anda tidak bisa menerima kode.",
+			"download": "Unduh .txt",
+			"finish": "Selesai & aktifkan",
+			"close": "Tutup",
+			"file_title": "Kode cadangan FLIXARE · {email}",
+			"file_note": "Setiap kode hanya bisa dipakai sekali.",
+			"enabled_toast": "Verifikasi 2 langkah aktif.",
+			"disabled_toast": "Verifikasi 2 langkah dinonaktifkan.",
+			"regenerate": "Buat ulang kode cadangan",
+			"disable": "Nonaktifkan",
+			"alerts_title": "Peringatan keamanan",
+			"alerts_saved": "Pengaturan keamanan tersimpan.",
+			"new_device_alert": {
+				"label": "Email saat masuk dari perangkat baru",
+				"sub": "Berisi perangkat, alamat IP, dan langkah bila itu bukan Anda"
+			},
+			"lockout_enabled": {
+				"label": "Kunci sementara setelah 5 kali gagal",
+				"sub": "Akun terkunci 15 menit untuk mencegah tebakan kata sandi"
+			}
+		},
+		"sessions": {
+			"title": "Perangkat yang sedang masuk",
+			"logout_all": "Keluarkan semua perangkat lain",
+			"this_device": "PERANGKAT INI",
+			"kick": "Keluarkan",
+			"kicked": "{device} dikeluarkan.",
+			"all_kicked": "Semua perangkat lain dikeluarkan.",
+			"active_now": "aktif sekarang",
+			"active_minutes": "aktif {count} menit lalu",
+			"active_hours": "aktif {count} jam lalu",
+			"active_days": "aktif {count} hari lalu",
+			"idle": "Sesi tanpa aktivitas selama {days} hari otomatis berakhir."
+		},
+		"history": {
+			"title": "Riwayat aktivitas login · 30 hari",
+			"filter": {
+				"all": "Semua",
+				"ok": "Berhasil",
+				"fail": "Gagal"
+			},
+			"ok": "Berhasil masuk",
+			"ok_with": "Berhasil masuk ({provider})",
+			"provider": {
+				"google": "Google",
+				"belajar": "belajar.id",
+				"password": "Kata sandi"
+			},
+			"fail": {
+				"wrong_password": "Kata sandi salah",
+				"wrong_two_factor": "Diblokir: kode 2 langkah salah",
+				"locked": "Ditolak: akun dikunci sementara",
+				"suspended": "Ditolak: akun dinonaktifkan"
+			},
+			"today": "Hari ini {time}",
+			"yesterday": "Kemarin {time}",
+			"not_me": "Bukan saya",
+			"not_me_toast": "Segera ganti kata sandi dan aktifkan verifikasi 2 langkah.",
+			"empty": "Belum ada aktivitas login dalam 30 hari.",
+			"empty_fail": "Tidak ada percobaan gagal dalam 30 hari."
+		},
+		"notif": {
+			"title": "Kirim pemberitahuan lewat",
+			"test": "Kirim notifikasi uji",
+			"test_sent_both": "Notifikasi uji dikirim ke {email} dan {phone}.",
+			"test_sent_email": "Notifikasi uji dikirim ke {email}.",
+			"col_event": "PERISTIWA",
+			"col_email": "EMAIL",
+			"col_whatsapp": "WHATSAPP",
+			"col_in_app": "APLIKASI",
+			"locked": "Selalu aktif",
+			"security_note": "Notifikasi keamanan lewat email selalu aktif dan tidak bisa dimatikan.",
+			"quiet_title": "Jam tenang",
+			"quiet_sub": "WhatsApp dan notifikasi aplikasi ditahan, lalu dikirim setelah jam tenang selesai.",
+			"quiet_from": "Mulai",
+			"quiet_to": "Selesai",
+			"quiet_note": "Pesan ditahan pukul {from}–{to} {zone}",
+			"zone_platform": "WIB",
+			"zone_tenant": "waktu lembaga",
+			"bar_dirty": "Ada perubahan yang belum disimpan",
+			"bar_saved": "Preferensi tersimpan",
+			"discard": "Batalkan",
+			"save": "Simpan preferensi",
+			"no_changes": "Tidak ada perubahan.",
+			"saved": "Preferensi notifikasi tersimpan."
+		},
+		"linked": {
+			"title": "Masuk dengan akun lain",
+			"sub": "Hubungkan akun agar bisa masuk tanpa mengetik kata sandi. Kata sandi FLIXARE tetap berlaku.",
+			"name": {
+				"google": "Google",
+				"belajar": "belajar.id"
+			},
+			"desc": {
+				"google": "Akun Google atau Google Workspace sekolah",
+				"belajar": "Akun resmi Kemendikdasmen untuk guru dan murid"
+			},
+			"not_configured": "Belum tersedia: penyedia belum dikonfigurasi oleh admin platform",
+			"connected_as": "Terhubung sebagai {email}",
+			"connect": "Hubungkan",
+			"disconnect": "Putuskan",
+			"connected_toast": "{provider} terhubung sebagai {email}.",
+			"disconnected_toast": "Akun diputuskan.",
+			"errors": {
+				"oauth_linked_elsewhere": "Akun itu sudah terhubung ke akun FLIXARE lain.",
+				"oauth_state_invalid": "Sesi menghubungkan akun kedaluwarsa. Ulangi dari awal.",
+				"oauth_failed": "Penyedia menolak permintaan. Coba lagi.",
+				"oauth_cancelled": "Menghubungkan akun dibatalkan.",
+				"service_unavailable": "Layanan sedang tidak dapat dihubungi. Coba lagi."
+			}
+		},
+		"privacy": {
+			"title": "Siapa yang bisa melihat data saya",
+			"phone_visibility": "Nomor HP terlihat oleh",
+			"visibility": {
+				"admin": "Hanya admin lembaga",
+				"staff": "Admin dan guru",
+				"all": "Semua anggota lembaga"
+			},
+			"show_photo": {
+				"label": "Tampilkan foto profil",
+				"sub": "Bila mati, inisial nama yang ditampilkan"
+			},
+			"show_online": {
+				"label": "Tampilkan status online",
+				"sub": "Orang lain melihat kapan Anda terakhir aktif"
+			},
+			"saved": "Pengaturan privasi tersimpan.",
+			"export_title": "Unduh data saya",
+			"export_sub": "Salinan data pribadi Anda yang tersimpan di FLIXARE, sesuai UU Pelindungan Data Pribadi.",
+			"category": {
+				"profile": "Profil",
+				"logins": "Riwayat login",
+				"activity": "Aktivitas belajar/mengajar",
+				"messages": "Pesan"
+			},
+			"format": "Format berkas",
+			"request": "Minta salinan data",
+			"preparing": "Menyiapkan…",
+			"preparing_note": "Biasanya kurang dari 1 menit",
+			"download": "Unduh berkas",
+			"ready_note": "Siap · tautan berlaku 7 hari",
+			"selected": "{count} kategori dipilih",
+			"select_one": "Pilih minimal satu kategori",
+			"deletion_cancelled": "Pengajuan penghapusan dibatalkan.",
+			"deletion_sent_toast": "Pengajuan penghapusan dikirim ke {approver}.",
+			"deletion": {
+				"none": {
+					"title": "Ajukan penghapusan akun",
+					"text": "Akun lembaga dihapus oleh {approver}. Data nilai dan rapor tetap disimpan lembaga sesuai aturan.",
+					"action": "Ajukan penghapusan…"
+				},
+				"pending": {
+					"title": "Pengajuan penghapusan akun terkirim",
+					"text": "Menunggu {approver}. Anda tetap bisa memakai akun sampai pengajuan diproses.",
+					"action": "Batalkan pengajuan"
+				},
+				"need_docs": {
+					"title": "Dokumen diminta untuk penghapusan akun",
+					"text": "Diminta: {docs}{note}",
+					"action": "Batalkan pengajuan"
+				},
+				"approved": {
+					"title": "Penghapusan akun disetujui",
+					"text": "Disetujui {who}. Akun dinonaktifkan dalam {days} hari; hubungi admin bila berubah pikiran.",
+					"action": "Tutup"
+				},
+				"declined": {
+					"title": "Penghapusan akun ditolak",
+					"text": "Alasan: {reason}. Anda bisa mengajukan ulang.",
+					"action": "Tutup"
+				}
+			}
+		},
+		"confirm": {
+			"busy": "Memproses…",
+			"cancel": "Batal",
+			"tfa": {
+				"title": "Nonaktifkan verifikasi 2 langkah?",
+				"message": "Akun hanya dilindungi kata sandi. Kode cadangan lama tidak berlaku lagi.",
+				"label": "Ya, nonaktifkan"
+			},
+			"sessions": {
+				"title": "Keluarkan semua perangkat lain?",
+				"message": "{count} perangkat harus masuk ulang. Perangkat ini tetap masuk.",
+				"label": "Ya, keluarkan"
+			},
+			"delete": {
+				"title": "Ajukan penghapusan akun?",
+				"message": "Pengajuan dikirim ke {approver} untuk diproses.",
+				"label": "Ya, ajukan"
+			},
+			"unlink": {
+				"title": "Putuskan akun terhubung?",
+				"message": "Anda tidak bisa lagi masuk dengan akun ini. Masuk tetap bisa dengan email dan kata sandi.",
+				"label": "Ya, putuskan"
+			}
+		},
+		"verify_email": {
+			"heading": "Verifikasi email",
+			"success_title": "Email login diperbarui",
+			"success_text": "Mulai sekarang masuk dengan {email}.",
+			"login": "Masuk",
+			"failure": {
+				"gone": {
+					"title": "Tautan tidak valid atau kedaluwarsa",
+					"text": "Kirim ulang tautan dari Pengaturan → Profil saya."
+				},
+				"taken": {
+					"title": "Email sudah dipakai akun lain",
+					"text": "Gunakan alamat email lain dari Pengaturan → Profil saya."
+				},
+				"unavailable": {
+					"title": "Layanan sedang tidak dapat dihubungi",
+					"text": "Buka tautan ini lagi beberapa saat lagi."
+				}
+			}
+		},
+		"requests": {
+			"title": "Pengajuan perubahan data",
+			"chip": {
+				"pending": "MENUNGGU",
+				"need_docs": "PERLU DOKUMEN",
+				"approved": "DISETUJUI",
+				"declined": "DITOLAK"
+			},
+			"pending_sub": "Menunggu {approver}{deadline}. Data lama tetap dipakai.",
+			"deadline_days": " · paling lambat {days} hari lagi",
+			"deadline_over": " · melewati batas 3 hari kerja",
+			"docs_sub": "{who} meminta: {docs}{note}",
+			"approved_sub": "Disetujui {who}. Data sudah diperbarui.",
+			"declined_sub": "Ditolak {who}: {reason}",
+			"upload": "Unggah dokumen",
+			"upload_format": "Dokumen harus JPG, PNG, atau PDF.",
+			"upload_too_large": "Ukuran dokumen lebih dari 5 MB.",
+			"uploaded": "Dokumen terkirim. Pengajuan kembali diproses.",
+			"cancel": "Batalkan",
+			"close": "Tutup",
+			"cancelled": "Pengajuan dibatalkan."
+		}
+	},
+	"approvals": {
+		"head_title": "Kotak persetujuan",
+		"eyebrow": "PERSETUJUAN · {role}",
+		"title": "Kotak persetujuan",
+		"role_tag": {
+			"school_admin": "ADMIN SEKOLAH",
+			"principal": "KEPALA SEKOLAH",
+			"platform": "SUPER ADMIN"
+		},
+		"desc": {
+			"school_admin": "Perubahan nama, nomor identitas, dan penghapusan akun guru, murid, orang tua, serta kepala sekolah di {tenant}.",
+			"principal": "Perubahan nama, nomor identitas, dan penghapusan akun admin sekolah di {tenant}.",
+			"platform": "Perubahan nama, ID karyawan, dan penghapusan akun konsol platform."
+		},
+		"stat": {
+			"pending": "MENUNGGU",
+			"overdue": "LEWAT BATAS",
+			"docs": "PERLU DOKUMEN"
+		},
+		"tab": {
+			"pending": "Menunggu · {n}",
+			"docs": "Perlu dokumen · {n}",
+			"done": "Selesai · {n}"
+		},
+		"kind": {
+			"name": "Nama lengkap",
+			"identity": "Nomor identitas",
+			"deletion": "Hapus akun"
+		},
+		"search": "Cari pemohon",
+		"select_all": "Pilih semua",
+		"select": "Pilih pengajuan {name}",
+		"col": {
+			"requester": "PEMOHON",
+			"kind": "JENIS",
+			"change": "PERUBAHAN",
+			"submitted": "DIAJUKAN",
+			"deadline": "BATAS WAKTU",
+			"decision": "KEPUTUSAN"
+		},
+		"new": "BARU",
+		"details": "Rincian",
+		"attachments": "{n} lampiran",
+		"attachments_label": "Lampiran",
+		"no_attachments": "Tidak ada",
+		"deletion_field": "Akun",
+		"deletion_from": "Aktif",
+		"deletion_to": "Dihapus",
+		"current": "DATA SAAT INI",
+		"proposed": "DIAJUKAN MENJADI",
+		"reason": "Alasan pemohon",
+		"requested": "Diminta: {docs}.",
+		"history": "Riwayat",
+		"chip": {
+			"approved": "Disetujui",
+			"declined": "Ditolak",
+			"waiting": "Menunggu pemohon",
+			"self": "Pengajuan Anda",
+			"overdue_days": "Lewat {n} hari",
+			"overdue_hours": "Lewat {n} jam",
+			"left_hours": "Sisa {n} jam",
+			"left_days": "Sisa {n} hari"
+		},
+		"ago": {
+			"just_now": "baru saja",
+			"hours": "{n} jam lalu",
+			"days": "{n} hari lalu"
+		},
+		"effect": {
+			"name": "Nama pemohon diperbarui di seluruh aplikasi dan pemohon diberi tahu.",
+			"identity": "Nomor identitas pemohon diperbarui dan disinkronkan ke laporan.",
+			"deletion": "Akun dinonaktifkan 30 hari setelah disetujui. Nilai dan rapor tetap disimpan lembaga."
+		},
+		"log": {
+			"submitted": "Mengajukan",
+			"updated_detail": "Mengubah pengajuan menjadi \"{detail}\"",
+			"cancelled": "Membatalkan",
+			"docs_requested_detail": "Meminta dokumen: {detail}",
+			"docs_uploaded_detail": "Mengunggah {detail}",
+			"approved": "Menyetujui",
+			"approved_detail": "Menyetujui: \"{detail}\"",
+			"approved_bulk": "Menyetujui (massal)",
+			"declined_detail": "Menolak: {detail}",
+			"dismissed": "Menutup kartu pengajuan",
+			"applied_detail": "Penghapusan berlaku: {detail}",
+			"updated": "Mengubah pengajuan",
+			"docs_requested": "Meminta dokumen",
+			"docs_uploaded": "Mengunggah dokumen",
+			"declined": "Menolak",
+			"applied": "Penghapusan berlaku",
+			"cancelled_detail": "Membatalkan",
+			"submitted_detail": "Mengajukan",
+			"dismissed_detail": "Menutup kartu pengajuan"
+		},
+		"self_note": "Ini pengajuan Anda sendiri. Pengajuan diproses oleh peninjau lain.",
+		"done": {
+			"approved": "Disetujui oleh {name}",
+			"declined": "Ditolak oleh {name}"
+		},
+		"waiting_docs": "Menunggu pemohon mengunggah: {docs}. Batas waktu berhenti sampai dokumen diterima.",
+		"decision": {
+			"approve": "Setujui",
+			"reject": "Tolak",
+			"docs": "Minta dokumen"
+		},
+		"note_label": "Catatan untuk pemohon",
+		"optional": "(opsional)",
+		"required": "(wajib)",
+		"reject_label": "Alasan penolakan",
+		"reject": {
+			"not_official": "Tidak sesuai dokumen resmi",
+			"unreadable": "Dokumen tidak terbaca",
+			"not_dapodik": "Tidak sesuai data Dapodik",
+			"pending_tasks": "Masih ada tugas yang belum selesai",
+			"need_principal": "Perlu konfirmasi kepala sekolah",
+			"other": "Lainnya"
+		},
+		"explain": "Penjelasan",
+		"explain_placeholder": "Dikirim ke pemohon",
+		"docs_label": "Dokumen yang diminta",
+		"docs": {
+			"ktp": "KTP",
+			"sk_ijazah": "SK / ijazah",
+			"birth_certificate": "Akta kelahiran",
+			"identity_card": "Kartu NUPTK / SK",
+			"dapodik_proof": "Bukti Dapodik",
+			"transfer_letter": "Surat pindah tugas",
+			"resignation_letter": "Surat pengunduran diri"
+		},
+		"message": "Pesan",
+		"message_placeholder": "mis. Foto KTP harus terbaca jelas",
+		"docs_pause": "Batas waktu berhenti sampai pemohon mengunggah dokumen.",
+		"error": {
+			"reject_reason": "Pilih alasan penolakan.",
+			"reject_note": "Tulis penjelasan minimal {n} karakter.",
+			"docs": "Pilih minimal satu dokumen."
+		},
+		"submit": {
+			"approve": "Setujui pengajuan",
+			"reject": "Tolak pengajuan",
+			"docs": "Kirim permintaan dokumen"
+		},
+		"empty": {
+			"pending": "Tidak ada pengajuan yang menunggu. Semua sudah diproses.",
+			"docs": "Tidak ada pengajuan yang menunggu dokumen.",
+			"done": "Belum ada keputusan."
+		},
+		"sla_note": "Batas waktu 3 hari kerja ({hours} jam) sejak diajukan.",
+		"selected": "{n} pengajuan dipilih",
+		"clear_selection": "Batal pilih",
+		"approve_selected": "Setujui terpilih",
+		"close": "Tutup",
+		"toast": {
+			"approve": "Disetujui. {name} diberi tahu.",
+			"reject": "Ditolak. Alasan dikirim ke {name}.",
+			"docs": "Permintaan dokumen dikirim ke {name}.",
+			"bulk": "{n} pengajuan disetujui."
+		},
+		"confirm": {
+			"busy": "Memproses…",
+			"cancel": "Batal",
+			"bulk_title": "Setujui {n} pengajuan?",
+			"bulk_message": "Setiap pemohon menerima pemberitahuan. Perubahan data langsung berlaku.",
+			"bulk_label": "Ya, setujui semua",
+			"reject_title": "Tolak pengajuan {name}?",
+			"reject_message": "Alasan dikirim ke pemohon. Pemohon bisa mengajukan ulang.",
+			"reject_label": "Ya, tolak",
+			"reason": "Alasan",
+			"approve_title": "Setujui pengajuan {name}?",
+			"approve_label": "Ya, setujui"
+		},
+		"errors": {
+			"generic": "Gagal memproses pengajuan. Coba lagi.",
+			"self_review": "Pengajuan sendiri tidak bisa Anda putuskan.",
+			"nothing_pending": "Pengajuan ini sudah diproses atau dibatalkan pemohon. Muat ulang halaman.",
+			"not_found": "Pengajuan tidak ditemukan. Muat ulang halaman.",
+			"forbidden": "Anda tidak punya akses ke kotak persetujuan ini.",
+			"unauthenticated": "Sesi berakhir. Masuk ulang untuk melanjutkan.",
+			"unavailable": "Layanan sedang tidak dapat dihubungi. Coba lagi."
+		},
+		"failure": {
+			"forbidden": {
+				"title": "Akun ini bukan peninjau pengajuan",
+				"text": "Kotak persetujuan hanya untuk admin sekolah, kepala sekolah, atau super admin yang punya izin meninjau pengajuan akun."
+			},
+			"unauthenticated": {
+				"title": "Masuk lewat akun untuk membuka kotak persetujuan",
+				"text": "Kotak persetujuan memakai data asli. Keluar lalu masuk dengan email dan kata sandi Anda."
+			},
+			"unavailable": {
+				"title": "Layanan persetujuan sedang tidak dapat dihubungi",
+				"text": "Coba lagi beberapa saat lagi."
+			}
 		}
 	}
 }

@@ -1,9 +1,10 @@
 import type { GradebookClass, LearningObjective, TeacherDashboardData } from './teacher-dashboard';
 
 /**
- * DATA CONTOH dashboard guru — hanya dimuat saat `dev` (FE-04 D2), dipakai bila data asli belum ada.
- * Isi sama persis dengan `FLIXARE App v3.html` layar 06 (konstanta EVENTS, TOGRADE, CLASSES, HEAT_BASE).
- * Angka & ambang adalah contoh visual, BUKAN aturan bisnis.
+ * DATA CONTOH dashboard guru mapel — isi sama persis dengan `FLIXARE App v3.html` layar 06 (konstanta
+ * EVENTS, TOGRADE, CLASSES, HEAT_BASE). Dipakai di dev & produksi selama modul backend agenda, tugas,
+ * dan penilaian belum tersedia, selalu berlabel "Data contoh" (keputusan pemilik produk 7 Okt 2026,
+ * menggantikan aturan FE-04 D2 untuk dashboard ini). Angka & ambang adalah contoh visual, BUKAN aturan bisnis.
  */
 const REFERENCE_CLOCK_SECONDS = 7 * 3600 + 35 * 60;
 const SCORE_MIN = 10;

@@ -93,7 +93,13 @@
 			"errors": {
 				"missing_fields": "Enter your email and password first.",
 				"invalid_credentials": "Incorrect email or password.",
-				"service_unavailable": "The sign-in service cannot be reached. Please try again shortly."
+				"service_unavailable": "The sign-in service cannot be reached. Please try again shortly.",
+				"account_locked": "The account is temporarily locked after several failed sign-in attempts. Try again in 15 minutes.",
+				"suspended": "This account has been deactivated. Contact your institution admin.",
+				"invalid_code": "The code does not match.",
+				"invalid_code_left": "The code does not match. {count} attempts left.",
+				"challenge_expired": "The code has expired. Sign in again with your email and password.",
+				"oauth_unavailable": "Google sign-in is currently unavailable."
 			},
 			"preview": {
 				"school": {
@@ -145,10 +151,28 @@
 					"next_sub": "Dimas asks questions actively"
 				}
 			},
-			"google_unavailable": "Google sign-in is not available yet; use your email and password.",
+			"google_unavailable": "Google sign-in is not available yet: the provider has not been configured by the platform admin.",
 			"session_ended": {
-				"revoked": "Your session ended because this account signed in or out on another device. One account can only be active on one device.",
+				"revoked": "Your session on this device ended because it was signed out from Account Settings or the password was changed on another device.",
 				"expired": "Your session has expired. Please sign in again."
+			},
+			"two_factor": {
+				"app": "Enter the 6-digit code from your authenticator app.",
+				"whatsapp": "A 6-digit code was sent to {target}.",
+				"code": "Verification code",
+				"backup_hint": "Can't receive a code? Enter one of your backup codes.",
+				"submit": "Verify & sign in",
+				"resend": "Resend code",
+				"cancel": "Use another account"
+			},
+			"oauth_errors": {
+				"oauth_not_linked": "That Google account is not linked to a FLIXARE account. Sign in with your email, then link it in Settings → Linked accounts.",
+				"oauth_cancelled": "Google sign-in was cancelled.",
+				"oauth_failed": "Google rejected the sign-in request. Please try again.",
+				"oauth_state_invalid": "The Google sign-in session expired. Please try again.",
+				"account_locked": "The account is temporarily locked after several failed sign-in attempts. Try again in 15 minutes.",
+				"suspended": "This account has been deactivated. Contact your institution admin.",
+				"service_unavailable": "The sign-in service cannot be reached. Please try again shortly."
 			}
 		},
 		"context": {
@@ -253,7 +277,7 @@
 			"greeting": "See you again, {name}. Your {role} session in FLIXARE was closed safely.",
 			"greeting_no_role": "See you again, {name}. Your FLIXARE session was closed safely.",
 			"greeting_generic": "Your FLIXARE session was closed safely.",
-			"item_closed": "Sessions on all devices have been closed",
+			"item_closed": "The session on this device has been closed",
 			"item_duration": "Session duration {duration}",
 			"duration_hours": "{hours} h {minutes} min",
 			"duration_minutes": "{minutes} min",
@@ -306,7 +330,8 @@
 			"report_cards": "Report cards",
 			"subscription": "Subscription",
 			"settings": "Settings",
-			"search": "Search classes, teachers, students…"
+			"search": "Search classes, teachers, students…",
+			"approvals": "Approvals"
 		},
 		"teacher": {
 			"area": "Teacher Workspace",
@@ -343,6 +368,35 @@
 			"messages": "Messages",
 			"settings": "Settings",
 			"search": "Search grades, assignments, announcements…"
+		},
+		"principal": {
+			"area": "Principal Workspace",
+			"home": "Home",
+			"approvals": "Approvals",
+			"attendance": "Attendance",
+			"reports": "Reports",
+			"classes": "Classes",
+			"report_cards": "Report cards",
+			"teachers": "Teachers",
+			"students": "Students",
+			"announcements": "Announcements",
+			"settings": "Settings",
+			"search": "Search classes, teachers, students…"
+		},
+		"homeroom": {
+			"area": "Homeroom Workspace",
+			"home": "Home",
+			"attendance": "Class attendance",
+			"approvals": "Approvals",
+			"liaison": "Liaison book",
+			"grades": "Grade recap",
+			"students": "Class students",
+			"report_cards": "Report cards",
+			"schedule": "Class schedule",
+			"behavior": "Behavior notes",
+			"settings": "Settings",
+			"search": "Search {class} students, messages…",
+			"search_any": "Search students, messages…"
 		}
 	},
 	"brand": {
@@ -500,7 +554,7 @@
 		"teacher": {
 			"next": "Up next",
 			"calendar": "Calendar",
-			"summary": "You have {agenda} items today and {pending} submissions waiting for grades.",
+			"summary": "Subject teacher · {classes} classes you teach. There are {agenda} agenda items today and {pending} submissions awaiting grades.",
 			"create_task": "Create assignment",
 			"question_bank": "Question bank",
 			"starts_in": "in {time}",
@@ -515,7 +569,7 @@
 			"preview_questions": "Preview questions",
 			"agenda": "Today's agenda",
 			"now": "Now",
-			"grading_pile": "Grading pile",
+			"grading_pile": "Grading pile per class",
 			"sheets": "sheets",
 			"grade_one": "Grade 1 sheet",
 			"graded": "Done",
@@ -638,6 +692,336 @@
 			"midday": "Good afternoon, {name}",
 			"afternoon": "Good afternoon, {name}",
 			"evening": "Good evening, {name}"
+		},
+		"sample": {
+			"label": "Sample data",
+			"hint": "The module for this section is not available yet; figures are samples and are not saved.",
+			"simulation_note": "(sample data, not saved)"
+		},
+		"role_switch": {
+			"label": "Switch role",
+			"switched": "Switched to the {role} role.",
+			"principal": "Principal",
+			"school_admin": "School admin",
+			"teacher": "Subject teacher",
+			"teacher_short": "Teacher",
+			"homeroom": "Homeroom teacher",
+			"homeroom_class": "Homeroom {class}",
+			"tenant_detail": "School · {role}"
+		},
+		"honorific": {
+			"female": "Ms. {name}",
+			"male": "Mr. {name}"
+		},
+		"semester": {
+			"odd": "Odd semester",
+			"even": "Even semester"
+		},
+		"principal": {
+			"academic_year": "AY {year}",
+			"hero_attendance": "Student attendance today is {value}.",
+			"hero_pending": "{count} requests are waiting for your decision.",
+			"hero_no_pending": "No requests are waiting.",
+			"view_mode": "View mode: school data is changed by the school admin and teachers",
+			"open_approvals": "Open approval inbox",
+			"download_report": "Download monthly report",
+			"toast_download": "Monthly report {month} (PDF) downloaded.",
+			"needs_decision": "Needs your decision",
+			"decide_reports": "Class report cards",
+			"decide_reports_detail": "Submitted by homeroom teachers",
+			"decide_leave": "Teacher leave",
+			"decide_leave_detail": "Needed before the leave date",
+			"decide_data": "School admin data changes",
+			"decide_data_detail": "Name or NIP",
+			"school_summary": "School summary",
+			"period_today": "Today",
+			"period_week": "This week",
+			"period_month": "This month",
+			"kpi_student_attendance": "Student attendance",
+			"kpi_teacher_attendance": "Teacher attendance",
+			"kpi_average_score": "Average score",
+			"kpi_at_risk": "At-risk students",
+			"kpi_reports": "Report cards approved",
+			"kpi_reports_note": "{count} waiting for your decision",
+			"attendance_trend": "Attendance in the last 6 days",
+			"attendance_trend_hint": "Hover or tap a bar to see the figure",
+			"mode_students": "Students",
+			"mode_teachers": "Teachers",
+			"absent_teachers": "Teachers absent today",
+			"present_of": "{present} of {total} present",
+			"absence_duty": "Official duty",
+			"absence_sick": "Sick",
+			"subject_scores": "Academic achievement by subject",
+			"subject_scores_hint": "Average summative score · dashed line = passing grade {kkm}. Pick a subject for details.",
+			"grade_all": "All",
+			"grade": "Grade {grade}",
+			"grade_filter": "Grade filter",
+			"detail": "Details",
+			"mastery": "{percent}% passed",
+			"subject_note_low": "Grade {grade} average is still below the passing grade. Subject teachers have scheduled remedial sessions; progress can be tracked in Reports.",
+			"subject_note_ok": "All grades are above the passing grade. No follow-up is needed.",
+			"class_comparison": "Class comparison",
+			"class_comparison_hint": "{count} classes · average {average} (thin line). Pick a class for details.",
+			"metric_attendance": "Attendance",
+			"metric_score": "Average score",
+			"metric_tasks": "Tasks submitted",
+			"not_filled_short": "Not yet",
+			"not_filled": "not filled in",
+			"class": "Class",
+			"class_meta": "Homeroom teacher {homeroom} · {count} students",
+			"class_status_unfilled": "Attendance not filled in",
+			"class_status_attention": "Needs attention",
+			"class_status_good": "Good",
+			"stat_attendance": "Attendance today",
+			"stat_score": "Average score",
+			"stat_tasks": "Tasks submitted",
+			"stat_at_risk": "At-risk students",
+			"from_average": "{value} from average",
+			"last_7_days": "Last 7 days",
+			"of_students": "of {count} students",
+			"class_read_only": "View only. Class data is changed by the school admin.",
+			"report_approval": "Report card approval",
+			"report_approval_hint": "{count} classes · due {date}",
+			"review": "Review",
+			"pipeline_published": "Scores published",
+			"pipeline_edited": "Descriptions edited",
+			"pipeline_submitted": "Submitted by homeroom teachers",
+			"pipeline_approved": "Approved",
+			"class_name": "Class {name}",
+			"report_pending": "Pending",
+			"subscription": "Subscription & seat quota",
+			"subscription_hint": "{plan} plan · managed by the school admin",
+			"trial_day": "Trial day {day}/{total}",
+			"subscription_status_trial": "Trial",
+			"subscription_status_active": "Active",
+			"subscription_status_past_due": "Past due",
+			"subscription_status_cancelled": "Cancelled",
+			"subscription_status_expired": "Expired",
+			"ends_on": "ends {date}",
+			"trial_until": "Trial · ends {date}",
+			"seats_of": "/ {total} seats used",
+			"seats_used": "seats used",
+			"sub_status": "Status",
+			"sub_active_students": "Students active in 7 days",
+			"sub_active_teachers": "Teachers active in 7 days",
+			"sub_storage": "Storage",
+			"teacher_activity": "Teacher performance & activity",
+			"sort_by": "Sort by",
+			"sort_pending": "Ungraded",
+			"sort_activity": "Lowest activity",
+			"sort_name": "Name",
+			"col_teacher": "Teacher",
+			"col_classes": "Classes",
+			"col_materials": "New materials",
+			"col_pending": "Ungraded",
+			"col_login": "Login",
+			"col_status": "Status",
+			"col_action": "Action",
+			"classes_count": "{count} classes",
+			"sheets": "{count} sheets",
+			"teacher_active": "Active",
+			"teacher_attention": "Needs attention",
+			"teacher_inactive": "Inactive",
+			"sent": "Sent",
+			"remind": "Remind",
+			"toast_reminded": "Reminder sent to {name}.",
+			"at_risk": "At-risk students",
+			"at_risk_hint": "Average below the passing grade or absent 3 days or more this month",
+			"risk_all": "All · {count}",
+			"risk_score": "Low scores",
+			"risk_absence": "Frequently absent",
+			"risk_meta": "{class} · homeroom teacher {homeroom}",
+			"tag_score": "Score {value}",
+			"tag_absent": "Absent {count} days",
+			"risk_average": "Average",
+			"risk_absent": "Absent this month",
+			"risk_weak": "Weak subjects",
+			"days": "{count} days",
+			"follow_sent": "Request sent to {homeroom}. The follow-up will be recorded in the class behavior notes.",
+			"follow_none": "No follow-up notes from the homeroom teacher yet.",
+			"ask_follow": "Ask the homeroom teacher to follow up",
+			"ask_sent": "Request sent",
+			"toast_asked": "Follow-up request for {name} sent to {homeroom}.",
+			"agenda_announcements": "Agenda & announcements",
+			"tab_agenda": "Agenda",
+			"tab_announcements": "Announcements",
+			"announcements_by_admin": "Announcements are created by the school admin."
+		},
+		"homeroom": {
+			"eyebrow": "Homeroom {class} · {count} students",
+			"hero_saved": "Today's attendance has been saved.",
+			"hero_unsaved": "Today's attendance has not been saved.",
+			"hero_rest": "{requests} parent requests are waiting and {unread} messages are unanswered.",
+			"fill_attendance": "Fill in attendance",
+			"view_attendance": "View attendance",
+			"approvals": "Approval inbox",
+			"toast_open_approvals": "The homeroom approval inbox opens from the Approvals menu.",
+			"today_tasks": "Homeroom tasks today",
+			"task_attendance": "Daily attendance",
+			"task_attendance_saved": "Saved {time}",
+			"task_attendance_progress": "{filled}/{total} students recorded",
+			"task_requests": "Parent requests",
+			"task_requests_waiting": "{count} awaiting decision",
+			"task_requests_done": "All processed",
+			"task_liaison": "Liaison book",
+			"task_liaison_unread": "{count} messages unanswered",
+			"task_liaison_done": "All answered",
+			"task_report": "Semester report card",
+			"task_report_progress": "{done}/{total} subjects complete",
+			"attendance": "Daily attendance {class}",
+			"attendance_today_hint": "{date} · first period {time}",
+			"attendance_recap_hint": "{month} recap · {days} school days",
+			"tab_today": "Today",
+			"tab_recap": "Monthly recap",
+			"count_present": "Present",
+			"count_sick": "Sick",
+			"count_permit": "Excused",
+			"count_absent": "Absent",
+			"count_unset": "Not yet",
+			"mark_rest": "Mark the rest present",
+			"code_H": "Present",
+			"code_S": "Sick",
+			"code_I": "Excused",
+			"code_A": "Absent",
+			"code_T": "Late",
+			"not_recorded": "Not recorded",
+			"save_done": "Saved at {time}. Parents of absent students have been notified.",
+			"save_complete": "All students have been recorded.",
+			"save_left": "{count} students not recorded yet.",
+			"save": "Save attendance",
+			"saved": "Saved",
+			"toast_attendance": "{class} attendance saved. {count} parents notified.",
+			"recap_student": "Student · {month}",
+			"recap_present": "Present",
+			"recap_sick": "Sick",
+			"recap_permit": "Excused",
+			"recap_absent": "Absent",
+			"recap_late": "Late",
+			"recap_rate": "Attendance",
+			"parent_requests": "Parent requests",
+			"open_all": "Open all · {count}",
+			"no_requests": "No requests are waiting.",
+			"sla_over": "Overdue",
+			"sla_hours": "{count} hours left",
+			"sla_days": "{count} days left",
+			"liaison": "Liaison book",
+			"unread": "{count} unanswered",
+			"from_parent": "{name} · parent of {student} · {time}",
+			"from_you": "You · {time}",
+			"just_now": "Just now",
+			"reply_to": "Reply to {name}…",
+			"send": "Send",
+			"toast_reply": "Reply sent to {name}.",
+			"grade_recap": "Grade recap for all subjects",
+			"grade_recap_hint": "Scores are entered by subject teachers. Colored numbers are below the passing grade {kkm}.",
+			"below_kkm_only": "Only below passing grade",
+			"sort_number": "Roll number",
+			"sort_lowest": "Lowest average",
+			"col_student": "Student",
+			"col_average": "Avg",
+			"grades_read_only": "View only. Scores are changed by each subject teacher.",
+			"attention": "Students needing attention",
+			"students_count": "{count} students",
+			"tag_low": "{count} subjects < passing grade",
+			"tag_absent": "Absent {count} days",
+			"record_follow_up": "Record follow-up",
+			"report": "Odd semester report card",
+			"report_hint": "Submitted to the principal · due {date}",
+			"report_status_pending": "Awaiting principal",
+			"report_status_ready": "Ready to submit",
+			"report_status_drafting": "Drafting",
+			"remind": "Remind",
+			"subject_done": "Complete",
+			"subject_reminded": "Reminded",
+			"subject_pending": "Not final",
+			"toast_remind": "Reminder sent to {name}. Scores are finalized in 3 seconds.",
+			"toast_finalized": "{subject} scores finalized by {name}.",
+			"homeroom_notes": "Homeroom notes · {done}/{total}",
+			"draft_notes": "Draft notes",
+			"toast_draft": "Homeroom note drafts created for {count} students. Edit them if needed.",
+			"attendance_recap_auto": "Attendance recap · automatic from attendance",
+			"report_msg_pending": "Waiting for the principal's decision. Limit is 3 working days.",
+			"report_msg_ready": "All components are complete. The report card is ready to submit.",
+			"report_msg_incomplete": "Complete all subject scores and homeroom notes before submitting.",
+			"report_submit": "Submit to the principal",
+			"report_submitted": "Submitted",
+			"toast_report": "{class} report card submitted to the principal.",
+			"schedule": "{class} lesson schedule",
+			"now": "Now",
+			"behavior": "Behavior & counseling notes",
+			"filter_all": "All",
+			"filter_positive": "Positive",
+			"filter_attention": "Attention",
+			"filter_counseling": "Counseling",
+			"category_positive": "Positive",
+			"category_attention": "Needs attention",
+			"category_counseling": "Counseling",
+			"pick_student": "Choose a student…",
+			"note_category": "Note category",
+			"note_placeholder": "Write what happened and the follow-up",
+			"notify_parent": "Notify parent",
+			"note_pick_student": "Choose a student.",
+			"note_min": "Write a note of at least {count} characters.",
+			"save_note": "Save note",
+			"toast_note": "Note for {name} saved.",
+			"toast_note_notified": "Note for {name} saved and the parent was notified.",
+			"parent_notified": "Parent notified"
+		},
+		"teacher_panels": {
+			"notice_view": "You are viewing",
+			"notice_classes": "{count} classes",
+			"notice_can_edit": "that you teach. You can change",
+			"notice_editable": "materials, assignments, quiz/exam questions, subject scores, and final report card scores",
+			"notice_rest": "for your subjects. Student data, attendance, and schedules are view only.",
+			"schedule": "Teaching schedule this week",
+			"schedule_hint": "{lessons} lessons · {classes} classes · pick a class to highlight",
+			"highlight": "Highlight class",
+			"all": "All",
+			"today": "{day} · today",
+			"final_assessment": "Final assessment",
+			"progress": "Material & lesson plan progress per class",
+			"rpp": "Lesson plan {status}",
+			"rpp_approved": "approved",
+			"rpp_submitted": "submitted",
+			"rpp_draft": "draft",
+			"rpp_none": "not started",
+			"all_done": "All chapters done · {percent}%",
+			"current_chapter": "Current: Chapter {number} {chapter} · {percent}%",
+			"submit_rpp": "Submit lesson plan",
+			"finished": "Done",
+			"mark_chapter": "Mark chapter done",
+			"toast_rpp": "{class} lesson plan submitted to the curriculum vice principal.",
+			"toast_chapter": "Chapter {chapter} in {class} marked done.",
+			"bank": "Latest question bank",
+			"new_question": "New question",
+			"search": "Search questions",
+			"level_easy": "Easy",
+			"level_medium": "Medium",
+			"level_hard": "Hard",
+			"used": "used {count}×",
+			"use": "Use in assignment",
+			"added": "Added",
+			"no_match": "No matching questions.",
+			"draft_question": "New question #{number} · draft (click to edit in Assessment)",
+			"toast_used": "Question added to the next assignment draft.",
+			"toast_new_question": "New question draft created in the Mathematics question bank.",
+			"item_analysis": "Item analysis",
+			"pick_bar": "pick a bar to see the question",
+			"bar_title": "Question {number} · {percent}% correct",
+			"legend_easy": "Easy ≥ {easy}% correct",
+			"legend_medium": "Medium",
+			"legend_hard": "Hard < {hard}%",
+			"question_no": "Question {number}",
+			"item_label": "Item {number} · {title}",
+			"correct": "Answered correctly",
+			"discrimination": "Discrimination",
+			"spread": "Answer distribution",
+			"advice_negative": "Negative discrimination: many high-scoring students got it wrong. Check the answer key.",
+			"advice_low": "Low discrimination. The question barely separates students who understand from those who don't. Consider revising the distractors.",
+			"advice_hard": "A hard question with good discrimination. Worth keeping; review the material in the next session.",
+			"advice_ok": "The question works well.",
+			"flag": "Flag for revision",
+			"flagged": "Flagged for revision"
 		}
 	},
 	"navigation": {
@@ -1349,6 +1733,746 @@
 			"published": "Published: {name}",
 			"deleted": "Deleted: {name}",
 			"in_use": "Still used by {count} subscriptions. Archive it instead."
+		}
+	},
+	"account": {
+		"head_title": "Account settings",
+		"eyebrow": "SETTINGS · MY ACCOUNT",
+		"title": "Settings",
+		"subtitle": "Manage the details and security of the account you use to sign in.",
+		"attention": "Needs attention",
+		"unknown_device": "Unknown device",
+		"tabs": {
+			"profile": "My profile",
+			"password": "Manage password",
+			"security": "Security & 2-step",
+			"sessions": "Devices & active sessions",
+			"history": "Sign-in activity",
+			"notif": "Notification preferences",
+			"linked": "Linked accounts",
+			"privacy": "Privacy & my data"
+		},
+		"channel": {
+			"whatsapp": "WhatsApp {target}",
+			"email": "email {target}"
+		},
+		"approver": {
+			"super_admin": "the super admin",
+			"principal": "the principal",
+			"school_admin": "the school admin"
+		},
+		"identity": {
+			"employee_id": {
+				"label": "Employee ID",
+				"rule": "4–12 letters/digits"
+			},
+			"nip": {
+				"label": "NIP",
+				"rule": "NIP has 18 digits"
+			},
+			"nuptk": {
+				"label": "NUPTK",
+				"rule": "NUPTK has 16 digits"
+			},
+			"nisn": {
+				"label": "NISN",
+				"rule": "NISN has 10 digits"
+			},
+			"nik": {
+				"label": "NIK",
+				"rule": "NIK has 16 digits"
+			}
+		},
+		"failure": {
+			"unauthenticated": {
+				"title": "Sign in with your account to open settings",
+				"text": "Account settings use real account data. Sign out, then sign in with your email and password."
+			},
+			"forbidden": {
+				"title": "This account has no access to this area",
+				"text": "Settings open according to your active membership role. Contact your institution admin if your role is incorrect."
+			},
+			"not_found": {
+				"title": "Account not found",
+				"text": "Sign in again and retry."
+			},
+			"conflict": {
+				"title": "Data changed",
+				"text": "Reload the page."
+			},
+			"validation": {
+				"title": "Invalid request",
+				"text": "Reload the page."
+			},
+			"gone": {
+				"title": "Request expired",
+				"text": "Reload the page."
+			},
+			"too_many": {
+				"title": "Too many requests",
+				"text": "Wait a moment, then reload."
+			},
+			"unavailable": {
+				"title": "The account service cannot be reached",
+				"text": "Please try again shortly."
+			}
+		},
+		"errors": {
+			"generic": "The request could not be processed. Please try again.",
+			"version_conflict": "Your profile was changed elsewhere. Reload the page and redo your changes.",
+			"nothing_pending": "There is no pending request.",
+			"request_pending": "A previous request is still being processed.",
+			"resend_too_soon": "Please wait a moment before resending.",
+			"not_configured": "This provider has not been configured by the platform admin.",
+			"phone_required": "Add your phone number in My profile to use WhatsApp.",
+			"two_factor_state": "Your 2-step verification status changed. Reload the page.",
+			"challenge_expired": "The code or link has expired. Start again.",
+			"current_session": "This device signs out with the Sign out button.",
+			"not_found": "Data not found. Reload the page.",
+			"forbidden": "You do not have access to this action.",
+			"unauthenticated": "Your session ended. Sign in again to continue.",
+			"unavailable": "The service cannot be reached. Please try again."
+		},
+		"profile": {
+			"student_info": "As a student you can change your photo, phone number, and password. Other details are managed by your homeroom teacher or school admin.",
+			"pending_email_title": "Waiting for email verification.",
+			"pending_email_text": "A link was sent to {pending}. You keep signing in with {current} until the link is opened.",
+			"resend": "Resend",
+			"cancel": "Cancel",
+			"photo_title": "Profile photo",
+			"photo_hint": "JPG or PNG, max 2 MB. Shown in the sidebar, messages, and class lists.",
+			"photo_upload": "Upload photo",
+			"photo_change": "Change photo",
+			"photo_remove": "Remove photo",
+			"photo_format": "The format must be JPG or PNG.",
+			"photo_size": "The photo is larger than 2 MB.",
+			"personal_title": "Personal details",
+			"full_name": "Full name",
+			"needs_approval": "NEEDS APPROVAL",
+			"nickname": "Nickname / greeting",
+			"nickname_hint": "Used in the home greeting: \"Good morning, {name}\"",
+			"gender": "Gender",
+			"gender_L": "Male",
+			"gender_P": "Female",
+			"birth_date": "Date of birth",
+			"address": "Address",
+			"contact_title": "Contact & identity",
+			"email": "Sign-in email",
+			"phone": "Phone / WhatsApp",
+			"phone_placeholder": "812 3456 7890",
+			"identity_number": "Identity number",
+			"role": "Role & institution",
+			"managed_by": "Managed by {approver}",
+			"managed_by_school": "Managed by the school admin",
+			"sent_for_approval": "The change is sent to {approver} for approval",
+			"official_name": "As on official documents",
+			"email_link_hint": "A verification link will be sent to the new email",
+			"email_hint": "Used to sign in and recover your account",
+			"phone_hint": "For OTP codes and WhatsApp notifications",
+			"discard": "Discard",
+			"save": "Save profile",
+			"bar": {
+				"errors": "{count} fields need fixing",
+				"dirty": "You have unsaved changes",
+				"saved": "All changes saved"
+			},
+			"errors": {
+				"full_name": {
+					"too_short": "Full name needs at least 3 letters.",
+					"too_long": "Full name is too long.",
+					"restricted": "Your name is managed by the school admin."
+				},
+				"nickname": {
+					"too_long": "Nickname is too long.",
+					"restricted": "Managed by the school admin."
+				},
+				"gender": {
+					"invalid": "Choose a gender.",
+					"restricted": "Managed by the school admin."
+				},
+				"birth_date": {
+					"future": "Date of birth cannot be in the future.",
+					"invalid": "Invalid date of birth.",
+					"restricted": "Managed by the school admin."
+				},
+				"address": {
+					"too_long": "Address is too long.",
+					"restricted": "Managed by the school admin."
+				},
+				"email": {
+					"invalid": "Invalid email format.",
+					"taken": "This email is already used by another account.",
+					"restricted": "Managed by the school admin."
+				},
+				"phone": {
+					"invalid": "Starts with 8, 9–13 digits (without a leading 0)."
+				},
+				"identity_number": {
+					"invalid": "The identity number format is invalid.",
+					"restricted": "Managed by the school admin."
+				},
+				"photo": {
+					"format": "The format must be JPG or PNG.",
+					"too_large": "The photo is larger than 2 MB.",
+					"invalid": "Invalid photo file."
+				}
+			},
+			"toast": {
+				"no_changes": "No changes.",
+				"saved": "Profile saved.",
+				"saved_with": "Profile saved; {notes}.",
+				"note_email": "verification link sent to {email}",
+				"note_approval": "name/identity change sent to {approver}",
+				"resent": "Verification link resent to {email}.",
+				"email_cancelled": "Email change cancelled."
+			}
+		},
+		"password": {
+			"title": "Manage password",
+			"last_changed": "Last changed {date}",
+			"current": "Current password",
+			"forgot": "Forgot your current password?",
+			"current_hint": "Enter the password you use to sign in.",
+			"current_required": "Enter your current password.",
+			"new": "New password",
+			"new_placeholder": "At least 8 characters",
+			"confirm": "Repeat new password",
+			"confirm_hint": "Type it again; pasting is disabled",
+			"confirm_match": "Passwords match",
+			"confirm_mismatch": "Does not match the new password yet",
+			"show": "Show",
+			"hide": "Hide",
+			"caps": "Caps Lock is on",
+			"same": "Must differ from the current password",
+			"strength": "Strength: {level}",
+			"strength_empty": "Not filled in",
+			"strength_weak": "Weak",
+			"strength_fair": "Fair",
+			"strength_strong": "Strong",
+			"strength_very_strong": "Very strong",
+			"others": "Sign out other devices",
+			"others_count": "{count} other devices signed in",
+			"clear": "Clear",
+			"checking": "Checking…",
+			"submit": "Continue to OTP verification",
+			"wrong_current": "The current password is incorrect. {count} attempts left.",
+			"locked": "The current password was wrong 3 times. Use \"Forgot your current password?\" to reset it by email.",
+			"rules_title": "Password requirements",
+			"rules": {
+				"min_length": "At least 8 characters",
+				"mixed_case": "Uppercase and lowercase letters",
+				"digit": "At least one number",
+				"symbol": "At least one symbol (!@#$…)",
+				"no_name": "Does not contain your name"
+			},
+			"issues": {
+				"min_length": "The password needs at least 8 characters.",
+				"max_length": "The password can have at most 72 characters.",
+				"mixed_case": "Use uppercase and lowercase letters.",
+				"digit": "Add at least one number.",
+				"symbol": "Add at least one symbol.",
+				"contains_name": "The password must not contain your name.",
+				"same_as_current": "The new password must differ from the current one.",
+				"mismatch": "Repeat the new password correctly.",
+				"required": "Enter your current password."
+			},
+			"otp_info": "Before saving, we send an OTP code to {target} to make sure it is really you.",
+			"reset_sent_title": "Reset link sent",
+			"reset_sent_text": "to {email}. Valid for 30 minutes.",
+			"reset_sent_toast": "Reset link sent to {email}.",
+			"reset_valid_title": "The reset link is valid.",
+			"reset_valid_text": "Create a new password without entering the old one.",
+			"reset_exit": "Cancel reset",
+			"reset_invalid": "The reset link is invalid or has expired. Send a new link with \"Forgot your current password?\".",
+			"done_title": "Password changed",
+			"done_others": "You stay signed in on this device. Other devices have been signed out. A notification email was sent to {email}.",
+			"done_text": "Use your new password the next time you sign in. A notification email was sent to {email}.",
+			"done_close": "Done",
+			"history_title": "Password change history",
+			"history": {
+				"settings": "Changed from Settings",
+				"reset_link": "Reset via email link",
+				"initial": "Initial password created",
+				"initial_device": "Account created by an admin"
+			},
+			"otp": {
+				"title": "Enter the OTP code",
+				"text": "A 6-digit code was sent to {target}.",
+				"valid": "The code is valid for 5 minutes.",
+				"too_short": "Enter the 6-digit code.",
+				"wrong": "Wrong code. {count} attempts left.",
+				"expired": "The code expired or was entered wrongly too many times. Change the password again.",
+				"resend": "Resend code",
+				"resend_in": "Resend in {seconds} s",
+				"resent": "A new code was sent to {target}.",
+				"cancel": "Cancel",
+				"verify": "Verify & save"
+			}
+		},
+		"security": {
+			"title": "2-step verification",
+			"active_sub": "On · {method}",
+			"method_app_short": "authenticator app",
+			"method_wa_short": "code via {target}",
+			"inactive_sub": "Protect your account with an extra code when signing in from a new device.",
+			"chip_on": "ON",
+			"chip_off": "OFF",
+			"start": "Turn on 2-step verification",
+			"step_method": "STEP 1 OF 3 · CHOOSE A METHOD",
+			"step_verify": "STEP 2 OF 3 · VERIFY",
+			"step_codes": "STEP 3 OF 3 · BACKUP CODES",
+			"codes_new": "NEW BACKUP CODES",
+			"method_app": "Authenticator app",
+			"method_app_sub": "Most secure, works without signal",
+			"method_wa": "Code via WhatsApp",
+			"method_wa_sub": "Sent to {target}",
+			"method_wa_no_phone": "Add your phone number in My profile first",
+			"method_wa_unavailable": "WhatsApp delivery is not available yet",
+			"cancel": "Cancel",
+			"next": "Continue",
+			"back": "Back",
+			"verify": "Verify",
+			"qr_alt": "QR code for the authenticator app",
+			"instr_app": "Scan the QR code with Google Authenticator, Microsoft Authenticator, or a similar app, then enter the code it shows.",
+			"instr_wa": "We sent a 6-digit code to {target}.",
+			"manual_key": "Manual key:",
+			"code_label": "6-digit code",
+			"code_short": "Enter the 6-digit code.",
+			"code_wrong": "The code does not match. Check the clock on your phone.",
+			"codes_text": "Keep these backup codes somewhere safe. Each code can be used once when you cannot receive a code.",
+			"download": "Download .txt",
+			"finish": "Finish & turn on",
+			"close": "Close",
+			"file_title": "FLIXARE backup codes · {email}",
+			"file_note": "Each code can be used only once.",
+			"enabled_toast": "2-step verification is on.",
+			"disabled_toast": "2-step verification turned off.",
+			"regenerate": "Regenerate backup codes",
+			"disable": "Turn off",
+			"alerts_title": "Security alerts",
+			"alerts_saved": "Security settings saved.",
+			"new_device_alert": {
+				"label": "Email when signing in from a new device",
+				"sub": "Includes the device, IP address, and what to do if it wasn't you"
+			},
+			"lockout_enabled": {
+				"label": "Temporary lock after 5 failed attempts",
+				"sub": "The account is locked for 15 minutes to stop password guessing"
+			}
+		},
+		"sessions": {
+			"title": "Signed-in devices",
+			"logout_all": "Sign out all other devices",
+			"this_device": "THIS DEVICE",
+			"kick": "Sign out",
+			"kicked": "{device} signed out.",
+			"all_kicked": "All other devices signed out.",
+			"active_now": "active now",
+			"active_minutes": "active {count} minutes ago",
+			"active_hours": "active {count} hours ago",
+			"active_days": "active {count} days ago",
+			"idle": "Sessions with no activity for {days} days end automatically."
+		},
+		"history": {
+			"title": "Sign-in activity · 30 days",
+			"filter": {
+				"all": "All",
+				"ok": "Successful",
+				"fail": "Failed"
+			},
+			"ok": "Signed in",
+			"ok_with": "Signed in ({provider})",
+			"provider": {
+				"google": "Google",
+				"belajar": "belajar.id",
+				"password": "Password"
+			},
+			"fail": {
+				"wrong_password": "Wrong password",
+				"wrong_two_factor": "Blocked: wrong 2-step code",
+				"locked": "Denied: account temporarily locked",
+				"suspended": "Denied: account deactivated"
+			},
+			"today": "Today {time}",
+			"yesterday": "Yesterday {time}",
+			"not_me": "Not me",
+			"not_me_toast": "Change your password and turn on 2-step verification right away.",
+			"empty": "No sign-in activity in the last 30 days.",
+			"empty_fail": "No failed attempts in the last 30 days."
+		},
+		"notif": {
+			"title": "Send notifications via",
+			"test": "Send test notification",
+			"test_sent_both": "Test notification sent to {email} and {phone}.",
+			"test_sent_email": "Test notification sent to {email}.",
+			"col_event": "EVENT",
+			"col_email": "EMAIL",
+			"col_whatsapp": "WHATSAPP",
+			"col_in_app": "IN-APP",
+			"locked": "Always on",
+			"security_note": "Security notifications by email are always on and cannot be turned off.",
+			"quiet_title": "Quiet hours",
+			"quiet_sub": "WhatsApp and in-app notifications are held, then sent after quiet hours end.",
+			"quiet_from": "Start",
+			"quiet_to": "End",
+			"quiet_note": "Messages held from {from}–{to} {zone}",
+			"zone_platform": "WIB",
+			"zone_tenant": "institution time",
+			"bar_dirty": "You have unsaved changes",
+			"bar_saved": "Preferences saved",
+			"discard": "Discard",
+			"save": "Save preferences",
+			"no_changes": "No changes.",
+			"saved": "Notification preferences saved."
+		},
+		"linked": {
+			"title": "Sign in with another account",
+			"sub": "Link an account to sign in without typing a password. Your FLIXARE password keeps working.",
+			"name": {
+				"google": "Google",
+				"belajar": "belajar.id"
+			},
+			"desc": {
+				"google": "Google account or school Google Workspace",
+				"belajar": "Official Ministry of Education account for teachers and students"
+			},
+			"not_configured": "Not available yet: the provider has not been configured by the platform admin",
+			"connected_as": "Linked as {email}",
+			"connect": "Link",
+			"disconnect": "Unlink",
+			"connected_toast": "{provider} linked as {email}.",
+			"disconnected_toast": "Account unlinked.",
+			"errors": {
+				"oauth_linked_elsewhere": "That account is already linked to another FLIXARE account.",
+				"oauth_state_invalid": "The linking session expired. Start again.",
+				"oauth_failed": "The provider rejected the request. Please try again.",
+				"oauth_cancelled": "Account linking was cancelled.",
+				"service_unavailable": "The service cannot be reached. Please try again."
+			}
+		},
+		"privacy": {
+			"title": "Who can see my data",
+			"phone_visibility": "Phone number visible to",
+			"visibility": {
+				"admin": "Institution admins only",
+				"staff": "Admins and teachers",
+				"all": "All institution members"
+			},
+			"show_photo": {
+				"label": "Show profile photo",
+				"sub": "When off, your initials are shown"
+			},
+			"show_online": {
+				"label": "Show online status",
+				"sub": "Others can see when you were last active"
+			},
+			"saved": "Privacy settings saved.",
+			"export_title": "Download my data",
+			"export_sub": "A copy of the personal data stored in FLIXARE, as required by the Personal Data Protection Law.",
+			"category": {
+				"profile": "Profile",
+				"logins": "Sign-in history",
+				"activity": "Learning/teaching activity",
+				"messages": "Messages"
+			},
+			"format": "File format",
+			"request": "Request a copy",
+			"preparing": "Preparing…",
+			"preparing_note": "Usually takes less than a minute",
+			"download": "Download file",
+			"ready_note": "Ready · link valid for 7 days",
+			"selected": "{count} categories selected",
+			"select_one": "Choose at least one category",
+			"deletion_cancelled": "Deletion request cancelled.",
+			"deletion_sent_toast": "Deletion request sent to {approver}.",
+			"deletion": {
+				"none": {
+					"title": "Request account deletion",
+					"text": "Institution accounts are deleted by {approver}. Grades and report cards stay with the institution as required.",
+					"action": "Request deletion…"
+				},
+				"pending": {
+					"title": "Account deletion request sent",
+					"text": "Waiting for {approver}. You can keep using your account until the request is processed.",
+					"action": "Cancel request"
+				},
+				"need_docs": {
+					"title": "Documents requested for account deletion",
+					"text": "Requested: {docs}{note}",
+					"action": "Cancel request"
+				},
+				"approved": {
+					"title": "Account deletion approved",
+					"text": "Approved by {who}. The account is deactivated in {days} days; contact the admin if you change your mind.",
+					"action": "Close"
+				},
+				"declined": {
+					"title": "Account deletion declined",
+					"text": "Reason: {reason}. You can submit a new request.",
+					"action": "Close"
+				}
+			}
+		},
+		"confirm": {
+			"busy": "Processing…",
+			"cancel": "Cancel",
+			"tfa": {
+				"title": "Turn off 2-step verification?",
+				"message": "Your account will be protected by the password only. Old backup codes stop working.",
+				"label": "Yes, turn off"
+			},
+			"sessions": {
+				"title": "Sign out all other devices?",
+				"message": "{count} devices must sign in again. This device stays signed in.",
+				"label": "Yes, sign out"
+			},
+			"delete": {
+				"title": "Request account deletion?",
+				"message": "The request is sent to {approver} for processing.",
+				"label": "Yes, request"
+			},
+			"unlink": {
+				"title": "Unlink this account?",
+				"message": "You can no longer sign in with this account. Signing in with email and password still works.",
+				"label": "Yes, unlink"
+			}
+		},
+		"verify_email": {
+			"heading": "Email verification",
+			"success_title": "Sign-in email updated",
+			"success_text": "From now on, sign in with {email}.",
+			"login": "Sign in",
+			"failure": {
+				"gone": {
+					"title": "The link is invalid or has expired",
+					"text": "Resend the link from Settings → My profile."
+				},
+				"taken": {
+					"title": "The email is already used by another account",
+					"text": "Use a different email address from Settings → My profile."
+				},
+				"unavailable": {
+					"title": "The service cannot be reached",
+					"text": "Open this link again shortly."
+				}
+			}
+		},
+		"requests": {
+			"title": "Data change requests",
+			"chip": {
+				"pending": "PENDING",
+				"need_docs": "DOCUMENTS NEEDED",
+				"approved": "APPROVED",
+				"declined": "DECLINED"
+			},
+			"pending_sub": "Waiting for {approver}{deadline}. Your current data stays in use.",
+			"deadline_days": " · within {days} days",
+			"deadline_over": " · past the 3-working-day limit",
+			"docs_sub": "{who} requested: {docs}{note}",
+			"approved_sub": "Approved by {who}. Your data has been updated.",
+			"declined_sub": "Declined by {who}: {reason}",
+			"upload": "Upload document",
+			"upload_format": "The document must be JPG, PNG, or PDF.",
+			"upload_too_large": "The document is larger than 5 MB.",
+			"uploaded": "Document sent. The request is being processed again.",
+			"cancel": "Cancel",
+			"close": "Close",
+			"cancelled": "Request cancelled."
+		}
+	},
+	"approvals": {
+		"head_title": "Approvals inbox",
+		"eyebrow": "APPROVALS · {role}",
+		"title": "Approvals inbox",
+		"role_tag": {
+			"school_admin": "SCHOOL ADMIN",
+			"principal": "PRINCIPAL",
+			"platform": "SUPER ADMIN"
+		},
+		"desc": {
+			"school_admin": "Name, identity number, and account deletion requests from teachers, students, parents, and the principal at {tenant}.",
+			"principal": "Name, identity number, and account deletion requests from school admins at {tenant}.",
+			"platform": "Name, employee ID, and account deletion requests from platform console accounts."
+		},
+		"stat": {
+			"pending": "PENDING",
+			"overdue": "OVERDUE",
+			"docs": "DOCUMENTS NEEDED"
+		},
+		"tab": {
+			"pending": "Pending · {n}",
+			"docs": "Documents needed · {n}",
+			"done": "Done · {n}"
+		},
+		"kind": {
+			"name": "Full name",
+			"identity": "Identity number",
+			"deletion": "Delete account"
+		},
+		"search": "Search requester",
+		"select_all": "Select all",
+		"select": "Select request from {name}",
+		"col": {
+			"requester": "REQUESTER",
+			"kind": "TYPE",
+			"change": "CHANGE",
+			"submitted": "SUBMITTED",
+			"deadline": "DEADLINE",
+			"decision": "DECISION"
+		},
+		"new": "NEW",
+		"details": "Details",
+		"attachments": "{n} attachments",
+		"attachments_label": "Attachments",
+		"no_attachments": "None",
+		"deletion_field": "Account",
+		"deletion_from": "Active",
+		"deletion_to": "Deleted",
+		"current": "CURRENT DATA",
+		"proposed": "REQUESTED CHANGE",
+		"reason": "Requester's reason",
+		"requested": "Requested: {docs}.",
+		"history": "History",
+		"chip": {
+			"approved": "Approved",
+			"declined": "Declined",
+			"waiting": "Waiting for requester",
+			"self": "Your request",
+			"overdue_days": "{n} days overdue",
+			"overdue_hours": "{n} hours overdue",
+			"left_hours": "{n} hours left",
+			"left_days": "{n} days left"
+		},
+		"ago": {
+			"just_now": "just now",
+			"hours": "{n} hours ago",
+			"days": "{n} days ago"
+		},
+		"effect": {
+			"name": "The requester's name is updated across the app and the requester is notified.",
+			"identity": "The requester's identity number is updated and synced to reports.",
+			"deletion": "The account is deactivated 30 days after approval. Grades and report cards stay with the institution."
+		},
+		"log": {
+			"submitted": "Submitted",
+			"updated_detail": "Changed the request to \"{detail}\"",
+			"cancelled": "Cancelled",
+			"docs_requested_detail": "Requested documents: {detail}",
+			"docs_uploaded_detail": "Uploaded {detail}",
+			"approved": "Approved",
+			"approved_detail": "Approved: \"{detail}\"",
+			"approved_bulk": "Approved (bulk)",
+			"declined_detail": "Declined: {detail}",
+			"dismissed": "Closed the request card",
+			"applied_detail": "Deletion took effect: {detail}",
+			"updated": "Changed the request",
+			"docs_requested": "Requested documents",
+			"docs_uploaded": "Uploaded a document",
+			"declined": "Declined",
+			"applied": "Deletion took effect",
+			"cancelled_detail": "Cancelled",
+			"submitted_detail": "Submitted",
+			"dismissed_detail": "Closed the request card"
+		},
+		"self_note": "This is your own request. It is processed by another reviewer.",
+		"done": {
+			"approved": "Approved by {name}",
+			"declined": "Declined by {name}"
+		},
+		"waiting_docs": "Waiting for the requester to upload: {docs}. The deadline is paused until the documents arrive.",
+		"decision": {
+			"approve": "Approve",
+			"reject": "Decline",
+			"docs": "Request documents"
+		},
+		"note_label": "Note for the requester",
+		"optional": "(optional)",
+		"required": "(required)",
+		"reject_label": "Reason for declining",
+		"reject": {
+			"not_official": "Does not match official documents",
+			"unreadable": "Document is unreadable",
+			"not_dapodik": "Does not match Dapodik data",
+			"pending_tasks": "There are unfinished tasks",
+			"need_principal": "Needs the principal's confirmation",
+			"other": "Other"
+		},
+		"explain": "Explanation",
+		"explain_placeholder": "Sent to the requester",
+		"docs_label": "Requested documents",
+		"docs": {
+			"ktp": "ID card (KTP)",
+			"sk_ijazah": "Decree / diploma",
+			"birth_certificate": "Birth certificate",
+			"identity_card": "NUPTK card / decree",
+			"dapodik_proof": "Dapodik proof",
+			"transfer_letter": "Transfer letter",
+			"resignation_letter": "Resignation letter"
+		},
+		"message": "Message",
+		"message_placeholder": "e.g. The ID card photo must be clearly readable",
+		"docs_pause": "The deadline is paused until the requester uploads the documents.",
+		"error": {
+			"reject_reason": "Choose a reason for declining.",
+			"reject_note": "Write an explanation of at least {n} characters.",
+			"docs": "Choose at least one document."
+		},
+		"submit": {
+			"approve": "Approve request",
+			"reject": "Decline request",
+			"docs": "Send document request"
+		},
+		"empty": {
+			"pending": "No pending requests. Everything has been processed.",
+			"docs": "No requests are waiting for documents.",
+			"done": "No decisions yet."
+		},
+		"sla_note": "Deadline: 3 working days ({hours} hours) after submission.",
+		"selected": "{n} requests selected",
+		"clear_selection": "Clear selection",
+		"approve_selected": "Approve selected",
+		"close": "Close",
+		"toast": {
+			"approve": "Approved. {name} has been notified.",
+			"reject": "Declined. The reason was sent to {name}.",
+			"docs": "Document request sent to {name}.",
+			"bulk": "{n} requests approved."
+		},
+		"confirm": {
+			"busy": "Processing…",
+			"cancel": "Cancel",
+			"bulk_title": "Approve {n} requests?",
+			"bulk_message": "Each requester is notified. The changes take effect immediately.",
+			"bulk_label": "Yes, approve all",
+			"reject_title": "Decline the request from {name}?",
+			"reject_message": "The reason is sent to the requester. They can submit a new request.",
+			"reject_label": "Yes, decline",
+			"reason": "Reason",
+			"approve_title": "Approve the request from {name}?",
+			"approve_label": "Yes, approve"
+		},
+		"errors": {
+			"generic": "The request could not be processed. Please try again.",
+			"self_review": "You cannot decide on your own request.",
+			"nothing_pending": "This request was already processed or cancelled by the requester. Reload the page.",
+			"not_found": "Request not found. Reload the page.",
+			"forbidden": "You do not have access to this approvals inbox.",
+			"unauthenticated": "Your session ended. Sign in again to continue.",
+			"unavailable": "The service cannot be reached. Please try again."
+		},
+		"failure": {
+			"forbidden": {
+				"title": "This account is not a request reviewer",
+				"text": "The approvals inbox is for school admins, principals, or super admins with permission to review account requests."
+			},
+			"unauthenticated": {
+				"title": "Sign in with your account to open the approvals inbox",
+				"text": "The approvals inbox uses real data. Sign out, then sign in with your email and password."
+			},
+			"unavailable": {
+				"title": "The approvals service cannot be reached",
+				"text": "Please try again shortly."
+			}
 		}
 	}
 }

@@ -28,11 +28,30 @@ const DEV_PERSONAS: Readonly<Record<string, DevPersona>> = {
 			{ id: 'm-admin', area: 'school_admin', tenant: DEV_TENANT, label: 'Admin · SMA Nusantara' }
 		]
 	},
+	principal: {
+		label: 'Kepala sekolah',
+		user: { id: 'dev-principal', displayName: 'Sri Wahyuni' },
+		memberships: [
+			{
+				id: 'm-principal',
+				area: 'school_admin',
+				tenant: DEV_TENANT,
+				label: 'Kepala sekolah · SMA Nusantara'
+			}
+		]
+	},
 	teacher: {
 		label: 'Guru',
 		user: { id: 'dev-teacher', displayName: 'Rina Pratiwi' },
 		memberships: [
 			{ id: 'm-teacher', area: 'teacher', tenant: DEV_TENANT, label: 'Guru · SMA Nusantara' }
+		]
+	},
+	homeroom: {
+		label: 'Wali kelas',
+		user: { id: 'dev-homeroom', displayName: 'Budi Santoso' },
+		memberships: [
+			{ id: 'm-homeroom', area: 'teacher', tenant: DEV_TENANT, label: 'Wali kelas · SMA Nusantara' }
 		]
 	},
 	student: {
@@ -162,11 +181,56 @@ export function clearDevSession(cookies: Cookies): void {
 const DEV_PERSONA_BY_EMAIL: Readonly<Record<string, string>> = {
 	'platform@flixare.com': 'platform',
 	'admin@school.com': 'school-admin',
+	'principal@school.com': 'principal',
 	'teacher@school.com': 'teacher',
+	'walikelas@school.com': 'homeroom',
 	'student@school.com': 'student',
 	'guardian@school.com': 'guardian'
 };
 
 export function personaIdForEmail(email: string): string {
 	return DEV_PERSONA_BY_EMAIL[email.trim().toLowerCase()] ?? 'unsupported-role';
+}
+
+/** Peran backend (role_g) → persona contoh; platform diutamakan. Dipakai saat email seed sudah diganti. */
+const DEV_PERSONA_BY_ROLE: Readonly<Record<string, string>> = {
+	PLATFORM_OWNER: 'platform',
+	SCHOOL_ADMIN: 'school-admin',
+	PRINCIPAL: 'principal',
+	TEACHER: 'teacher',
+	HOMEROOM_TEACHER: 'homeroom',
+	STUDENT: 'student',
+	PARENT: 'guardian'
+};
+const PLATFORM_TENANT_CODE = 'lms_core';
+
+export function personaIdForBackend(
+	email: string,
+	roles: readonly { tenantCode: string; roleCode: string }[]
+): string {
+	const byEmail = DEV_PERSONA_BY_EMAIL[email.trim().toLowerCase()];
+	if (byEmail) return byEmail;
+	const platform = roles.find(
+		(r) => r.tenantCode === PLATFORM_TENANT_CODE && r.roleCode === 'PLATFORM_OWNER'
+	);
+	const role = platform ?? roles.find((r) => r.tenantCode !== PLATFORM_TENANT_CODE);
+	return (role && DEV_PERSONA_BY_ROLE[role.roleCode]) ?? 'unsupported-role';
+}
+
+/**
+ * Tampilan dashboard persona contoh, hanya dipakai bila backend tidak dapat memberi konteks peran
+ * (`/dashboards/context`). Persona `principal` dan `homeroom` mengikuti seed `principal@` / `walikelas@`.
+ */
+const DEV_DASHBOARD_VIEWS: Readonly<
+	Record<string, readonly ('principal' | 'school_admin' | 'teacher' | 'homeroom')[]>
+> = {
+	principal: ['principal', 'school_admin'],
+	'school-admin': ['school_admin'],
+	teacher: ['teacher'],
+	homeroom: ['teacher', 'homeroom']
+};
+
+export function devDashboardViews(cookies: Cookies) {
+	const personaId = currentDevPersonaId(cookies);
+	return (personaId && DEV_DASHBOARD_VIEWS[personaId]) || null;
 }

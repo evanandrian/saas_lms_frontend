@@ -11,10 +11,20 @@ export const schoolIdentityFixtures = {
 		user: { name: 'Ahmad Fauzi', detail: 'Admin sekolah', initials: 'AF' },
 		navBadges: {}
 	},
+	principal: {
+		tenant: { name: TENANT_NAME, detail: 'Sekolah · Kepala sekolah', initials: TENANT_INITIALS },
+		user: { name: 'Sri Wahyuni', detail: 'Kepala sekolah', initials: 'SW' },
+		navBadges: {}
+	},
 	teacher: {
 		tenant: { name: TENANT_NAME, detail: 'Sekolah · Guru', initials: TENANT_INITIALS },
-		user: { name: 'Rina Pratiwi', detail: 'Guru · Wali kelas XI-A', initials: 'RP' },
+		user: { name: 'Rina Pratiwi', detail: 'Guru mapel', initials: 'RP' },
 		navBadges: { assignments: 18 }
+	},
+	homeroom: {
+		tenant: { name: TENANT_NAME, detail: 'Sekolah · Wali kelas', initials: TENANT_INITIALS },
+		user: { name: 'Budi Santoso', detail: 'Wali kelas XI-A', initials: 'BS' },
+		navBadges: {}
 	},
 	student: {
 		tenant: { name: TENANT_NAME, detail: 'Kelas XI-A', initials: TENANT_INITIALS },

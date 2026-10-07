@@ -349,7 +349,9 @@ node --env-file=.env build    # menjalankan server hasil build; port default ada
 
 `node --env-file=.env` bekerja di semua OS, jadi tidak perlu sintaks `VAR=x node build` khas Unix. Untuk mengganti port, tambahkan `PORT=<port>` ke `.env`.
 
-**Deployment (bukan `.env` lokal):** aplikasi melayani banyak host, sehingga `ORIGIN` tunggal tidak dapat dipakai. Atur `PROTOCOL_HEADER=x-forwarded-proto` dan `HOST_HEADER=x-forwarded-host`, dan pastikan ingress menimpa kedua header itu. Tanpa itu, adapter-node menganggap protokol `https`.
+**Batas ukuran body:** foto profil (maks. 2 MB) dan dokumen pengajuan (maks. 5 MB) dikirim sebagai base64 lewat form action. Atur `BODY_SIZE_LIMIT=8M` di `.env` lokal maupun environment deployment; default adapter-node 512K akan menolak unggahan. Server mencetak peringatan saat start bila nilainya belum cukup. Saat `pnpm dev` (Vite) batas ini tidak berlaku.
+
+**Deployment (bukan `.env` lokal):** aplikasi melayani banyak host, sehingga `ORIGIN` tunggal tidak dapat dipakai. Atur `PROTOCOL_HEADER=x-forwarded-proto`, `HOST_HEADER=x-forwarded-host`, dan `BODY_SIZE_LIMIT=8M`, dan pastikan ingress menimpa kedua header itu (serta mengizinkan body ±8 MB). Tanpa itu, adapter-node menganggap protokol `https`.
 
 ### Preview
 

@@ -1,4 +1,5 @@
 import { dev } from '$app/environment';
+import { env as privateEnv } from '$env/dynamic/private';
 import { env } from '$env/dynamic/public';
 import { clearBackendTokens, verifyBackendSession } from '$lib/auth/backend-auth';
 import { UNRESOLVED_SESSION } from '$lib/auth/session';
@@ -6,11 +7,28 @@ import { clearSessionMeta, writeSessionEnded } from '$lib/auth/session-meta';
 import { DEFAULT_LOCALE } from '$lib/i18n';
 import { COLOR_MODE_COOKIE, resolveColorMode } from '$lib/utils/color-mode';
 import { RESERVED_SUBDOMAINS, UNIFIED_DEV_HOST, resolveHostContext } from '$lib/utils/host-context';
-import type { Handle, HandleServerError, RequestEvent } from '@sveltejs/kit';
+import { REQUIRED_BODY_BYTES, parseBodySizeLimit } from '$lib/utils/upload-limits';
+import type { Handle, HandleServerError, RequestEvent, ServerInit } from '@sveltejs/kit';
 
 const HTML_LANG_PLACEHOLDER = '%lms.lang%';
 const HTML_MODE_PLACEHOLDER = '%lms.mode%';
 const PERMANENT_REDIRECT_STATUS = 308;
+
+/**
+ * Server produksi (adapter-node) menolak body di atas `BODY_SIZE_LIMIT` (default 512K), padahal foto
+ * profil dan dokumen pengajuan dikirim base64. Peringatan sejak server start agar salah konfigurasi
+ * terlihat sebelum pengguna gagal mengunggah. Dev (Vite) tidak membatasi body.
+ */
+export const init: ServerInit = () => {
+	if (dev) return;
+	const limit = parseBodySizeLimit(privateEnv.BODY_SIZE_LIMIT);
+	if (limit === null || limit < REQUIRED_BODY_BYTES) {
+		console.warn(
+			`[hooks.server] BODY_SIZE_LIMIT=${privateEnv.BODY_SIZE_LIMIT || '(tidak diset, default 512K)'} terlalu kecil; ` +
+				`unggahan foto/dokumen butuh minimal ${Math.ceil(REQUIRED_BODY_BYTES / 1024 / 1024)}M. Set BODY_SIZE_LIMIT=8M.`
+		);
+	}
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Root domain selalu dari environment; tanpa nilai, semua host dianggap tidak dikenal (fail-closed).
@@ -46,7 +64,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 /**
  * Sesi dev = persona contoh + (bila masuk lewat backend) token yang diverifikasi ke backend tiap request.
- * Sesi tunggal (FE-06): bila backend mencabut sesi (login/logout di perangkat lain), cookie dihapus
+ * Multi-sesi: bila backend mencabut sesi perangkat ini (dikeluarkan dari Pengaturan Akun), cookie dihapus
  * dan halaman masuk menampilkan alasannya. Backend tak terjangkau → anonim tanpa menghapus cookie.
  */
 async function resolveDevSession(event: RequestEvent) {

@@ -10,6 +10,8 @@
 		/** Tautan luar (https://…) dari Menu & navigasi. */
 		externalHref?: string;
 		newTab?: boolean;
+		/** Bagian dalam halaman `href` (mis. seksi dashboard yang dituju menu sidebar referensi). */
+		hash?: string;
 		badge?: number;
 	}
 
@@ -66,10 +68,13 @@
 		/** Identitas pengguna; dari sesi kelak (BLOCKED-02). Kosong = tidak ditampilkan. */
 		user?: WorkspaceIdentity;
 		searchPlaceholder: string;
+		/** Kontrol tambahan di topbar sebelum mode warna (mis. toggle peran dashboard). */
+		headerActions?: Snippet;
 		children: Snippet;
 	}
 
-	let { areaLabel, navItems, tenant, user, searchPlaceholder, children }: Props = $props();
+	let { areaLabel, navItems, tenant, user, searchPlaceholder, headerActions, children }: Props =
+		$props();
 
 	const i18n = useI18n();
 	const MAIN_CONTENT_ID = 'main-content';
@@ -149,6 +154,7 @@
 	{#if item.href || item.externalHref}
 		<NavigationLink
 			href={item.href}
+			hash={item.hash}
 			externalHref={item.externalHref}
 			newTab={item.newTab}
 			icon={item.icon}
@@ -365,6 +371,7 @@
 				/>
 			</div>
 			<div class="ms-auto flex shrink-0 items-center gap-3.5">
+				{@render headerActions?.()}
 				<ColorModeToggle />
 				<button
 					type="button"

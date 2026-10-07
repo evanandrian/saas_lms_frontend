@@ -12,6 +12,8 @@
 	interface Props {
 		/** Rute internal aplikasi. Abaikan bila `externalHref` diisi. */
 		href?: Pathname;
+		/** Bagian dalam halaman (`#id`); tautan seksi tidak pernah ditandai aktif. */
+		hash?: string;
 		/** Tautan luar (https://…) dari konfigurasi Menu & navigasi. */
 		externalHref?: string;
 		/** Buka di tab baru (Menu & navigasi: "Buka di → Tab baru"). */
@@ -30,6 +32,7 @@
 
 	let {
 		href,
+		hash,
 		externalHref,
 		newTab = false,
 		children,
@@ -46,10 +49,15 @@
 		hidden: 'sr-only'
 	};
 
-	const resolvedHref = $derived(externalHref ?? (href ? resolve(href) : '#'));
+	// `Pathname` > 25 rute melampaui batas TypeScript untuk mencocokkan union ke union tuple argumen
+	// `resolve()`; semua rute di sini statis (tanpa parameter) sehingga aman dipersempit per pemanggilan.
+	const resolveStatic = (path: Pathname) => resolve(path as '/');
+	const resolvedHref = $derived(
+		externalHref ?? (href ? `${resolveStatic(href)}${hash ? `#${hash}` : ''}` : '#')
+	);
 	// Saat SSR `resolve()` dapat menghasilkan path relatif (mis. `./app`), jadi bandingkan URL absolutnya.
 	const isCurrent = $derived(
-		!externalHref && page.url.pathname === new URL(resolvedHref, page.url).pathname
+		!externalHref && !hash && page.url.pathname === new URL(resolvedHref, page.url).pathname
 	);
 	const isRail = $derived(labelVisibility !== 'always');
 </script>

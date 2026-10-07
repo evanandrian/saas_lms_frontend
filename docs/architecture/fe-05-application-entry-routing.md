@@ -178,7 +178,7 @@ Acuan: layar 01 (Masuk), 01b (Peserta ujian terbuka), 09 (Keluar), dan `ConfirmD
 ### 13.3 Logout
 
 - Tombol "Keluar" di `WorkspaceShell` membuka `ConfirmDialog` (`<dialog>` native: fokus terkurung, `Esc` batal, fokus kembali ke pemicu, `Enter` = konfirmasi karena tombol konfirmasi `autofocus`). Isi: pengguna, perangkat (`describeDevice`), waktu masuk.
-- **Sesi tunggal** (keputusan pemilik produk, revisi FE-06): satu akun hanya aktif di satu perangkat. Opsi "Keluar juga dari perangkat lain" dihapus karena keluar **selalu** menutup sesi di semua perangkat. Lihat §13.6.
+- ~~**Sesi tunggal**~~ (revisi FE-06) **digantikan multi-sesi** (keputusan pemilik 6 Okt 2026, halaman Pengaturan Akun): satu akun boleh aktif di banyak perangkat; keluar menutup sesi perangkat ini saja; perangkat lain dikeluarkan dari Pengaturan → Perangkat & sesi aktif. Lihat §13.6.
 - Teks referensi "pekerjaan sudah tersimpan" **tidak dipakai**: frontend tidak dapat menjaminnya; diganti peringatan jujur bahwa perubahan yang belum disimpan dapat hilang.
 - Konfirmasi = form `POST /logout` (navigasi dokumen penuh). Server menulis ringkasan (`lms_logout_notice`) dan email untuk "Masuk kembali" (`lms_reauth_email`), memanggil backend `POST /api/v1/auth/logout` (mencabut semua sesi user), menghapus `lms_token`, `lms_refresh_token`, `lms_dev_session`, `lms_session_meta`, lalu `303` ke `/logged-out`.
 - `/logged-out`: centang animasi, ringkasan sesi (nama, peran, email, durasi), pengalihan otomatis 10 detik yang dapat dijeda (WCAG 2.2.1). Ringkasan dibaca sekali lalu dihapus.
@@ -203,11 +203,12 @@ Selain `lms_token`/`lms_refresh_token`, cookie di atas tidak berisi token. Email
 - Refresh bersamaan dengan refresh token yang sama: request kedua ditolak (compare-and-swap) dan pengguna diminta masuk lagi dengan pesan "sesi berakhir".
 - Verifikasi sesi ke backend (`GET /auth/me`) dilakukan setiap request SSR saat dev; perlu cache/strategi lain sebelum produksi.
 
-### 13.6 Kebijakan sesi tunggal (frontend + backend)
+### 13.6 Kebijakan sesi (frontend + backend) — multi-sesi sejak 6 Okt 2026
 
-- Backend (`saas_lms_backend/internal/platform/identity`): setiap sesi = satu baris `refresh_tokens`; ID-nya ada di claim JWT `sid`.
-  - `POST /auth/login` mencabut semua sesi user lalu membuat sesi baru → perangkat lain langsung keluar.
-  - `POST /auth/logout` mencabut semua sesi user (gagal → 500, tidak diam-diam).
+- Backend (`saas_lms_backend/internal/platform/identity`): setiap sesi = satu baris `refresh_tokens` (perangkat: User-Agent, IP, aktivitas terakhir); ID-nya ada di claim JWT `sid`.
+  - `POST /auth/login` membuat sesi baru tanpa mencabut sesi lain (sebelumnya: mencabut semua sesi).
+  - `POST /auth/logout` mencabut sesi perangkat ini saja (gagal → 500, tidak diam-diam).
+  - Pengaturan Akun: `DELETE /account/sessions/{id}` dan `DELETE /account/sessions` (semua kecuali perangkat ini); ganti kata sandi dapat mengeluarkan perangkat lain.
   - `POST /auth/refresh` merotasi refresh token **pada baris yang sama** (`sid` tetap), compare-and-swap.
   - `AuthenticationMiddleware` menolak token yang sesinya dicabut: `401 {"error":{"code":"session_revoked"}}`. Token lama tanpa `sid` ditolak.
-- Frontend (`hooks.server.ts`, dev): bila ada `lms_token`, sesi diverifikasi ke backend tiap request; `session_revoked` → semua cookie sesi dihapus dan halaman masuk menampilkan "Sesi Anda berakhir karena akun ini masuk atau keluar di perangkat lain…"; token kedaluwarsa → refresh otomatis, gagal → pesan "sesi telah berakhir"; backend tak terjangkau → anonim tanpa menghapus cookie.
+- Frontend (`hooks.server.ts`, dev): bila ada `lms_token`, sesi diverifikasi ke backend tiap request; `session_revoked` → semua cookie sesi dihapus dan halaman masuk menampilkan "Sesi Anda di perangkat ini berakhir karena dikeluarkan dari Pengaturan Akun…"; token kedaluwarsa → refresh otomatis, gagal → pesan "sesi telah berakhir"; backend tak terjangkau → anonim tanpa menghapus cookie.

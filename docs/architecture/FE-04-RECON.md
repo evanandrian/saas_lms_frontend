@@ -110,6 +110,8 @@ Remediasi visual pasca-FE-04 (detail: design-system.md §21): watermark logogram
 |---|---|---|
 | D1 | `@lucide/svelte` 1.49.0 (pin exact, devDependency) | Versi 1.50.0 dilewati karena belum melewati umur rilis minimum pnpm |
 | D2 | Route SAD + fixture dev-only | Fixture terverifikasi tidak ada di `build/` |
+
+> **Pengecualian D2 (keputusan pemilik produk, 7 Okt 2026):** dashboard Kepala sekolah (`/app/admin/principal`), Wali kelas (`/app/teacher/homeroom`), dan Guru mapel (`/app/teacher`) menampilkan data contoh di dev **dan produksi** untuk bagian yang dikirim `null` oleh `/api/v1/dashboards/*` (modul belum tersedia). Setiap bagian tersebut wajib berlabel "Data contoh" dan aksinya hanya simulasi lokal. Dashboard lain tetap mengikuti D2.
 | D3 | Token minimal | `lms-progress-text`, `lms-progress-track`, `lms-warning-text`, `lms-scale-*` — kontras di design-system.md §13 |
 | D4 | Hero Deep Neutral solid | `lms-hero`, `lms-hero-raised`, fokus putih di atas hero |
 | D5 | Dark mode tetap mengikuti OS | `DARK_MODE_POLICY` tetap HUMAN_DECISION_REQUIRED |

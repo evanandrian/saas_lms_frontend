@@ -78,6 +78,13 @@
 	let isCapsLockOn = $state(false);
 	let phase = $state<'idle' | 'checking' | 'opening'>('idle');
 	let loginError = $derived(form?.error ?? null);
+	/** Verifikasi 2 langkah aktif → langkah kode (token tantangan di cookie HttpOnly). */
+	const challenge = $derived(
+		form && 'challenge' in form && form.challenge ? form.challenge : data.challenge
+	);
+	const googleReady = $derived(data.oauthProviders.includes('google'));
+	let code = $state('');
+	let codePhase = $state<'idle' | 'checking'>('idle');
 
 	let previewRole = $state<PreviewRole>('teacher');
 	let isPreviewPinned = $state(false);
@@ -190,194 +197,280 @@
 						{i18n.t(`auth.login.session_ended.${data.sessionEnded}`)}
 					</p>
 				{/if}
-				<!-- Masuk dengan Google menunggu kontrak auth backend (BLOCKED-02). -->
-				<p id={reasonId} class="sr-only">{i18n.t('auth.login.google_unavailable')}</p>
-				<Button variant="outline" size="lg" width="full" disabled aria-describedby={reasonId}>
-					<img src={googleMark} alt="" class="size-4.5" />
-					{i18n.t('auth.login.google')}
-				</Button>
-
-				<p class="lms-text-caption flex items-center gap-3">
-					<span class="bg-lms-border h-px flex-1" aria-hidden="true"></span>
-					{i18n.t('auth.login.or_email')}
-					<span class="bg-lms-border h-px flex-1" aria-hidden="true"></span>
-				</p>
-
-				<form
-					method="POST"
-					action="?/login"
-					class="flex flex-col gap-5"
-					use:enhance={() => {
-						phase = 'checking';
-						loginError = null;
-						return async ({ result, update }) => {
-							if (result.type === 'redirect') {
-								phase = 'opening';
-								await update();
-							} else {
-								phase = 'idle';
+				{#if data.oauthError}
+					<p
+						class="lms-tone-warning text-lms-body-sm flex items-start gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
+						role="alert"
+					>
+						<span class="mt-0.5 shrink-0"><Icon icon={Info} size="sm" /></span>
+						{i18n.t(`auth.login.oauth_errors.${data.oauthError}`)}
+					</p>
+				{/if}
+				{#if challenge}
+					<form
+						method="POST"
+						action="?/twoFactor"
+						class="flex flex-col gap-4"
+						use:enhance={() => {
+							codePhase = 'checking';
+							return async ({ update }) => {
+								codePhase = 'idle';
 								await update({ reset: false });
-							}
-						};
-					}}
-				>
-					<div class="flex flex-col gap-2.5">
-						<TextField
-							label={i18n.t('auth.login.email')}
-							name="email"
-							type="email"
-							autocomplete="username"
-							placeholder={i18n.t('auth.login.email_placeholder')}
-							size="lg"
-							icon={Mail}
-							highlighted={account !== null}
-							onkeydown={handleEmailKeydown}
-							bind:value={email}
-						>
-							{#snippet trailing()}
-								{#if account}
-									<span
-										class="bg-lms-interactive text-lms-on-interactive me-1.5 inline-flex size-5.5 items-center justify-center rounded-full"
-										aria-hidden="true"
-									>
-										<Icon icon={Check} size="sm" />
-									</span>
-								{/if}
-							{/snippet}
-						</TextField>
-
-						{#if suggestion}
-							<button
-								type="button"
-								class="border-lms-input-border bg-lms-background lms-focus-ring text-lms-body-sm flex items-center gap-2.5 rounded-[10px] border border-dashed px-3 py-2 text-start"
-								onclick={() => (email = suggestion.email)}
-							>
-								<span class="text-lms-muted"><Icon icon={CornerDownRight} size="sm" /></span>
-								<span class="min-w-0 flex-1 truncate">
-									{i18n.t('auth.login.continue_with')} <strong>{suggestion.email}</strong>
-								</span>
-								<kbd
-									class="border-lms-input-border text-lms-muted rounded border px-1.5 font-mono text-[10px]"
-									>TAB</kbd
-								>
-							</button>
-						{/if}
-
-						<div
-							class={[
-								'grid transition-[grid-template-rows,opacity] duration-300 motion-reduce:transition-none',
-								account ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-							]}
-							aria-live="polite"
-						>
-							<div class="overflow-hidden">
-								{#if account}
-									<div
-										class="lms-tone-info border-lms-interactive/30 flex items-center gap-3 rounded-xl border px-3.5 py-3"
-									>
-										<Avatar initials={account.initials} />
-										<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-											<span class="text-lms-body-sm font-bold">{account.name}</span>
-											<span class="text-lms-caption">
-												{i18n.t('auth.login.recognized')} ·
-												<strong>{i18n.t(`auth.roles.${account.area}`)}</strong> · {account.tenant}
-											</span>
-										</span>
-										<button
-											type="button"
-											class="text-lms-link lms-focus-ring text-lms-caption font-semibold whitespace-nowrap"
-											onclick={handleClearAccount}
-										>
-											{i18n.t('auth.login.not_you')}
-										</button>
-									</div>
-								{/if}
-							</div>
-						</div>
-
-						{#if isUnknownEmail}
-							<p class="text-lms-caption text-lms-warning-text flex gap-2">
-								<span class="mt-0.5 shrink-0"><Icon icon={Info} size="sm" /></span>
-								{i18n.t('auth.login.unknown_email')}
-							</p>
-						{/if}
-					</div>
-
-					<div class="flex flex-col gap-2">
-						<TextField
-							label={i18n.t('auth.login.password')}
-							name="password"
-							type={isPasswordVisible ? 'text' : 'password'}
-							autocomplete="current-password"
-							placeholder={i18n.t('auth.login.password_placeholder')}
-							size="lg"
-							icon={LockKeyhole}
-							autofocus={Boolean(data.reauthEmail) && !form}
-							onkeydown={handleCapsLock}
-							onkeyup={handleCapsLock}
-							bind:value={password}
-						>
-							{#snippet labelAside()}
-								<!-- Pemulihan kata sandi belum memiliki kontrak (BLOCKED-02): teks, bukan tautan. -->
-								<span class="text-lms-body-sm text-lms-muted font-semibold">
-									{i18n.t('auth.login.forgot_password')}
-									<span class="sr-only">({i18n.t('common.workspace.not_available_yet')})</span>
-								</span>
-							{/snippet}
-							{#snippet trailing()}
-								<button
-									type="button"
-									class="btn-icon btn-icon-sm lms-action-ghost lms-focus-ring"
-									aria-label={isPasswordVisible
-										? i18n.t('auth.login.hide_password')
-										: i18n.t('auth.login.show_password')}
-									aria-pressed={isPasswordVisible}
-									onclick={() => (isPasswordVisible = !isPasswordVisible)}
-								>
-									<Icon icon={isPasswordVisible ? EyeOff : Eye} size="sm" />
-								</button>
-							{/snippet}
-						</TextField>
-						{#if isCapsLockOn}
-							<p
-								class="text-lms-caption text-lms-warning-text flex items-center gap-2"
-								role="status"
-							>
-								<Icon icon={ArrowBigUp} size="sm" />{i18n.t('auth.login.caps_lock')}
-							</p>
-						{/if}
-					</div>
-
-					<Checkbox label={i18n.t('auth.login.remember')} name="remember" />
-
-					{#if loginError}
+							};
+						}}
+					>
 						<p
-							class="lms-tone-danger text-lms-body-sm flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
-							role="alert"
+							class="lms-tone-info text-lms-body-sm flex items-start gap-2.5 rounded-[10px] px-3.5 py-2.5"
 						>
-							<Icon icon={CircleAlert} size="sm" />{i18n.t(`auth.login.errors.${loginError}`)}
+							<span class="mt-0.5 shrink-0"><Icon icon={LockKeyhole} size="sm" /></span>
+							{challenge.method === 'app'
+								? i18n.t('auth.login.two_factor.app')
+								: i18n.t('auth.login.two_factor.whatsapp', { target: challenge.target })}
 						</p>
+						<TextField
+							label={i18n.t('auth.login.two_factor.code')}
+							name="code"
+							autocomplete="one-time-code"
+							size="lg"
+							autofocus
+							placeholder="••••••"
+							bind:value={code}
+						/>
+						<p class="text-lms-caption text-lms-muted">
+							{i18n.t('auth.login.two_factor.backup_hint')}
+						</p>
+						{#if loginError}
+							<p class="text-lms-body-sm text-lms-danger-text flex gap-2" role="alert">
+								<span class="mt-0.5 shrink-0"><Icon icon={CircleAlert} size="sm" /></span>
+								{loginError === 'invalid_code' && form?.remaining != null
+									? i18n.t('auth.login.errors.invalid_code_left', { count: form.remaining })
+									: i18n.t(`auth.login.errors.${loginError}`)}
+							</p>
+						{/if}
+						<Button type="submit" size="lg" width="full" disabled={codePhase === 'checking'}>
+							{codePhase === 'checking'
+								? i18n.t('auth.login.checking')
+								: i18n.t('auth.login.two_factor.submit')}
+						</Button>
+					</form>
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						{#if challenge.method === 'whatsapp'}
+							<form method="POST" action="?/twoFactorResend" use:enhance>
+								<button
+									type="submit"
+									class="text-lms-link lms-focus-ring text-lms-body-sm font-semibold"
+									>{i18n.t('auth.login.two_factor.resend')}</button
+								>
+							</form>
+						{/if}
+						<form method="POST" action="?/twoFactorCancel">
+							<button
+								type="submit"
+								class="text-lms-muted lms-focus-ring text-lms-body-sm font-semibold"
+								>{i18n.t('auth.login.two_factor.cancel')}</button
+							>
+						</form>
+					</div>
+				{:else}
+					{#if googleReady}
+						<form method="POST" action="?/oauth">
+							<input type="hidden" name="provider" value="google" />
+							<Button type="submit" variant="outline" size="lg" width="full">
+								<img src={googleMark} alt="" class="size-4.5" />
+								{i18n.t('auth.login.google')}
+							</Button>
+						</form>
+					{:else}
+						<!-- Masuk dengan Google aktif setelah OAuth Google dikonfigurasi di backend (env). -->
+						<p id={reasonId} class="sr-only">{i18n.t('auth.login.google_unavailable')}</p>
+						<Button variant="outline" size="lg" width="full" disabled aria-describedby={reasonId}>
+							<img src={googleMark} alt="" class="size-4.5" />
+							{i18n.t('auth.login.google')}
+						</Button>
 					{/if}
 
-					<button
-						type="submit"
-						class="lms-action-deep lms-focus-ring text-lms-body relative h-12.5 overflow-hidden rounded-[10px] font-semibold"
-						disabled={phase !== 'idle'}
-						aria-busy={phase !== 'idle'}
+					<p class="lms-text-caption flex items-center gap-3">
+						<span class="bg-lms-border h-px flex-1" aria-hidden="true"></span>
+						{i18n.t('auth.login.or_email')}
+						<span class="bg-lms-border h-px flex-1" aria-hidden="true"></span>
+					</p>
+
+					<form
+						method="POST"
+						action="?/login"
+						class="flex flex-col gap-5"
+						use:enhance={() => {
+							phase = 'checking';
+							loginError = null;
+							return async ({ result, update }) => {
+								if (result.type === 'redirect') {
+									phase = 'opening';
+									await update();
+								} else {
+									phase = 'idle';
+									await update({ reset: false });
+								}
+							};
+						}}
 					>
-						<span
-							class="bg-lms-on-interactive/20 absolute inset-y-0 left-0 transition-[width] duration-700 motion-reduce:transition-none"
-							style:width="{submitProgress}%"
-							aria-hidden="true"
-						></span>
-						<span class="relative flex items-center justify-center gap-2">
-							{submitLabel}
-							<span class={phase === 'idle' ? '' : 'motion-safe:animate-spin'}>
-								<Icon icon={phase === 'idle' ? ArrowRight : LoaderCircle} size="sm" />
+						<div class="flex flex-col gap-2.5">
+							<TextField
+								label={i18n.t('auth.login.email')}
+								name="email"
+								type="email"
+								autocomplete="username"
+								placeholder={i18n.t('auth.login.email_placeholder')}
+								size="lg"
+								icon={Mail}
+								highlighted={account !== null}
+								onkeydown={handleEmailKeydown}
+								bind:value={email}
+							>
+								{#snippet trailing()}
+									{#if account}
+										<span
+											class="bg-lms-interactive text-lms-on-interactive me-1.5 inline-flex size-5.5 items-center justify-center rounded-full"
+											aria-hidden="true"
+										>
+											<Icon icon={Check} size="sm" />
+										</span>
+									{/if}
+								{/snippet}
+							</TextField>
+
+							{#if suggestion}
+								<button
+									type="button"
+									class="border-lms-input-border bg-lms-background lms-focus-ring text-lms-body-sm flex items-center gap-2.5 rounded-[10px] border border-dashed px-3 py-2 text-start"
+									onclick={() => (email = suggestion.email)}
+								>
+									<span class="text-lms-muted"><Icon icon={CornerDownRight} size="sm" /></span>
+									<span class="min-w-0 flex-1 truncate">
+										{i18n.t('auth.login.continue_with')} <strong>{suggestion.email}</strong>
+									</span>
+									<kbd
+										class="border-lms-input-border text-lms-muted rounded border px-1.5 font-mono text-[10px]"
+										>TAB</kbd
+									>
+								</button>
+							{/if}
+
+							<div
+								class={[
+									'grid transition-[grid-template-rows,opacity] duration-300 motion-reduce:transition-none',
+									account ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+								]}
+								aria-live="polite"
+							>
+								<div class="overflow-hidden">
+									{#if account}
+										<div
+											class="lms-tone-info border-lms-interactive/30 flex items-center gap-3 rounded-xl border px-3.5 py-3"
+										>
+											<Avatar initials={account.initials} />
+											<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+												<span class="text-lms-body-sm font-bold">{account.name}</span>
+												<span class="text-lms-caption">
+													{i18n.t('auth.login.recognized')} ·
+													<strong>{i18n.t(`auth.roles.${account.area}`)}</strong> · {account.tenant}
+												</span>
+											</span>
+											<button
+												type="button"
+												class="text-lms-link lms-focus-ring text-lms-caption font-semibold whitespace-nowrap"
+												onclick={handleClearAccount}
+											>
+												{i18n.t('auth.login.not_you')}
+											</button>
+										</div>
+									{/if}
+								</div>
+							</div>
+
+							{#if isUnknownEmail}
+								<p class="text-lms-caption text-lms-warning-text flex gap-2">
+									<span class="mt-0.5 shrink-0"><Icon icon={Info} size="sm" /></span>
+									{i18n.t('auth.login.unknown_email')}
+								</p>
+							{/if}
+						</div>
+
+						<div class="flex flex-col gap-2">
+							<TextField
+								label={i18n.t('auth.login.password')}
+								name="password"
+								type={isPasswordVisible ? 'text' : 'password'}
+								autocomplete="current-password"
+								placeholder={i18n.t('auth.login.password_placeholder')}
+								size="lg"
+								icon={LockKeyhole}
+								autofocus={Boolean(data.reauthEmail) && !form}
+								onkeydown={handleCapsLock}
+								onkeyup={handleCapsLock}
+								bind:value={password}
+							>
+								{#snippet labelAside()}
+									<!-- Pemulihan kata sandi belum memiliki kontrak (BLOCKED-02): teks, bukan tautan. -->
+									<span class="text-lms-body-sm text-lms-muted font-semibold">
+										{i18n.t('auth.login.forgot_password')}
+										<span class="sr-only">({i18n.t('common.workspace.not_available_yet')})</span>
+									</span>
+								{/snippet}
+								{#snippet trailing()}
+									<button
+										type="button"
+										class="btn-icon btn-icon-sm lms-action-ghost lms-focus-ring"
+										aria-label={isPasswordVisible
+											? i18n.t('auth.login.hide_password')
+											: i18n.t('auth.login.show_password')}
+										aria-pressed={isPasswordVisible}
+										onclick={() => (isPasswordVisible = !isPasswordVisible)}
+									>
+										<Icon icon={isPasswordVisible ? EyeOff : Eye} size="sm" />
+									</button>
+								{/snippet}
+							</TextField>
+							{#if isCapsLockOn}
+								<p
+									class="text-lms-caption text-lms-warning-text flex items-center gap-2"
+									role="status"
+								>
+									<Icon icon={ArrowBigUp} size="sm" />{i18n.t('auth.login.caps_lock')}
+								</p>
+							{/if}
+						</div>
+
+						<Checkbox label={i18n.t('auth.login.remember')} name="remember" />
+
+						{#if loginError}
+							<p
+								class="lms-tone-danger text-lms-body-sm flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 font-semibold"
+								role="alert"
+							>
+								<Icon icon={CircleAlert} size="sm" />{i18n.t(`auth.login.errors.${loginError}`)}
+							</p>
+						{/if}
+
+						<button
+							type="submit"
+							class="lms-action-deep lms-focus-ring text-lms-body relative h-12.5 overflow-hidden rounded-[10px] font-semibold"
+							disabled={phase !== 'idle'}
+							aria-busy={phase !== 'idle'}
+						>
+							<span
+								class="bg-lms-on-interactive/20 absolute inset-y-0 left-0 transition-[width] duration-700 motion-reduce:transition-none"
+								style:width="{submitProgress}%"
+								aria-hidden="true"
+							></span>
+							<span class="relative flex items-center justify-center gap-2">
+								{submitLabel}
+								<span class={phase === 'idle' ? '' : 'motion-safe:animate-spin'}>
+									<Icon icon={phase === 'idle' ? ArrowRight : LoaderCircle} size="sm" />
+								</span>
 							</span>
-						</span>
-					</button>
-				</form>
+						</button>
+					</form>
+				{/if}
 			</div>
 		</main>
 

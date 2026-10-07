@@ -56,7 +56,8 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			[
 				['cluster-db', 'Cluster DB', 'server', '/platform/cluster-db'],
 				['audit-log', 'Audit log', 'scroll-text', '/platform/audit-log'],
-				['pengaturan', 'Pengaturan', 'settings', '/platform/pengaturan']
+				['persetujuan', 'Persetujuan akun', 'inbox', '/settings/approvals'],
+				['pengaturan', 'Pengaturan', 'settings', '/settings/account']
 			]
 		]
 	],
@@ -100,7 +101,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			true,
 			[
 				['langganan', 'Langganan', 'credit-card', '/sekolah/langganan'],
-				['pengaturan', 'Pengaturan', 'settings', '/sekolah/pengaturan']
+				['pengaturan', 'Pengaturan', 'settings', '/app/admin/settings']
 			]
 		]
 	],
@@ -132,7 +133,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'Akun',
 			'settings',
 			true,
-			[['pengaturan', 'Pengaturan', 'settings', '/guru/pengaturan']]
+			[['pengaturan', 'Pengaturan', 'settings', '/app/teacher/settings']]
 		]
 	],
 	student: [
@@ -187,7 +188,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'Akun',
 			'settings',
 			true,
-			[['pengaturan', 'Pengaturan', 'settings', '/orang-tua/pengaturan']]
+			[['pengaturan', 'Pengaturan', 'settings', '/app/guardian/settings']]
 		]
 	]
 };

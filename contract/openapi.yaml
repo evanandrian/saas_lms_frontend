@@ -47,10 +47,13 @@ paths:
           description: Service Unavailable
   /api/v1/auth/login:
     post:
+      operationId: login
+      tags: [auth]
       summary: Login
       description: >-
-        Single-device policy: a successful login revokes every other session of the user,
-        so access tokens issued to other devices are rejected with 401 `session_revoked`.
+        Multi-session: each login is a new device session; other devices stay signed in. When
+        two-step verification is on, the response is a challenge (`two_factor_required`) completed
+        with `/auth/login/2fa`. 423 `account_locked` after 5 consecutive failures when lockout is on.
       requestBody:
         required: true
         content:
@@ -64,19 +67,11 @@ paths:
                   type: string
       responses:
         '200':
-          description: JWT token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      token:
-                        type: string
+          $ref: '#/components/responses/LoginResult'
         '401':
           description: Unauthorized
+        '423':
+          $ref: '#/components/responses/AccountError'
   /api/v1/auth/me:
     get:
       summary: Current user info
@@ -88,7 +83,7 @@ paths:
         '401':
           description: >-
             `invalid_token` (missing, invalid, or expired token) or `session_revoked`
-            (the session ended because the user logged in or out on another device).
+            (the session was signed out on this device or from Pengaturan Akun).
   /api/v1/auth/refresh:
     post:
       summary: Refresh Access Token
@@ -122,7 +117,7 @@ paths:
   /api/v1/auth/logout:
     post:
       summary: Logout
-      description: Ends the user's sessions on all devices (all refresh tokens are revoked).
+      description: Ends the session of this device only; other devices are signed out from Pengaturan Akun.
       security:
         - bearerAuth: []
       responses:
@@ -715,6 +710,989 @@ paths:
           $ref: '#/components/responses/PlanError'
         '409':
           $ref: '#/components/responses/PlanError'
+  /api/v1/auth/login/2fa:
+    post:
+      operationId: completeLoginTwoFactor
+      tags: [auth]
+      summary: Complete a login that requires two-step verification
+      description: >-
+        Accepts the authenticator/WhatsApp code or a one-time backup code. Wrong codes count toward
+        the temporary lockout. 401 `invalid_code` (details.remaining) or `challenge_expired`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecondFactorRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginResult'
+        '401':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/auth/login/2fa/resend:
+    post:
+      operationId: resendLoginTwoFactor
+      tags: [auth]
+      summary: Resend the WhatsApp login code (30 s cooldown)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecondFactorRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginResult'
+        '401':
+          $ref: '#/components/responses/AccountError'
+        '429':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/auth/oauth/providers:
+    get:
+      operationId: listOAuthProviders
+      tags: [auth]
+      summary: OAuth providers and whether they are configured
+      responses:
+        '200':
+          description: Providers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OAuthProviderStatus'
+  /api/v1/auth/oauth/{provider}/start:
+    parameters:
+      - $ref: '#/components/parameters/OAuthProvider'
+    post:
+      operationId: startOAuthLogin
+      tags: [auth]
+      summary: Start signing in with a linked provider account
+      responses:
+        '200':
+          $ref: '#/components/responses/OAuthStart'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/auth/oauth/complete:
+    post:
+      operationId: completeOAuth
+      tags: [auth]
+      summary: Complete the provider callback (login or link)
+      description: >-
+        For `purpose = link` the bearer token of the account that started linking is required.
+        Login only succeeds when the provider account is already linked (401 `oauth_not_linked`);
+        409 `oauth_linked_elsewhere`, 400 `oauth_state_invalid`, 423 `account_locked`.
+      security:
+        - {}
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthCompleteRequest'
+      responses:
+        '200':
+          description: Tokens, a two-step challenge, or the link result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/OAuthCompleteResult'
+        '400':
+          $ref: '#/components/responses/AccountError'
+        '401':
+          $ref: '#/components/responses/AccountError'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '423':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account:
+    get:
+      operationId: getAccountOverview
+      tags: [account]
+      summary: Pengaturan Akun overview of the signed-in user
+      description: >-
+        Everything the settings page shows for one workspace area. The area is verified against the
+        user's active memberships (403 `forbidden`, 400 `invalid_area`). Every mutation below returns
+        the same overview so the page always reflects stored data.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '400':
+          $ref: '#/components/responses/AccountError'
+        '401':
+          $ref: '#/components/responses/AccountError'
+        '403':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/photo:
+    get:
+      operationId: getAccountPhoto
+      tags: [account]
+      summary: Profile photo of the signed-in user (PNG/JPEG)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Image bytes
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/profile:
+    put:
+      operationId: updateAccountProfile
+      tags: [account]
+      summary: Save the profile
+      description: >-
+        Nickname, gender, birth date, address, phone, and photo are saved directly. A new email waits
+        for its verification link; full name and identity number wait for reviewer approval. Students
+        may only change phone and photo (422 `restricted`). `updated_at` must match (409 `version_conflict`).
+        Logged as `account.profile.update`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Saved profile and follow-up actions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProfileResult'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/email/resend:
+    post:
+      operationId: resendEmailVerification
+      tags: [account]
+      summary: Resend the verification link to the pending email (30 s cooldown)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '429':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/email/pending:
+    delete:
+      operationId: cancelEmailChange
+      tags: [account]
+      summary: Cancel the pending email change
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/email/verify:
+    post:
+      operationId: verifyAccountEmail
+      tags: [account]
+      summary: Apply a new login email from its verification link (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: Email now used to sign in
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [email]
+                    properties:
+                      email:
+                        type: string
+        '410':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/password/change:
+    post:
+      operationId: startPasswordChange
+      tags: [account]
+      summary: Check the current password (or reset token) and the new password, then send an OTP
+      description: >-
+        422 `wrong_current_password` (details.remaining), `password_change_locked` after 3 wrong
+        attempts, `validation_failed` (new_password: min_length | max_length | mixed_case | digit |
+        symbol | contains_name | same_as_current; confirm_password: mismatch). 410 `challenge_expired`
+        for an invalid reset token.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/PasswordChallenge'
+        '410':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/password/otp/resend:
+    post:
+      operationId: resendPasswordOtp
+      tags: [account]
+      summary: Send a new OTP for the same challenge (30 s cooldown)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengeRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/PasswordChallenge'
+        '410':
+          $ref: '#/components/responses/AccountError'
+        '429':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/password/otp/verify:
+    post:
+      operationId: verifyPasswordOtp
+      tags: [account]
+      summary: Apply the new password after a correct OTP
+      description: >-
+        Optionally signs out every other device. 422 `invalid_code` (details.remaining), 410
+        `challenge_expired`. Logged as `account.password.change`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengeRequest'
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PasswordChangeResult'
+        '410':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/password/reset-link:
+    post:
+      operationId: sendPasswordResetLink
+      tags: [account]
+      summary: Email a 30-minute reset link that opens the settings page in reset mode
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetLinkRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '422':
+          $ref: '#/components/responses/AccountError'
+        '429':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/password/reset/check:
+    post:
+      operationId: checkPasswordResetToken
+      tags: [account]
+      summary: Whether a reset link belongs to the signed-in user and is still valid
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: Token status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ResetTokenStatus'
+  /api/v1/account/two-factor/setup:
+    post:
+      operationId: setupTwoFactor
+      tags: [account]
+      summary: Prepare an authenticator app (QR + manual key) or send a WhatsApp code
+      description: 409 `phone_required` when WhatsApp is chosen without a phone number.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorSetupRequest'
+      responses:
+        '200':
+          description: Setup data
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TwoFactorSetup'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/two-factor/verify:
+    post:
+      operationId: verifyTwoFactor
+      tags: [account]
+      summary: Verify the setup code, enable two-step verification, and issue 8 backup codes
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/BackupCodes'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/two-factor/backup-codes:
+    post:
+      operationId: regenerateBackupCodes
+      tags: [account]
+      summary: Replace the backup codes
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/BackupCodes'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/two-factor:
+    delete:
+      operationId: disableTwoFactor
+      tags: [account]
+      summary: Disable two-step verification (backup codes are revoked)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/security-alerts:
+    put:
+      operationId: updateSecurityAlerts
+      tags: [account]
+      summary: New-device email alert and temporary lockout after 5 failed logins
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecurityAlertsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+  /api/v1/account/sessions:
+    delete:
+      operationId: revokeOtherSessions
+      tags: [account]
+      summary: Sign out every other device
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+  /api/v1/account/sessions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      operationId: revokeSession
+      tags: [account]
+      summary: Sign out one other device (409 `current_session` for this device)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '404':
+          $ref: '#/components/responses/AccountError'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/notifications:
+    put:
+      operationId: updateNotificationPreferences
+      tags: [account]
+      summary: Save event × channel preferences and quiet hours (security email is always on)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationsRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/notifications/test:
+    post:
+      operationId: sendTestNotification
+      tags: [account]
+      summary: Send a test notification by email and WhatsApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+  /api/v1/account/linked/{provider}/start:
+    parameters:
+      - $ref: '#/components/parameters/OAuthProvider'
+    post:
+      operationId: startAccountLink
+      tags: [account]
+      summary: Start linking a Google/belajar.id account (409 `not_configured`)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthStartRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/OAuthStart'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/linked/{provider}:
+    parameters:
+      - $ref: '#/components/parameters/OAuthProvider'
+    delete:
+      operationId: unlinkAccount
+      tags: [account]
+      summary: Disconnect a linked account
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '404':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/privacy:
+    put:
+      operationId: updatePrivacy
+      tags: [account]
+      summary: Who can see the phone number, photo, and online status
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/exports:
+    post:
+      operationId: createDataExport
+      tags: [account]
+      summary: Prepare a copy of personal data (valid 7 days)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/exports/{id}/download:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: downloadDataExport
+      tags: [account]
+      summary: Download a prepared data export (JSON or CSV attachment)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: File
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/deletion-request:
+    post:
+      operationId: requestAccountDeletion
+      tags: [account]
+      summary: Ask the institution reviewer to delete this account (409 `request_pending`); cancel with DELETE /account/requests/{id}
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/requests/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    delete:
+      operationId: cancelAccountRequest
+      tags: [account]
+      summary: Cancel an own request that is still pending or waiting for documents
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '404':
+          $ref: '#/components/responses/AccountError'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/requests/{id}/dismiss:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    post:
+      operationId: dismissAccountRequest
+      tags: [account]
+      summary: Hide an approved/declined request card from the settings page
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/requests/{id}/documents:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    post:
+      operationId: uploadAccountRequestDocument
+      tags: [account]
+      summary: Upload a requested document (JPG/PNG/PDF, max 5 MB); the request is processed again
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpload'
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountOverview'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/account/requests/documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    get:
+      operationId: getOwnRequestDocument
+      tags: [account]
+      summary: Download an attachment of an own request
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          description: File (image/png, image/jpeg, application/pdf)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals:
+    get:
+      operationId: getApprovalInbox
+      tags: [approvals]
+      summary: Kotak Persetujuan of the signed-in reviewer
+      description: >-
+        `area=platform` → requests of platform accounts (`platform.account_request.review`);
+        `area=school_admin` → admin sekolah (teachers, parents, students, principal) or kepala sekolah
+        (school admins), both with `account_request.review`. 403 `forbidden` otherwise. SLA 72 hours,
+        paused while waiting for documents.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApprovalInbox'
+        '403':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/summary:
+    get:
+      operationId: getApprovalSummary
+      tags: [approvals]
+      summary: Pending count for the "Persetujuan" menu badge
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InboxSummary'
+        '403':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/bulk-approve:
+    post:
+      operationId: bulkApproveRequests
+      tags: [approvals]
+      summary: Approve several pending requests (own requests are skipped)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkApproveRequest'
+      responses:
+        '200':
+          description: Approved count and the refreshed inbox
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BulkApproveResult'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/{id}/approve:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    post:
+      operationId: approveRequest
+      tags: [approvals]
+      summary: Approve (name/identity applied immediately; deletion takes effect after 30 days)
+      description: 409 `self_review` for own requests, `nothing_pending` when not pending.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApprovalInbox'
+        '404':
+          $ref: '#/components/responses/AccountError'
+        '409':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/{id}/decline:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    post:
+      operationId: declineRequest
+      tags: [approvals]
+      summary: Decline with a reason sent to the requester
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeclineRequestInput'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApprovalInbox'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/{id}/request-documents:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    post:
+      operationId: requestRequestDocuments
+      tags: [approvals]
+      summary: Ask the requester for documents (the SLA pauses until they upload)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocsRequestInput'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApprovalInbox'
+        '409':
+          $ref: '#/components/responses/AccountError'
+        '422':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/approvals/documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountRequestId'
+    get:
+      operationId: getApprovalDocument
+      tags: [approvals]
+      summary: Download an attachment of a request in this reviewer's inbox
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          description: File (image/png, image/jpeg, application/pdf)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/AccountError'
+  /api/v1/dashboards/context:
+    get:
+      operationId: getDashboardContext
+      tags: [dashboards]
+      summary: Dashboard views available to the active membership (role toggle)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: area
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [school_admin, teacher]
+      responses:
+        '200':
+          description: Dashboard data (sections without a backing module are null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardContext'
+        '400':
+          $ref: '#/components/responses/DashboardError'
+        '403':
+          $ref: '#/components/responses/DashboardError'
+  /api/v1/dashboards/principal:
+    get:
+      operationId: getPrincipalDashboard
+      tags: [dashboards]
+      summary: Principal dashboard (PRINCIPAL only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data (sections without a backing module are null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PrincipalDashboard'
+        '403':
+          $ref: '#/components/responses/DashboardError'
+  /api/v1/dashboards/homeroom:
+    get:
+      operationId: getHomeroomDashboard
+      tags: [dashboards]
+      summary: Homeroom teacher dashboard (HOMEROOM_TEACHER only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data (sections without a backing module are null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/HomeroomDashboard'
+        '403':
+          $ref: '#/components/responses/DashboardError'
+  /api/v1/dashboards/teacher:
+    get:
+      operationId: getTeacherDashboard
+      tags: [dashboards]
+      summary: Subject teacher dashboard (TEACHER, HOMEROOM_TEACHER)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data (sections without a backing module are null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TeacherDashboard'
+        '403':
+          $ref: '#/components/responses/DashboardError'
 components:
   securitySchemes:
     bearerAuth:
@@ -734,7 +1712,111 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/NavigationRole'
+    AccountArea:
+      in: query
+      name: area
+      required: true
+      description: Workspace area being opened; verified against the user's active memberships.
+      schema:
+        $ref: '#/components/schemas/AccountArea'
+    OAuthProvider:
+      in: path
+      name: provider
+      required: true
+      schema:
+        $ref: '#/components/schemas/OAuthProvider'
+    AccountRequestId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        format: uuid
   responses:
+    DashboardError:
+      description: >-
+        Error envelope. Dashboard codes: `unknown_area` (400), `forbidden` (403, role has no such
+        dashboard view), `internal_error`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    AccountError:
+      description: >-
+        Error envelope. Account codes: `invalid_request`, `invalid_area`, `forbidden`, `not_found`,
+        `version_conflict`, `validation_failed` (details = AccountIssue[]), `wrong_current_password`,
+        `password_change_locked`, `invalid_code`, `challenge_expired`, `resend_too_soon` (details.retry_at),
+        `not_configured`, `nothing_pending`, `request_pending`, `two_factor_state`, `phone_required`,
+        `current_session`, `self_review`, `account_locked` (details.retry_at), `oauth_not_linked`,
+        `oauth_linked_elsewhere`, `oauth_state_invalid`, `internal_error`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    AccountOverview:
+      description: Account settings overview
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/AccountOverview'
+    PasswordChallenge:
+      description: OTP sent
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/PasswordChallenge'
+    BackupCodes:
+      description: New backup codes (shown once)
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/BackupCodesResult'
+    OAuthStart:
+      description: Provider consent URL
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                type: object
+                required: [authorize_url]
+                properties:
+                  authorize_url:
+                    type: string
+    LoginResult:
+      description: Tokens, or a two-step challenge when verification is enabled
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/LoginResult'
+    ApprovalInbox:
+      description: Kotak Persetujuan
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: '#/components/schemas/Inbox'
     PlanError:
       description: >-
         Error envelope. Plan codes: `forbidden`, `not_found`, `invalid_request`, `version_conflict`,
@@ -816,6 +1898,827 @@ components:
               data:
                 $ref: '#/components/schemas/NavigationLayout'
   schemas:
+    RequestDocument:
+      type: object
+      required: [id, file_name, content_type, created_at]
+      properties:
+        id:
+          type: string
+        file_name:
+          type: string
+        content_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    RequestLogEntry:
+      type: object
+      required: [actor, action, detail, created_at]
+      properties:
+        actor:
+          type: string
+        action:
+          type: string
+          enum: [submitted, updated, cancelled, docs_requested, docs_uploaded, approved, declined, dismissed, applied]
+        detail:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    RequestView:
+      type: object
+      required: [id, number, kind, status, identity_kind, from, to, reason, created_at, due_at, paused, docs_requested, docs_note, documents, decided_at, decided_by, decision_note, effective_at, log]
+      properties:
+        id:
+          type: string
+        number:
+          type: integer
+          description: Display number (APV-<number>)
+        kind:
+          type: string
+          enum: [name, identity, deletion]
+        status:
+          type: string
+          enum: [pending, need_docs, approved, declined]
+        identity_kind:
+          type: string
+          description: Identity type of the requester role (employee_id, nip, nuptk, nisn, nik)
+        from:
+          type: string
+        to:
+          type: string
+        reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        due_at:
+          type: string
+          format: date-time
+          description: created_at + 72 h + time spent waiting for documents
+        paused:
+          type: boolean
+        docs_requested:
+          type: array
+          items:
+            type: string
+        docs_note:
+          type: string
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestDocument'
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decided_by:
+          type: string
+        decision_note:
+          type: string
+        effective_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Deletion only — the account is deactivated at this time
+        log:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestLogEntry'
+    InboxRequester:
+      type: object
+      required: [id, name, email, role_name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role_name:
+          type: string
+    InboxItem:
+      allOf:
+        - $ref: '#/components/schemas/RequestView'
+        - type: object
+          required: [requester, self]
+          properties:
+            requester:
+              $ref: '#/components/schemas/InboxRequester'
+            self:
+              type: boolean
+    Inbox:
+      type: object
+      required: [approver_role, tenant_name, sla_hours, items]
+      properties:
+        approver_role:
+          type: string
+          enum: [platform, principal, school_admin]
+        tenant_name:
+          type: string
+        sla_hours:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxItem'
+    InboxSummary:
+      type: object
+      required: [pending]
+      properties:
+        pending:
+          type: integer
+          format: int64
+    DocumentUpload:
+      type: object
+      required: [file_name, content_type, data]
+      properties:
+        file_name:
+          type: string
+        content_type:
+          type: string
+          enum: [image/png, image/jpeg, application/pdf]
+        data:
+          type: string
+          description: Base64 file, max 5 MB
+    DecisionRequest:
+      type: object
+      required: [note]
+      properties:
+        note:
+          type: string
+    DeclineRequestInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+    DocsRequestInput:
+      type: object
+      required: [documents, note]
+      properties:
+        documents:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+    BulkApproveRequest:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+    BulkApproveResult:
+      type: object
+      required: [approved, inbox]
+      properties:
+        approved:
+          type: integer
+        inbox:
+          $ref: '#/components/schemas/Inbox'
+    AccountArea:
+      type: string
+      enum: [platform, school_admin, teacher, student, guardian]
+    OAuthProvider:
+      type: string
+      enum: [google, belajar]
+    AccountIssue:
+      type: object
+      required: [field, code]
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+    AccountErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+            details:
+              description: AccountIssue[] for `validation_failed`; otherwise an object (remaining, retry_at).
+    ClientInfo:
+      type: object
+      required: [browser, os, kind]
+      properties:
+        browser:
+          type: string
+        os:
+          type: string
+        kind:
+          type: string
+          enum: [desktop, mobile, tablet]
+    AccountContext:
+      type: object
+      required: [area, tenant_code, tenant_name, role_name, identity_kind, approver, restricted]
+      properties:
+        area:
+          $ref: '#/components/schemas/AccountArea'
+        tenant_code:
+          type: string
+        tenant_name:
+          type: string
+        role_name:
+          type: string
+        identity_kind:
+          type: string
+          enum: [employee_id, nip, nuptk, nisn, nik]
+        approver:
+          type: string
+          enum: [super_admin, principal, school_admin]
+        restricted:
+          type: boolean
+          description: Students may only change photo, phone, and password.
+    AccountProfile:
+      type: object
+      required: [full_name, nickname, gender, birth_date, address, email, phone, identity_number, has_photo, photo_version, updated_at]
+      properties:
+        full_name:
+          type: string
+        nickname:
+          type: string
+        gender:
+          type: string
+          enum: [L, P]
+          nullable: true
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        address:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          description: National digits without the leading 0/62, e.g. 81234567890.
+        identity_number:
+          type: string
+        has_photo:
+          type: boolean
+        photo_version:
+          type: integer
+          format: int64
+        updated_at:
+          type: string
+          format: date-time
+    PasswordHistoryEntry:
+      type: object
+      required: [method, client, ip, created_at]
+      properties:
+        method:
+          type: string
+          enum: [settings, reset_link, initial]
+        client:
+          allOf:
+            - $ref: '#/components/schemas/ClientInfo'
+          nullable: true
+        ip:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    OtpChannel:
+      type: object
+      required: [channel, target]
+      properties:
+        channel:
+          type: string
+          enum: [whatsapp, email]
+        target:
+          type: string
+    PasswordView:
+      type: object
+      required: [last_changed_at, history, otp_channel, reset_link_sent, failures_left]
+      properties:
+        last_changed_at:
+          type: string
+          format: date-time
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PasswordHistoryEntry'
+        otp_channel:
+          $ref: '#/components/schemas/OtpChannel'
+        reset_link_sent:
+          type: boolean
+        failures_left:
+          type: integer
+    SecurityView:
+      type: object
+      required: [two_factor_enabled, two_factor_method, whatsapp_available, backup_codes_remaining, new_device_alert, lockout_enabled]
+      properties:
+        two_factor_enabled:
+          type: boolean
+        two_factor_method:
+          type: string
+          enum: [app, whatsapp]
+          nullable: true
+        whatsapp_available:
+          type: boolean
+        backup_codes_remaining:
+          type: integer
+        new_device_alert:
+          type: boolean
+        lockout_enabled:
+          type: boolean
+    SessionView:
+      type: object
+      required: [id, client, ip, last_active_at, created_at, current]
+      properties:
+        id:
+          type: string
+        client:
+          $ref: '#/components/schemas/ClientInfo'
+        ip:
+          type: string
+        last_active_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        current:
+          type: boolean
+    LoginView:
+      type: object
+      required: [id, result, method, reason, client, ip, created_at]
+      properties:
+        id:
+          type: string
+        result:
+          type: string
+          enum: [success, failure]
+        method:
+          type: string
+          enum: [password, google, belajar]
+        reason:
+          type: string
+          enum: ['', wrong_password, wrong_two_factor, locked, suspended]
+        client:
+          $ref: '#/components/schemas/ClientInfo'
+        ip:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    NotificationEventView:
+      type: object
+      required: [code, label, description, email_locked, email, whatsapp, in_app]
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        email_locked:
+          type: boolean
+        email:
+          type: boolean
+        whatsapp:
+          type: boolean
+        in_app:
+          type: boolean
+    QuietHours:
+      type: object
+      required: [enabled, from, to]
+      properties:
+        enabled:
+          type: boolean
+        from:
+          type: string
+          example: '21:00'
+        to:
+          type: string
+          example: '06:00'
+    NotificationsView:
+      type: object
+      required: [events, quiet]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationEventView'
+        quiet:
+          $ref: '#/components/schemas/QuietHours'
+    LinkedView:
+      type: object
+      required: [provider, configured, email, linked_at]
+      properties:
+        provider:
+          $ref: '#/components/schemas/OAuthProvider'
+        configured:
+          type: boolean
+        email:
+          type: string
+          nullable: true
+        linked_at:
+          type: string
+          format: date-time
+          nullable: true
+    PrivacyView:
+      type: object
+      required: [phone_visibility, show_photo, show_online]
+      properties:
+        phone_visibility:
+          type: string
+          enum: [admin, staff, all]
+        show_photo:
+          type: boolean
+        show_online:
+          type: boolean
+    ExportCategory:
+      type: string
+      enum: [profile, logins, activity, messages]
+    ExportFormat:
+      type: string
+      enum: [json, csv]
+    ExportRecord:
+      type: object
+      required: [id, categories, format, created_at, expires_at]
+      properties:
+        id:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportCategory'
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+    ExportView:
+      type: object
+      required: [categories, latest]
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportCategory'
+        latest:
+          allOf:
+            - $ref: '#/components/schemas/ExportRecord'
+          nullable: true
+    AccountOverview:
+      type: object
+      required: [context, profile, pending_email, requests, password, security, sessions, session_idle_days, logins, notifications, linked, privacy, export, deletion_request]
+      properties:
+        context:
+          $ref: '#/components/schemas/AccountContext'
+        profile:
+          $ref: '#/components/schemas/AccountProfile'
+        pending_email:
+          type: string
+          nullable: true
+        requests:
+          type: array
+          description: Name/identity requests still shown on the profile tab (not cancelled or dismissed).
+          items:
+            $ref: '#/components/schemas/RequestView'
+        password:
+          $ref: '#/components/schemas/PasswordView'
+        security:
+          $ref: '#/components/schemas/SecurityView'
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionView'
+        session_idle_days:
+          type: integer
+        logins:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoginView'
+        notifications:
+          $ref: '#/components/schemas/NotificationsView'
+        linked:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedView'
+        privacy:
+          $ref: '#/components/schemas/PrivacyView'
+        export:
+          $ref: '#/components/schemas/ExportView'
+        deletion_request:
+          allOf:
+            - $ref: '#/components/schemas/RequestView'
+          nullable: true
+    PhotoChange:
+      type: object
+      required: [action, content_type, data]
+      properties:
+        action:
+          type: string
+          enum: [keep, remove, replace]
+        content_type:
+          type: string
+          description: image/png or image/jpeg (replace only)
+        data:
+          type: string
+          description: Base64 image, max 2 MB (replace only)
+    UpdateProfileRequest:
+      type: object
+      required: [full_name, nickname, gender, birth_date, address, email, phone, identity_number, photo, updated_at]
+      properties:
+        full_name:
+          type: string
+        nickname:
+          type: string
+        gender:
+          type: string
+          description: L, P, or empty
+        birth_date:
+          type: string
+          description: YYYY-MM-DD or empty
+        address:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        identity_number:
+          type: string
+        photo:
+          allOf:
+            - $ref: '#/components/schemas/PhotoChange'
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+    ProfileResult:
+      type: object
+      required: [overview, verification_sent, approval_requested]
+      properties:
+        overview:
+          $ref: '#/components/schemas/AccountOverview'
+        verification_sent:
+          type: boolean
+        approval_requested:
+          type: boolean
+    TokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    ChangePasswordRequest:
+      type: object
+      required: [current_password, reset_token, new_password, confirm_password, logout_others]
+      properties:
+        current_password:
+          type: string
+        reset_token:
+          type: string
+          description: Reset-link token instead of the current password (empty otherwise).
+        new_password:
+          type: string
+        confirm_password:
+          type: string
+        logout_others:
+          type: boolean
+    PasswordChallenge:
+      type: object
+      required: [challenge_id, channel, target, expires_at, resend_available_at]
+      properties:
+        challenge_id:
+          type: string
+        channel:
+          type: string
+          enum: [whatsapp, email]
+        target:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        resend_available_at:
+          type: string
+          format: date-time
+    ChallengeRequest:
+      type: object
+      required: [challenge_id, code]
+      properties:
+        challenge_id:
+          type: string
+        code:
+          type: string
+    PasswordChangeResult:
+      type: object
+      required: [overview, logged_out_others]
+      properties:
+        overview:
+          $ref: '#/components/schemas/AccountOverview'
+        logged_out_others:
+          type: boolean
+    ResetLinkRequest:
+      type: object
+      required: [return_path]
+      properties:
+        return_path:
+          type: string
+          description: Relative path of the settings page opened by the email link.
+    ResetTokenStatus:
+      type: object
+      required: [valid, expires_at]
+      properties:
+        valid:
+          type: boolean
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+    TwoFactorSetupRequest:
+      type: object
+      required: [method]
+      properties:
+        method:
+          type: string
+          enum: [app, whatsapp]
+    TwoFactorSetup:
+      type: object
+      required: [method, otpauth_uri, qr_code, manual_key, target]
+      properties:
+        method:
+          type: string
+          enum: [app, whatsapp]
+        otpauth_uri:
+          type: string
+          nullable: true
+        qr_code:
+          type: string
+          nullable: true
+          description: PNG data URL
+        manual_key:
+          type: string
+          nullable: true
+        target:
+          type: string
+          nullable: true
+    CodeRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+    BackupCodesResult:
+      type: object
+      required: [overview, codes]
+      properties:
+        overview:
+          $ref: '#/components/schemas/AccountOverview'
+        codes:
+          type: array
+          items:
+            type: string
+    SecurityAlertsRequest:
+      type: object
+      required: [new_device_alert, lockout_enabled]
+      properties:
+        new_device_alert:
+          type: boolean
+        lockout_enabled:
+          type: boolean
+    NotificationPrefInput:
+      type: object
+      required: [code, email, whatsapp, in_app]
+      properties:
+        code:
+          type: string
+        email:
+          type: boolean
+        whatsapp:
+          type: boolean
+        in_app:
+          type: boolean
+    UpdateNotificationsRequest:
+      type: object
+      required: [events, quiet]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationPrefInput'
+        quiet:
+          $ref: '#/components/schemas/QuietHours'
+    OAuthStartRequest:
+      type: object
+      required: [return_to]
+      properties:
+        return_to:
+          type: string
+    PrivacyRequest:
+      type: object
+      required: [phone_visibility, show_photo, show_online]
+      properties:
+        phone_visibility:
+          type: string
+          enum: [admin, staff, all]
+        show_photo:
+          type: boolean
+        show_online:
+          type: boolean
+    ExportRequest:
+      type: object
+      required: [categories, format]
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportCategory'
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+    SecondFactorRequest:
+      type: object
+      required: [challenge_token]
+      properties:
+        challenge_token:
+          type: string
+        code:
+          type: string
+    LoginResult:
+      type: object
+      description: Either `token` + `refresh_token`, or a two-step challenge (`two_factor_required`).
+      properties:
+        token:
+          type: string
+        refresh_token:
+          type: string
+        two_factor_required:
+          type: boolean
+        challenge_token:
+          type: string
+        method:
+          type: string
+          enum: [app, whatsapp]
+        target:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        resend_available_at:
+          type: string
+          format: date-time
+    OAuthProviderStatus:
+      type: object
+      required: [provider, configured]
+      properties:
+        provider:
+          $ref: '#/components/schemas/OAuthProvider'
+        configured:
+          type: boolean
+    OAuthCompleteRequest:
+      type: object
+      required: [code, state]
+      properties:
+        code:
+          type: string
+        state:
+          type: string
+    OAuthCompleteResult:
+      type: object
+      description: Login → LoginResult fields; link → purpose `link` with provider and return_to.
+      properties:
+        purpose:
+          type: string
+          enum: [link]
+        provider:
+          $ref: '#/components/schemas/OAuthProvider'
+        return_to:
+          type: string
+        token:
+          type: string
+        refresh_token:
+          type: string
+        two_factor_required:
+          type: boolean
+        challenge_token:
+          type: string
+        method:
+          type: string
+        target:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        resend_available_at:
+          type: string
+          format: date-time
     PlanStatus:
       type: string
       enum: [draft, active, archived]
@@ -1526,3 +3429,344 @@ components:
         version:
           type: integer
           format: int32
+    DashboardViewer:
+      type: object
+      required: [full_name, nickname, gender]
+      properties:
+        full_name:
+          type: string
+        nickname:
+          type: string
+        gender:
+          type: string
+          enum: [L, P]
+          nullable: true
+    DashboardPeriod:
+      type: object
+      required: [academic_year, semester]
+      properties:
+        academic_year:
+          type: string
+          nullable: true
+        semester:
+          type: integer
+          format: int32
+          nullable: true
+    HomeroomClass:
+      type: object
+      nullable: true
+      required: [id, name, grade_level, grade_name, capacity]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        grade_level:
+          type: integer
+          format: int32
+        grade_name:
+          type: string
+        capacity:
+          type: integer
+          format: int32
+          nullable: true
+    DashboardContext:
+      type: object
+      required: [area, role_code, role_name, tenant_code, tenant_name, viewer, views, default_view, homeroom_class]
+      properties:
+        area:
+          type: string
+          enum: [school_admin, teacher]
+        role_code:
+          type: string
+        role_name:
+          type: string
+        tenant_code:
+          type: string
+        tenant_name:
+          type: string
+        viewer:
+          $ref: '#/components/schemas/DashboardViewer'
+        views:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardView'
+        default_view:
+          $ref: '#/components/schemas/DashboardView'
+        homeroom_class:
+          $ref: '#/components/schemas/HomeroomClass'
+    DashboardView:
+      type: string
+      enum: [principal, school_admin, teacher, homeroom]
+    DashboardSubscription:
+      type: object
+      nullable: true
+      required: [plan_name, status, seat_count, seats_used, trial_ends_at, period_start, period_end]
+      properties:
+        plan_name:
+          type: string
+        status:
+          type: string
+          enum: [trial, active, past_due, cancelled, expired]
+        seat_count:
+          type: integer
+          format: int32
+          nullable: true
+        seats_used:
+          type: integer
+          format: int64
+        trial_ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        period_start:
+          type: string
+          format: date-time
+          nullable: true
+        period_end:
+          type: string
+          format: date-time
+          nullable: true
+    PrincipalDashboard:
+      type: object
+      required: [viewer, tenant_name, period, pending_approvals, counts, subscription]
+      properties:
+        viewer:
+          $ref: '#/components/schemas/DashboardViewer'
+        tenant_name:
+          type: string
+        period:
+          $ref: '#/components/schemas/DashboardPeriod'
+        pending_approvals:
+          type: integer
+          format: int64
+        counts:
+          type: object
+          required: [teachers, students, classes]
+          properties:
+            teachers:
+              type: integer
+              format: int64
+            students:
+              type: integer
+              format: int64
+            classes:
+              type: integer
+              format: int64
+              nullable: true
+        subscription:
+          $ref: '#/components/schemas/DashboardSubscription'
+        kpis:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        attendance_trend:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        absent_teachers:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        subject_scores:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        class_comparison:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        report_pipeline:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        teacher_activity:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        students_at_risk:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        agenda:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        announcements:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+    HomeroomDashboard:
+      type: object
+      required: [viewer, tenant_name, period, homeroom_class]
+      properties:
+        viewer:
+          $ref: '#/components/schemas/DashboardViewer'
+        tenant_name:
+          type: string
+        period:
+          $ref: '#/components/schemas/DashboardPeriod'
+        homeroom_class:
+          $ref: '#/components/schemas/HomeroomClass'
+        students:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        attendance_today:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        parent_requests:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        threads:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        grade_recap:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        attention:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        report_progress:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        schedule:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        behavior_notes:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+    TeacherDashboard:
+      type: object
+      required: [viewer, tenant_name, period, homeroom_class]
+      properties:
+        viewer:
+          $ref: '#/components/schemas/DashboardViewer'
+        tenant_name:
+          type: string
+        period:
+          $ref: '#/components/schemas/DashboardPeriod'
+        homeroom_class:
+          $ref: '#/components/schemas/HomeroomClass'
+        agenda:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        next_session:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        grading_pile:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        gradebook:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        schedule:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        material_progress:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        question_bank:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true
+        item_analysis:
+          type: array
+          nullable: true
+          description: Null until the backing module exists; the UI then shows labelled sample data.
+          items:
+            type: object
+            additionalProperties: true

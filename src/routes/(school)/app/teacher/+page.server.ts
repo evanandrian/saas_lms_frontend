@@ -1,23 +1,36 @@
-import { dev } from '$app/environment';
-import type { TeacherDashboardData } from './teacher-dashboard';
+import { loadTeacher } from '$lib/features/dashboards/dashboards.api';
+import { dashboardsContext, homeRedirect } from '$lib/features/dashboards/dashboards.server';
+import { APP_PATHS } from '$lib/utils/app-paths';
+import { redirect } from '@sveltejs/kit';
+import { teacherDashboardFixture } from './teacher.fixture';
+import { teacherPanelsSample } from './teacher-panels.sample';
 import type { PageServerLoad } from './$types';
 
 /**
- * Sumber data asli dashboard guru. Backend belum menyediakan endpoint (kontrak OpenAPI BLOCKED-01);
- * isi fungsi ini lewat feature API ketika kontrak tersedia — jangan menebak URL/bentuk respons.
+ * Dashboard guru mapel (referensi layar 06 + panel mapel). Identitas & periode dari backend; agenda,
+ * koreksi, buku nilai, jadwal, RPP, bank soal, dan analisis butir belum punya modul backend
+ * (`null`) → data contoh berlabel di dev & produksi (keputusan pemilik produk 7 Okt 2026).
  */
-async function loadTeacherDashboardFromApi(): Promise<TeacherDashboardData | null> {
-	return null;
-}
+export const load: PageServerLoad = async (event) => {
+	// Wali kelas kembali ke tampilan terakhirnya (guru mapel / wali kelas) saat membuka beranda area.
+	const { views, dashboardContext } = await event.parent();
+	const defaultView = dashboardContext?.default_view ?? views[0];
+	const target = homeRedirect(
+		event,
+		'teacher',
+		defaultView ? { views, default_view: defaultView } : null,
+		'teacher',
+		{ homeroom: APP_PATHS.HOMEROOM_HOME }
+	);
+	if (target) redirect(303, target);
 
-export const load: PageServerLoad = async () => {
-	const live = await loadTeacherDashboardFromApi();
-	// Data referensi hanya cadangan saat dev (FE-04 D2); produksi tanpa data → status kosong.
-	const dashboard =
-		live ?? (dev ? (await import('./teacher.fixture')).teacherDashboardFixture : null);
+	const result = await loadTeacher(dashboardsContext(event));
+	const live = result.ok ? result.data : null;
 	return {
-		dashboard,
-		// Aksi (lobi, penilaian, remedial) disimulasikan lokal hanya untuk data contoh saat dev (D6).
-		canSimulate: dev && live === null
+		live,
+		dashboard: teacherDashboardFixture,
+		panels: teacherPanelsSample,
+		// Aksi pada bagian data contoh (lobi, penilaian, remedial, RPP, bank soal) disimulasikan lokal.
+		canSimulate: true
 	};
 };
