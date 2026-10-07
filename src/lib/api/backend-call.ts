@@ -1,4 +1,4 @@
-import { backendApiAccess } from '$lib/auth/backend-auth';
+import { backendApiAccess, backendBaseUrl } from '$lib/auth/backend-auth';
 import type { Cookies } from '@sveltejs/kit';
 
 /**
@@ -86,7 +86,9 @@ export const backendUnavailable = (reason: BackendFailure): BackendFailureResult
 	retryAt: null
 });
 
-function forwardedHeaders(ctx: BackendContext): Record<string, string> {
+function forwardedHeaders(
+	ctx: Pick<BackendContext, 'userAgent' | 'clientAddress'>
+): Record<string, string> {
 	const headers: Record<string, string> = {};
 	if (ctx.userAgent) headers['User-Agent'] = ctx.userAgent;
 	if (ctx.clientAddress) headers['X-Forwarded-For'] = ctx.clientAddress;
@@ -101,6 +103,32 @@ export async function callBackend<T>(
 	if (!access) return backendUnavailable('unauthenticated');
 	try {
 		const response = await request({ ...access, fetch: ctx.fetch, headers: forwardedHeaders(ctx) });
+		if (response.status >= 200 && response.status < 300) {
+			return { ok: true, data: (response.data as { data?: T } | undefined)?.data as T };
+		}
+		return backendFailure(response.status, response.data);
+	} catch {
+		return backendUnavailable('unavailable');
+	}
+}
+
+/**
+ * Endpoint publik backend (`/api/v1/public/*`): tanpa token, tetap meneruskan User-Agent & alamat klien.
+ * Dipakai Daftar & berlangganan (sebelum akun aktif) dan peserta tamu sesi ujian.
+ */
+export async function callPublic<T>(
+	ctx: Pick<BackendContext, 'fetch' | 'userAgent' | 'clientAddress'>,
+	request: (init: BackendRequestInit) => Promise<GeneratedResponse>
+): Promise<BackendResult<T>> {
+	const baseUrl = backendBaseUrl();
+	if (!baseUrl) return backendUnavailable('unavailable');
+	try {
+		const response = await request({
+			baseUrl,
+			token: '',
+			fetch: ctx.fetch,
+			headers: forwardedHeaders(ctx)
+		});
 		if (response.status >= 200 && response.status < 300) {
 			return { ok: true, data: (response.data as { data?: T } | undefined)?.data as T };
 		}

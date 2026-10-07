@@ -129,6 +129,14 @@ async function readTokens(
 	}
 }
 
+/** Menyimpan sesi yang diterbitkan modul lain (mis. verifikasi OTP pendaftaran lembaga). */
+export function storeBackendTokens(
+	cookies: Cookies,
+	tokens: { token: string; refreshToken: string }
+): void {
+	storeTokens(cookies, tokens);
+}
+
 function storeTokens(cookies: Cookies, tokens: { token: string; refreshToken: string }): void {
 	cookies.set(ACCESS_TOKEN_COOKIE, tokens.token, TOKEN_COOKIE_OPTIONS);
 	cookies.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, TOKEN_COOKIE_OPTIONS);
@@ -488,7 +496,11 @@ export async function logoutCurrentDevice(fetcher: Fetch, cookies: Cookies): Pro
 export async function fetchBackendRoles(
 	fetcher: Fetch,
 	cookies: Cookies
-): Promise<{ email: string; roles: { tenantCode: string; roleCode: string }[] } | null> {
+): Promise<{
+	email: string;
+	fullName: string;
+	roles: { tenantCode: string; roleCode: string }[];
+} | null> {
 	const token = cookies.get(ACCESS_TOKEN_COOKIE);
 	const url = authUrl('/me');
 	if (!token || !url) return null;
@@ -496,10 +508,15 @@ export async function fetchBackendRoles(
 		const response = await fetcher(url, { headers: { Authorization: `Bearer ${token}` } });
 		if (!response.ok) return null;
 		const body = (await response.json()) as {
-			data?: { email?: unknown; roles?: { tenant_code?: unknown; role_code?: unknown }[] };
+			data?: {
+				email?: unknown;
+				full_name?: unknown;
+				roles?: { tenant_code?: unknown; role_code?: unknown }[];
+			};
 		};
 		return {
 			email: typeof body.data?.email === 'string' ? body.data.email : '',
+			fullName: typeof body.data?.full_name === 'string' ? body.data.full_name : '',
 			roles: (body.data?.roles ?? []).flatMap((r) =>
 				typeof r.tenant_code === 'string' && typeof r.role_code === 'string'
 					? [{ tenantCode: r.tenant_code, roleCode: r.role_code }]

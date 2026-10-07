@@ -29,7 +29,9 @@ const GENDER_MALE = 'L';
  * Nama sapaan dari profil: nama panggilan bila ada, selain itu kata pertama nama lengkap (tanpa
  * gelar). Kunci honorifik dipilih dari jenis kelamin; tanpa data jenis kelamin → nama saja.
  */
-export function greetingParts(viewer: DashboardViewer): {
+export function greetingParts(
+	viewer: Pick<DashboardViewer, 'full_name' | 'nickname'> & { gender: string | null }
+): {
 	readonly name: string;
 	readonly honorific: 'female' | 'male' | null;
 } {

@@ -5,7 +5,6 @@ import type { StudentDashboardData } from './student-dashboard';
  * Isi sama persis dengan `FLIXARE App v3.html` layar 07 (QUESTS, REMEDIAL, IMPROVE, ATT, koleksi & stiker).
  */
 export const studentDashboardFixture: StudentDashboardData = {
-	firstName: 'Dimas',
 	className: 'XI-A',
 	date: '2026-10-05',
 	clockStartSeconds: 7 * 3600 + 35 * 60,

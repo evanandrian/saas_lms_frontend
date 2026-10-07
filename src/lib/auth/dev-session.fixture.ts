@@ -200,7 +200,10 @@ const DEV_PERSONA_BY_ROLE: Readonly<Record<string, string>> = {
 	TEACHER: 'teacher',
 	HOMEROOM_TEACHER: 'homeroom',
 	STUDENT: 'student',
-	PARENT: 'guardian'
+	PARENT: 'guardian',
+	// Pemilik tenant perorangan & penyelenggara event: area guru / admin lembaga (dashboard khusus menyusul).
+	PERSONAL_OWNER: 'teacher',
+	EVENT_ORGANIZER: 'school-admin'
 };
 const PLATFORM_TENANT_CODE = 'lms_core';
 

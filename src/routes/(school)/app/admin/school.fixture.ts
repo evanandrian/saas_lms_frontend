@@ -76,13 +76,10 @@ function classRoom(id: string, homeroomTeacher: string, percent: number | null):
 }
 
 export const schoolDashboardFixture: SchoolDashboardData = {
-	greetingName: 'Pak Ahmad',
 	date: '2026-10-05',
 	clockStartSeconds: 7 * 3600 + 35 * 60,
 	academicYearLabel: 'TA 2026/2027',
 	semesterLabel: 'Semester Ganjil',
-	schoolName: 'SMA Nusantara Jakarta',
-	planName: 'Standard',
 	trial: {
 		days: ['2026-10-01', '2026-10-02', '2026-10-05', '2026-10-06', '2026-10-07'],
 		endTimeLabel: '23.59',

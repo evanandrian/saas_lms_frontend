@@ -4,7 +4,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
-	import { greetingParts } from '$lib/features/dashboards/dashboards.model';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { formatHourMinute, formatLongDate, greetingPeriod } from '$lib/utils/clock';
 	import { createDashboardClock } from '$lib/utils/dashboard-clock.svelte';
@@ -103,11 +103,8 @@
 	const live = $derived(data.live);
 	const dateLocale = $derived(i18n.locale === 'en' ? 'en-US' : 'id-ID');
 	const className = $derived(live?.homeroom_class?.name ?? sample.className);
-	const greetingName = $derived.by(() => {
-		if (!live) return 'Bu Rina';
-		const { name, honorific } = greetingParts(live.viewer);
-		return honorific ? i18n.t(`dashboard.honorific.${honorific}`, { name }) : name;
-	});
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greetingName = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const visibleToast = $derived(toast && clock.elapsed < toast.until ? toast : null);
 
 	function notify(message: string, icon: LucideIcon = CircleCheck) {

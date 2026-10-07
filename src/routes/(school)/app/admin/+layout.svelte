@@ -5,7 +5,7 @@
 	import RoleSwitch, {
 		type RoleSwitchItem
 	} from '$lib/features/dashboards/components/RoleSwitch.svelte';
-	import { areaIdentity } from '$lib/features/dashboards/components/area-identity';
+	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import Briefcase from '@lucide/svelte/icons/briefcase';
@@ -81,16 +81,8 @@
 			? i18n.t('dashboard.role_switch.principal')
 			: i18n.t('dashboard.role_switch.school_admin')
 	);
-	const liveIdentity = $derived(
-		areaIdentity(
-			data.dashboardContext,
-			roleLabel,
-			i18n.t('dashboard.role_switch.tenant_detail', { role: roleLabel })
-		)
-	);
-	const fallbackIdentity = $derived(
-		isPrincipalView ? (data.principalIdentity ?? data.identity) : data.identity
-	);
+	// Kartu lembaga/user dari backend; detail user = tampilan aktif (toggle Kepala sekolah ↔ Admin sekolah).
+	const identity = $derived(workspaceIdentity(data.workspace, i18n.t, { userDetail: roleLabel }));
 
 	// Toggle Kepala sekolah ↔ Admin sekolah: hanya bila peran memiliki kedua tampilan (PRINCIPAL).
 	const roleItems: RoleSwitchItem[] = $derived(
@@ -119,8 +111,8 @@
 <WorkspaceShell
 	areaLabel={isPrincipalView ? i18n.t('nav.principal.area') : i18n.t('nav.school.area')}
 	navItems={isPrincipalView ? principalNav : schoolNav}
-	tenant={liveIdentity?.tenant ?? fallbackIdentity?.tenant}
-	user={liveIdentity?.user ?? fallbackIdentity?.user}
+	tenant={identity?.tenant}
+	user={identity?.user}
 	searchPlaceholder={isPrincipalView ? i18n.t('nav.principal.search') : i18n.t('nav.school.search')}
 >
 	{#snippet headerActions()}

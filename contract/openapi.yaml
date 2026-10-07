@@ -836,6 +836,36 @@ paths:
           $ref: '#/components/responses/AccountError'
         '403':
           $ref: '#/components/responses/AccountError'
+  /api/v1/account/workspace:
+    get:
+      operationId: getAccountWorkspace
+      tags: [account]
+      summary: Workspace identity for one area (tenant card, user card, greeting, menu badges)
+      description: >-
+        Tenant (name, type, latest plan) and the signed-in user with the active role for the area, verified
+        against active memberships. `badges` carries only menu badge codes whose data exists
+        (`apps` = tenant applications awaiting a decision, for reviewers on the platform area).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AccountArea'
+      responses:
+        '200':
+          description: Workspace identity
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AccountWorkspace'
+        '400':
+          $ref: '#/components/responses/AccountError'
+        '401':
+          $ref: '#/components/responses/AccountError'
+        '403':
+          $ref: '#/components/responses/AccountError'
   /api/v1/account/photo:
     get:
       operationId: getAccountPhoto
@@ -1693,6 +1723,878 @@ paths:
                     $ref: '#/components/schemas/TeacherDashboard'
         '403':
           $ref: '#/components/responses/DashboardError'
+  /api/v1/public/signup/catalog:
+    get:
+      operationId: getSignupCatalog
+      tags:
+      - registration
+      summary: Signup reference data (active plans, regions, time zones)
+      security: []
+      responses:
+        '200':
+          description: Catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SignupCatalog'
+  /api/v1/public/signup/cities:
+    get:
+      operationId: listSignupCities
+      tags:
+      - registration
+      summary: Cities/regencies of a province
+      security: []
+      parameters:
+      - name: province
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Cities
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SignupCity'
+  /api/v1/public/signup/account:
+    post:
+      operationId: startSignupAccount
+      tags:
+      - registration
+      summary: Create/refresh an unverified applicant account and send a 6-digit OTP
+      description: Existing active email → 409 `email_taken` (sign in instead). OTP valid 10 minutes, resend after 30 seconds.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartSignupAccountRequest'
+      responses:
+        '200':
+          description: OTP challenge
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SignupOtpChallenge'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/public/signup/otp/resend:
+    post:
+      operationId: resendSignupOtp
+      tags:
+      - registration
+      summary: Resend the signup OTP by email or WhatsApp
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendSignupOtpRequest'
+      responses:
+        '200':
+          description: OTP challenge
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SignupOtpChallenge'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+        '429':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/public/signup/otp/verify:
+    post:
+      operationId: verifySignupOtp
+      tags:
+      - registration
+      summary: Verify the OTP; activates the account, creates the draft application, and signs in
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifySignupOtpRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginResult'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+        '429':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/public/payments/webhook/midtrans:
+    post:
+      operationId: midtransNotification
+      tags:
+      - registration
+      summary: Midtrans HTTP notification (signature verified, idempotent)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Accepted
+        '403':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/public/sessions/{code}:
+    get:
+      operationId: getExamSession
+      tags:
+      - exam-sessions
+      summary: Open exam session by 6-character code
+      security: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExamSessionPublic'
+        '404':
+          $ref: '#/components/responses/ExamSessionError'
+  /api/v1/public/sessions/{code}/join:
+    post:
+      operationId: joinExamSession
+      tags:
+      - exam-sessions
+      summary: 'Join as a guest participant (BR-43: 422 SESSION_FULL when full)'
+      security: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinExamSessionRequest'
+      responses:
+        '200':
+          description: Participant ticket
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExamParticipant'
+        '404':
+          $ref: '#/components/responses/ExamSessionError'
+        '409':
+          $ref: '#/components/responses/ExamSessionError'
+        '422':
+          $ref: '#/components/responses/ExamSessionError'
+  /api/v1/public/sessions/{code}/participants/{participantId}/start:
+    post:
+      operationId: startExamParticipant
+      tags:
+      - exam-sessions
+      summary: Start the participant timer (server-authoritative deadline)
+      security: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: participantId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Participant
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExamParticipant'
+        '404':
+          $ref: '#/components/responses/ExamSessionError'
+        '409':
+          $ref: '#/components/responses/ExamSessionError'
+  /api/v1/registration:
+    get:
+      operationId: getRegistration
+      tags:
+      - registration
+      summary: Applicant registration state
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '401':
+          $ref: '#/components/responses/RegistrationError'
+    delete:
+      operationId: cancelRegistration
+      tags:
+      - registration
+      summary: Cancel an application that is not approved yet
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      cancelled:
+                        type: boolean
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/npsn/{npsn}:
+    get:
+      operationId: lookupRegistrationNpsn
+      tags:
+      - registration
+      summary: Check an NPSN (used / found in directory / manual)
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: npsn
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NpsnResult'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/institution:
+    put:
+      operationId: saveRegistrationInstitution
+      tags:
+      - registration
+      summary: Save institution data (partial = draft autosave)
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveInstitutionRequest'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/plan:
+    put:
+      operationId: saveRegistrationPlan
+      tags:
+      - registration
+      summary: Save plan, seats, billing cycle, and trial
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveRegistrationPlanRequest'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/files:
+    post:
+      operationId: uploadRegistrationFile
+      tags:
+      - registration
+      summary: Upload the logo (≤ 2 MB) or a supporting document (≤ 5 MB)
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadRegistrationFileRequest'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/files/{fileId}:
+    get:
+      operationId: getRegistrationFile
+      tags:
+      - registration
+      summary: Download an own application file
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: File
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/RegistrationError'
+    delete:
+      operationId: deleteRegistrationFile
+      tags:
+      - registration
+      summary: Delete an own application file
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '404':
+          $ref: '#/components/responses/RegistrationError'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/submit:
+    post:
+      operationId: submitRegistration
+      tags:
+      - registration
+      summary: Submit (school → review; personal/event → auto-approved)
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/payments:
+    post:
+      operationId: startRegistrationPayment
+      tags:
+      - registration
+      summary: Create a Midtrans VA/QRIS payment for the issued invoice
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartPaymentRequest'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '503':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/payments/check:
+    post:
+      operationId: checkRegistrationPayment
+      tags:
+      - registration
+      summary: Query Midtrans for the latest payment status
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '503':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/step:
+    post:
+      operationId: advanceRegistration
+      tags:
+      - registration
+      summary: Move the wizard pointer when its conditions are met
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvanceRegistrationRequest'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/registration/setup/{step}:
+    put:
+      operationId: saveRegistrationSetup
+      tags:
+      - registration
+      summary: Save an initial setup step into the tenant database
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: step
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - profil
+          - tahun
+          - kelas
+          - mapel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/ProfileSetup'
+              - $ref: '#/components/schemas/YearSetup'
+              - $ref: '#/components/schemas/ClassSetup'
+              - $ref: '#/components/schemas/SubjectsSetup'
+      responses:
+        '200':
+          description: Registration state
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RegistrationState'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications:
+    get:
+      operationId: listTenantApplications
+      tags:
+      - tenant-applications
+      summary: Application review queue (oldest first)
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '403':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/files/{fileId}:
+    get:
+      operationId: getTenantApplicationFile
+      tags:
+      - tenant-applications
+      summary: Application attachment preview
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: File
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}:
+    put:
+      operationId: updateTenantApplication
+      tags:
+      - tenant-applications
+      summary: Reviewer edits application data
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateRequest'
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}/checks:
+    put:
+      operationId: setTenantApplicationChecks
+      tags:
+      - tenant-applications
+      summary: Save manual verification checks
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewChecksRequest'
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}/approve:
+    post:
+      operationId: approveTenantApplication
+      tags:
+      - tenant-applications
+      summary: 'Approve: create tenant, subscription, invoice (trial → provisioning)'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveApplicationRequest'
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}/revise:
+    post:
+      operationId: reviseTenantApplication
+      tags:
+      - tenant-applications
+      summary: Request a revision from the applicant
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviseApplicationRequest'
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}/reject:
+    post:
+      operationId: rejectTenantApplication
+      tags:
+      - tenant-applications
+      summary: Reject with a reason
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectApplicationRequest'
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
+        '422':
+          $ref: '#/components/responses/RegistrationError'
+  /api/v1/platform/applications/{applicationId}/reopen:
+    post:
+      operationId: reopenTenantApplication
+      tags:
+      - tenant-applications
+      summary: Reopen a rejected application or mark a revision as fixed
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Review queue (refreshed after every decision)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ReviewList'
+        '409':
+          $ref: '#/components/responses/RegistrationError'
 components:
   securitySchemes:
     bearerAuth:
@@ -1733,6 +2635,18 @@ components:
         type: string
         format: uuid
   responses:
+    RegistrationError:
+      description: 'Error envelope. Codes: `validation_failed` (details = [{field, code}]), `email_taken`, `invalid_code`, `too_many_attempts`, `resend_too_soon` (details.retry_at), `no_application`, `not_found`, `application_locked`, `invalid_transition`, `checks_incomplete`, `tenant_not_ready`, `gateway_unavailable`, `forbidden`, `internal_error`.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    ExamSessionError:
+      description: 'Error envelope. Codes: `session_not_found`, `session_closed`, `SESSION_FULL`, `participant_not_found`, `validation_failed`.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
     DashboardError:
       description: >-
         Error envelope. Dashboard codes: `unknown_area` (400), `forbidden` (403, role has no such
@@ -2376,6 +3290,37 @@ components:
           allOf:
             - $ref: '#/components/schemas/ExportRecord'
           nullable: true
+    AccountWorkspace:
+      type: object
+      required: [area, tenant, user, badges]
+      properties:
+        area:
+          type: string
+        tenant:
+          type: object
+          required: [code, name, type_name, plan_name, lifecycle]
+          properties:
+            code: { type: string }
+            name: { type: string }
+            type_name: { type: string }
+            plan_name: { type: string }
+            lifecycle: { type: string }
+        user:
+          type: object
+          required: [full_name, nickname, gender, role_code, role_name, has_photo, photo_version]
+          properties:
+            full_name: { type: string }
+            nickname: { type: string }
+            gender: { type: string, nullable: true }
+            role_code: { type: string }
+            role_name: { type: string }
+            has_photo: { type: boolean }
+            photo_version: { type: integer, format: int64 }
+        badges:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
     AccountOverview:
       type: object
       required: [context, profile, pending_email, requests, password, security, sessions, session_idle_days, logins, notifications, linked, privacy, export, deletion_request]
@@ -3770,3 +4715,1235 @@ components:
           items:
             type: object
             additionalProperties: true
+    SignupPlan:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        tenant_type:
+          type: string
+          enum:
+          - school
+          - personal
+          - event
+        pricing_model:
+          type: string
+          enum:
+          - seat
+          - flat
+          - package
+        price_idr:
+          type: integer
+          format: int64
+        tax_mode:
+          type: string
+        free_months:
+          type: integer
+          format: int32
+        badge:
+          type: string
+        description:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        min_seats:
+          type: integer
+          format: int32
+          nullable: true
+        max_seats:
+          type: integer
+          format: int32
+          nullable: true
+        trial_enabled:
+          type: boolean
+        trial_length:
+          type: integer
+          format: int32
+          nullable: true
+        trial_unit:
+          type: string
+        trial_max_students:
+          type: integer
+          format: int32
+          nullable: true
+        trial_auto_approve:
+          type: boolean
+        validity_days:
+          type: integer
+          format: int32
+          nullable: true
+        max_participants_per_session:
+          type: integer
+          format: int32
+          nullable: true
+        session_credits:
+          type: integer
+          format: int32
+          nullable: true
+      required:
+      - code
+      - name
+      - tenant_type
+      - pricing_model
+      - price_idr
+      - tax_mode
+      - free_months
+      - badge
+      - description
+      - features
+      - min_seats
+      - max_seats
+      - trial_enabled
+      - trial_length
+      - trial_unit
+      - trial_max_students
+      - trial_auto_approve
+      - validity_days
+      - max_participants_per_session
+      - session_credits
+    SignupProvince:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        timezone:
+          type: string
+      required:
+      - code
+      - name
+      - timezone
+    SignupCity:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - name
+    SignupTimezone:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+      required:
+      - code
+      - label
+    GradeSuggestion:
+      type: object
+      properties:
+        grade:
+          type: integer
+          format: int32
+        label:
+          type: string
+      required:
+      - grade
+      - label
+    SignupCatalog:
+      type: object
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignupPlan'
+        provinces:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignupProvince'
+        timezones:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignupTimezone'
+        teaching_fields:
+          type: array
+          items:
+            type: string
+        organizer_kinds:
+          type: array
+          items:
+            type: string
+        grades:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/GradeSuggestion'
+        default_groups:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+        subjects:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        default_kktp:
+          type: integer
+          format: int32
+        payment_channels:
+          type: array
+          items:
+            type: string
+            enum:
+            - va_bca
+            - va_bni
+            - va_bri
+            - va_mandiri
+            - va_permata
+            - qris
+        vat_basis_points:
+          type: integer
+          format: int32
+        npsn_directory:
+          type: string
+      required:
+      - plans
+      - provinces
+      - timezones
+      - teaching_fields
+      - organizer_kinds
+      - grades
+      - default_groups
+      - subjects
+      - default_kktp
+      - payment_channels
+      - vat_basis_points
+      - npsn_directory
+    StartSignupAccountRequest:
+      type: object
+      properties:
+        tenant_type:
+          type: string
+          enum:
+          - school
+          - personal
+          - event
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        agree:
+          type: boolean
+      required:
+      - tenant_type
+      - full_name
+      - email
+      - phone
+      - password
+      - agree
+    SignupOtpChallenge:
+      type: object
+      properties:
+        challenge_token:
+          type: string
+        channel:
+          type: string
+          enum:
+          - email
+          - whatsapp
+        target:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        resend_available_at:
+          type: string
+          format: date-time
+      required:
+      - challenge_token
+      - channel
+      - target
+      - expires_at
+      - resend_available_at
+    ResendSignupOtpRequest:
+      type: object
+      properties:
+        challenge_token:
+          type: string
+        channel:
+          type: string
+          enum:
+          - email
+          - whatsapp
+      required:
+      - challenge_token
+      - channel
+    VerifySignupOtpRequest:
+      type: object
+      properties:
+        challenge_token:
+          type: string
+        code:
+          type: string
+      required:
+      - challenge_token
+      - code
+    NpsnSchool:
+      type: object
+      properties:
+        name:
+          type: string
+        education_level:
+          type: string
+        ownership:
+          type: string
+        address:
+          type: string
+        province_code:
+          type: string
+        city_code:
+          type: string
+      required:
+      - name
+      - education_level
+      - ownership
+      - address
+      - province_code
+      - city_code
+    NpsnResult:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - used
+          - found
+          - manual
+        school:
+          $ref: '#/components/schemas/NpsnSchool'
+          nullable: true
+      required:
+      - status
+      - school
+    SaveInstitutionRequest:
+      type: object
+      properties:
+        tenant_type:
+          type: string
+        institution_name:
+          type: string
+        npsn:
+          type: string
+        education_level:
+          type: string
+        ownership:
+          type: string
+        address:
+          type: string
+        province_code:
+          type: string
+        city_code:
+          type: string
+        timezone:
+          type: string
+        teaching_fields:
+          type: array
+          items:
+            type: string
+        organizer_kind:
+          type: string
+        participants_per_session:
+          type: integer
+          format: int32
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        partial:
+          type: boolean
+      required:
+      - tenant_type
+    SaveRegistrationPlanRequest:
+      type: object
+      properties:
+        plan_code:
+          type: string
+        seats:
+          type: integer
+          format: int32
+        cycle:
+          type: string
+          enum:
+          - month
+          - year
+          - one_time
+        trial:
+          type: boolean
+      required:
+      - plan_code
+    UploadRegistrationFileRequest:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+          - logo
+          - document
+        file_name:
+          type: string
+        content_type:
+          type: string
+        data_base64:
+          type: string
+      required:
+      - kind
+      - file_name
+      - content_type
+      - data_base64
+    StartPaymentRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          enum:
+          - va_bca
+          - va_bni
+          - va_bri
+          - va_mandiri
+          - va_permata
+          - qris
+      required:
+      - channel
+    AdvanceRegistrationRequest:
+      type: object
+      properties:
+        step:
+          type: string
+      required:
+      - step
+    RegistrationQuote:
+      type: object
+      properties:
+        plan_code:
+          type: string
+        plan_name:
+          type: string
+        unit_price_idr:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int64
+        billed_months:
+          type: integer
+          format: int64
+        period_months:
+          type: integer
+          format: int64
+        free_months:
+          type: integer
+          format: int64
+        subtotal_idr:
+          type: integer
+          format: int64
+        tax_idr:
+          type: integer
+          format: int64
+        total_idr:
+          type: integer
+          format: int64
+        pay_today_idr:
+          type: integer
+          format: int64
+      required:
+      - plan_code
+      - plan_name
+      - unit_price_idr
+      - quantity
+      - billed_months
+      - period_months
+      - free_months
+      - subtotal_idr
+      - tax_idr
+      - total_idr
+      - pay_today_idr
+    RegistrationFile:
+      type: object
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+        file_name:
+          type: string
+        content_type:
+          type: string
+        size_bytes:
+          type: integer
+          format: int32
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - kind
+      - file_name
+      - content_type
+      - size_bytes
+      - created_at
+    RegistrationApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_code:
+          type: string
+        tenant_type:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - submitted
+          - revision_requested
+          - approved
+          - rejected
+          - cancelled
+        current_step:
+          type: string
+        institution_name:
+          type: string
+        npsn:
+          type: string
+        npsn_source:
+          type: string
+        education_level:
+          type: string
+        ownership:
+          type: string
+        address:
+          type: string
+        province_code:
+          type: string
+        city_code:
+          type: string
+        timezone:
+          type: string
+        teaching_fields:
+          type: array
+          items:
+            type: string
+        organizer_kind:
+          type: string
+        participants_per_session:
+          type: integer
+          format: int32
+          nullable: true
+        contact_name:
+          type: string
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        plan_code:
+          type: string
+        seats:
+          type: integer
+          format: int32
+          nullable: true
+        cycle:
+          type: string
+        trial:
+          type: boolean
+        quote:
+          $ref: '#/components/schemas/RegistrationQuote'
+          nullable: true
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistrationFile'
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        revision_fields:
+          type: array
+          items:
+            type: string
+        revision_note:
+          type: string
+        rejection_reason:
+          type: string
+        rejection_note:
+          type: string
+      required:
+      - id
+      - tenant_code
+      - tenant_type
+      - status
+      - current_step
+      - institution_name
+      - npsn
+      - npsn_source
+      - education_level
+      - ownership
+      - address
+      - province_code
+      - city_code
+      - timezone
+      - teaching_fields
+      - organizer_kind
+      - participants_per_session
+      - contact_name
+      - contact_phone
+      - contact_email
+      - plan_code
+      - seats
+      - cycle
+      - trial
+      - quote
+      - files
+      - submitted_at
+      - reviewed_at
+      - revision_fields
+      - revision_note
+      - rejection_reason
+      - rejection_note
+    RegistrationInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        status:
+          type: string
+        is_trial:
+          type: boolean
+        subtotal_idr:
+          type: integer
+          format: int64
+        tax_idr:
+          type: integer
+          format: int64
+        total_idr:
+          type: integer
+          format: int64
+        issued_at:
+          type: string
+          format: date-time
+          nullable: true
+        due_at:
+          type: string
+          format: date-time
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - number
+      - status
+      - is_trial
+      - subtotal_idr
+      - tax_idr
+      - total_idr
+      - issued_at
+      - due_at
+      - paid_at
+    RegistrationPayment:
+      type: object
+      properties:
+        channel:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - succeeded
+          - failed
+          - expired
+          - refunded
+        order_id:
+          type: string
+        va_number:
+          type: string
+        biller_code:
+          type: string
+        qr_string:
+          type: string
+        qr_image_url:
+          type: string
+        amount_idr:
+          type: integer
+          format: int64
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - channel
+      - status
+      - order_id
+      - va_number
+      - biller_code
+      - qr_string
+      - qr_image_url
+      - amount_idr
+      - expires_at
+      - paid_at
+    RegistrationTenant:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        lifecycle:
+          type: string
+        db_name:
+          type: string
+        trial_ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+        provision_attempts:
+          type: integer
+          format: int32
+        provision_failed:
+          type: boolean
+        timezone:
+          type: string
+      required:
+      - code
+      - name
+      - lifecycle
+      - db_name
+      - trial_ends_at
+      - activated_at
+      - provision_attempts
+      - provision_failed
+      - timezone
+    ProfileSetup:
+      type: object
+      properties:
+        principal_name:
+          type: string
+        principal_nip:
+          type: string
+        about:
+          type: string
+        coordinator:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+      required:
+      - principal_name
+      - principal_nip
+      - about
+      - coordinator
+      - phone
+      - website
+    SemesterSetup:
+      type: object
+      properties:
+        term:
+          type: integer
+          format: int32
+        start:
+          type: string
+        end:
+          type: string
+      required:
+      - term
+      - start
+      - end
+    YearSetup:
+      type: object
+      properties:
+        academic_year:
+          type: string
+        semesters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemesterSetup'
+      required:
+      - academic_year
+      - semesters
+    GradeCount:
+      type: object
+      properties:
+        grade:
+          type: integer
+          format: int32
+        label:
+          type: string
+        count:
+          type: integer
+          format: int32
+      required:
+      - grade
+      - label
+      - count
+    ClassSetup:
+      type: object
+      properties:
+        scheme:
+          type: string
+          enum:
+          - huruf
+          - angka
+        capacity:
+          type: integer
+          format: int32
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeCount'
+      required:
+      - scheme
+      - capacity
+      - grades
+    SubjectSetup:
+      type: object
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+        kktp:
+          type: integer
+          format: int32
+        custom:
+          type: boolean
+      required:
+      - name
+      - enabled
+      - kktp
+      - custom
+    SubjectsSetup:
+      type: object
+      properties:
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubjectSetup'
+      required:
+      - subjects
+    RegistrationSetup:
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/ProfileSetup'
+          nullable: true
+        year:
+          $ref: '#/components/schemas/YearSetup'
+          nullable: true
+        classes:
+          $ref: '#/components/schemas/ClassSetup'
+          nullable: true
+        subjects:
+          $ref: '#/components/schemas/SubjectsSetup'
+          nullable: true
+      required:
+      - profile
+      - year
+      - classes
+      - subjects
+    RegistrationAccount:
+      type: object
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+      required:
+      - full_name
+      - email
+      - phone
+    RegistrationState:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/RegistrationAccount'
+        application:
+          $ref: '#/components/schemas/RegistrationApplication'
+          nullable: true
+        invoice:
+          $ref: '#/components/schemas/RegistrationInvoice'
+          nullable: true
+        payment:
+          $ref: '#/components/schemas/RegistrationPayment'
+          nullable: true
+        tenant:
+          $ref: '#/components/schemas/RegistrationTenant'
+          nullable: true
+        setup:
+          $ref: '#/components/schemas/RegistrationSetup'
+          nullable: true
+      required:
+      - account
+      - application
+      - invoice
+      - payment
+      - tenant
+      - setup
+    ReviewCheck:
+      type: object
+      properties:
+        key:
+          type: string
+          enum:
+          - email
+          - npsn
+          - duplicate
+          - docs
+          - contact
+        kind:
+          type: string
+          enum:
+          - auto
+          - manual
+        ok:
+          type: boolean
+      required:
+      - key
+      - kind
+      - ok
+    ReviewTenant:
+      type: object
+      properties:
+        code:
+          type: string
+        db_name:
+          type: string
+        cluster:
+          type: string
+        lifecycle:
+          type: string
+        provision_attempts:
+          type: integer
+          format: int32
+        provision_error:
+          type: string
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - code
+      - db_name
+      - cluster
+      - lifecycle
+      - provision_attempts
+      - provision_error
+      - activated_at
+    ReviewItem:
+      allOf:
+      - $ref: '#/components/schemas/RegistrationApplication'
+      - type: object
+        properties:
+          plan_name:
+            type: string
+          email_verified:
+            type: boolean
+          checks:
+            type: array
+            items:
+              $ref: '#/components/schemas/ReviewCheck'
+          sla_due_at:
+            type: string
+            format: date-time
+            nullable: true
+          tenant:
+            $ref: '#/components/schemas/ReviewTenant'
+            nullable: true
+        required:
+        - plan_name
+        - email_verified
+        - checks
+        - sla_due_at
+        - tenant
+    ReviewCluster:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        region:
+          type: string
+        used_units:
+          type: number
+        max_units:
+          type: number
+        status:
+          type: string
+      required:
+      - id
+      - code
+      - region
+      - used_units
+      - max_units
+      - status
+    ReviewList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewItem'
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignupPlan'
+        clusters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewCluster'
+        timezones:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignupTimezone'
+        reject_reasons:
+          type: array
+          items:
+            type: string
+        revision_fields:
+          type: array
+          items:
+            type: string
+        npsn_directory:
+          type: string
+        sla_hours:
+          type: integer
+          format: int32
+      required:
+      - items
+      - plans
+      - clusters
+      - timezones
+      - reject_reasons
+      - revision_fields
+      - npsn_directory
+      - sla_hours
+    ReviewUpdateRequest:
+      type: object
+      properties:
+        institution_name:
+          type: string
+        education_level:
+          type: string
+        timezone:
+          type: string
+        seats:
+          type: integer
+          format: int32
+        participants_per_session:
+          type: integer
+          format: int32
+        address:
+          type: string
+        contact_name:
+          type: string
+        contact_email:
+          type: string
+        contact_phone:
+          type: string
+      required:
+      - institution_name
+      - education_level
+      - timezone
+      - seats
+      - participants_per_session
+      - address
+      - contact_name
+      - contact_email
+      - contact_phone
+    ReviewChecksRequest:
+      type: object
+      properties:
+        docs_checked:
+          type: boolean
+        contact_confirmed:
+          type: boolean
+        npsn_checked:
+          type: boolean
+        duplicate_dismissed:
+          type: boolean
+      required:
+      - docs_checked
+      - contact_confirmed
+      - npsn_checked
+      - duplicate_dismissed
+    ApproveApplicationRequest:
+      type: object
+      properties:
+        plan_code:
+          type: string
+        trial:
+          type: boolean
+        cluster_id:
+          type: string
+      required:
+      - plan_code
+      - trial
+    ReviseApplicationRequest:
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+      required:
+      - fields
+      - note
+    RejectApplicationRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+        note:
+          type: string
+      required:
+      - reason
+    ExamSessionSection:
+      type: object
+      properties:
+        name:
+          type: string
+        minutes:
+          type: integer
+          format: int32
+      required:
+      - name
+      - minutes
+    ExamSessionPublic:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+        organizer:
+          type: string
+        opens_at:
+          type: string
+          format: date-time
+        closes_at:
+          type: string
+          format: date-time
+        duration_minutes:
+          type: integer
+          format: int32
+        question_count:
+          type: integer
+          format: int32
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamSessionSection'
+        max_participants:
+          type: integer
+          format: int32
+        participants:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - scheduled
+          - open
+          - closed
+          - cancelled
+        timezone:
+          type: string
+      required:
+      - code
+      - title
+      - organizer
+      - opens_at
+      - closes_at
+      - duration_minutes
+      - question_count
+      - sections
+      - max_participants
+      - participants
+      - status
+      - timezone
+    JoinExamSessionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        contact:
+          type: string
+        school:
+          type: string
+        consents:
+          type: array
+          items:
+            type: boolean
+      required:
+      - name
+      - contact
+      - school
+      - consents
+    ExamParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        name:
+          type: string
+        contact:
+          type: string
+        school:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        deadline_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - number
+      - name
+      - contact
+      - school
+      - joined_at
+      - started_at
+      - deadline_at

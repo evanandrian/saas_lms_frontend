@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { logoutCurrentDevice } from '$lib/auth/backend-auth';
+import { fetchBackendRoles, logoutCurrentDevice } from '$lib/auth/backend-auth';
 import { eligibleMemberships } from '$lib/auth/dashboard-routing';
 import {
 	clearSessionMeta,
@@ -23,8 +23,10 @@ export const POST: RequestHandler = async ({ cookies, fetch, locals }) => {
 			eligibleMemberships(locals.session, locals.host).find(
 				(item) => item.id === context.activeMembershipId
 			) ?? eligibleMemberships(locals.session, locals.host)[0];
+		// Nama dari profil backend (bukan persona sesi); tanpa backend → email masuk.
+		const identity = await fetchBackendRoles(fetch, cookies);
 		writeLogoutNotice(cookies, {
-			name: context.user.displayName,
+			name: identity?.fullName || meta?.email || '',
 			area: membership?.area ?? null,
 			email: meta?.email ?? null,
 			durationMinutes: meta

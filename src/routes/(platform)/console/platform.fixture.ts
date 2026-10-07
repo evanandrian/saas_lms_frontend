@@ -5,7 +5,6 @@ import type { PlatformDashboardData } from './platform-dashboard';
  * Isi sama persis dengan `FLIXARE App v3.html` layar 04 (konstanta TICK, APPS, REV, log & churn).
  */
 export const platformDashboardFixture: PlatformDashboardData = {
-	greetingName: 'Pak Efan',
 	date: '2026-10-05',
 	clockStartSeconds: 7 * 3600 + 35 * 60,
 	servicesHealthy: true,

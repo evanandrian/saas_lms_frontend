@@ -52,13 +52,10 @@ export interface FollowUp {
 }
 
 export interface SchoolDashboardData {
-	readonly greetingName: string;
 	readonly date: string;
 	readonly clockStartSeconds: number | null;
 	readonly academicYearLabel: string;
 	readonly semesterLabel: string;
-	readonly schoolName: string;
-	readonly planName: string;
 	readonly trial: TrialInfo | null;
 	/** Ambang pita kehadiran dari kebijakan sekolah (%). */
 	readonly attendanceBands: { readonly high: number; readonly mid: number };

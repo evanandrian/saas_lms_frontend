@@ -1,10 +1,11 @@
-import { dev } from '$app/environment';
+import { loadRegisterPage, registerActions } from '$lib/features/registration/registration.server';
 import { assertHostKind } from '$lib/utils/host-context';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async (event) => {
 	// Pendaftaran lembaga hanya di host publik (SAD Bagian III §5.1).
-	assertHostKind(locals.host, ['public', 'unified']);
-	// Data referensi pendaftaran dari API kelak (BLOCKED-01); data contoh hanya saat dev (FE-04 D2).
-	return { onboarding: dev ? (await import('./onboarding.fixture')).registerFixture : null };
+	assertHostKind(event.locals.host, ['public', 'unified']);
+	return loadRegisterPage(event);
 };
+
+export const actions: Actions = registerActions;

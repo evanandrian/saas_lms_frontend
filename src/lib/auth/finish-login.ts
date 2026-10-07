@@ -1,6 +1,7 @@
 import { dev } from '$app/environment';
 import type { RequestEvent } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
+import { APP_PATHS } from '$lib/utils/app-paths';
 import { fetchBackendRoles, type ClientMeta } from './backend-auth';
 import { resolvePostAuthDestination } from './dashboard-routing';
 import { clearReauthEmail, writeSessionMeta } from './session-meta';
@@ -36,6 +37,8 @@ export async function finishLogin(
 	const loginEmail = email || identity?.email || '';
 	writeSessionMeta(cookies, loginEmail || null);
 	clearReauthEmail(cookies);
+	// Pemohon Daftar & berlangganan belum punya peran sampai lembaganya aktif: lanjutkan wizard.
+	if (identity && identity.roles.length === 0) redirect(SEE_OTHER_STATUS, APP_PATHS.REGISTER);
 	const devSession = dev ? await import('./dev-session.fixture') : null;
 	if (devSession) {
 		const session = devSession.writeDevSession(

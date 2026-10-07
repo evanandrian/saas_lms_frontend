@@ -1,6 +1,7 @@
 import { dev } from '$app/environment';
 import { pendingApprovals, type ApprovalArea } from '$lib/features/approvals/approvals.server';
 import { loadAreaViews } from '$lib/features/dashboards/dashboards.server';
+import { loadWorkspace } from '$lib/features/workspace/workspace.server';
 import { APP_PATHS } from '$lib/utils/app-paths';
 import type { LayoutServerLoad } from './$types';
 
@@ -12,7 +13,7 @@ export const load: LayoutServerLoad = async (event) => {
 	const devViews = dev
 		? (await import('$lib/auth/dev-session.fixture')).devDashboardViews(event.cookies)
 		: null;
-	const [areaViews, pending] = await Promise.all([
+	const [areaViews, pending, workspace] = await Promise.all([
 		// Toggle Kepala sekolah ↔ Admin sekolah hanya untuk peran PRINCIPAL (dari backend).
 		loadAreaViews(
 			event,
@@ -20,14 +21,12 @@ export const load: LayoutServerLoad = async (event) => {
 			{ principal: APP_PATHS.PRINCIPAL_HOME, school_admin: APP_PATHS.SCHOOL_ADMIN_HOME },
 			devViews
 		),
-		pendingApprovals(event, APPROVALS_AREA)
+		pendingApprovals(event, APPROVALS_AREA),
+		// Kartu lembaga/user & sapaan dashboard dari backend.
+		loadWorkspace(event, 'school_admin')
 	]);
 	return {
-		// Identitas dari sesi menunggu kontrak auth (BLOCKED-02); data contoh hanya di dev (FE-04 D2).
-		identity: dev ? (await import('../workspace.fixture')).schoolIdentityFixtures.admin : null,
-		principalIdentity: dev
-			? (await import('../workspace.fixture')).schoolIdentityFixtures.principal
-			: null,
+		workspace,
 		pendingApprovals: pending,
 		...areaViews
 	};

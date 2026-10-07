@@ -3,6 +3,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import { greetingParts } from '$lib/features/dashboards/dashboards.model';
 	import { useI18n } from '$lib/i18n';
 	import {
 		formatHourMinute,
@@ -48,6 +49,8 @@
 	let { data }: PageProps = $props();
 
 	const i18n = useI18n();
+	// Nama panggilan murid dari profil (backend), bukan data contoh.
+	const firstName = $derived(data.workspace ? greetingParts(data.workspace.user).name : '');
 	const reasonId = $props.id();
 	const LOCALE = 'id-ID';
 	const TOAST_SECONDS = 6;
@@ -128,11 +131,11 @@
 			? ''
 			: exam
 				? i18n.t('dashboard.student.headline', {
-						name: dashboard.firstName,
+						name: firstName,
 						count: dashboard.todayAssessments.length,
 						part: i18n.t(`dashboard.student.day_part.${dayPartOf(exam.startMinutes)}`)
 					})
-				: i18n.t('dashboard.student.headline_none', { name: dashboard.firstName })
+				: i18n.t('dashboard.student.headline_none', { name: firstName })
 	);
 	const visibleToast = $derived(toast && clock.elapsed < toast.until ? toast : null);
 	const simulationNote = $derived(i18n.t('dashboard.teacher.simulation_note'));
@@ -170,7 +173,7 @@
 		showToast(
 			i18n.t('dashboard.student.toast_remedial', {
 				title: remedial.title,
-				name: dashboard.firstName
+				name: firstName
 			}),
 			Rocket
 		);

@@ -7,6 +7,11 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
+	import { runPageAction } from '$lib/utils/page-action';
+	import type {
+		ExamParticipant,
+		ExamSessionPublic
+	} from '$lib/features/exam-sessions/exam-sessions.model';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Check from '@lucide/svelte/icons/check';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -47,27 +52,79 @@
 	let elapsed = $state<number | null>(null);
 	let overlay = $state<HTMLElement | null>(null);
 
+	let found = $state<ExamSessionPublic | null>(null);
+	let lookup = $state<'idle' | 'checking' | 'not_found' | 'unavailable' | 'closed'>('idle');
+	let participant = $state<ExamParticipant | null>(null);
+	let joinError = $state<string | null>(null);
+	let joining = $state(false);
+
 	const isComplete = $derived(code.length === CODE_LENGTH);
 	const session = $derived(
-		isComplete ? (data.sessions?.find((item) => item.code === code) ?? null) : null
+		isComplete && found?.code === code && found.status === 'open' ? found : null
 	);
-	const isLookupUnavailable = $derived(data.sessions === null);
-	const isInvalid = $derived(isComplete && !session && !isLookupUnavailable);
+	const isLookupUnavailable = $derived(lookup === 'unavailable');
+	const isInvalid = $derived(isComplete && (lookup === 'not_found' || lookup === 'closed'));
+	const timeFormat = $derived(
+		new Intl.DateTimeFormat(i18n.locale === 'en' ? 'en-US' : 'id-ID', {
+			hour: '2-digit',
+			minute: '2-digit',
+			timeZone: found?.timezone || 'Asia/Jakarta'
+		})
+	);
+	const zoneLabel = $derived(
+		(
+			{ 'Asia/Jakarta': 'WIB', 'Asia/Makassar': 'WITA', 'Asia/Jayapura': 'WIT' } as Record<
+				string,
+				string
+			>
+		)[found?.timezone ?? ''] ?? ''
+	);
+	const windowLabel = $derived(
+		session
+			? i18n.t('auth.join.window', {
+					start: timeFormat.format(new Date(session.opens_at)),
+					end: timeFormat.format(new Date(session.closes_at)),
+					zone: zoneLabel
+				})
+			: ''
+	);
+	const closesLabel = $derived(
+		session
+			? i18n.t('auth.join.closes_label', {
+					time: timeFormat.format(new Date(session.closes_at)),
+					zone: zoneLabel
+				})
+			: ''
+	);
+
+	// Kode lengkap → cari sesi di backend (direktori kode sesi lintas penyelenggara).
+	$effect(() => {
+		if (!isComplete) {
+			found = null;
+			lookup = 'idle';
+			return;
+		}
+		const typed = code;
+		lookup = 'checking';
+		void runPageAction<ExamSessionPublic>('lookup', { code: typed }).then((result) => {
+			if (code !== typed) return;
+			if (result.ok) {
+				found = result.data;
+				lookup = result.data.status === 'open' ? 'idle' : 'closed';
+			} else {
+				found = null;
+				lookup = result.reason === 'not_found' ? 'not_found' : 'unavailable';
+			}
+		});
+	});
 	const hasParticipantData = $derived(
 		name.trim().length >= MIN_NAME_LENGTH && contact.trim().length >= MIN_CONTACT_LENGTH
 	);
 	const allChecked = $derived(CHECK_KEYS.every((key) => checks[key]));
 	const isReady = $derived(session !== null && hasParticipantData && allChecked);
 
-	// Nomor peserta tampilan, deterministik dari kode + nama (kelak diterbitkan backend).
-	const participantNumber = $derived.by(() => {
-		if (!session || !name.trim()) return null;
-		let hash = 0;
-		for (const char of `${code}${name.trim().toLowerCase()}`) {
-			hash = (hash * 31 + char.charCodeAt(0)) % 1_000_000;
-		}
-		return `${code.slice(0, 3)}-${String(hash).padStart(6, '0')}`;
-	});
+	// Nomor peserta diterbitkan backend saat bergabung (urutan per sesi).
+	const participantNumber = $derived(participant?.number ?? null);
 	const barcode = $derived.by(() => {
 		const seed = participantNumber ?? code ?? 'FLIXARE';
 		return Array.from({ length: BARCODE_BARS }, (_, index) => {
@@ -78,14 +135,7 @@
 
 	const closesIn = $derived.by(() => {
 		if (!session) return '';
-		const today = new Date(now);
-		const closeTime = new Date(
-			today.getFullYear(),
-			today.getMonth(),
-			today.getDate(),
-			session.closesAt.hour,
-			session.closesAt.minute
-		).getTime();
+		const closeTime = new Date(session.closes_at).getTime();
 		const seconds = Math.max(0, Math.floor((closeTime - now) / 1000));
 		const pad = (value: number) => String(value).padStart(2, '0');
 		return [
@@ -138,9 +188,44 @@
 		event.currentTarget.value = code;
 	}
 
-	function handleStart(event: SubmitEvent) {
+	// Bergabung (nomor peserta & kuota dicek backend, BR-43) lalu mulai waktu pengerjaan (BR-40).
+	async function handleStart(event: SubmitEvent) {
 		event.preventDefault();
-		if (isReady) elapsed = 0;
+		if (!isReady || joining) return;
+		joining = true;
+		joinError = null;
+		const joined =
+			participant ??
+			(await runPageAction<ExamParticipant>('join', {
+				code,
+				name: name.trim(),
+				contact: contact.trim(),
+				school: school.trim(),
+				consents: CHECK_KEYS.map((key) => checks[key])
+			}).then((result) => {
+				if (result.ok) return result.data;
+				joinError =
+					result.code === 'SESSION_FULL'
+						? 'full'
+						: result.code === 'session_closed'
+							? 'closed'
+							: 'failed';
+				return null;
+			}));
+		if (joined) {
+			participant = joined;
+			const started = await runPageAction<ExamParticipant>('start', {
+				code,
+				participantId: joined.id
+			});
+			if (started.ok) {
+				participant = started.data;
+				elapsed = 0;
+			} else {
+				joinError = 'failed';
+			}
+		}
+		joining = false;
 	}
 
 	function boxClass(index: number): string {
@@ -293,13 +378,15 @@
 						{session
 							? i18n.t('auth.join.msg_found')
 							: isInvalid
-								? i18n.t('auth.join.msg_not_found')
+								? i18n.t(lookup === 'closed' ? 'auth.join.msg_closed' : 'auth.join.msg_not_found')
 								: isComplete && isLookupUnavailable
 									? i18n.t('auth.join.msg_unavailable')
-									: i18n.t('auth.join.msg_hint')}
+									: lookup === 'checking'
+										? i18n.t('auth.join.msg_checking')
+										: i18n.t('auth.join.msg_hint')}
 					</p>
-					{#if data.sessions?.[0]}
-						{@const sample = data.sessions[0].code}
+					{#if data.exampleCode}
+						{@const sample = data.exampleCode}
 						<p class="text-lms-muted">
 							{i18n.t('auth.join.example')}
 							<button
@@ -336,7 +423,7 @@
 						<div class="flex flex-wrap items-start justify-between gap-3">
 							<div>
 								<p class="text-lms-h4">{session.title}</p>
-								<p class="lms-text-helper">{session.organizer} · {session.window}</p>
+								<p class="lms-text-helper">{session.organizer} · {windowLabel}</p>
 							</div>
 							<span
 								class="lms-tone-success flex items-center gap-2 rounded-full px-2.5 py-1.5 font-mono text-xs font-semibold uppercase"
@@ -348,19 +435,19 @@
 						<ul class="text-lms-body-sm flex flex-wrap gap-4.5 font-semibold">
 							<li class="flex items-center gap-1.5">
 								<span class="text-lms-interactive"><Icon icon={Timer} size="sm" /></span>
-								{i18n.t('auth.join.minutes', { count: session.durationMinutes })}
+								{i18n.t('auth.join.minutes', { count: session.duration_minutes })}
 							</li>
 							<li class="flex items-center gap-1.5">
 								<span class="text-lms-interactive"><Icon icon={ListChecks} size="sm" /></span>
-								{i18n.t('auth.join.questions', { count: session.questionCount })}
+								{i18n.t('auth.join.questions', { count: session.question_count })}
 							</li>
 							<li class="flex items-center gap-1.5">
 								<span class="text-lms-interactive"><Icon icon={Layers} size="sm" /></span>
-								{i18n.t('auth.join.subtests', { count: session.subtests.length })}
+								{i18n.t('auth.join.subtests', { count: session.sections.length })}
 							</li>
 						</ul>
 						<ol class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-							{#each session.subtests as subtest, index (subtest.name)}
+							{#each session.sections as subtest, index (subtest.name)}
 								<li
 									class="border-lms-border text-lms-body-sm flex items-center gap-2.5 rounded-[10px] border px-3 py-2.5"
 								>
@@ -477,14 +564,20 @@
 							? 'lms-action-primary'
 							: 'bg-lms-surface-muted text-lms-muted cursor-not-allowed'
 					]}
-					aria-disabled={!isReady}
+					aria-disabled={!isReady || joining}
+					aria-busy={joining}
 				>
 					{startLabel}<Icon icon={ArrowRight} size="sm" />
 				</button>
+				{#if joinError}
+					<p class="text-lms-danger-text flex items-center gap-2 text-sm" role="alert">
+						<Icon icon={CircleX} size="sm" />{i18n.t(`auth.join.error_${joinError}`)}
+					</p>
+				{/if}
 			</fieldset>
 		</form>
 
-		<!-- Tiket peserta (tampilan; terisi dari data form) -->
+		<!-- Tiket peserta: nomor diterbitkan backend saat bergabung -->
 		<aside class="sticky top-6 flex min-w-70 flex-[0_1_21.25rem] flex-col gap-3.5">
 			<p class="text-lms-muted font-mono text-[11px] tracking-[0.16em] uppercase">
 				{i18n.t('auth.join.ticket_caption')}
@@ -517,12 +610,12 @@
 						</span>
 						<span class="text-lms-caption text-lms-on-hero-muted">
 							{session
-								? `${session.organizer} · ${session.closesLabel}`
+								? `${session.organizer} · ${closesLabel}`
 								: i18n.t('auth.join.ticket_waiting_org')}
 						</span>
 					</div>
 					<dl class="relative grid grid-cols-2 gap-3.5">
-						{#each [{ key: 'ticket_name', value: name.trim() }, { key: 'ticket_contact', value: contact.trim() }, { key: 'ticket_number', value: participantNumber }, { key: 'ticket_duration', value: session ? i18n.t( 'auth.join.minutes', { count: session.durationMinutes } ) : null }] as row (row.key)}
+						{#each [{ key: 'ticket_name', value: name.trim() }, { key: 'ticket_contact', value: contact.trim() }, { key: 'ticket_number', value: participantNumber }, { key: 'ticket_duration', value: session ? i18n.t( 'auth.join.minutes', { count: session.duration_minutes } ) : null }] as row (row.key)}
 							<div class="flex min-w-0 flex-col gap-0.5">
 								<dt
 									class="text-lms-on-hero-muted font-mono text-[10px] tracking-[0.12em] uppercase"
@@ -606,7 +699,7 @@
 			<p class="text-lms-on-hero-muted relative">
 				{i18n.t('auth.join.countdown_meta', {
 					title: session.title,
-					minutes: session.durationMinutes
+					minutes: session.duration_minutes
 				})}
 			</p>
 		{:else}

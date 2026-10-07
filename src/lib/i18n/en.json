@@ -30,7 +30,8 @@
 			"logout_unavailable": "Sign out becomes available once authentication is active",
 			"unavailable": "{item} is available in a feature phase",
 			"not_available_yet": "not available yet",
-			"badge_pending": "{count} pending"
+			"badge_pending": "{count} pending",
+			"platform_detail": "Platform · {code}"
 		},
 		"state": {
 			"no_data_title": "Data not available yet",
@@ -224,7 +225,7 @@
 			"msg_hint": "The code has 6 letters or digits.",
 			"msg_found": "Valid code. Session found.",
 			"msg_not_found": "Code not found. Check the code from the organizer.",
-			"msg_unavailable": "Session code checking is not available yet. It will work once the open exam service is available.",
+			"msg_unavailable": "Session code checking is unavailable right now. Please try again shortly.",
 			"example": "Sample code:",
 			"step_details": "Session details",
 			"details_pending": "Session details appear after a valid code.",
@@ -269,7 +270,14 @@
 			"countdown_meta": "{title} · {minutes} minutes · timer running",
 			"begun_title": "Good luck, {name}",
 			"begun_description": "Participant number {number}. The question page is not available in this application yet.",
-			"back_to_login": "Back to sign in"
+			"back_to_login": "Back to sign in",
+			"window": "{start}–{end} {zone}",
+			"closes_label": "Closes at {time} {zone}",
+			"msg_checking": "Checking session code…",
+			"error_full": "This session is full. Contact the organizer.",
+			"error_closed": "The session is closed or not open yet.",
+			"error_failed": "Could not join. Please try again.",
+			"msg_closed": "This session is closed or not open yet. Check the schedule from the organizer."
 		},
 		"logged_out": {
 			"page_title": "You have signed out",
@@ -402,37 +410,6 @@
 	"brand": {
 		"tagline": "Flexible Education. Intelligent Learning.",
 		"promise": "Belajar lebih fleksibel. Berkembang lebih jauh."
-	},
-	"onboarding": {
-		"steps_label": "Registration steps",
-		"register": {
-			"title": "Register your institution",
-			"subtitle": "Start from your needs. The institution database is created once the application is approved.",
-			"type_legend": "Institution type",
-			"account_title": "Account & institution data",
-			"institution_name": "Institution name",
-			"npsn": "NPSN",
-			"level": "Education level",
-			"students_estimate": "Estimated number of students",
-			"pic_name": "Person in charge",
-			"email": "Email",
-			"whatsapp": "WhatsApp number",
-			"timezone": "Time zone",
-			"trial": "Start with a free trial",
-			"terms": "By registering, you agree to the FLIXARE Terms of Service and Privacy Policy.",
-			"submit": "Continue to plans",
-			"have_account": "Already have an account? Sign in at your institution's address."
-		},
-		"plan": {
-			"title": "Choose a plan",
-			"subtitle": "Prices, features, and trial terms follow the current plan data.",
-			"plan_legend": "Plan",
-			"seats_label": "Student seats",
-			"seats_hint": "Becomes the active student limit.",
-			"payment_legend": "Payment method after the trial",
-			"summary_title": "Summary",
-			"submit": "Apply & start trial"
-		}
 	},
 	"dashboard": {
 		"kpi_label": "Key indicators",
@@ -2473,6 +2450,823 @@
 				"title": "The approvals service cannot be reached",
 				"text": "Please try again shortly."
 			}
+		}
+	},
+	"register": {
+		"page_title": "Sign up & subscribe · FLIXARE",
+		"unavailable_title": "Sign-up is unavailable",
+		"unavailable_description": "The sign-up service cannot be reached right now. Please try again shortly.",
+		"optional": "optional",
+		"back": "Back",
+		"rail_label": "Sign-up steps",
+		"compact_next": "Next: {step}",
+		"phase": {
+			"reg": "SIGN-UP",
+			"setup": "INITIAL SETUP"
+		},
+		"header": {
+			"reg": "Sign-up · {n}/{total}",
+			"setup": "Initial setup · {n}/{total}",
+			"saved_at": "Draft saved {time}",
+			"autosave": "Draft saved automatically",
+			"exit": "Exit"
+		},
+		"help": {
+			"title": "Need help?",
+			"body": "Our onboarding team is available Monday–Friday, 08:00–17:00 WIB."
+		},
+		"head": {
+			"kicker_reg": "SIGN-UP · STEP {n} OF {total}",
+			"kicker_setup": "INITIAL SETUP · STEP {n} OF {total}",
+			"your_institution": "your institution",
+			"akun": {
+				"title": "Create a FLIXARE account",
+				"desc": "Choose the institution type, then fill in the person in charge. This account becomes your institution's first admin."
+			},
+			"otp": {
+				"title": "Verify your contact",
+				"desc": "Enter the 6-digit code we sent to confirm this email belongs to you."
+			},
+			"lembaga_school": {
+				"title": "School details",
+				"desc": "Enter the NPSN, then complete the school details. Each NPSN can use the trial only once."
+			},
+			"lembaga_personal": {
+				"title": "Tutoring details",
+				"desc": "This name appears on the student sign-in page and in reports to parents."
+			},
+			"lembaga_event": {
+				"title": "Organizer details",
+				"desc": "This name appears on participant tickets and certificates."
+			},
+			"paket_school": {
+				"title": "Choose plan & seats",
+				"desc": "Price per student per month, the same for SD, SMP, SMA and SMK. Seats set the limit of active students."
+			},
+			"paket_personal": {
+				"title": "Choose a plan",
+				"desc": "Change plans any time; the difference is prorated."
+			},
+			"paket_event": {
+				"title": "Choose a session package",
+				"desc": "Unused sessions stay valid for 12 months after purchase."
+			},
+			"bayar_trial": {
+				"title": "Confirm trial",
+				"desc": "No payment today. The first invoice is created automatically when the trial ends."
+			},
+			"bayar_paid": {
+				"title": "Payment",
+				"desc": "Pay by Virtual Account or QRIS. Payments are verified automatically within seconds."
+			},
+			"persetujuan_school": {
+				"title": "Awaiting approval",
+				"desc": "The FLIXARE team is reviewing the school details. You may close this page; we will email you once approved."
+			},
+			"persetujuan_personal": {
+				"title": "Approval",
+				"desc": "Your institution qualifies for automatic approval."
+			},
+			"persetujuan_event": {
+				"title": "Approval",
+				"desc": "Your institution qualifies for automatic approval."
+			},
+			"provisioning": {
+				"title": "Preparing {institution}",
+				"desc": "A dedicated database for your institution is being created. This usually takes about 5 minutes."
+			},
+			"profil_school": {
+				"title": "School & principal profile",
+				"desc": "This is used on report card headers and official letters."
+			},
+			"profil_personal": {
+				"title": "Tutor profile",
+				"desc": "Shown to students and parents."
+			},
+			"profil_event": {
+				"title": "Organizer profile",
+				"desc": "Shown on participant tickets and certificates."
+			},
+			"tahun": {
+				"title": "Academic year & semesters",
+				"desc": "Semester dates drive schedules, attendance and report periods."
+			},
+			"kelas_school": {
+				"title": "Grades & classes",
+				"desc": "Set the number of classes per grade. Class names are generated automatically and can be changed later."
+			},
+			"kelas_personal": {
+				"title": "Study groups",
+				"desc": "Create groups to organize your students."
+			},
+			"kelas_event": {
+				"title": "Study groups",
+				"desc": "Create groups to organize participants."
+			},
+			"mapel": {
+				"title": "Subjects & KKTP",
+				"desc": "Subjects are suggested for the {level} level. Set the learning objective achievement criteria (KKTP) per subject."
+			},
+			"guru": {
+				"title": "Teachers",
+				"desc": "Import from Excel using the FLIXARE template. Sign-in invitations are emailed to each teacher."
+			},
+			"murid": {
+				"title": "Students",
+				"desc": "Import from Excel. The class column is matched to the classes you created."
+			},
+			"selesai": {
+				"title": "{institution} is ready",
+				"desc": "Initial setup is complete. You can fill in other data from the dashboard at any time."
+			}
+		},
+		"next": {
+			"akun": "Send verification code",
+			"otp": "Continue",
+			"lembaga": "Continue to plan",
+			"paket_paid": "Continue to payment",
+			"bayar_trial": "Request trial",
+			"persetujuan": "Continue to activation",
+			"provisioning": "Start initial setup",
+			"skip": "Skip for now",
+			"selesai": "Go to dashboard",
+			"save": "Save & continue"
+		},
+		"ok": {
+			"akun": "Account details complete.",
+			"otp": "Email verified.",
+			"paket_trial": "Rp0 due today.",
+			"paket_paid": "Total {total} including VAT.",
+			"bayar_trial": "No payment today.",
+			"bayar_paid": "Payment received.",
+			"persetujuan": "Institution approved.",
+			"provisioning": "Database ready.",
+			"guru": "Teachers can be added later.",
+			"murid": "Students can be added later.",
+			"selesai": "All steps complete.",
+			"valid": "All fields are valid."
+		},
+		"reason": {
+			"agree": "Accept the terms of service to continue.",
+			"otp_enter": "Enter the 6-digit verification code.",
+			"otp_wrong": "The code is wrong or expired.",
+			"npsn_checking": "Checking NPSN…",
+			"plan": "Choose a plan.",
+			"awaiting_approval": "Waiting for FLIXARE team approval.",
+			"revision": "Fix the requested details, then resubmit.",
+			"awaiting_payment": "Waiting for the payment to be received.",
+			"create_invoice": "Create the bill, then complete the payment.",
+			"rejected": "The application was rejected. Resubmit with correct details.",
+			"provisioning": "The institution database is being prepared.",
+			"rombel": "Add at least one class.",
+			"subjects": "Enable at least one subject.",
+			"kktp": "KKTP for {name} must be 0–100."
+		},
+		"failure": {
+			"email_taken": "This email is already registered. Sign in with it or use another email.",
+			"invalid_code": "The code is wrong or expired.",
+			"too_many_attempts": "Too many attempts. Request a new code.",
+			"resend_too_soon": "Please wait before resending the code.",
+			"challenge_expired": "The verification session expired. Fill in the account details again.",
+			"no_application": "No application found. Start again from the account step.",
+			"application_locked": "Details are locked while the application is being processed.",
+			"invalid_transition": "This step is not available for the current application status.",
+			"checks_incomplete": "Verification checks are incomplete.",
+			"tenant_not_ready": "The institution is not active yet. Wait for activation to finish.",
+			"gateway_unavailable": "Payments are unavailable right now. Please try again shortly.",
+			"forbidden": "You do not have access to this action.",
+			"unavailable": "The service cannot be reached. Please try again shortly.",
+			"generic": "The request could not be processed. Please try again."
+		},
+		"errors": {
+			"name_min": "Name must be at least 3 letters.",
+			"email_format": "Email format is not valid.",
+			"phone_min": "WhatsApp number must be at least 9 digits.",
+			"phone_length": "Phone number must be 9–13 digits.",
+			"phone_required": "Add a WhatsApp number to receive the code by WhatsApp.",
+			"password_weak": "Password is not strong enough.",
+			"npsn_format": "NPSN must be 8 digits.",
+			"npsn_used": "This NPSN is already registered on FLIXARE. Contact your school admin for access.",
+			"address_min": "A full address is required.",
+			"principal_required": "Principal name is required.",
+			"nip_format": "NIP must be 18 digits.",
+			"institution_required": "Institution name is required.",
+			"province_required": "Choose a province.",
+			"city_required": "Choose a city/regency.",
+			"fields_required": "Choose at least one field.",
+			"participants_required": "Enter the estimated number of participants.",
+			"participants_max": "At most 1,000 participants per session.",
+			"max_participants": "At most 1,000 participants per session.",
+			"coordinator_required": "Coordinator name is required.",
+			"telp_min": "Phone number must be at least 8 digits.",
+			"about_max": "At most 280 characters.",
+			"max_length": "The value is too long.",
+			"odd_end": "Must be after the odd semester start date.",
+			"even_start": "Must be after the odd semester ends.",
+			"even_end": "Must be after the even semester start date.",
+			"capacity_range": "Capacity is 10–50 students per class.",
+			"kktp_range": "KKTP must be 0–100.",
+			"seats_range": "Seats must be 50–2,000 in steps of 10.",
+			"required": "Required.",
+			"min_length": "The value is too short.",
+			"invalid": "The value is not valid.",
+			"incomplete": "Institution details are incomplete.",
+			"logo_invalid": "Logo must be PNG, JPG or SVG, max 2 MB.",
+			"document_invalid": "Document must be PDF, PNG or JPG, max 5 MB.",
+			"too_many_files": "The maximum number of documents has been reached.",
+			"unavailable": "Not available right now."
+		},
+		"type": {
+			"label": "Institution type",
+			"school": {
+				"name": "School",
+				"desc": "SD, SMP, SMA, SMK"
+			},
+			"personal": {
+				"name": "Private tutor",
+				"desc": "Individual tutoring"
+			},
+			"event": {
+				"name": "Session organizer",
+				"desc": "Tryouts and open exams"
+			},
+			"meta_no_trial": "Pay per session package",
+			"meta_trial_business_day": "{n} business-day trial",
+			"meta_trial_day": "{n}-day trial",
+			"meta_trial_hour": "{n}-hour trial",
+			"auto": "auto-approved",
+			"reviewed": "reviewed by our team"
+		},
+		"account": {
+			"full_name": "Full name of person in charge",
+			"full_name_ph": "e.g. Rina Wulandari",
+			"email": "Email",
+			"email_hint": "The verification code is sent to this email.",
+			"email_hint_school": "Use the official school email if available. The verification code is sent here.",
+			"whatsapp": "WhatsApp number",
+			"password": "Password",
+			"password_ph": "At least 8 characters",
+			"show_password": "Show password",
+			"strength": "Strength",
+			"strength_0": "Very weak",
+			"strength_1": "Weak",
+			"strength_2": "Fair",
+			"strength_3": "Strong",
+			"strength_4": "Very strong",
+			"rule_length": "8+ characters",
+			"rule_case": "Upper & lower case",
+			"rule_digit": "A number",
+			"agree": "I agree to the FLIXARE Terms of Service and Privacy Policy, including processing of student data under the Personal Data Protection Law."
+		},
+		"otp": {
+			"sent_to": "Code sent to",
+			"change": "Change",
+			"label": "6-digit verification code",
+			"verified": "Email verified.",
+			"checking": "Checking code…",
+			"wrong": "Wrong code. Check the code you received.",
+			"too_many": "Too many attempts. Request a new code.",
+			"validity": "The code is valid for 10 minutes.",
+			"resend_in": "Resend in",
+			"resend": "Resend code",
+			"via_email": "Send by email",
+			"via_whatsapp": "Send by WhatsApp"
+		},
+		"institution": {
+			"name_school": "School name",
+			"name_personal": "Tutoring name",
+			"name_event": "Organizer name",
+			"name_ph_school": "e.g. SMA Nusantara Jakarta",
+			"name_ph_personal": "e.g. Ms Rina's Math Tutoring",
+			"name_ph_event": "e.g. Bimbel Cerdas Prima",
+			"npsn": "NPSN",
+			"npsn_ph": "8 digits",
+			"npsn_checking": "Checking",
+			"npsn_found": "Found",
+			"npsn_used": "Registered",
+			"npsn_manual": "Manual entry",
+			"npsn_note_found": "School details were filled in automatically. Review them before continuing.",
+			"npsn_note_manual": "Complete the school details manually; our team will verify them.",
+			"npsn_note_example": "Example: 20100123",
+			"level": "Level",
+			"ownership": "Status",
+			"negeri": "Public",
+			"swasta": "Private",
+			"address": "Full address",
+			"address_ph": "Street, number, village, district",
+			"fields": "Subjects taught",
+			"organizer_kind": "Organizer type",
+			"participants": "Estimated participants per session",
+			"participants_ph": "e.g. 300",
+			"province": "Province",
+			"province_ph": "Choose province",
+			"city": "City / regency",
+			"city_ph": "Choose city/regency",
+			"city_ph_province": "Choose a province first",
+			"timezone": "Time zone",
+			"timezone_hint": "Set from the province. Used for exam schedules.",
+			"logo": "Institution logo",
+			"logo_hint": "PNG or SVG, transparent background, max 2 MB. Shown on report cards, tickets and the sign-in page.",
+			"logo_upload": "Upload logo",
+			"logo_replace": "Replace logo",
+			"logo_invalid": "Logo must be PNG, JPG or SVG, max 2 MB.",
+			"documents": "Supporting documents",
+			"documents_hint": "e.g. operating permit or founding decree. PDF/PNG/JPG max 5 MB.",
+			"documents_add": "Add document",
+			"document_remove": "Remove {name}",
+			"document_invalid": "Document must be PDF, PNG or JPG, max 5 MB."
+		},
+		"plan": {
+			"label": "Plan",
+			"cycle": "Billing cycle",
+			"monthly": "Monthly",
+			"yearly": "Yearly",
+			"save_months": "Save {n} months",
+			"unit_seat": "/student/month",
+			"unit_flat": "/month",
+			"unit_package": "/package",
+			"seats": "Student seats",
+			"seats_hint": "Limit of active students. Seats added mid-year are prorated.",
+			"seats_less": "Fewer seats",
+			"seats_more": "More seats",
+			"seats_note": "Enough for about {groups} classes of {size} students.",
+			"seats_trial": " During the trial, active students are limited to {n}.",
+			"trial_title_business_day": "Start with a free {n}-business-day trial",
+			"trial_title_day": "Start with a free {n}-day trial",
+			"trial_title_hour": "Start with a free {n}-hour trial",
+			"trial_rule1_business_day": "Counted from database activation; Saturdays and Sundays are excluded.",
+			"trial_rule1_day": "Counted {n} days from database activation.",
+			"trial_rule1_hour": "Counted {n} hours from database activation.",
+			"trial_rule2": "Up to {n} active students during the trial; AI assistant disabled.",
+			"trial_rule3_auto": "Approved automatically after email verification.",
+			"trial_rule3_review": "One trial per NPSN. School applications are reviewed by the FLIXARE team.",
+			"sum_plan": "Plan",
+			"sum_price_seat": "Price/student/month",
+			"sum_price_month": "Price/month",
+			"sum_seats": "Seats",
+			"sum_period": "Period",
+			"period_year": "12 months (pay {billed})",
+			"period_month": "1 month",
+			"sum_subtotal": "Subtotal",
+			"sum_vat": "VAT 11%",
+			"sum_total": "Total due",
+			"pay_today": "DUE TODAY",
+			"pay_today_trial": "An invoice of {total} is created when the trial ends.",
+			"pay_today_paid": "Pay by Virtual Account or QRIS."
+		},
+		"payment": {
+			"trial_today": "Rp0 due today. The trial ends",
+			"at": " at ",
+			"fact_students": "Up to {n} students",
+			"fact_students_sub": "Add the rest after subscribing.",
+			"fact_invites": "150 email invitations",
+			"fact_invites_sub": "For teachers, students and parents.",
+			"fact_auto": "Approved automatically",
+			"fact_auto_sub": "The database is created after confirmation.",
+			"fact_ai": "AI assistant disabled",
+			"fact_ai_sub": "Enabled automatically after payment.",
+			"first_bill": "The first invoice of {total} is created when the trial ends.",
+			"waiting_title": "Waiting for approval before payment",
+			"waiting_body": "School applications are reviewed by the FLIXARE team first. The invoice can be paid after approval; we will email you when it is ready.",
+			"revision_title": "Changes requested",
+			"revision_body": "Fix the requested institution details, then resubmit for review.",
+			"method": "Payment method",
+			"va": "Virtual Account",
+			"bank": "Bank",
+			"create_va": "Create {bank} VA number",
+			"create_qris": "Show QRIS code",
+			"paid_short": "Paid",
+			"valid_for": "Valid for {time}",
+			"va_number": "{bank} Virtual Account number",
+			"bill_key": "Company code {code} · {bank} bill key",
+			"copy": "Copy",
+			"copied": "Copied",
+			"qris_alt": "QRIS payment code",
+			"qris_placeholder": "The QRIS code appears here",
+			"qris_hint": "Scan with any bank or e-wallet app that supports QRIS.",
+			"amount": "Amount due",
+			"paid": "Payment received at {time} {zone}.",
+			"check": "I have paid, check status",
+			"checking": "Checking payment…",
+			"guide": "How to pay via {via}",
+			"guide_atm": "ATM",
+			"guide_mobile": "Mobile banking",
+			"guide_internet": "Internet banking",
+			"guide_atm_1": "Choose Transfer › Virtual Account",
+			"guide_atm_2": "Enter the VA number above",
+			"guide_atm_3": "Check the FLIXARE bill name, then confirm",
+			"guide_mobile_1": "Open Transfer › Virtual Account",
+			"guide_mobile_2": "Paste the VA number",
+			"guide_mobile_3": "Check the amount, then enter your PIN",
+			"guide_internet_1": "Sign in to internet banking",
+			"guide_internet_2": "Choose Payment › Virtual Account",
+			"guide_internet_3": "Enter the VA number and finish with your token",
+			"summary": "SUMMARY"
+		},
+		"approval": {
+			"node_submitted": "Submitted",
+			"node_review": "Reviewed",
+			"node_approved": "Approved",
+			"submitted_at": "Today {time}",
+			"review_manual": "NPSN & data verification",
+			"review_auto": "Automatic check",
+			"db_created": "Database created",
+			"waiting": "Waiting",
+			"checked": "What we check",
+			"check_npsn": "NPSN {npsn} is active in the reference data",
+			"check_trial": "One trial per NPSN",
+			"check_email": "Contact email verified",
+			"check_match": "School name & address match",
+			"mail_sent": "Email sent to {email}",
+			"mail_title": "{institution} approved",
+			"mail_body": "Your application has been approved. We are preparing the database; you will get another email when the institution is ready.",
+			"eta_school": "Target review time ≤ 1 business day.",
+			"eta_personal": "Private tutors are approved automatically after email verification.",
+			"eta_event": "Session organizers are approved automatically once payment is received.",
+			"rejected_title": "Application rejected",
+			"restart": "Apply again",
+			"revision_title": "Changes requested",
+			"revision_fields": "Sections: {fields}.",
+			"revise": "Fix details"
+		},
+		"provisioning": {
+			"label": "Activation progress",
+			"elapsed": "{time} of ~{target}",
+			"kind_school": "school",
+			"kind_personal": "institution",
+			"kind_event": "institution",
+			"mode_trial": "trial period",
+			"mode_active": "subscription",
+			"task_create_db": "Creating {kind} database",
+			"task_migrate": "Running schema migrations",
+			"task_seed": "Seeding initial data & roles",
+			"task_admin": "Creating admin account",
+			"task_activate": "Activating {mode}",
+			"task_welcome": "Sending welcome email",
+			"done": "done",
+			"running": "running",
+			"queued": "queued",
+			"active": "Institution active.",
+			"trial_note": "The trial starts now and ends {date}.",
+			"active_note": "Subscription active. The receipt has been emailed.",
+			"retrying": "Activation delayed; the system is retrying automatically."
+		},
+		"profile": {
+			"active": "Active",
+			"meta_school": "NPSN {npsn} · {level} {ownership} · {city}",
+			"meta_personal": "Private tutor · {city}",
+			"meta_event": "Session organizer · {kind} · {city}",
+			"principal": "Principal name",
+			"principal_ph": "e.g. Drs. Hendra Gunawan, M.Pd.",
+			"nip": "Principal NIP",
+			"nip_ph": "18 digits",
+			"nip_hint": "Leave empty if the principal is not a civil servant.",
+			"about": "About the tutor",
+			"about_ph": "Experience, teaching method or student achievements",
+			"coordinator": "Session coordinator",
+			"coordinator_ph": "Name of the session lead",
+			"phone_school": "School phone",
+			"phone_other": "Institution phone / WhatsApp",
+			"phone_ph": "e.g. 0213456789",
+			"website": "Website"
+		},
+		"year": {
+			"academic_year": "Academic year",
+			"active_now": "Current active semester: Odd",
+			"upcoming": "Upcoming academic year",
+			"odd": "Odd",
+			"even": "Even",
+			"semester": "{name} semester",
+			"start": "Start",
+			"end": "End",
+			"weeks": "{n} weeks",
+			"month_jul": "JUL",
+			"month_aug": "AUG",
+			"month_sep": "SEP",
+			"month_oct": "OCT",
+			"month_nov": "NOV",
+			"month_dec": "DEC",
+			"month_jan": "JAN",
+			"month_feb": "FEB",
+			"month_mar": "MAR",
+			"month_apr": "APR",
+			"month_may": "MAY",
+			"month_jun": "JUN"
+		},
+		"classes": {
+			"scheme": "Class naming pattern",
+			"scheme_letter": "X-A, X-B, X-C",
+			"scheme_number": "X-1, X-2, X-3",
+			"capacity": "Capacity per class",
+			"unit_rombel": "classes",
+			"unit_group": "groups",
+			"capacity_total": "{n} students",
+			"grade": "Grade",
+			"learning": "Study",
+			"group": "Group",
+			"group_name": "Group {letter}",
+			"less": "Fewer classes in {grade}",
+			"more": "More classes in {grade}",
+			"homeroom_later": "Homeroom teachers are assigned after teachers are imported."
+		},
+		"subjects": {
+			"kktp_all": "KKTP for all subjects",
+			"apply": "Apply to {n} subjects",
+			"active_of": "{on} of {total} subjects active",
+			"kktp_for": "KKTP for {name}",
+			"add_ph": "Add a local-content subject",
+			"add": "Add",
+			"kktp_range": "KKTP ranges from 0 to {max}."
+		},
+		"import": {
+			"pick": "Choose an Excel or CSV file",
+			"cols_guru": "Columns: name, email, NIP/NUPTK, subject",
+			"cols_murid": "Columns: name, NISN, class, gender, date of birth",
+			"noun_guru": "teachers",
+			"noun_murid": "students",
+			"later": "Importing {noun} from Excel is coming soon. For now choose \"Skip for now\"; {noun} can be added from the dashboard for the {count} {unit} you created."
+		},
+		"done": {
+			"meta_school": "School · {plan}",
+			"meta_personal": "Private tutor · {plan}",
+			"meta_event": "Session organizer · {plan}",
+			"trial_active": "trial active",
+			"subscription_active": "subscription active",
+			"rombel": "classes",
+			"subjects": "subjects",
+			"teachers": "teachers imported",
+			"students": "active students",
+			"groups": "study groups",
+			"trial_24h": "24 hours",
+			"trial_left": "trial remaining",
+			"plan": "plan",
+			"participants": "participants per session",
+			"next_title": "Next steps in the dashboard",
+			"next_homeroom": "Assign homeroom teachers",
+			"next_homeroom_sub": "Choose a teacher for each class.",
+			"next_parents": "Invite parents",
+			"next_parents_sub": "Send invitation links per class.",
+			"next_schedule": "Build the timetable",
+			"next_schedule_sub": "The timetable powers automatic attendance.",
+			"next_material": "Upload your first material",
+			"next_material_sub": "Materials appear on the student home page.",
+			"next_task": "Create an assignment or quiz",
+			"next_task_sub": "Multiple choice is graded automatically.",
+			"next_bank": "Build a question bank",
+			"next_bank_sub": "Import questions from Word or Excel.",
+			"next_session": "Create your first exam session",
+			"next_session_sub": "Share the session code with participants."
+		},
+		"meta": {
+			"akun": {
+				"label": "Account",
+				"sub": "Person in charge"
+			},
+			"otp": {
+				"label": "Verification",
+				"sub": "6-digit code"
+			},
+			"lembaga": {
+				"label": "Institution",
+				"sub": "Identity & location"
+			},
+			"paket": {
+				"label": "Plan",
+				"sub": "Plan, seats, trial"
+			},
+			"bayar": {
+				"label": "Payment",
+				"sub": "VA / QRIS"
+			},
+			"persetujuan": {
+				"label": "Approval",
+				"sub": "Reviewed by FLIXARE"
+			},
+			"provisioning": {
+				"label": "Activation",
+				"sub": "Database prepared"
+			},
+			"profil": {
+				"label": "Profile",
+				"sub": "Identity & leadership"
+			},
+			"tahun": {
+				"label": "Academic year",
+				"sub": "Semesters & dates"
+			},
+			"kelas": {
+				"label": "Classes",
+				"sub": "Grades & classes"
+			},
+			"mapel": {
+				"label": "Subjects",
+				"sub": "Subjects & KKTP"
+			},
+			"guru": {
+				"label": "Teachers",
+				"sub": "Excel import"
+			},
+			"murid": {
+				"label": "Students",
+				"sub": "Excel import"
+			},
+			"selesai": {
+				"label": "Done",
+				"sub": "Ready to use"
+			}
+		}
+	},
+	"applications": {
+		"head_title": "Institution applications",
+		"eyebrow": "OPERATIONS · APPLICATIONS",
+		"title": "Institution applications",
+		"desc": "Review the details, complete verification, then decide. The database is created automatically after approval.",
+		"sla": "Review SLA {n} hours",
+		"queue_label": "Application queue",
+		"tabs_label": "Application status",
+		"detail_label": "Application details",
+		"search": "Search name or NPSN",
+		"empty": "No applications here.",
+		"none_title": "Choose an application",
+		"none_text": "Choose an application in the queue to see its details.",
+		"age_days": "{n} days",
+		"age_hours": "{n} hours",
+		"head_students": "{n} students",
+		"head_participants": "{n} participants/session",
+		"tab": {
+			"submitted": "Waiting",
+			"revision_requested": "Revision",
+			"approved": "Approved",
+			"rejected": "Rejected"
+		},
+		"status": {
+			"submitted": "WAITING",
+			"revision_requested": "NEEDS REVISION",
+			"approved": "APPROVED",
+			"rejected": "REJECTED"
+		},
+		"type": {
+			"school": "School",
+			"personal": "Private tutor",
+			"event": "Session organizer"
+		},
+		"unit": {
+			"seat": "/student/mo",
+			"flat": "/mo",
+			"package": "/package"
+		},
+		"state": {
+			"forbidden_title": "Application access is restricted",
+			"forbidden_text": "Your account is not allowed to review institution applications.",
+			"unavailable_title": "Applications could not be loaded",
+			"unavailable_text": "The service cannot be reached. Please try again shortly."
+		},
+		"banner": {
+			"revision_title": "Waiting for the applicant to fix the details",
+			"revision_text": "Requested: {fields}. \"{note}\"",
+			"mark_fixed": "Mark as fixed",
+			"rejected_title": "Rejected · {date}",
+			"rejected_text": "Reason: {reason}",
+			"reopen": "Reopen",
+			"approved_title": "Approved · {date}",
+			"approved_trial": "{plan} plan with trial. The tenant appears in Tenants once the database is ready.",
+			"approved_paid": "Paid {plan} plan. The database is prepared once the invoice is paid."
+		},
+		"prov": {
+			"title": "Database setup",
+			"create_db": "Creating database",
+			"migrate": "Running schema migrations",
+			"seed": "Creating admin account & initial data",
+			"email": "Sending activation email to PIC",
+			"done": "Done",
+			"running": "Running…",
+			"waiting": "Waiting",
+			"retrying": "Retrying automatically: {error}",
+			"awaiting_payment": "Waiting for the applicant to pay the first invoice; the database is created automatically once paid."
+		},
+		"data": {
+			"title": "Application details",
+			"submitted": "Submitted {date}",
+			"name": "Institution name",
+			"name_hint": "As written in official documents",
+			"level": "Level",
+			"timezone": "Time zone",
+			"seats": "Estimated students",
+			"participants": "Participants per session",
+			"address": "Address",
+			"pic": "PERSON IN CHARGE (PIC)",
+			"pic_name": "Name",
+			"pic_email": "Email",
+			"pic_phone": "Phone / WhatsApp",
+			"logo": "Institution logo",
+			"no_files": "No attachments"
+		},
+		"check": {
+			"title": "Verification",
+			"note": "{ok} of {total} met",
+			"auto": "AUTOMATIC",
+			"manual": "MANUAL",
+			"email": "PIC email verified",
+			"email_pending": "The PIC has not entered the verification code",
+			"npsn": "NPSN matches Dapodik",
+			"npsn_other": "Organizer identity",
+			"npsn_na": "NPSN does not apply to {type}",
+			"npsn_directory": "NPSN {npsn} · verified automatically",
+			"npsn_manual": "NPSN {npsn} · check manually in Dapodik (driver: {driver})",
+			"duplicate": "No duplicate tenant",
+			"duplicate_none": "No similar tenant found",
+			"duplicate_found": "Email or name is similar to an active tenant",
+			"not_duplicate": "Mark as not duplicate",
+			"docs": "I have checked the documents",
+			"docs_count": "{n} files attached",
+			"docs_none": "No files attached yet",
+			"contact": "PIC confirmed",
+			"contact_sub": "Contact {name} at {phone}"
+		},
+		"decision": {
+			"title": "Decision",
+			"approve": "Approve",
+			"approve_sub": "Create tenant & database",
+			"revise": "Request changes",
+			"revise_sub": "Applicant fixes the details",
+			"reject": "Reject",
+			"reject_sub": "Application is closed",
+			"plan": "Plan",
+			"trial": "Start with a trial",
+			"trial_on": "Up to {n} students during the trial. The invoice is issued when the trial ends.",
+			"trial_off": "The first invoice is issued right after approval.",
+			"cluster": "Database cluster",
+			"cluster_note": "{used}/{max} DB · {region}",
+			"recommended": "recommended",
+			"almost_full": "almost full",
+			"db_name": "Database name",
+			"rev_fields": "Sections the applicant must fix",
+			"rev_note": "Message to the applicant",
+			"rev_ph": "Explain what needs fixing so the application can be approved.",
+			"rev_hint": "The message is emailed to the PIC with a link to fix the details.",
+			"rej_reason": "Rejection reason",
+			"rej_pick": "Choose a reason…",
+			"rej_note": "Note",
+			"rej_ph": "Included in the notification email.",
+			"required": "required",
+			"optional": "optional"
+		},
+		"estimate_seat": "Estimated bill {total}/month for {seats} students.",
+		"estimate_flat": "Fixed bill {total}/month.",
+		"estimate_event": "The applicant buys session credits after approval.",
+		"err": {
+			"name": "Institution name is required.",
+			"seats": "Enter a valid number.",
+			"pic": "PIC name is required.",
+			"email": "Email format is not valid.",
+			"phone": "Phone number is too short.",
+			"checks": "{n} checks not met",
+			"rev_fields": "Choose at least one section.",
+			"rev_note": "Write a message of at least 10 characters.",
+			"rej_reason": "Choose a rejection reason.",
+			"rej_note": "Explain the reason in at least 10 characters."
+		},
+		"bar": {
+			"ready": "Ready to decide",
+			"checks_first": "Complete verification before approving",
+			"fields": "{n} fields need fixing",
+			"reset": "Discard changes",
+			"go_approve": "Approve & create database",
+			"go_revise": "Send change request",
+			"go_reject": "Reject application"
+		},
+		"confirm": {
+			"approve_title": "Approve {name}?",
+			"approve_message": "The tenant is created and its database prepared on {cluster}. The PIC gets an activation email when done.",
+			"approve_label": "Yes, approve",
+			"revise_title": "Send change request?",
+			"revise_message": "The applicant receives your message by email. The SLA pauses until the details are fixed.",
+			"revise_label": "Send",
+			"reject_title": "Reject {name}?",
+			"reject_message": "The applicant receives a rejection email. The application can be reopened if needed.",
+			"reject_label": "Yes, reject",
+			"plan": "Plan",
+			"trial": "trial",
+			"database": "Database",
+			"fields": "Sections",
+			"to": "To",
+			"reason": "Reason",
+			"busy": "Processing…",
+			"cancel": "Cancel"
+		},
+		"toast": {
+			"approved": "{name} approved.",
+			"revised": "Change request sent to {email}.",
+			"rejected": "Application rejected. A notification email was sent.",
+			"fixed": "The application is back in the review queue.",
+			"reopened": "Application reopened."
+		},
+		"failure": {
+			"checks_incomplete": "Verification is incomplete.",
+			"invalid_transition": "The application status has changed. Reload the page.",
+			"forbidden": "You are not allowed to do this.",
+			"validation_failed": "Some fields are not valid.",
+			"generic": "The request could not be processed. Please try again."
 		}
 	}
 }

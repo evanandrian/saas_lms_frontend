@@ -66,7 +66,6 @@ export interface ChurnRisk {
 }
 
 export interface PlatformDashboardData {
-	readonly greetingName: string;
 	/** Tanggal hari ini `YYYY-MM-DD` (WIB). */
 	readonly date: string;
 	/** Jam awal data contoh (detik sejak tengah malam WIB); `null` = jam nyata. */

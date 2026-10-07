@@ -70,7 +70,6 @@ export interface AttendanceMonth {
 }
 
 export interface StudentDashboardData {
-	readonly firstName: string;
 	readonly className: string;
 	readonly date: string;
 	readonly clockStartSeconds: number | null;

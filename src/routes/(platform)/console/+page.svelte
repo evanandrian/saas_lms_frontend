@@ -4,6 +4,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { formatHourMinute, greetingPeriod } from '$lib/utils/clock';
@@ -38,6 +39,8 @@
 	let { data }: PageProps = $props();
 
 	const i18n = useI18n();
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greeting = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const reasonId = $props.id();
 	const LOCALE = 'id-ID';
 	const TOAST_SECONDS = 6;
@@ -192,7 +195,7 @@
 			)} · ${i18n.t('dashboard.platform.snapshot', { time: dashboard.snapshotLabel })}`}
 			eyebrowStatus={dashboard.servicesHealthy ? 'ok' : 'warning'}
 			title={i18n.t(`dashboard.greeting.${greetingPeriod(clock.nowSeconds)}`, {
-				name: dashboard.greetingName
+				name: greeting
 			})}
 			description={applications.length
 				? i18n.t('dashboard.platform.summary', {

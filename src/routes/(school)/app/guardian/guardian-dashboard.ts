@@ -42,8 +42,6 @@ export interface ChildSummary {
 }
 
 export interface GuardianDashboardData {
-	/** Sapaan, mis. "Ibu Sari". */
-	readonly greetingName: string;
 	readonly date: string;
 	readonly clockStartSeconds: number | null;
 	/** KKTP dan ambang predikat "Sangat baik". */

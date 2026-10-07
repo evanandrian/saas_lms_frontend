@@ -7,13 +7,15 @@ export const APP_PATHS = {
 	LOGOUT: '/logout',
 	LOGGED_OUT: '/logged-out',
 	REGISTER: '/register',
-	REGISTER_PLAN: '/register/plan',
 	PLATFORM_HOME: '/console',
 	PLATFORM_NAVIGATION: '/settings/navigation',
 	PLATFORM_MASTER_DATA: '/settings/master-data',
 	PLATFORM_PLANS: '/settings/plans',
 	PLATFORM_ACCOUNT: '/settings/account',
 	PLATFORM_APPROVALS: '/settings/approvals',
+	/** Pengajuan lembaga (referensi "04c Pengajuan Tenant"). */
+	PLATFORM_APPLICATIONS: '/platform/pengajuan',
+	PLATFORM_APPLICATION_FILES: '/platform/pengajuan/file',
 	SCHOOL_HOME: '/app',
 	SCHOOL_ADMIN_HOME: '/app/admin',
 	/** Dashboard kepala sekolah (peran PRINCIPAL, toggle Kepala sekolah ↔ Admin sekolah). */

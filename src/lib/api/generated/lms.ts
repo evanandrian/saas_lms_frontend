@@ -433,6 +433,34 @@ export interface ExportView {
 	latest: ExportRecord | null;
 }
 
+export type AccountWorkspaceTenant = {
+	code: string;
+	name: string;
+	type_name: string;
+	plan_name: string;
+	lifecycle: string;
+};
+
+export type AccountWorkspaceUser = {
+	full_name: string;
+	nickname: string;
+	/** @nullable */
+	gender: string | null;
+	role_code: string;
+	role_name: string;
+	has_photo: boolean;
+	photo_version: number;
+};
+
+export type AccountWorkspaceBadges = { [key: string]: number };
+
+export interface AccountWorkspace {
+	area: string;
+	tenant: AccountWorkspaceTenant;
+	user: AccountWorkspaceUser;
+	badges: AccountWorkspaceBadges;
+}
+
 export interface AccountOverview {
 	context: AccountContext;
 	profile: AccountProfile;
@@ -1653,6 +1681,610 @@ export interface TeacherDashboard {
 	item_analysis?: TeacherDashboardItemAnalysisItem[] | null;
 }
 
+export type SignupPlanTenantType = (typeof SignupPlanTenantType)[keyof typeof SignupPlanTenantType];
+
+export const SignupPlanTenantType = {
+	school: 'school',
+	personal: 'personal',
+	event: 'event'
+} as const;
+
+export type SignupPlanPricingModel =
+	(typeof SignupPlanPricingModel)[keyof typeof SignupPlanPricingModel];
+
+export const SignupPlanPricingModel = {
+	seat: 'seat',
+	flat: 'flat',
+	package: 'package'
+} as const;
+
+export interface SignupPlan {
+	code: string;
+	name: string;
+	tenant_type: SignupPlanTenantType;
+	pricing_model: SignupPlanPricingModel;
+	price_idr: number;
+	tax_mode: string;
+	free_months: number;
+	badge: string;
+	description: string;
+	features: string[];
+	/** @nullable */
+	min_seats: number | null;
+	/** @nullable */
+	max_seats: number | null;
+	trial_enabled: boolean;
+	/** @nullable */
+	trial_length: number | null;
+	trial_unit: string;
+	/** @nullable */
+	trial_max_students: number | null;
+	trial_auto_approve: boolean;
+	/** @nullable */
+	validity_days: number | null;
+	/** @nullable */
+	max_participants_per_session: number | null;
+	/** @nullable */
+	session_credits: number | null;
+}
+
+export interface SignupProvince {
+	code: string;
+	name: string;
+	timezone: string;
+}
+
+export interface SignupCity {
+	code: string;
+	name: string;
+}
+
+export interface SignupTimezone {
+	code: string;
+	label: string;
+}
+
+export interface GradeSuggestion {
+	grade: number;
+	label: string;
+}
+
+export type SignupCatalogGrades = { [key: string]: GradeSuggestion[] };
+
+export type SignupCatalogDefaultGroups = { [key: string]: number };
+
+export type SignupCatalogSubjects = { [key: string]: string[] };
+
+export type SignupCatalogPaymentChannelsItem =
+	(typeof SignupCatalogPaymentChannelsItem)[keyof typeof SignupCatalogPaymentChannelsItem];
+
+export const SignupCatalogPaymentChannelsItem = {
+	va_bca: 'va_bca',
+	va_bni: 'va_bni',
+	va_bri: 'va_bri',
+	va_mandiri: 'va_mandiri',
+	va_permata: 'va_permata',
+	qris: 'qris'
+} as const;
+
+export interface SignupCatalog {
+	plans: SignupPlan[];
+	provinces: SignupProvince[];
+	timezones: SignupTimezone[];
+	teaching_fields: string[];
+	organizer_kinds: string[];
+	grades: SignupCatalogGrades;
+	default_groups: SignupCatalogDefaultGroups;
+	subjects: SignupCatalogSubjects;
+	default_kktp: number;
+	payment_channels: SignupCatalogPaymentChannelsItem[];
+	vat_basis_points: number;
+	npsn_directory: string;
+}
+
+export type StartSignupAccountRequestTenantType =
+	(typeof StartSignupAccountRequestTenantType)[keyof typeof StartSignupAccountRequestTenantType];
+
+export const StartSignupAccountRequestTenantType = {
+	school: 'school',
+	personal: 'personal',
+	event: 'event'
+} as const;
+
+export interface StartSignupAccountRequest {
+	tenant_type: StartSignupAccountRequestTenantType;
+	full_name: string;
+	email: string;
+	phone: string;
+	password: string;
+	agree: boolean;
+}
+
+export type SignupOtpChallengeChannel =
+	(typeof SignupOtpChallengeChannel)[keyof typeof SignupOtpChallengeChannel];
+
+export const SignupOtpChallengeChannel = {
+	email: 'email',
+	whatsapp: 'whatsapp'
+} as const;
+
+export interface SignupOtpChallenge {
+	challenge_token: string;
+	channel: SignupOtpChallengeChannel;
+	target: string;
+	expires_at: string;
+	resend_available_at: string;
+}
+
+export type ResendSignupOtpRequestChannel =
+	(typeof ResendSignupOtpRequestChannel)[keyof typeof ResendSignupOtpRequestChannel];
+
+export const ResendSignupOtpRequestChannel = {
+	email: 'email',
+	whatsapp: 'whatsapp'
+} as const;
+
+export interface ResendSignupOtpRequest {
+	challenge_token: string;
+	channel: ResendSignupOtpRequestChannel;
+}
+
+export interface VerifySignupOtpRequest {
+	challenge_token: string;
+	code: string;
+}
+
+export interface NpsnSchool {
+	name: string;
+	education_level: string;
+	ownership: string;
+	address: string;
+	province_code: string;
+	city_code: string;
+}
+
+export type NpsnResultStatus = (typeof NpsnResultStatus)[keyof typeof NpsnResultStatus];
+
+export const NpsnResultStatus = {
+	used: 'used',
+	found: 'found',
+	manual: 'manual'
+} as const;
+
+export interface NpsnResult {
+	status: NpsnResultStatus;
+	school: NpsnSchool | null;
+}
+
+export interface SaveInstitutionRequest {
+	tenant_type: string;
+	institution_name?: string;
+	npsn?: string;
+	education_level?: string;
+	ownership?: string;
+	address?: string;
+	province_code?: string;
+	city_code?: string;
+	timezone?: string;
+	teaching_fields?: string[];
+	organizer_kind?: string;
+	participants_per_session?: number;
+	contact_name?: string;
+	contact_phone?: string;
+	partial?: boolean;
+}
+
+export type SaveRegistrationPlanRequestCycle =
+	(typeof SaveRegistrationPlanRequestCycle)[keyof typeof SaveRegistrationPlanRequestCycle];
+
+export const SaveRegistrationPlanRequestCycle = {
+	month: 'month',
+	year: 'year',
+	one_time: 'one_time'
+} as const;
+
+export interface SaveRegistrationPlanRequest {
+	plan_code: string;
+	seats?: number;
+	cycle?: SaveRegistrationPlanRequestCycle;
+	trial?: boolean;
+}
+
+export type UploadRegistrationFileRequestKind =
+	(typeof UploadRegistrationFileRequestKind)[keyof typeof UploadRegistrationFileRequestKind];
+
+export const UploadRegistrationFileRequestKind = {
+	logo: 'logo',
+	document: 'document'
+} as const;
+
+export interface UploadRegistrationFileRequest {
+	kind: UploadRegistrationFileRequestKind;
+	file_name: string;
+	content_type: string;
+	data_base64: string;
+}
+
+export type StartPaymentRequestChannel =
+	(typeof StartPaymentRequestChannel)[keyof typeof StartPaymentRequestChannel];
+
+export const StartPaymentRequestChannel = {
+	va_bca: 'va_bca',
+	va_bni: 'va_bni',
+	va_bri: 'va_bri',
+	va_mandiri: 'va_mandiri',
+	va_permata: 'va_permata',
+	qris: 'qris'
+} as const;
+
+export interface StartPaymentRequest {
+	channel: StartPaymentRequestChannel;
+}
+
+export interface AdvanceRegistrationRequest {
+	step: string;
+}
+
+export interface RegistrationQuote {
+	plan_code: string;
+	plan_name: string;
+	unit_price_idr: number;
+	quantity: number;
+	billed_months: number;
+	period_months: number;
+	free_months: number;
+	subtotal_idr: number;
+	tax_idr: number;
+	total_idr: number;
+	pay_today_idr: number;
+}
+
+export interface RegistrationFile {
+	id: string;
+	kind: string;
+	file_name: string;
+	content_type: string;
+	size_bytes: number;
+	created_at: string;
+}
+
+export type RegistrationApplicationStatus =
+	(typeof RegistrationApplicationStatus)[keyof typeof RegistrationApplicationStatus];
+
+export const RegistrationApplicationStatus = {
+	draft: 'draft',
+	submitted: 'submitted',
+	revision_requested: 'revision_requested',
+	approved: 'approved',
+	rejected: 'rejected',
+	cancelled: 'cancelled'
+} as const;
+
+export interface RegistrationApplication {
+	id: string;
+	tenant_code: string;
+	tenant_type: string;
+	status: RegistrationApplicationStatus;
+	current_step: string;
+	institution_name: string;
+	npsn: string;
+	npsn_source: string;
+	education_level: string;
+	ownership: string;
+	address: string;
+	province_code: string;
+	city_code: string;
+	timezone: string;
+	teaching_fields: string[];
+	organizer_kind: string;
+	/** @nullable */
+	participants_per_session: number | null;
+	contact_name: string;
+	contact_phone: string;
+	contact_email: string;
+	plan_code: string;
+	/** @nullable */
+	seats: number | null;
+	cycle: string;
+	trial: boolean;
+	quote: RegistrationQuote | null;
+	files: RegistrationFile[];
+	/** @nullable */
+	submitted_at: string | null;
+	/** @nullable */
+	reviewed_at: string | null;
+	revision_fields: string[];
+	revision_note: string;
+	rejection_reason: string;
+	rejection_note: string;
+}
+
+export interface RegistrationInvoice {
+	id: string;
+	number: string;
+	status: string;
+	is_trial: boolean;
+	subtotal_idr: number;
+	tax_idr: number;
+	total_idr: number;
+	/** @nullable */
+	issued_at: string | null;
+	/** @nullable */
+	due_at: string | null;
+	/** @nullable */
+	paid_at: string | null;
+}
+
+export type RegistrationPaymentStatus =
+	(typeof RegistrationPaymentStatus)[keyof typeof RegistrationPaymentStatus];
+
+export const RegistrationPaymentStatus = {
+	pending: 'pending',
+	succeeded: 'succeeded',
+	failed: 'failed',
+	expired: 'expired',
+	refunded: 'refunded'
+} as const;
+
+export interface RegistrationPayment {
+	channel: string;
+	status: RegistrationPaymentStatus;
+	order_id: string;
+	va_number: string;
+	biller_code: string;
+	qr_string: string;
+	qr_image_url: string;
+	amount_idr: number;
+	/** @nullable */
+	expires_at: string | null;
+	/** @nullable */
+	paid_at: string | null;
+}
+
+export interface RegistrationTenant {
+	code: string;
+	name: string;
+	lifecycle: string;
+	db_name: string;
+	/** @nullable */
+	trial_ends_at: string | null;
+	/** @nullable */
+	activated_at: string | null;
+	provision_attempts: number;
+	provision_failed: boolean;
+	timezone: string;
+}
+
+export interface ProfileSetup {
+	principal_name: string;
+	principal_nip: string;
+	about: string;
+	coordinator: string;
+	phone: string;
+	website: string;
+}
+
+export interface SemesterSetup {
+	term: number;
+	start: string;
+	end: string;
+}
+
+export interface YearSetup {
+	academic_year: string;
+	semesters: SemesterSetup[];
+}
+
+export interface GradeCount {
+	grade: number;
+	label: string;
+	count: number;
+}
+
+export type ClassSetupScheme = (typeof ClassSetupScheme)[keyof typeof ClassSetupScheme];
+
+export const ClassSetupScheme = {
+	huruf: 'huruf',
+	angka: 'angka'
+} as const;
+
+export interface ClassSetup {
+	scheme: ClassSetupScheme;
+	capacity: number;
+	grades: GradeCount[];
+}
+
+export interface SubjectSetup {
+	name: string;
+	enabled: boolean;
+	kktp: number;
+	custom: boolean;
+}
+
+export interface SubjectsSetup {
+	subjects: SubjectSetup[];
+}
+
+export interface RegistrationSetup {
+	profile: ProfileSetup | null;
+	year: YearSetup | null;
+	classes: ClassSetup | null;
+	subjects: SubjectsSetup | null;
+}
+
+export interface RegistrationAccount {
+	full_name: string;
+	email: string;
+	phone: string;
+}
+
+export interface RegistrationState {
+	account: RegistrationAccount;
+	application: RegistrationApplication | null;
+	invoice: RegistrationInvoice | null;
+	payment: RegistrationPayment | null;
+	tenant: RegistrationTenant | null;
+	setup: RegistrationSetup | null;
+}
+
+export type ReviewCheckKey = (typeof ReviewCheckKey)[keyof typeof ReviewCheckKey];
+
+export const ReviewCheckKey = {
+	email: 'email',
+	npsn: 'npsn',
+	duplicate: 'duplicate',
+	docs: 'docs',
+	contact: 'contact'
+} as const;
+
+export type ReviewCheckKind = (typeof ReviewCheckKind)[keyof typeof ReviewCheckKind];
+
+export const ReviewCheckKind = {
+	auto: 'auto',
+	manual: 'manual'
+} as const;
+
+export interface ReviewCheck {
+	key: ReviewCheckKey;
+	kind: ReviewCheckKind;
+	ok: boolean;
+}
+
+export interface ReviewTenant {
+	code: string;
+	db_name: string;
+	cluster: string;
+	lifecycle: string;
+	provision_attempts: number;
+	provision_error: string;
+	/** @nullable */
+	activated_at: string | null;
+}
+
+export type ReviewItem = RegistrationApplication & {
+	plan_name: string;
+	email_verified: boolean;
+	checks: ReviewCheck[];
+	/** @nullable */
+	sla_due_at: string | null;
+	tenant: ReviewTenant | null;
+};
+
+export interface ReviewCluster {
+	id: string;
+	code: string;
+	region: string;
+	used_units: number;
+	max_units: number;
+	status: string;
+}
+
+export interface ReviewList {
+	items: ReviewItem[];
+	plans: SignupPlan[];
+	clusters: ReviewCluster[];
+	timezones: SignupTimezone[];
+	reject_reasons: string[];
+	revision_fields: string[];
+	npsn_directory: string;
+	sla_hours: number;
+}
+
+export interface ReviewUpdateRequest {
+	institution_name: string;
+	education_level: string;
+	timezone: string;
+	seats: number;
+	participants_per_session: number;
+	address: string;
+	contact_name: string;
+	contact_email: string;
+	contact_phone: string;
+}
+
+export interface ReviewChecksRequest {
+	docs_checked: boolean;
+	contact_confirmed: boolean;
+	npsn_checked: boolean;
+	duplicate_dismissed: boolean;
+}
+
+export interface ApproveApplicationRequest {
+	plan_code: string;
+	trial: boolean;
+	cluster_id?: string;
+}
+
+export interface ReviseApplicationRequest {
+	fields: string[];
+	note: string;
+}
+
+export interface RejectApplicationRequest {
+	reason: string;
+	note?: string;
+}
+
+export interface ExamSessionSection {
+	name: string;
+	minutes: number;
+}
+
+export type ExamSessionPublicStatus =
+	(typeof ExamSessionPublicStatus)[keyof typeof ExamSessionPublicStatus];
+
+export const ExamSessionPublicStatus = {
+	scheduled: 'scheduled',
+	open: 'open',
+	closed: 'closed',
+	cancelled: 'cancelled'
+} as const;
+
+export interface ExamSessionPublic {
+	code: string;
+	title: string;
+	organizer: string;
+	opens_at: string;
+	closes_at: string;
+	duration_minutes: number;
+	question_count: number;
+	sections: ExamSessionSection[];
+	max_participants: number;
+	participants: number;
+	status: ExamSessionPublicStatus;
+	timezone: string;
+}
+
+export interface JoinExamSessionRequest {
+	name: string;
+	contact: string;
+	school: string;
+	consents: boolean[];
+}
+
+export interface ExamParticipant {
+	id: string;
+	number: string;
+	name: string;
+	contact: string;
+	school: string;
+	joined_at: string;
+	/** @nullable */
+	started_at: string | null;
+	/** @nullable */
+	deadline_at: string | null;
+}
+
+/**
+ * Error envelope. Codes: `validation_failed` (details = [{field, code}]), `email_taken`, `invalid_code`, `too_many_attempts`, `resend_too_soon` (details.retry_at), `no_application`, `not_found`, `application_locked`, `invalid_transition`, `checks_incomplete`, `tenant_not_ready`, `gateway_unavailable`, `forbidden`, `internal_error`.
+ */
+export type RegistrationErrorResponse = AccountErrorResponse;
+
+/**
+ * Error envelope. Codes: `session_not_found`, `session_closed`, `SESSION_FULL`, `participant_not_found`, `validation_failed`.
+ */
+export type ExamSessionErrorResponse = AccountErrorResponse;
+
 /**
  * Error envelope. Dashboard codes: `unknown_area` (400), `forbidden` (403, role has no such dashboard view), `internal_error`.
  */
@@ -1814,6 +2446,17 @@ export type GetAccountOverviewParams = {
 	 * Workspace area being opened; verified against the user's active memberships.
 	 */
 	area: AccountAreaParameter;
+};
+
+export type GetAccountWorkspaceParams = {
+	/**
+	 * Workspace area being opened; verified against the user's active memberships.
+	 */
+	area: AccountAreaParameter;
+};
+
+export type GetAccountWorkspace200 = {
+	data: AccountWorkspace;
 };
 
 export type UpdateAccountProfileParams = {
@@ -2077,6 +2720,120 @@ export type GetHomeroomDashboard200 = {
 
 export type GetTeacherDashboard200 = {
 	data: TeacherDashboard;
+};
+
+export type GetSignupCatalog200 = {
+	data: SignupCatalog;
+};
+
+export type ListSignupCitiesParams = {
+	province: string;
+};
+
+export type ListSignupCities200 = {
+	data: SignupCity[];
+};
+
+export type StartSignupAccount200 = {
+	data: SignupOtpChallenge;
+};
+
+export type ResendSignupOtp200 = {
+	data: SignupOtpChallenge;
+};
+
+export type MidtransNotificationBody = { [key: string]: unknown };
+
+export type GetExamSession200 = {
+	data: ExamSessionPublic;
+};
+
+export type JoinExamSession200 = {
+	data: ExamParticipant;
+};
+
+export type StartExamParticipant200 = {
+	data: ExamParticipant;
+};
+
+export type GetRegistration200 = {
+	data: RegistrationState;
+};
+
+export type CancelRegistration200Data = {
+	cancelled?: boolean;
+};
+
+export type CancelRegistration200 = {
+	data: CancelRegistration200Data;
+};
+
+export type LookupRegistrationNpsn200 = {
+	data: NpsnResult;
+};
+
+export type SaveRegistrationInstitution200 = {
+	data: RegistrationState;
+};
+
+export type SaveRegistrationPlan200 = {
+	data: RegistrationState;
+};
+
+export type UploadRegistrationFile200 = {
+	data: RegistrationState;
+};
+
+export type DeleteRegistrationFile200 = {
+	data: RegistrationState;
+};
+
+export type SubmitRegistration200 = {
+	data: RegistrationState;
+};
+
+export type StartRegistrationPayment200 = {
+	data: RegistrationState;
+};
+
+export type CheckRegistrationPayment200 = {
+	data: RegistrationState;
+};
+
+export type AdvanceRegistration200 = {
+	data: RegistrationState;
+};
+
+export type SaveRegistrationSetup200 = {
+	data: RegistrationState;
+};
+
+export type ListTenantApplications200 = {
+	data: ReviewList;
+};
+
+export type UpdateTenantApplication200 = {
+	data: ReviewList;
+};
+
+export type SetTenantApplicationChecks200 = {
+	data: ReviewList;
+};
+
+export type ApproveTenantApplication200 = {
+	data: ReviewList;
+};
+
+export type ReviseTenantApplication200 = {
+	data: ReviewList;
+};
+
+export type RejectTenantApplication200 = {
+	data: ReviewList;
+};
+
+export type ReopenTenantApplication200 = {
+	data: ReviewList;
 };
 
 export type getHealthResponse200 = {
@@ -4158,6 +4915,68 @@ export const getAccountOverview = async (
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<getAccountOverviewResponse> => {
 	return lmsFetch<getAccountOverviewResponse>(getGetAccountOverviewUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getAccountWorkspaceResponse200 = {
+	data: GetAccountWorkspace200;
+	status: 200;
+};
+
+export type getAccountWorkspaceResponse400 = {
+	data: AccountErrorResponse;
+	status: 400;
+};
+
+export type getAccountWorkspaceResponse401 = {
+	data: AccountErrorResponse;
+	status: 401;
+};
+
+export type getAccountWorkspaceResponse403 = {
+	data: AccountErrorResponse;
+	status: 403;
+};
+
+export type getAccountWorkspaceResponseSuccess = getAccountWorkspaceResponse200 & {
+	headers: Headers;
+};
+export type getAccountWorkspaceResponseError = (
+	getAccountWorkspaceResponse400 | getAccountWorkspaceResponse401 | getAccountWorkspaceResponse403
+) & {
+	headers: Headers;
+};
+
+export type getAccountWorkspaceResponse =
+	getAccountWorkspaceResponseSuccess | getAccountWorkspaceResponseError;
+
+export const getGetAccountWorkspaceUrl = (params: GetAccountWorkspaceParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/account/workspace?${stringifiedParams}`
+		: `/api/v1/account/workspace`;
+};
+
+/**
+ * Tenant (name, type, latest plan) and the signed-in user with the active role for the area, verified against active memberships. `badges` carries only menu badge codes whose data exists (`apps` = tenant applications awaiting a decision, for reviewers on the platform area).
+ * @summary Workspace identity for one area (tenant card, user card, greeting, menu badges)
+ */
+export const getAccountWorkspace = async (
+	params: GetAccountWorkspaceParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getAccountWorkspaceResponse> => {
+	return lmsFetch<getAccountWorkspaceResponse>(getGetAccountWorkspaceUrl(params), {
 		...options,
 		method: 'GET'
 	});
@@ -6532,5 +7351,1569 @@ export const getTeacherDashboard = async (
 	return lmsFetch<getTeacherDashboardResponse>(getGetTeacherDashboardUrl(), {
 		...options,
 		method: 'GET'
+	});
+};
+
+export type getSignupCatalogResponse200 = {
+	data: GetSignupCatalog200;
+	status: 200;
+};
+
+export type getSignupCatalogResponseSuccess = getSignupCatalogResponse200 & {
+	headers: Headers;
+};
+export type getSignupCatalogResponse = getSignupCatalogResponseSuccess;
+
+export const getGetSignupCatalogUrl = () => {
+	return `/api/v1/public/signup/catalog`;
+};
+
+/**
+ * @summary Signup reference data (active plans, regions, time zones)
+ */
+export const getSignupCatalog = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSignupCatalogResponse> => {
+	return lmsFetch<getSignupCatalogResponse>(getGetSignupCatalogUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type listSignupCitiesResponse200 = {
+	data: ListSignupCities200;
+	status: 200;
+};
+
+export type listSignupCitiesResponseSuccess = listSignupCitiesResponse200 & {
+	headers: Headers;
+};
+export type listSignupCitiesResponse = listSignupCitiesResponseSuccess;
+
+export const getListSignupCitiesUrl = (params: ListSignupCitiesParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/public/signup/cities?${stringifiedParams}`
+		: `/api/v1/public/signup/cities`;
+};
+
+/**
+ * @summary Cities/regencies of a province
+ */
+export const listSignupCities = async (
+	params: ListSignupCitiesParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSignupCitiesResponse> => {
+	return lmsFetch<listSignupCitiesResponse>(getListSignupCitiesUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type startSignupAccountResponse200 = {
+	data: StartSignupAccount200;
+	status: 200;
+};
+
+export type startSignupAccountResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type startSignupAccountResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type startSignupAccountResponseSuccess = startSignupAccountResponse200 & {
+	headers: Headers;
+};
+export type startSignupAccountResponseError = (
+	startSignupAccountResponse409 | startSignupAccountResponse422
+) & {
+	headers: Headers;
+};
+
+export type startSignupAccountResponse =
+	startSignupAccountResponseSuccess | startSignupAccountResponseError;
+
+export const getStartSignupAccountUrl = () => {
+	return `/api/v1/public/signup/account`;
+};
+
+/**
+ * Existing active email → 409 `email_taken` (sign in instead). OTP valid 10 minutes, resend after 30 seconds.
+ * @summary Create/refresh an unverified applicant account and send a 6-digit OTP
+ */
+export const startSignupAccount = async (
+	startSignupAccountRequest: StartSignupAccountRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startSignupAccountResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<startSignupAccountResponse>(getStartSignupAccountUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(startSignupAccountRequest)
+	});
+};
+
+export type resendSignupOtpResponse200 = {
+	data: ResendSignupOtp200;
+	status: 200;
+};
+
+export type resendSignupOtpResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type resendSignupOtpResponse429 = {
+	data: RegistrationErrorResponse;
+	status: 429;
+};
+
+export type resendSignupOtpResponseSuccess = resendSignupOtpResponse200 & {
+	headers: Headers;
+};
+export type resendSignupOtpResponseError = (
+	resendSignupOtpResponse422 | resendSignupOtpResponse429
+) & {
+	headers: Headers;
+};
+
+export type resendSignupOtpResponse = resendSignupOtpResponseSuccess | resendSignupOtpResponseError;
+
+export const getResendSignupOtpUrl = () => {
+	return `/api/v1/public/signup/otp/resend`;
+};
+
+/**
+ * @summary Resend the signup OTP by email or WhatsApp
+ */
+export const resendSignupOtp = async (
+	resendSignupOtpRequest: ResendSignupOtpRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<resendSignupOtpResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<resendSignupOtpResponse>(getResendSignupOtpUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(resendSignupOtpRequest)
+	});
+};
+
+export type verifySignupOtpResponse200 = {
+	data: LoginResultResponse;
+	status: 200;
+};
+
+export type verifySignupOtpResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type verifySignupOtpResponse429 = {
+	data: RegistrationErrorResponse;
+	status: 429;
+};
+
+export type verifySignupOtpResponseSuccess = verifySignupOtpResponse200 & {
+	headers: Headers;
+};
+export type verifySignupOtpResponseError = (
+	verifySignupOtpResponse422 | verifySignupOtpResponse429
+) & {
+	headers: Headers;
+};
+
+export type verifySignupOtpResponse = verifySignupOtpResponseSuccess | verifySignupOtpResponseError;
+
+export const getVerifySignupOtpUrl = () => {
+	return `/api/v1/public/signup/otp/verify`;
+};
+
+/**
+ * @summary Verify the OTP; activates the account, creates the draft application, and signs in
+ */
+export const verifySignupOtp = async (
+	verifySignupOtpRequest: VerifySignupOtpRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifySignupOtpResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<verifySignupOtpResponse>(getVerifySignupOtpUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(verifySignupOtpRequest)
+	});
+};
+
+export type midtransNotificationResponse200 = {
+	data: void;
+	status: 200;
+};
+
+export type midtransNotificationResponse403 = {
+	data: RegistrationErrorResponse;
+	status: 403;
+};
+
+export type midtransNotificationResponseSuccess = midtransNotificationResponse200 & {
+	headers: Headers;
+};
+export type midtransNotificationResponseError = midtransNotificationResponse403 & {
+	headers: Headers;
+};
+
+export type midtransNotificationResponse =
+	midtransNotificationResponseSuccess | midtransNotificationResponseError;
+
+export const getMidtransNotificationUrl = () => {
+	return `/api/v1/public/payments/webhook/midtrans`;
+};
+
+/**
+ * @summary Midtrans HTTP notification (signature verified, idempotent)
+ */
+export const midtransNotification = async (
+	midtransNotificationBody: MidtransNotificationBody,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<midtransNotificationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<midtransNotificationResponse>(getMidtransNotificationUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(midtransNotificationBody)
+	});
+};
+
+export type getExamSessionResponse200 = {
+	data: GetExamSession200;
+	status: 200;
+};
+
+export type getExamSessionResponse404 = {
+	data: ExamSessionErrorResponse;
+	status: 404;
+};
+
+export type getExamSessionResponseSuccess = getExamSessionResponse200 & {
+	headers: Headers;
+};
+export type getExamSessionResponseError = getExamSessionResponse404 & {
+	headers: Headers;
+};
+
+export type getExamSessionResponse = getExamSessionResponseSuccess | getExamSessionResponseError;
+
+export const getGetExamSessionUrl = (code: string) => {
+	return `/api/v1/public/sessions/${code}`;
+};
+
+/**
+ * @summary Open exam session by 6-character code
+ */
+export const getExamSession = async (
+	code: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getExamSessionResponse> => {
+	return lmsFetch<getExamSessionResponse>(getGetExamSessionUrl(code), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type joinExamSessionResponse200 = {
+	data: JoinExamSession200;
+	status: 200;
+};
+
+export type joinExamSessionResponse404 = {
+	data: ExamSessionErrorResponse;
+	status: 404;
+};
+
+export type joinExamSessionResponse409 = {
+	data: ExamSessionErrorResponse;
+	status: 409;
+};
+
+export type joinExamSessionResponse422 = {
+	data: ExamSessionErrorResponse;
+	status: 422;
+};
+
+export type joinExamSessionResponseSuccess = joinExamSessionResponse200 & {
+	headers: Headers;
+};
+export type joinExamSessionResponseError = (
+	joinExamSessionResponse404 | joinExamSessionResponse409 | joinExamSessionResponse422
+) & {
+	headers: Headers;
+};
+
+export type joinExamSessionResponse = joinExamSessionResponseSuccess | joinExamSessionResponseError;
+
+export const getJoinExamSessionUrl = (code: string) => {
+	return `/api/v1/public/sessions/${code}/join`;
+};
+
+/**
+ * @summary Join as a guest participant (BR-43: 422 SESSION_FULL when full)
+ */
+export const joinExamSession = async (
+	code: string,
+	joinExamSessionRequest: JoinExamSessionRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<joinExamSessionResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<joinExamSessionResponse>(getJoinExamSessionUrl(code), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(joinExamSessionRequest)
+	});
+};
+
+export type startExamParticipantResponse200 = {
+	data: StartExamParticipant200;
+	status: 200;
+};
+
+export type startExamParticipantResponse404 = {
+	data: ExamSessionErrorResponse;
+	status: 404;
+};
+
+export type startExamParticipantResponse409 = {
+	data: ExamSessionErrorResponse;
+	status: 409;
+};
+
+export type startExamParticipantResponseSuccess = startExamParticipantResponse200 & {
+	headers: Headers;
+};
+export type startExamParticipantResponseError = (
+	startExamParticipantResponse404 | startExamParticipantResponse409
+) & {
+	headers: Headers;
+};
+
+export type startExamParticipantResponse =
+	startExamParticipantResponseSuccess | startExamParticipantResponseError;
+
+export const getStartExamParticipantUrl = (code: string, participantId: string) => {
+	return `/api/v1/public/sessions/${code}/participants/${participantId}/start`;
+};
+
+/**
+ * @summary Start the participant timer (server-authoritative deadline)
+ */
+export const startExamParticipant = async (
+	code: string,
+	participantId: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startExamParticipantResponse> => {
+	return lmsFetch<startExamParticipantResponse>(getStartExamParticipantUrl(code, participantId), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type getRegistrationResponse200 = {
+	data: GetRegistration200;
+	status: 200;
+};
+
+export type getRegistrationResponse401 = {
+	data: RegistrationErrorResponse;
+	status: 401;
+};
+
+export type getRegistrationResponseSuccess = getRegistrationResponse200 & {
+	headers: Headers;
+};
+export type getRegistrationResponseError = getRegistrationResponse401 & {
+	headers: Headers;
+};
+
+export type getRegistrationResponse = getRegistrationResponseSuccess | getRegistrationResponseError;
+
+export const getGetRegistrationUrl = () => {
+	return `/api/v1/registration`;
+};
+
+/**
+ * @summary Applicant registration state
+ */
+export const getRegistration = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getRegistrationResponse> => {
+	return lmsFetch<getRegistrationResponse>(getGetRegistrationUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type cancelRegistrationResponse200 = {
+	data: CancelRegistration200;
+	status: 200;
+};
+
+export type cancelRegistrationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type cancelRegistrationResponseSuccess = cancelRegistrationResponse200 & {
+	headers: Headers;
+};
+export type cancelRegistrationResponseError = cancelRegistrationResponse409 & {
+	headers: Headers;
+};
+
+export type cancelRegistrationResponse =
+	cancelRegistrationResponseSuccess | cancelRegistrationResponseError;
+
+export const getCancelRegistrationUrl = () => {
+	return `/api/v1/registration`;
+};
+
+/**
+ * @summary Cancel an application that is not approved yet
+ */
+export const cancelRegistration = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<cancelRegistrationResponse> => {
+	return lmsFetch<cancelRegistrationResponse>(getCancelRegistrationUrl(), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type lookupRegistrationNpsnResponse200 = {
+	data: LookupRegistrationNpsn200;
+	status: 200;
+};
+
+export type lookupRegistrationNpsnResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type lookupRegistrationNpsnResponseSuccess = lookupRegistrationNpsnResponse200 & {
+	headers: Headers;
+};
+export type lookupRegistrationNpsnResponseError = lookupRegistrationNpsnResponse422 & {
+	headers: Headers;
+};
+
+export type lookupRegistrationNpsnResponse =
+	lookupRegistrationNpsnResponseSuccess | lookupRegistrationNpsnResponseError;
+
+export const getLookupRegistrationNpsnUrl = (npsn: string) => {
+	return `/api/v1/registration/npsn/${npsn}`;
+};
+
+/**
+ * @summary Check an NPSN (used / found in directory / manual)
+ */
+export const lookupRegistrationNpsn = async (
+	npsn: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<lookupRegistrationNpsnResponse> => {
+	return lmsFetch<lookupRegistrationNpsnResponse>(getLookupRegistrationNpsnUrl(npsn), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type saveRegistrationInstitutionResponse200 = {
+	data: SaveRegistrationInstitution200;
+	status: 200;
+};
+
+export type saveRegistrationInstitutionResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type saveRegistrationInstitutionResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type saveRegistrationInstitutionResponseSuccess = saveRegistrationInstitutionResponse200 & {
+	headers: Headers;
+};
+export type saveRegistrationInstitutionResponseError = (
+	saveRegistrationInstitutionResponse409 | saveRegistrationInstitutionResponse422
+) & {
+	headers: Headers;
+};
+
+export type saveRegistrationInstitutionResponse =
+	saveRegistrationInstitutionResponseSuccess | saveRegistrationInstitutionResponseError;
+
+export const getSaveRegistrationInstitutionUrl = () => {
+	return `/api/v1/registration/institution`;
+};
+
+/**
+ * @summary Save institution data (partial = draft autosave)
+ */
+export const saveRegistrationInstitution = async (
+	saveInstitutionRequest: SaveInstitutionRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveRegistrationInstitutionResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveRegistrationInstitutionResponse>(getSaveRegistrationInstitutionUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(saveInstitutionRequest)
+	});
+};
+
+export type saveRegistrationPlanResponse200 = {
+	data: SaveRegistrationPlan200;
+	status: 200;
+};
+
+export type saveRegistrationPlanResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type saveRegistrationPlanResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type saveRegistrationPlanResponseSuccess = saveRegistrationPlanResponse200 & {
+	headers: Headers;
+};
+export type saveRegistrationPlanResponseError = (
+	saveRegistrationPlanResponse409 | saveRegistrationPlanResponse422
+) & {
+	headers: Headers;
+};
+
+export type saveRegistrationPlanResponse =
+	saveRegistrationPlanResponseSuccess | saveRegistrationPlanResponseError;
+
+export const getSaveRegistrationPlanUrl = () => {
+	return `/api/v1/registration/plan`;
+};
+
+/**
+ * @summary Save plan, seats, billing cycle, and trial
+ */
+export const saveRegistrationPlan = async (
+	saveRegistrationPlanRequest: SaveRegistrationPlanRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveRegistrationPlanResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveRegistrationPlanResponse>(getSaveRegistrationPlanUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(saveRegistrationPlanRequest)
+	});
+};
+
+export type uploadRegistrationFileResponse200 = {
+	data: UploadRegistrationFile200;
+	status: 200;
+};
+
+export type uploadRegistrationFileResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type uploadRegistrationFileResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type uploadRegistrationFileResponseSuccess = uploadRegistrationFileResponse200 & {
+	headers: Headers;
+};
+export type uploadRegistrationFileResponseError = (
+	uploadRegistrationFileResponse409 | uploadRegistrationFileResponse422
+) & {
+	headers: Headers;
+};
+
+export type uploadRegistrationFileResponse =
+	uploadRegistrationFileResponseSuccess | uploadRegistrationFileResponseError;
+
+export const getUploadRegistrationFileUrl = () => {
+	return `/api/v1/registration/files`;
+};
+
+/**
+ * @summary Upload the logo (≤ 2 MB) or a supporting document (≤ 5 MB)
+ */
+export const uploadRegistrationFile = async (
+	uploadRegistrationFileRequest: UploadRegistrationFileRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<uploadRegistrationFileResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<uploadRegistrationFileResponse>(getUploadRegistrationFileUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(uploadRegistrationFileRequest)
+	});
+};
+
+export type getRegistrationFileResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getRegistrationFileResponse404 = {
+	data: RegistrationErrorResponse;
+	status: 404;
+};
+
+export type getRegistrationFileResponseSuccess = getRegistrationFileResponse200 & {
+	headers: Headers;
+};
+export type getRegistrationFileResponseError = getRegistrationFileResponse404 & {
+	headers: Headers;
+};
+
+export type getRegistrationFileResponse =
+	getRegistrationFileResponseSuccess | getRegistrationFileResponseError;
+
+export const getGetRegistrationFileUrl = (fileId: string) => {
+	return `/api/v1/registration/files/${fileId}`;
+};
+
+/**
+ * @summary Download an own application file
+ */
+export const getRegistrationFile = async (
+	fileId: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getRegistrationFileResponse> => {
+	return lmsFetch<getRegistrationFileResponse>(getGetRegistrationFileUrl(fileId), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type deleteRegistrationFileResponse200 = {
+	data: DeleteRegistrationFile200;
+	status: 200;
+};
+
+export type deleteRegistrationFileResponse404 = {
+	data: RegistrationErrorResponse;
+	status: 404;
+};
+
+export type deleteRegistrationFileResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type deleteRegistrationFileResponseSuccess = deleteRegistrationFileResponse200 & {
+	headers: Headers;
+};
+export type deleteRegistrationFileResponseError = (
+	deleteRegistrationFileResponse404 | deleteRegistrationFileResponse409
+) & {
+	headers: Headers;
+};
+
+export type deleteRegistrationFileResponse =
+	deleteRegistrationFileResponseSuccess | deleteRegistrationFileResponseError;
+
+export const getDeleteRegistrationFileUrl = (fileId: string) => {
+	return `/api/v1/registration/files/${fileId}`;
+};
+
+/**
+ * @summary Delete an own application file
+ */
+export const deleteRegistrationFile = async (
+	fileId: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteRegistrationFileResponse> => {
+	return lmsFetch<deleteRegistrationFileResponse>(getDeleteRegistrationFileUrl(fileId), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type submitRegistrationResponse200 = {
+	data: SubmitRegistration200;
+	status: 200;
+};
+
+export type submitRegistrationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type submitRegistrationResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type submitRegistrationResponseSuccess = submitRegistrationResponse200 & {
+	headers: Headers;
+};
+export type submitRegistrationResponseError = (
+	submitRegistrationResponse409 | submitRegistrationResponse422
+) & {
+	headers: Headers;
+};
+
+export type submitRegistrationResponse =
+	submitRegistrationResponseSuccess | submitRegistrationResponseError;
+
+export const getSubmitRegistrationUrl = () => {
+	return `/api/v1/registration/submit`;
+};
+
+/**
+ * @summary Submit (school → review; personal/event → auto-approved)
+ */
+export const submitRegistration = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<submitRegistrationResponse> => {
+	return lmsFetch<submitRegistrationResponse>(getSubmitRegistrationUrl(), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type startRegistrationPaymentResponse200 = {
+	data: StartRegistrationPayment200;
+	status: 200;
+};
+
+export type startRegistrationPaymentResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type startRegistrationPaymentResponse503 = {
+	data: RegistrationErrorResponse;
+	status: 503;
+};
+
+export type startRegistrationPaymentResponseSuccess = startRegistrationPaymentResponse200 & {
+	headers: Headers;
+};
+export type startRegistrationPaymentResponseError = (
+	startRegistrationPaymentResponse409 | startRegistrationPaymentResponse503
+) & {
+	headers: Headers;
+};
+
+export type startRegistrationPaymentResponse =
+	startRegistrationPaymentResponseSuccess | startRegistrationPaymentResponseError;
+
+export const getStartRegistrationPaymentUrl = () => {
+	return `/api/v1/registration/payments`;
+};
+
+/**
+ * @summary Create a Midtrans VA/QRIS payment for the issued invoice
+ */
+export const startRegistrationPayment = async (
+	startPaymentRequest: StartPaymentRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<startRegistrationPaymentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<startRegistrationPaymentResponse>(getStartRegistrationPaymentUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(startPaymentRequest)
+	});
+};
+
+export type checkRegistrationPaymentResponse200 = {
+	data: CheckRegistrationPayment200;
+	status: 200;
+};
+
+export type checkRegistrationPaymentResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type checkRegistrationPaymentResponse503 = {
+	data: RegistrationErrorResponse;
+	status: 503;
+};
+
+export type checkRegistrationPaymentResponseSuccess = checkRegistrationPaymentResponse200 & {
+	headers: Headers;
+};
+export type checkRegistrationPaymentResponseError = (
+	checkRegistrationPaymentResponse409 | checkRegistrationPaymentResponse503
+) & {
+	headers: Headers;
+};
+
+export type checkRegistrationPaymentResponse =
+	checkRegistrationPaymentResponseSuccess | checkRegistrationPaymentResponseError;
+
+export const getCheckRegistrationPaymentUrl = () => {
+	return `/api/v1/registration/payments/check`;
+};
+
+/**
+ * @summary Query Midtrans for the latest payment status
+ */
+export const checkRegistrationPayment = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<checkRegistrationPaymentResponse> => {
+	return lmsFetch<checkRegistrationPaymentResponse>(getCheckRegistrationPaymentUrl(), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type advanceRegistrationResponse200 = {
+	data: AdvanceRegistration200;
+	status: 200;
+};
+
+export type advanceRegistrationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type advanceRegistrationResponseSuccess = advanceRegistrationResponse200 & {
+	headers: Headers;
+};
+export type advanceRegistrationResponseError = advanceRegistrationResponse409 & {
+	headers: Headers;
+};
+
+export type advanceRegistrationResponse =
+	advanceRegistrationResponseSuccess | advanceRegistrationResponseError;
+
+export const getAdvanceRegistrationUrl = () => {
+	return `/api/v1/registration/step`;
+};
+
+/**
+ * @summary Move the wizard pointer when its conditions are met
+ */
+export const advanceRegistration = async (
+	advanceRegistrationRequest: AdvanceRegistrationRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<advanceRegistrationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<advanceRegistrationResponse>(getAdvanceRegistrationUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(advanceRegistrationRequest)
+	});
+};
+
+export type saveRegistrationSetupResponse200 = {
+	data: SaveRegistrationSetup200;
+	status: 200;
+};
+
+export type saveRegistrationSetupResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type saveRegistrationSetupResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type saveRegistrationSetupResponseSuccess = saveRegistrationSetupResponse200 & {
+	headers: Headers;
+};
+export type saveRegistrationSetupResponseError = (
+	saveRegistrationSetupResponse409 | saveRegistrationSetupResponse422
+) & {
+	headers: Headers;
+};
+
+export type saveRegistrationSetupResponse =
+	saveRegistrationSetupResponseSuccess | saveRegistrationSetupResponseError;
+
+export const getSaveRegistrationSetupUrl = (step: 'profil' | 'tahun' | 'kelas' | 'mapel') => {
+	return `/api/v1/registration/setup/${step}`;
+};
+
+/**
+ * @summary Save an initial setup step into the tenant database
+ */
+export const saveRegistrationSetup = async (
+	step: 'profil' | 'tahun' | 'kelas' | 'mapel',
+	profileSetupYearSetupClassSetupSubjectsSetup:
+		ProfileSetup | YearSetup | ClassSetup | SubjectsSetup,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveRegistrationSetupResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveRegistrationSetupResponse>(getSaveRegistrationSetupUrl(step), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(profileSetupYearSetupClassSetupSubjectsSetup)
+	});
+};
+
+export type listTenantApplicationsResponse200 = {
+	data: ListTenantApplications200;
+	status: 200;
+};
+
+export type listTenantApplicationsResponse403 = {
+	data: RegistrationErrorResponse;
+	status: 403;
+};
+
+export type listTenantApplicationsResponseSuccess = listTenantApplicationsResponse200 & {
+	headers: Headers;
+};
+export type listTenantApplicationsResponseError = listTenantApplicationsResponse403 & {
+	headers: Headers;
+};
+
+export type listTenantApplicationsResponse =
+	listTenantApplicationsResponseSuccess | listTenantApplicationsResponseError;
+
+export const getListTenantApplicationsUrl = () => {
+	return `/api/v1/platform/applications`;
+};
+
+/**
+ * @summary Application review queue (oldest first)
+ */
+export const listTenantApplications = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listTenantApplicationsResponse> => {
+	return lmsFetch<listTenantApplicationsResponse>(getListTenantApplicationsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getTenantApplicationFileResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getTenantApplicationFileResponse404 = {
+	data: RegistrationErrorResponse;
+	status: 404;
+};
+
+export type getTenantApplicationFileResponseSuccess = getTenantApplicationFileResponse200 & {
+	headers: Headers;
+};
+export type getTenantApplicationFileResponseError = getTenantApplicationFileResponse404 & {
+	headers: Headers;
+};
+
+export type getTenantApplicationFileResponse =
+	getTenantApplicationFileResponseSuccess | getTenantApplicationFileResponseError;
+
+export const getGetTenantApplicationFileUrl = (fileId: string) => {
+	return `/api/v1/platform/applications/files/${fileId}`;
+};
+
+/**
+ * @summary Application attachment preview
+ */
+export const getTenantApplicationFile = async (
+	fileId: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTenantApplicationFileResponse> => {
+	return lmsFetch<getTenantApplicationFileResponse>(getGetTenantApplicationFileUrl(fileId), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateTenantApplicationResponse200 = {
+	data: UpdateTenantApplication200;
+	status: 200;
+};
+
+export type updateTenantApplicationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type updateTenantApplicationResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type updateTenantApplicationResponseSuccess = updateTenantApplicationResponse200 & {
+	headers: Headers;
+};
+export type updateTenantApplicationResponseError = (
+	updateTenantApplicationResponse409 | updateTenantApplicationResponse422
+) & {
+	headers: Headers;
+};
+
+export type updateTenantApplicationResponse =
+	updateTenantApplicationResponseSuccess | updateTenantApplicationResponseError;
+
+export const getUpdateTenantApplicationUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}`;
+};
+
+/**
+ * @summary Reviewer edits application data
+ */
+export const updateTenantApplication = async (
+	applicationId: string,
+	reviewUpdateRequest: ReviewUpdateRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateTenantApplicationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateTenantApplicationResponse>(getUpdateTenantApplicationUrl(applicationId), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(reviewUpdateRequest)
+	});
+};
+
+export type setTenantApplicationChecksResponse200 = {
+	data: SetTenantApplicationChecks200;
+	status: 200;
+};
+
+export type setTenantApplicationChecksResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type setTenantApplicationChecksResponseSuccess = setTenantApplicationChecksResponse200 & {
+	headers: Headers;
+};
+export type setTenantApplicationChecksResponseError = setTenantApplicationChecksResponse409 & {
+	headers: Headers;
+};
+
+export type setTenantApplicationChecksResponse =
+	setTenantApplicationChecksResponseSuccess | setTenantApplicationChecksResponseError;
+
+export const getSetTenantApplicationChecksUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}/checks`;
+};
+
+/**
+ * @summary Save manual verification checks
+ */
+export const setTenantApplicationChecks = async (
+	applicationId: string,
+	reviewChecksRequest: ReviewChecksRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<setTenantApplicationChecksResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<setTenantApplicationChecksResponse>(
+		getSetTenantApplicationChecksUrl(applicationId),
+		{
+			...options,
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+			body: JSON.stringify(reviewChecksRequest)
+		}
+	);
+};
+
+export type approveTenantApplicationResponse200 = {
+	data: ApproveTenantApplication200;
+	status: 200;
+};
+
+export type approveTenantApplicationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type approveTenantApplicationResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type approveTenantApplicationResponseSuccess = approveTenantApplicationResponse200 & {
+	headers: Headers;
+};
+export type approveTenantApplicationResponseError = (
+	approveTenantApplicationResponse409 | approveTenantApplicationResponse422
+) & {
+	headers: Headers;
+};
+
+export type approveTenantApplicationResponse =
+	approveTenantApplicationResponseSuccess | approveTenantApplicationResponseError;
+
+export const getApproveTenantApplicationUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}/approve`;
+};
+
+/**
+ * @summary Approve: create tenant, subscription, invoice (trial → provisioning)
+ */
+export const approveTenantApplication = async (
+	applicationId: string,
+	approveApplicationRequest: ApproveApplicationRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<approveTenantApplicationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<approveTenantApplicationResponse>(getApproveTenantApplicationUrl(applicationId), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(approveApplicationRequest)
+	});
+};
+
+export type reviseTenantApplicationResponse200 = {
+	data: ReviseTenantApplication200;
+	status: 200;
+};
+
+export type reviseTenantApplicationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type reviseTenantApplicationResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type reviseTenantApplicationResponseSuccess = reviseTenantApplicationResponse200 & {
+	headers: Headers;
+};
+export type reviseTenantApplicationResponseError = (
+	reviseTenantApplicationResponse409 | reviseTenantApplicationResponse422
+) & {
+	headers: Headers;
+};
+
+export type reviseTenantApplicationResponse =
+	reviseTenantApplicationResponseSuccess | reviseTenantApplicationResponseError;
+
+export const getReviseTenantApplicationUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}/revise`;
+};
+
+/**
+ * @summary Request a revision from the applicant
+ */
+export const reviseTenantApplication = async (
+	applicationId: string,
+	reviseApplicationRequest: ReviseApplicationRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<reviseTenantApplicationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<reviseTenantApplicationResponse>(getReviseTenantApplicationUrl(applicationId), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(reviseApplicationRequest)
+	});
+};
+
+export type rejectTenantApplicationResponse200 = {
+	data: RejectTenantApplication200;
+	status: 200;
+};
+
+export type rejectTenantApplicationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type rejectTenantApplicationResponse422 = {
+	data: RegistrationErrorResponse;
+	status: 422;
+};
+
+export type rejectTenantApplicationResponseSuccess = rejectTenantApplicationResponse200 & {
+	headers: Headers;
+};
+export type rejectTenantApplicationResponseError = (
+	rejectTenantApplicationResponse409 | rejectTenantApplicationResponse422
+) & {
+	headers: Headers;
+};
+
+export type rejectTenantApplicationResponse =
+	rejectTenantApplicationResponseSuccess | rejectTenantApplicationResponseError;
+
+export const getRejectTenantApplicationUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}/reject`;
+};
+
+/**
+ * @summary Reject with a reason
+ */
+export const rejectTenantApplication = async (
+	applicationId: string,
+	rejectApplicationRequest: RejectApplicationRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<rejectTenantApplicationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<rejectTenantApplicationResponse>(getRejectTenantApplicationUrl(applicationId), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(rejectApplicationRequest)
+	});
+};
+
+export type reopenTenantApplicationResponse200 = {
+	data: ReopenTenantApplication200;
+	status: 200;
+};
+
+export type reopenTenantApplicationResponse409 = {
+	data: RegistrationErrorResponse;
+	status: 409;
+};
+
+export type reopenTenantApplicationResponseSuccess = reopenTenantApplicationResponse200 & {
+	headers: Headers;
+};
+export type reopenTenantApplicationResponseError = reopenTenantApplicationResponse409 & {
+	headers: Headers;
+};
+
+export type reopenTenantApplicationResponse =
+	reopenTenantApplicationResponseSuccess | reopenTenantApplicationResponseError;
+
+export const getReopenTenantApplicationUrl = (applicationId: string) => {
+	return `/api/v1/platform/applications/${applicationId}/reopen`;
+};
+
+/**
+ * @summary Reopen a rejected application or mark a revision as fixed
+ */
+export const reopenTenantApplication = async (
+	applicationId: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<reopenTenantApplicationResponse> => {
+	return lmsFetch<reopenTenantApplicationResponse>(getReopenTenantApplicationUrl(applicationId), {
+		...options,
+		method: 'POST'
 	});
 };

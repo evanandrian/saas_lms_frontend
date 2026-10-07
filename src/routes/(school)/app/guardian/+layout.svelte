@@ -2,6 +2,7 @@
 	import WorkspaceShell, {
 		type WorkspaceNavItem
 	} from '$lib/components/layout/WorkspaceShell.svelte';
+	import { workspaceBadge, workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import Award from '@lucide/svelte/icons/award';
@@ -17,6 +18,7 @@
 	let { data, children }: LayoutProps = $props();
 
 	const i18n = useI18n();
+	const identity = $derived(workspaceIdentity(data.workspace, i18n.t));
 
 	// Arsitektur informasi area (referensi FE-04). Item tanpa href = halaman belum dibangun.
 	const navItems: WorkspaceNavItem[] = $derived([
@@ -29,7 +31,7 @@
 		{
 			label: i18n.t('nav.guardian.messages'),
 			icon: MessageSquare,
-			badge: data.identity?.navBadges.messages
+			badge: workspaceBadge(data.workspace, 'msgs')
 		},
 		{ label: i18n.t('nav.guardian.settings'), icon: Settings, href: APP_PATHS.GUARDIAN_ACCOUNT }
 	]);
@@ -38,8 +40,8 @@
 <WorkspaceShell
 	areaLabel={i18n.t('nav.guardian.area')}
 	{navItems}
-	tenant={data.identity?.tenant}
-	user={data.identity?.user}
+	tenant={identity?.tenant}
+	user={identity?.user}
 	searchPlaceholder={i18n.t('nav.guardian.search')}
 >
 	{@render children()}

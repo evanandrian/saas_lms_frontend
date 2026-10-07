@@ -5,7 +5,8 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
-	import { greetingParts, semesterKey } from '$lib/features/dashboards/dashboards.model';
+	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { formatLongDate, greetingPeriod } from '$lib/utils/clock';
@@ -106,11 +107,8 @@
 	}
 
 	// Sapaan & periode dari backend; data contoh hanya bila backend belum menjawab.
-	const greetingName = $derived.by(() => {
-		if (!live) return 'Bu Sri';
-		const { name, honorific } = greetingParts(live.viewer);
-		return honorific ? i18n.t(`dashboard.honorific.${honorific}`, { name }) : name;
-	});
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greetingName = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const academicYear = $derived(live ? live.period.academic_year : '2026/2027');
 	const semester = $derived(live ? semesterKey(live.period.semester) : 'odd');
 	const eyebrow = $derived(

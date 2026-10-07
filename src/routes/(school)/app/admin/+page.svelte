@@ -5,6 +5,7 @@
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import {
 		dayOfMonth,
@@ -40,6 +41,8 @@
 	let { data }: PageProps = $props();
 
 	const i18n = useI18n();
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greeting = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const reasonId = $props.id();
 	const LOCALE = 'id-ID';
 	const TOAST_SECONDS = 6;
@@ -115,11 +118,11 @@
 		<HeroBanner
 			eyebrow={`${formatLongDate(dashboard.date, LOCALE)} · ${dashboard.academicYearLabel} · ${dashboard.semesterLabel}`}
 			title={i18n.t(`dashboard.greeting.${greetingPeriod(clock.nowSeconds)}`, {
-				name: dashboard.greetingName
+				name: greeting
 			})}
 			description={i18n.t('dashboard.school.summary', {
-				school: dashboard.schoolName,
-				plan: dashboard.planName,
+				school: data.workspace?.tenant.name ?? '',
+				plan: data.workspace?.tenant.plan_name ?? '',
 				classes: rooms.length,
 				filled: filledRooms
 			})}
@@ -464,7 +467,9 @@
 								{i18n.t('dashboard.school.seats')}
 							</h2>
 							<p class="text-lms-muted text-[0.8125rem]">
-								{i18n.t('dashboard.school.seats_plan', { plan: dashboard.planName })}
+								{i18n.t('dashboard.school.seats_plan', {
+									plan: data.workspace?.tenant.plan_name ?? ''
+								})}
 							</p>
 						</div>
 						<UnavailableLink label={i18n.t('dashboard.school.add_seats')} note={notAvailable} />

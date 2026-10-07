@@ -8,6 +8,7 @@
 		navigationIcon,
 		type NavigationBadge
 	} from '$lib/features/navigation/navigation.model';
+	import { workspaceBadge, workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import type { LayoutProps } from './$types';
@@ -19,9 +20,10 @@
 	// Rute yang sudah dibangun; rute lain dari Menu & navigasi tampil nonaktif (FE-04 D6), bukan menuju 404.
 	const BUILT_PATHS: ReadonlySet<string> = new Set(Object.values(APP_PATHS));
 
-	// Angka badge menunggu sumber data backend; saat ini hanya contoh dev (FE-04 D2).
+	// Angka badge dari backend; kode tanpa sumber data tidak dikirim → tanpa badge.
 	const badgeCount = (badge: NavigationBadge): number | undefined =>
-		badge === 'apps' ? data.identity?.navBadges.applications : undefined;
+		workspaceBadge(data.workspace, badge);
+	const identity = $derived(workspaceIdentity(data.workspace, i18n.t));
 
 	// Arsitektur informasi platform = susunan Menu & navigasi peran platform (backend; cadangan: bawaan FLIXARE).
 	const navItems: WorkspaceNavEntry[] = $derived(
@@ -44,8 +46,8 @@
 <WorkspaceShell
 	areaLabel={i18n.t('nav.platform.area')}
 	{navItems}
-	tenant={data.identity?.tenant}
-	user={data.identity?.user}
+	tenant={identity?.tenant}
+	user={identity?.user}
 	searchPlaceholder={i18n.t('nav.platform.search')}
 >
 	{@render children()}

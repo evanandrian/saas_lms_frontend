@@ -30,7 +30,8 @@
 			"logout_unavailable": "Keluar tersedia setelah autentikasi aktif",
 			"unavailable": "{item} tersedia pada fase fitur",
 			"not_available_yet": "belum tersedia",
-			"badge_pending": "{count} menunggu"
+			"badge_pending": "{count} menunggu",
+			"platform_detail": "Platform · {code}"
 		},
 		"state": {
 			"no_data_title": "Data belum tersedia",
@@ -224,7 +225,7 @@
 			"msg_hint": "Kode terdiri dari 6 huruf atau angka.",
 			"msg_found": "Kode valid. Sesi ditemukan.",
 			"msg_not_found": "Kode tidak ditemukan. Periksa kembali kode dari penyelenggara.",
-			"msg_unavailable": "Pemeriksaan kode sesi belum tersedia. Fitur ini aktif setelah layanan ujian terbuka tersedia.",
+			"msg_unavailable": "Pemeriksaan kode sesi sedang tidak tersedia. Coba lagi beberapa saat.",
 			"example": "Kode contoh:",
 			"step_details": "Detail sesi",
 			"details_pending": "Detail sesi muncul setelah kode valid.",
@@ -269,7 +270,14 @@
 			"countdown_meta": "{title} · {minutes} menit · waktu mulai berjalan",
 			"begun_title": "Selamat mengerjakan, {name}",
 			"begun_description": "Nomor peserta {number}. Halaman pengerjaan soal belum tersedia di aplikasi ini.",
-			"back_to_login": "Kembali ke halaman masuk"
+			"back_to_login": "Kembali ke halaman masuk",
+			"window": "{start}–{end} {zone}",
+			"closes_label": "Ditutup pukul {time} {zone}",
+			"msg_checking": "Memeriksa kode sesi…",
+			"error_full": "Kuota peserta sesi ini sudah penuh. Hubungi penyelenggara.",
+			"error_closed": "Sesi sudah ditutup atau belum dibuka.",
+			"error_failed": "Belum berhasil bergabung. Coba lagi.",
+			"msg_closed": "Sesi ini sudah ditutup atau belum dibuka. Periksa jadwal dari penyelenggara."
 		},
 		"logged_out": {
 			"page_title": "Anda telah keluar",
@@ -402,37 +410,6 @@
 	"brand": {
 		"tagline": "Flexible Education. Intelligent Learning.",
 		"promise": "Belajar lebih fleksibel. Berkembang lebih jauh."
-	},
-	"onboarding": {
-		"steps_label": "Langkah pendaftaran",
-		"register": {
-			"title": "Daftarkan lembaga Anda",
-			"subtitle": "Mulai dari kebutuhan Anda. Database lembaga dibuat setelah pengajuan disetujui.",
-			"type_legend": "Jenis lembaga",
-			"account_title": "Akun & data lembaga",
-			"institution_name": "Nama lembaga",
-			"npsn": "NPSN",
-			"level": "Jenjang",
-			"students_estimate": "Perkiraan jumlah murid",
-			"pic_name": "Nama penanggung jawab",
-			"email": "Email",
-			"whatsapp": "No. WhatsApp",
-			"timezone": "Zona waktu",
-			"trial": "Mulai dengan trial gratis",
-			"terms": "Dengan mendaftar, Anda menyetujui Ketentuan Layanan dan Kebijakan Privasi FLIXARE.",
-			"submit": "Lanjut pilih paket",
-			"have_account": "Sudah punya akun? Masuk melalui alamat lembaga Anda."
-		},
-		"plan": {
-			"title": "Pilih paket",
-			"subtitle": "Harga, fitur, dan ketentuan trial mengikuti data paket yang berlaku.",
-			"plan_legend": "Paket",
-			"seats_label": "Jumlah kursi murid",
-			"seats_hint": "Menjadi batas murid aktif.",
-			"payment_legend": "Metode pembayaran setelah trial",
-			"summary_title": "Ringkasan",
-			"submit": "Ajukan & mulai trial"
-		}
 	},
 	"dashboard": {
 		"kpi_label": "Indikator utama",
@@ -2473,6 +2450,823 @@
 				"title": "Layanan persetujuan sedang tidak dapat dihubungi",
 				"text": "Coba lagi beberapa saat lagi."
 			}
+		}
+	},
+	"register": {
+		"page_title": "Daftar & berlangganan · FLIXARE",
+		"unavailable_title": "Pendaftaran belum dapat dibuka",
+		"unavailable_description": "Layanan pendaftaran sedang tidak dapat dihubungi. Coba lagi beberapa saat.",
+		"optional": "opsional",
+		"back": "Kembali",
+		"rail_label": "Langkah pendaftaran",
+		"compact_next": "Berikutnya: {step}",
+		"phase": {
+			"reg": "PENDAFTARAN",
+			"setup": "SETUP AWAL"
+		},
+		"header": {
+			"reg": "Pendaftaran · {n}/{total}",
+			"setup": "Setup awal · {n}/{total}",
+			"saved_at": "Draf tersimpan {time}",
+			"autosave": "Draf tersimpan otomatis",
+			"exit": "Keluar"
+		},
+		"help": {
+			"title": "Butuh bantuan?",
+			"body": "Tim onboarding siap membantu Senin–Jumat, 08.00–17.00 WIB."
+		},
+		"head": {
+			"kicker_reg": "PENDAFTARAN · LANGKAH {n} DARI {total}",
+			"kicker_setup": "SETUP AWAL · LANGKAH {n} DARI {total}",
+			"your_institution": "lembaga Anda",
+			"akun": {
+				"title": "Buat akun FLIXARE",
+				"desc": "Pilih jenis lembaga, lalu isi data penanggung jawab. Akun ini menjadi admin pertama lembaga Anda."
+			},
+			"otp": {
+				"title": "Verifikasi kontak",
+				"desc": "Masukkan 6 digit kode yang kami kirim untuk memastikan email ini milik Anda."
+			},
+			"lembaga_school": {
+				"title": "Data sekolah",
+				"desc": "Ketik NPSN lalu lengkapi data sekolah. Satu NPSN hanya dapat memakai trial satu kali."
+			},
+			"lembaga_personal": {
+				"title": "Data les atau bimbel",
+				"desc": "Nama ini tampil di halaman masuk murid dan laporan ke orang tua."
+			},
+			"lembaga_event": {
+				"title": "Data penyelenggara",
+				"desc": "Nama ini tampil di tiket peserta dan sertifikat."
+			},
+			"paket_school": {
+				"title": "Pilih paket & kursi",
+				"desc": "Harga per murid per bulan, sama untuk SD, SMP, SMA, dan SMK. Kursi menjadi batas murid aktif."
+			},
+			"paket_personal": {
+				"title": "Pilih paket",
+				"desc": "Ganti paket kapan saja; selisih dihitung prorata."
+			},
+			"paket_event": {
+				"title": "Pilih paket sesi",
+				"desc": "Sesi yang tidak terpakai berlaku 12 bulan sejak pembelian."
+			},
+			"bayar_trial": {
+				"title": "Konfirmasi trial",
+				"desc": "Tidak ada pembayaran hari ini. Tagihan pertama dibuat otomatis saat trial berakhir."
+			},
+			"bayar_paid": {
+				"title": "Pembayaran",
+				"desc": "Bayar lewat Virtual Account atau QRIS. Pembayaran terverifikasi otomatis dalam hitungan detik."
+			},
+			"persetujuan_school": {
+				"title": "Menunggu persetujuan",
+				"desc": "Tim FLIXARE memeriksa data sekolah. Anda boleh menutup halaman ini; kami kirim email saat disetujui."
+			},
+			"persetujuan_personal": {
+				"title": "Persetujuan",
+				"desc": "Lembaga Anda memenuhi syarat persetujuan otomatis."
+			},
+			"persetujuan_event": {
+				"title": "Persetujuan",
+				"desc": "Lembaga Anda memenuhi syarat persetujuan otomatis."
+			},
+			"provisioning": {
+				"title": "Menyiapkan {institution}",
+				"desc": "Database khusus lembaga Anda sedang dibuat. Biasanya selesai dalam 5 menit."
+			},
+			"profil_school": {
+				"title": "Profil sekolah & kepala sekolah",
+				"desc": "Data ini dipakai di kop rapor dan surat resmi."
+			},
+			"profil_personal": {
+				"title": "Profil pengajar",
+				"desc": "Ditampilkan kepada murid dan orang tua."
+			},
+			"profil_event": {
+				"title": "Profil penyelenggara",
+				"desc": "Ditampilkan di tiket dan sertifikat peserta."
+			},
+			"tahun": {
+				"title": "Tahun ajaran & semester",
+				"desc": "Tanggal semester menentukan jadwal, presensi, dan periode rapor."
+			},
+			"kelas_school": {
+				"title": "Tingkat & rombel",
+				"desc": "Atur jumlah rombel per tingkat. Nama rombel dibuat otomatis dan bisa diubah nanti."
+			},
+			"kelas_personal": {
+				"title": "Kelompok belajar",
+				"desc": "Buat kelompok untuk mengelompokkan murid les Anda."
+			},
+			"kelas_event": {
+				"title": "Kelompok belajar",
+				"desc": "Buat kelompok untuk mengelompokkan peserta."
+			},
+			"mapel": {
+				"title": "Mata pelajaran & KKTP",
+				"desc": "Daftar mapel disarankan sesuai jenjang {level}. Atur kriteria ketercapaian tujuan pembelajaran (KKTP) per mapel."
+			},
+			"guru": {
+				"title": "Data guru",
+				"desc": "Impor dari Excel memakai templat FLIXARE. Undangan masuk dikirim ke email masing-masing guru."
+			},
+			"murid": {
+				"title": "Data murid",
+				"desc": "Impor dari Excel. Kolom kelas dicocokkan dengan rombel yang sudah Anda buat."
+			},
+			"selesai": {
+				"title": "{institution} siap digunakan",
+				"desc": "Setup awal selesai. Anda bisa melengkapi data lain dari dashboard kapan saja."
+			}
+		},
+		"next": {
+			"akun": "Kirim kode verifikasi",
+			"otp": "Lanjut",
+			"lembaga": "Lanjut ke paket",
+			"paket_paid": "Lanjut ke pembayaran",
+			"bayar_trial": "Ajukan trial",
+			"persetujuan": "Lanjut ke aktivasi",
+			"provisioning": "Mulai setup awal",
+			"skip": "Lewati dulu",
+			"selesai": "Masuk ke dashboard",
+			"save": "Simpan & lanjut"
+		},
+		"ok": {
+			"akun": "Data akun lengkap.",
+			"otp": "Email terverifikasi.",
+			"paket_trial": "Rp0 dibayar hari ini.",
+			"paket_paid": "Total {total} termasuk PPN.",
+			"bayar_trial": "Tanpa pembayaran hari ini.",
+			"bayar_paid": "Pembayaran diterima.",
+			"persetujuan": "Lembaga disetujui.",
+			"provisioning": "Database siap.",
+			"guru": "Data guru bisa ditambahkan nanti.",
+			"murid": "Data murid bisa ditambahkan nanti.",
+			"selesai": "Semua langkah selesai.",
+			"valid": "Semua isian valid."
+		},
+		"reason": {
+			"agree": "Setujui ketentuan layanan untuk melanjutkan.",
+			"otp_enter": "Masukkan 6 digit kode verifikasi.",
+			"otp_wrong": "Kode salah atau kedaluwarsa.",
+			"npsn_checking": "Memeriksa NPSN…",
+			"plan": "Pilih salah satu paket.",
+			"awaiting_approval": "Menunggu persetujuan tim FLIXARE.",
+			"revision": "Perbaiki data yang diminta, lalu ajukan ulang.",
+			"awaiting_payment": "Menunggu pembayaran diterima.",
+			"create_invoice": "Buat tagihan, lalu selesaikan pembayaran.",
+			"rejected": "Pengajuan ditolak. Ajukan ulang dengan data yang benar.",
+			"provisioning": "Database lembaga sedang disiapkan.",
+			"rombel": "Tambahkan minimal satu rombel.",
+			"subjects": "Aktifkan minimal satu mata pelajaran.",
+			"kktp": "KKTP {name} harus 0–100."
+		},
+		"failure": {
+			"email_taken": "Email ini sudah terdaftar. Masuk dengan akun tersebut atau gunakan email lain.",
+			"invalid_code": "Kode salah atau kedaluwarsa.",
+			"too_many_attempts": "Terlalu banyak percobaan. Kirim ulang kode baru.",
+			"resend_too_soon": "Tunggu sebentar sebelum mengirim ulang kode.",
+			"challenge_expired": "Sesi verifikasi berakhir. Isi ulang data akun.",
+			"no_application": "Pengajuan tidak ditemukan. Mulai lagi dari langkah akun.",
+			"application_locked": "Data terkunci karena pengajuan sedang diproses.",
+			"invalid_transition": "Langkah ini belum dapat dilakukan pada status pengajuan saat ini.",
+			"checks_incomplete": "Pemeriksaan data belum lengkap.",
+			"tenant_not_ready": "Lembaga belum aktif. Tunggu aktivasi selesai.",
+			"gateway_unavailable": "Pembayaran sedang tidak tersedia. Coba lagi beberapa saat.",
+			"forbidden": "Anda tidak memiliki akses untuk tindakan ini.",
+			"unavailable": "Layanan sedang tidak dapat dihubungi. Coba lagi beberapa saat.",
+			"generic": "Permintaan belum berhasil diproses. Coba lagi."
+		},
+		"errors": {
+			"name_min": "Nama minimal 3 huruf.",
+			"email_format": "Format email belum benar.",
+			"phone_min": "Nomor WhatsApp minimal 9 digit.",
+			"phone_length": "Nomor telepon 9–13 digit.",
+			"phone_required": "Isi nomor WhatsApp untuk mengirim kode lewat WhatsApp.",
+			"password_weak": "Kata sandi belum cukup kuat.",
+			"npsn_format": "NPSN terdiri dari 8 digit.",
+			"npsn_used": "NPSN ini sudah terdaftar di FLIXARE. Hubungi admin sekolah Anda untuk akses.",
+			"address_min": "Alamat lengkap wajib diisi.",
+			"principal_required": "Nama kepala sekolah wajib diisi.",
+			"nip_format": "NIP terdiri dari 18 digit.",
+			"institution_required": "Nama lembaga wajib diisi.",
+			"province_required": "Pilih provinsi.",
+			"city_required": "Pilih kota/kabupaten.",
+			"fields_required": "Pilih minimal satu bidang.",
+			"participants_required": "Isi perkiraan jumlah peserta.",
+			"participants_max": "Maksimal 1.000 peserta per sesi.",
+			"max_participants": "Maksimal 1.000 peserta per sesi.",
+			"coordinator_required": "Nama koordinator wajib diisi.",
+			"telp_min": "Nomor telepon minimal 8 digit.",
+			"about_max": "Maksimal 280 karakter.",
+			"max_length": "Isian terlalu panjang.",
+			"odd_end": "Harus setelah tanggal mulai semester ganjil.",
+			"even_start": "Harus setelah semester ganjil berakhir.",
+			"even_end": "Harus setelah tanggal mulai semester genap.",
+			"capacity_range": "Kapasitas 10–50 murid per rombel.",
+			"kktp_range": "KKTP harus 0–100.",
+			"seats_range": "Kursi 50–2.000, kelipatan 10.",
+			"required": "Wajib diisi.",
+			"min_length": "Isian terlalu pendek.",
+			"invalid": "Isian tidak valid.",
+			"incomplete": "Data lembaga belum lengkap.",
+			"logo_invalid": "Logo harus PNG, JPG, atau SVG maks. 2 MB.",
+			"document_invalid": "Dokumen harus PDF, PNG, atau JPG maks. 5 MB.",
+			"too_many_files": "Jumlah dokumen sudah maksimal.",
+			"unavailable": "Tidak tersedia saat ini."
+		},
+		"type": {
+			"label": "Jenis lembaga",
+			"school": {
+				"name": "Sekolah",
+				"desc": "SD, SMP, SMA, SMK"
+			},
+			"personal": {
+				"name": "Guru pribadi",
+				"desc": "Les atau bimbel perorangan"
+			},
+			"event": {
+				"name": "Penyelenggara sesi",
+				"desc": "Tryout dan ujian terbuka"
+			},
+			"meta_no_trial": "Bayar per paket sesi",
+			"meta_trial_business_day": "Trial {n} hari kerja",
+			"meta_trial_day": "Trial {n} hari",
+			"meta_trial_hour": "Trial {n} jam",
+			"auto": "disetujui otomatis",
+			"reviewed": "ditinjau tim"
+		},
+		"account": {
+			"full_name": "Nama lengkap penanggung jawab",
+			"full_name_ph": "mis. Rina Wulandari",
+			"email": "Email",
+			"email_hint": "Kode verifikasi dikirim ke email ini.",
+			"email_hint_school": "Gunakan email resmi sekolah bila ada. Kode verifikasi dikirim ke sini.",
+			"whatsapp": "No. WhatsApp",
+			"password": "Kata sandi",
+			"password_ph": "Minimal 8 karakter",
+			"show_password": "Tampilkan kata sandi",
+			"strength": "Kekuatan",
+			"strength_0": "Sangat lemah",
+			"strength_1": "Lemah",
+			"strength_2": "Sedang",
+			"strength_3": "Kuat",
+			"strength_4": "Sangat kuat",
+			"rule_length": "8+ karakter",
+			"rule_case": "Huruf besar & kecil",
+			"rule_digit": "Angka",
+			"agree": "Saya menyetujui Ketentuan Layanan dan Kebijakan Privasi FLIXARE, termasuk pemrosesan data murid sesuai UU Pelindungan Data Pribadi."
+		},
+		"otp": {
+			"sent_to": "Kode dikirim ke",
+			"change": "Ubah",
+			"label": "Kode verifikasi 6 digit",
+			"verified": "Email terverifikasi.",
+			"checking": "Memeriksa kode…",
+			"wrong": "Kode salah. Periksa kembali kode yang diterima.",
+			"too_many": "Terlalu banyak percobaan. Kirim ulang kode baru.",
+			"validity": "Kode berlaku 10 menit.",
+			"resend_in": "Kirim ulang dalam",
+			"resend": "Kirim ulang kode",
+			"via_email": "Kirim lewat email",
+			"via_whatsapp": "Kirim lewat WhatsApp"
+		},
+		"institution": {
+			"name_school": "Nama sekolah",
+			"name_personal": "Nama les / bimbel",
+			"name_event": "Nama penyelenggara",
+			"name_ph_school": "mis. SMA Nusantara Jakarta",
+			"name_ph_personal": "mis. Les Matematika Bu Rina",
+			"name_ph_event": "mis. Bimbel Cerdas Prima",
+			"npsn": "NPSN",
+			"npsn_ph": "8 digit",
+			"npsn_checking": "Memeriksa",
+			"npsn_found": "Ditemukan",
+			"npsn_used": "Terdaftar",
+			"npsn_manual": "Isi manual",
+			"npsn_note_found": "Data sekolah terisi otomatis. Periksa kembali sebelum lanjut.",
+			"npsn_note_manual": "Lengkapi data sekolah secara manual; tim kami memverifikasinya.",
+			"npsn_note_example": "Contoh: 20100123",
+			"level": "Jenjang",
+			"ownership": "Status",
+			"negeri": "Negeri",
+			"swasta": "Swasta",
+			"address": "Alamat lengkap",
+			"address_ph": "Jalan, nomor, kelurahan, kecamatan",
+			"fields": "Bidang yang diajarkan",
+			"organizer_kind": "Jenis penyelenggara",
+			"participants": "Perkiraan peserta per sesi",
+			"participants_ph": "mis. 300",
+			"province": "Provinsi",
+			"province_ph": "Pilih provinsi",
+			"city": "Kota / kabupaten",
+			"city_ph": "Pilih kota/kabupaten",
+			"city_ph_province": "Pilih provinsi dulu",
+			"timezone": "Zona waktu",
+			"timezone_hint": "Disesuaikan dari provinsi. Dipakai untuk jadwal ujian.",
+			"logo": "Logo lembaga",
+			"logo_hint": "PNG atau SVG, latar transparan, maks. 2 MB. Tampil di rapor, tiket, dan halaman masuk.",
+			"logo_upload": "Unggah logo",
+			"logo_replace": "Ganti logo",
+			"logo_invalid": "Logo harus PNG, JPG, atau SVG maks. 2 MB.",
+			"documents": "Dokumen pendukung",
+			"documents_hint": "mis. izin operasional atau SK pendirian. PDF/PNG/JPG maks. 5 MB.",
+			"documents_add": "Tambah dokumen",
+			"document_remove": "Hapus {name}",
+			"document_invalid": "Dokumen harus PDF, PNG, atau JPG maks. 5 MB."
+		},
+		"plan": {
+			"label": "Paket",
+			"cycle": "Siklus tagihan",
+			"monthly": "Bulanan",
+			"yearly": "Tahunan",
+			"save_months": "Hemat {n} bulan",
+			"unit_seat": "/murid/bulan",
+			"unit_flat": "/bulan",
+			"unit_package": "/paket",
+			"seats": "Kursi murid",
+			"seats_hint": "Batas murid aktif. Tambah kursi di tengah tahun ditagih prorata.",
+			"seats_less": "Kurangi kursi",
+			"seats_more": "Tambah kursi",
+			"seats_note": "Cukup untuk ±{groups} rombel berisi {size} murid.",
+			"seats_trial": " Selama trial, murid aktif dibatasi {n}.",
+			"trial_title_business_day": "Mulai dengan trial gratis {n} hari kerja",
+			"trial_title_day": "Mulai dengan trial gratis {n} hari",
+			"trial_title_hour": "Mulai dengan trial gratis {n} jam",
+			"trial_rule1_business_day": "Dihitung sejak database aktif; Sabtu dan Minggu tidak dihitung.",
+			"trial_rule1_day": "Dihitung {n} hari sejak database aktif.",
+			"trial_rule1_hour": "Dihitung {n} jam sejak database aktif.",
+			"trial_rule2": "Maks. {n} murid aktif selama trial; asisten AI nonaktif.",
+			"trial_rule3_auto": "Disetujui otomatis setelah email terverifikasi.",
+			"trial_rule3_review": "Satu trial per NPSN. Pengajuan sekolah ditinjau tim FLIXARE.",
+			"sum_plan": "Paket",
+			"sum_price_seat": "Harga/murid/bulan",
+			"sum_price_month": "Harga/bulan",
+			"sum_seats": "Kursi",
+			"sum_period": "Periode",
+			"period_year": "12 bulan (bayar {billed})",
+			"period_month": "1 bulan",
+			"sum_subtotal": "Subtotal",
+			"sum_vat": "PPN 11%",
+			"sum_total": "Total tagihan",
+			"pay_today": "DIBAYAR HARI INI",
+			"pay_today_trial": "Tagihan {total} dibuat saat trial berakhir.",
+			"pay_today_paid": "Bayar lewat Virtual Account atau QRIS."
+		},
+		"payment": {
+			"trial_today": "Rp0 dibayar hari ini. Trial berakhir",
+			"at": " pukul ",
+			"fact_students": "Maks. {n} murid",
+			"fact_students_sub": "Tambah sisanya setelah berlangganan.",
+			"fact_invites": "150 undangan email",
+			"fact_invites_sub": "Untuk guru, murid, dan orang tua.",
+			"fact_auto": "Disetujui otomatis",
+			"fact_auto_sub": "Database dibuat setelah konfirmasi.",
+			"fact_ai": "Asisten AI nonaktif",
+			"fact_ai_sub": "Aktif otomatis setelah membayar.",
+			"first_bill": "Tagihan pertama {total} dibuat saat trial berakhir.",
+			"waiting_title": "Menunggu persetujuan sebelum pembayaran",
+			"waiting_body": "Pengajuan sekolah ditinjau tim FLIXARE terlebih dahulu. Tagihan dapat dibayar setelah disetujui; kami kirim email saat siap.",
+			"revision_title": "Perbaikan data diminta",
+			"revision_body": "Perbaiki data lembaga yang diminta, lalu ajukan ulang untuk ditinjau.",
+			"method": "Metode pembayaran",
+			"va": "Virtual Account",
+			"bank": "Bank",
+			"create_va": "Buat nomor VA {bank}",
+			"create_qris": "Tampilkan kode QRIS",
+			"paid_short": "Lunas",
+			"valid_for": "Berlaku {time}",
+			"va_number": "Nomor Virtual Account {bank}",
+			"bill_key": "Kode perusahaan {code} · Kode bayar {bank}",
+			"copy": "Salin",
+			"copied": "Disalin",
+			"qris_alt": "Kode QRIS pembayaran",
+			"qris_placeholder": "Kode QRIS tampil di sini",
+			"qris_hint": "Pindai dengan aplikasi bank atau e-wallet apa pun yang mendukung QRIS.",
+			"amount": "Jumlah tagihan",
+			"paid": "Pembayaran diterima pukul {time} {zone}.",
+			"check": "Saya sudah bayar, cek status",
+			"checking": "Memeriksa pembayaran…",
+			"guide": "Cara bayar lewat {via}",
+			"guide_atm": "ATM",
+			"guide_mobile": "Mobile banking",
+			"guide_internet": "Internet banking",
+			"guide_atm_1": "Pilih Transfer › Virtual Account",
+			"guide_atm_2": "Masukkan nomor VA di atas",
+			"guide_atm_3": "Periksa nama tagihan FLIXARE, lalu konfirmasi",
+			"guide_mobile_1": "Buka menu Transfer › Virtual Account",
+			"guide_mobile_2": "Tempel nomor VA",
+			"guide_mobile_3": "Periksa nominal, lalu masukkan PIN",
+			"guide_internet_1": "Masuk ke internet banking",
+			"guide_internet_2": "Pilih Pembayaran › Virtual Account",
+			"guide_internet_3": "Masukkan nomor VA dan selesaikan dengan token",
+			"summary": "RINGKASAN"
+		},
+		"approval": {
+			"node_submitted": "Diajukan",
+			"node_review": "Ditinjau",
+			"node_approved": "Disetujui",
+			"submitted_at": "Hari ini {time}",
+			"review_manual": "Verifikasi NPSN & data",
+			"review_auto": "Pemeriksaan otomatis",
+			"db_created": "Database dibuat",
+			"waiting": "Menunggu",
+			"checked": "Yang diperiksa",
+			"check_npsn": "NPSN {npsn} aktif di data referensi",
+			"check_trial": "Satu trial per NPSN",
+			"check_email": "Email penanggung jawab terverifikasi",
+			"check_match": "Kesesuaian nama & alamat sekolah",
+			"mail_sent": "Email terkirim ke {email}",
+			"mail_title": "{institution} disetujui",
+			"mail_body": "Pengajuan Anda sudah disetujui. Database sedang kami siapkan; Anda akan menerima email lagi saat lembaga siap digunakan.",
+			"eta_school": "Target peninjauan ≤ 1×24 jam kerja.",
+			"eta_personal": "Guru pribadi disetujui otomatis setelah email terverifikasi.",
+			"eta_event": "Penyelenggara sesi disetujui otomatis setelah pembayaran diterima.",
+			"rejected_title": "Pengajuan ditolak",
+			"restart": "Ajukan ulang",
+			"revision_title": "Perbaikan data diminta",
+			"revision_fields": "Bagian: {fields}.",
+			"revise": "Perbaiki data"
+		},
+		"provisioning": {
+			"label": "Progres aktivasi",
+			"elapsed": "{time} dari ±{target}",
+			"kind_school": "sekolah",
+			"kind_personal": "lembaga",
+			"kind_event": "lembaga",
+			"mode_trial": "masa trial",
+			"mode_active": "langganan",
+			"task_create_db": "Membuat database {kind}",
+			"task_migrate": "Menjalankan migrasi skema",
+			"task_seed": "Mengisi data awal & peran",
+			"task_admin": "Membuat akun admin",
+			"task_activate": "Mengaktifkan {mode}",
+			"task_welcome": "Mengirim email selamat datang",
+			"done": "selesai",
+			"running": "berjalan",
+			"queued": "antre",
+			"active": "Lembaga aktif.",
+			"trial_note": "Trial dimulai sekarang dan berakhir {date}.",
+			"active_note": "Langganan aktif. Kuitansi sudah dikirim ke email.",
+			"retrying": "Aktivasi tertunda; sistem mencoba lagi otomatis."
+		},
+		"profile": {
+			"active": "Aktif",
+			"meta_school": "NPSN {npsn} · {level} {ownership} · {city}",
+			"meta_personal": "Guru pribadi · {city}",
+			"meta_event": "Penyelenggara sesi · {kind} · {city}",
+			"principal": "Nama kepala sekolah",
+			"principal_ph": "mis. Drs. Hendra Gunawan, M.Pd.",
+			"nip": "NIP kepala sekolah",
+			"nip_ph": "18 digit",
+			"nip_hint": "Kosongkan jika kepala sekolah bukan ASN.",
+			"about": "Tentang pengajar",
+			"about_ph": "Pengalaman, metode mengajar, atau prestasi murid",
+			"coordinator": "Koordinator sesi",
+			"coordinator_ph": "Nama penanggung jawab sesi",
+			"phone_school": "Telepon sekolah",
+			"phone_other": "Telepon / WhatsApp lembaga",
+			"phone_ph": "mis. 0213456789",
+			"website": "Situs web"
+		},
+		"year": {
+			"academic_year": "Tahun ajaran",
+			"active_now": "Semester aktif saat ini: Ganjil",
+			"upcoming": "Tahun ajaran mendatang",
+			"odd": "Ganjil",
+			"even": "Genap",
+			"semester": "Semester {name}",
+			"start": "Mulai",
+			"end": "Selesai",
+			"weeks": "{n} minggu",
+			"month_jul": "JUL",
+			"month_aug": "AGU",
+			"month_sep": "SEP",
+			"month_oct": "OKT",
+			"month_nov": "NOV",
+			"month_dec": "DES",
+			"month_jan": "JAN",
+			"month_feb": "FEB",
+			"month_mar": "MAR",
+			"month_apr": "APR",
+			"month_may": "MEI",
+			"month_jun": "JUN"
+		},
+		"classes": {
+			"scheme": "Pola nama rombel",
+			"scheme_letter": "X-A, X-B, X-C",
+			"scheme_number": "X-1, X-2, X-3",
+			"capacity": "Kapasitas per rombel",
+			"unit_rombel": "rombel",
+			"unit_group": "kelompok",
+			"capacity_total": "{n} murid",
+			"grade": "Tingkat",
+			"learning": "Belajar",
+			"group": "Kelompok",
+			"group_name": "Kelompok {letter}",
+			"less": "Kurangi rombel {grade}",
+			"more": "Tambah rombel {grade}",
+			"homeroom_later": "Wali kelas ditetapkan setelah data guru diimpor."
+		},
+		"subjects": {
+			"kktp_all": "KKTP untuk semua mapel",
+			"apply": "Terapkan ke {n} mapel",
+			"active_of": "{on} dari {total} mapel aktif",
+			"kktp_for": "KKTP {name}",
+			"add_ph": "Tambah mapel muatan lokal",
+			"add": "Tambah",
+			"kktp_range": "KKTP bernilai 0–{max}."
+		},
+		"import": {
+			"pick": "Pilih file Excel atau CSV",
+			"cols_guru": "Kolom: nama, email, NIP/NUPTK, mapel",
+			"cols_murid": "Kolom: nama, NISN, kelas, jenis kelamin, tanggal lahir",
+			"noun_guru": "guru",
+			"noun_murid": "murid",
+			"later": "Impor data {noun} dari Excel segera tersedia. Untuk sekarang pilih \"Lewati dulu\"; data {noun} bisa ditambahkan dari dashboard untuk {count} {unit} yang sudah dibuat."
+		},
+		"done": {
+			"meta_school": "Sekolah · {plan}",
+			"meta_personal": "Guru pribadi · {plan}",
+			"meta_event": "Penyelenggara sesi · {plan}",
+			"trial_active": "trial aktif",
+			"subscription_active": "langganan aktif",
+			"rombel": "rombel",
+			"subjects": "mata pelajaran",
+			"teachers": "guru diimpor",
+			"students": "murid aktif",
+			"groups": "kelompok belajar",
+			"trial_24h": "24 jam",
+			"trial_left": "sisa trial",
+			"plan": "paket",
+			"participants": "peserta per sesi",
+			"next_title": "Langkah berikutnya di dashboard",
+			"next_homeroom": "Tetapkan wali kelas",
+			"next_homeroom_sub": "Pilih guru untuk setiap rombel.",
+			"next_parents": "Undang orang tua",
+			"next_parents_sub": "Kirim tautan undangan per kelas.",
+			"next_schedule": "Susun jadwal pelajaran",
+			"next_schedule_sub": "Jadwal dipakai untuk presensi otomatis.",
+			"next_material": "Unggah materi pertama",
+			"next_material_sub": "Materi tampil di beranda murid.",
+			"next_task": "Buat tugas atau kuis",
+			"next_task_sub": "Penilaian otomatis untuk pilihan ganda.",
+			"next_bank": "Susun bank soal",
+			"next_bank_sub": "Impor soal dari Word atau Excel.",
+			"next_session": "Buat sesi ujian pertama",
+			"next_session_sub": "Kode sesi dibagikan ke peserta."
+		},
+		"meta": {
+			"akun": {
+				"label": "Akun",
+				"sub": "Penanggung jawab"
+			},
+			"otp": {
+				"label": "Verifikasi",
+				"sub": "Kode 6 digit"
+			},
+			"lembaga": {
+				"label": "Data lembaga",
+				"sub": "Identitas & lokasi"
+			},
+			"paket": {
+				"label": "Paket",
+				"sub": "Paket, kursi, trial"
+			},
+			"bayar": {
+				"label": "Pembayaran",
+				"sub": "VA / QRIS"
+			},
+			"persetujuan": {
+				"label": "Persetujuan",
+				"sub": "Ditinjau tim FLIXARE"
+			},
+			"provisioning": {
+				"label": "Aktivasi",
+				"sub": "Database disiapkan"
+			},
+			"profil": {
+				"label": "Profil",
+				"sub": "Identitas & pimpinan"
+			},
+			"tahun": {
+				"label": "Tahun ajaran",
+				"sub": "Semester & tanggal"
+			},
+			"kelas": {
+				"label": "Kelas",
+				"sub": "Tingkat & rombel"
+			},
+			"mapel": {
+				"label": "Mata pelajaran",
+				"sub": "Mapel & KKTP"
+			},
+			"guru": {
+				"label": "Data guru",
+				"sub": "Impor Excel"
+			},
+			"murid": {
+				"label": "Data murid",
+				"sub": "Impor Excel"
+			},
+			"selesai": {
+				"label": "Selesai",
+				"sub": "Siap digunakan"
+			}
+		}
+	},
+	"applications": {
+		"head_title": "Pengajuan lembaga",
+		"eyebrow": "OPERASIONAL · PENGAJUAN",
+		"title": "Pengajuan lembaga",
+		"desc": "Periksa data, lengkapi verifikasi, lalu putuskan. Database dibuat otomatis setelah disetujui.",
+		"sla": "SLA peninjauan {n} jam",
+		"queue_label": "Antrean pengajuan",
+		"tabs_label": "Status pengajuan",
+		"detail_label": "Detail pengajuan",
+		"search": "Cari nama atau NPSN",
+		"empty": "Tidak ada pengajuan di sini.",
+		"none_title": "Pilih pengajuan",
+		"none_text": "Pilih pengajuan di antrean untuk melihat detail.",
+		"age_days": "{n} hari",
+		"age_hours": "{n} jam",
+		"head_students": "{n} murid",
+		"head_participants": "{n} peserta/sesi",
+		"tab": {
+			"submitted": "Menunggu",
+			"revision_requested": "Revisi",
+			"approved": "Disetujui",
+			"rejected": "Ditolak"
+		},
+		"status": {
+			"submitted": "MENUNGGU",
+			"revision_requested": "PERLU REVISI",
+			"approved": "DISETUJUI",
+			"rejected": "DITOLAK"
+		},
+		"type": {
+			"school": "Sekolah",
+			"personal": "Guru pribadi",
+			"event": "Penyelenggara sesi"
+		},
+		"unit": {
+			"seat": "/murid/bln",
+			"flat": "/bln",
+			"package": "/paket"
+		},
+		"state": {
+			"forbidden_title": "Akses pengajuan dibatasi",
+			"forbidden_text": "Akun Anda belum memiliki izin meninjau pengajuan lembaga.",
+			"unavailable_title": "Pengajuan belum dapat dimuat",
+			"unavailable_text": "Layanan sedang tidak dapat dihubungi. Coba lagi beberapa saat."
+		},
+		"banner": {
+			"revision_title": "Menunggu perbaikan dari pemohon",
+			"revision_text": "Diminta: {fields}. \"{note}\"",
+			"mark_fixed": "Tandai sudah diperbaiki",
+			"rejected_title": "Ditolak · {date}",
+			"rejected_text": "Alasan: {reason}",
+			"reopen": "Buka kembali",
+			"approved_title": "Disetujui · {date}",
+			"approved_trial": "Paket {plan} dengan trial. Tenant muncul di menu Tenant setelah database siap.",
+			"approved_paid": "Paket {plan} berbayar. Database disiapkan setelah tagihan lunas."
+		},
+		"prov": {
+			"title": "Penyiapan database",
+			"create_db": "Membuat database",
+			"migrate": "Menjalankan migrasi skema",
+			"seed": "Membuat akun admin & data awal",
+			"email": "Mengirim email aktivasi ke PIC",
+			"done": "Selesai",
+			"running": "Berjalan…",
+			"waiting": "Menunggu",
+			"retrying": "Percobaan ulang otomatis: {error}",
+			"awaiting_payment": "Menunggu pembayaran tagihan pertama oleh pemohon; database dibuat otomatis setelah lunas."
+		},
+		"data": {
+			"title": "Data pengajuan",
+			"submitted": "Dikirim {date}",
+			"name": "Nama lembaga",
+			"name_hint": "Sesuai dokumen resmi lembaga",
+			"level": "Jenjang",
+			"timezone": "Zona waktu",
+			"seats": "Perkiraan murid",
+			"participants": "Peserta per sesi",
+			"address": "Alamat",
+			"pic": "PENANGGUNG JAWAB (PIC)",
+			"pic_name": "Nama",
+			"pic_email": "Email",
+			"pic_phone": "Telepon / WhatsApp",
+			"logo": "Logo lembaga",
+			"no_files": "Tidak ada lampiran"
+		},
+		"check": {
+			"title": "Verifikasi",
+			"note": "{ok} dari {total} terpenuhi",
+			"auto": "OTOMATIS",
+			"manual": "MANUAL",
+			"email": "Email PIC terverifikasi",
+			"email_pending": "Kode verifikasi belum dimasukkan oleh PIC",
+			"npsn": "NPSN cocok dengan Dapodik",
+			"npsn_other": "Identitas penyelenggara",
+			"npsn_na": "NPSN tidak berlaku untuk {type}",
+			"npsn_directory": "NPSN {npsn} · terverifikasi otomatis",
+			"npsn_manual": "NPSN {npsn} · periksa manual di Dapodik (driver: {driver})",
+			"duplicate": "Tidak ada tenant ganda",
+			"duplicate_none": "Tidak ditemukan kemiripan",
+			"duplicate_found": "Email atau nama mirip dengan tenant yang sudah aktif",
+			"not_duplicate": "Tandai bukan duplikat",
+			"docs": "Dokumen sudah saya periksa",
+			"docs_count": "{n} berkas terlampir",
+			"docs_none": "Belum ada berkas terlampir",
+			"contact": "PIC sudah dikonfirmasi",
+			"contact_sub": "Hubungi {name} di {phone}"
+		},
+		"decision": {
+			"title": "Keputusan",
+			"approve": "Setujui",
+			"approve_sub": "Buat tenant & database",
+			"revise": "Minta revisi",
+			"revise_sub": "Pemohon memperbaiki data",
+			"reject": "Tolak",
+			"reject_sub": "Pengajuan ditutup",
+			"plan": "Paket",
+			"trial": "Mulai dengan trial",
+			"trial_on": "Maks. {n} murid selama trial. Invoice terbit saat trial berakhir.",
+			"trial_off": "Invoice pertama langsung terbit setelah disetujui.",
+			"cluster": "Cluster database",
+			"cluster_note": "{used}/{max} DB · {region}",
+			"recommended": "disarankan",
+			"almost_full": "hampir penuh",
+			"db_name": "Nama database",
+			"rev_fields": "Bagian yang perlu diperbaiki pemohon",
+			"rev_note": "Pesan untuk pemohon",
+			"rev_ph": "Jelaskan apa yang perlu diperbaiki agar pengajuan bisa disetujui.",
+			"rev_hint": "Pesan dikirim ke email PIC bersama tautan perbaikan.",
+			"rej_reason": "Alasan penolakan",
+			"rej_pick": "Pilih alasan…",
+			"rej_note": "Catatan",
+			"rej_ph": "Disertakan dalam email pemberitahuan.",
+			"required": "wajib",
+			"optional": "opsional"
+		},
+		"estimate_seat": "Perkiraan tagihan {total}/bulan untuk {seats} murid.",
+		"estimate_flat": "Tagihan tetap {total}/bulan.",
+		"estimate_event": "Pemohon membeli kuota sesi setelah disetujui.",
+		"err": {
+			"name": "Nama lembaga wajib diisi.",
+			"seats": "Isi jumlah yang valid.",
+			"pic": "Nama PIC wajib diisi.",
+			"email": "Format email tidak valid.",
+			"phone": "Nomor telepon terlalu pendek.",
+			"checks": "{n} verifikasi belum terpenuhi",
+			"rev_fields": "Pilih minimal satu bagian.",
+			"rev_note": "Tulis pesan minimal 10 karakter.",
+			"rej_reason": "Pilih alasan penolakan.",
+			"rej_note": "Jelaskan alasan minimal 10 karakter."
+		},
+		"bar": {
+			"ready": "Siap diputuskan",
+			"checks_first": "Lengkapi verifikasi sebelum menyetujui",
+			"fields": "{n} isian perlu diperbaiki",
+			"reset": "Batalkan perubahan",
+			"go_approve": "Setujui & buat database",
+			"go_revise": "Kirim permintaan revisi",
+			"go_reject": "Tolak pengajuan"
+		},
+		"confirm": {
+			"approve_title": "Setujui {name}?",
+			"approve_message": "Tenant dibuat dan database disiapkan di {cluster}. PIC menerima email aktivasi setelah selesai.",
+			"approve_label": "Ya, setujui",
+			"revise_title": "Kirim permintaan revisi?",
+			"revise_message": "Pemohon menerima email berisi pesan Anda. SLA berhenti sampai data diperbaiki.",
+			"revise_label": "Kirim",
+			"reject_title": "Tolak pengajuan {name}?",
+			"reject_message": "Pemohon menerima email penolakan. Pengajuan bisa dibuka kembali bila diperlukan.",
+			"reject_label": "Ya, tolak",
+			"plan": "Paket",
+			"trial": "trial",
+			"database": "Database",
+			"fields": "Bagian",
+			"to": "Kepada",
+			"reason": "Alasan",
+			"busy": "Memproses…",
+			"cancel": "Batal"
+		},
+		"toast": {
+			"approved": "{name} disetujui.",
+			"revised": "Permintaan revisi dikirim ke {email}.",
+			"rejected": "Pengajuan ditolak. Email pemberitahuan dikirim.",
+			"fixed": "Pengajuan kembali ke antrean peninjauan.",
+			"reopened": "Pengajuan dibuka kembali."
+		},
+		"failure": {
+			"checks_incomplete": "Verifikasi belum lengkap.",
+			"invalid_transition": "Status pengajuan sudah berubah. Muat ulang halaman.",
+			"forbidden": "Anda tidak memiliki izin untuk tindakan ini.",
+			"validation_failed": "Ada isian yang belum valid.",
+			"generic": "Permintaan belum berhasil diproses. Coba lagi."
 		}
 	}
 }

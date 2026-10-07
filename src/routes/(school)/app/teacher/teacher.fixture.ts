@@ -97,7 +97,6 @@ function gradebookClass(
 }
 
 export const teacherDashboardFixture: TeacherDashboardData = {
-	greetingName: 'Bu Rina',
 	date: '2026-10-05',
 	semesterLabel: 'Semester Ganjil',
 	clockStartSeconds: REFERENCE_CLOCK_SECONDS,

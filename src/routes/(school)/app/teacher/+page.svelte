@@ -6,7 +6,8 @@
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
-	import { greetingParts, semesterKey } from '$lib/features/dashboards/dashboards.model';
+	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { initialsOf } from '$lib/utils/initials';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -101,11 +102,8 @@
 	const visibleToast = $derived(toast && elapsedSeconds < toast.until ? toast : null);
 	const simulationNote = $derived(i18n.t('dashboard.sample.simulation_note'));
 	// Sapaan & semester dari backend; data contoh (referensi) bila backend belum menjawab.
-	const greetingName = $derived.by(() => {
-		if (!data.live) return dashboard?.greetingName ?? '';
-		const { name, honorific } = greetingParts(data.live.viewer);
-		return honorific ? i18n.t(`dashboard.honorific.${honorific}`, { name }) : name;
-	});
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greetingName = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const semesterLabel = $derived.by(() => {
 		if (!data.live) return dashboard?.semesterLabel ?? '';
 		const key = semesterKey(data.live.period.semester);

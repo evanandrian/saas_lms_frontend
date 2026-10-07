@@ -6,7 +6,6 @@ import type { GuardianDashboardData } from './guardian-dashboard';
  * Jam contoh 16.00 agar sapaan "Selamat sore" sama dengan referensi.
  */
 export const guardianDashboardFixture: GuardianDashboardData = {
-	greetingName: 'Ibu Sari',
 	date: '2026-10-05',
 	clockStartSeconds: 16 * 3600,
 	masteryTarget: 75,

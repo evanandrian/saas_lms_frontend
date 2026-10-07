@@ -36,12 +36,15 @@ export const DASHBOARD_ROUTING_POLICY: DashboardRoutingPolicy = {
 /** Route yang mewajibkan sesi terautentikasi (ADR-019 §4: `/app/*`, `/console/*`). */
 /** Halaman pengaturan platform di luar `/console` (Menu & navigasi, Master data): wajib area platform. */
 const PLATFORM_SETTINGS_PREFIX = '/settings';
+/** Halaman operasional platform (Pengajuan lembaga, Tenant, dst.): wajib area platform. */
+const PLATFORM_OPERATIONS_PREFIX = '/platform';
 
 const PROTECTED_PATH_PREFIXES = [
 	APP_PATHS.PLATFORM_HOME,
 	APP_PATHS.SCHOOL_HOME,
 	APP_PATHS.SELECT_CONTEXT,
-	PLATFORM_SETTINGS_PREFIX
+	PLATFORM_SETTINGS_PREFIX,
+	PLATFORM_OPERATIONS_PREFIX
 ] as const;
 
 const SEE_OTHER_STATUS = 303;
@@ -136,11 +139,12 @@ export function authorizeRoute(
 	if (memberships.length === 0) return { kind: 'redirect', location: APP_PATHS.ACCESS_DENIED };
 
 	// Path di luar area tertentu (`/app` pemilih area, `/select-context`) cukup butuh satu konteks sah.
-	const requiredArea: WorkspaceArea | undefined = isWithin(pathname, PLATFORM_SETTINGS_PREFIX)
-		? 'platform'
-		: (Object.keys(policy) as WorkspaceArea[]).find((area) =>
-				isWithin(pathname, policy[area].landingPath)
-			);
+	const requiredArea: WorkspaceArea | undefined =
+		isWithin(pathname, PLATFORM_SETTINGS_PREFIX) || isWithin(pathname, PLATFORM_OPERATIONS_PREFIX)
+			? 'platform'
+			: (Object.keys(policy) as WorkspaceArea[]).find((area) =>
+					isWithin(pathname, policy[area].landingPath)
+				);
 	if (requiredArea && !memberships.some((membership) => membership.area === requiredArea)) {
 		return { kind: 'redirect', location: APP_PATHS.ACCESS_DENIED };
 	}

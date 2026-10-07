@@ -4,6 +4,7 @@
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
+	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { formatLongDate, greetingPeriod } from '$lib/utils/clock';
 	import { createDashboardClock } from '$lib/utils/dashboard-clock.svelte';
@@ -32,6 +33,8 @@
 	let { data }: PageProps = $props();
 
 	const i18n = useI18n();
+	// Sapaan dari profil user yang masuk (backend), bukan data contoh.
+	const greeting = $derived(workspaceGreeting(data.workspace, i18n.t));
 	const reasonId = $props.id();
 	const LOCALE = 'id-ID';
 	const TOAST_SECONDS = 6;
@@ -139,7 +142,7 @@
 		<HeroBanner
 			eyebrow={`${formatLongDate(dashboard.date, LOCALE)} · ${i18n.t('dashboard.guardian.portal')}`}
 			title={i18n.t(`dashboard.greeting.${greetingPeriod(clock.nowSeconds)}`, {
-				name: dashboard.greetingName
+				name: greeting
 			})}
 			description={child.headline}
 		>
@@ -286,7 +289,7 @@
 					{#each childReplies as reply, index (index)}
 						<p class="text-lms-link text-base leading-[34px]">
 							{reply}<span class="text-lms-muted ms-1 text-xs">
-								{i18n.t('dashboard.guardian.reply_by', { name: dashboard.greetingName })}</span
+								{i18n.t('dashboard.guardian.reply_by', { name: greeting })}</span
 							>
 						</p>
 					{/each}

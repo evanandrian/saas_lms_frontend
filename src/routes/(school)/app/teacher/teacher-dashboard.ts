@@ -51,8 +51,6 @@ export interface GradebookClass {
 }
 
 export interface TeacherDashboardData {
-	/** Sapaan nama, mis. "Bu Rina". */
-	readonly greetingName: string;
 	/** Tanggal kalender `YYYY-MM-DD` (WIB). */
 	readonly date: string;
 	readonly semesterLabel: string;

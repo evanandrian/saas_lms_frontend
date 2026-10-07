@@ -5,7 +5,7 @@
 	import RoleSwitch, {
 		type RoleSwitchItem
 	} from '$lib/features/dashboards/components/RoleSwitch.svelte';
-	import { areaIdentity } from '$lib/features/dashboards/components/area-identity';
+	import { workspaceBadge, workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import BookOpen from '@lucide/svelte/icons/book-open';
@@ -30,8 +30,6 @@
 	let { data, children }: LayoutProps = $props();
 
 	const i18n = useI18n();
-	/** Kelas perwalian data contoh (referensi) bila backend belum memberi konteks peran. */
-	const SAMPLE_HOMEROOM_CLASS = 'XI-A';
 
 	const isHomeroomView = $derived(data.activeView === 'homeroom');
 
@@ -43,7 +41,7 @@
 		{
 			label: i18n.t('nav.teacher.assignments'),
 			icon: ClipboardList,
-			badge: data.identity?.navBadges.assignments
+			badge: workspaceBadge(data.workspace, 'tasks')
 		},
 		{ label: i18n.t('nav.teacher.assessments'), icon: FileQuestion },
 		{ label: i18n.t('nav.teacher.exam_schedule'), icon: CalendarClock },
@@ -67,11 +65,7 @@
 		{ label: i18n.t('nav.homeroom.settings'), icon: Settings, href: APP_PATHS.TEACHER_ACCOUNT }
 	]);
 
-	const homeroomClass = $derived(
-		data.dashboardContext
-			? (data.dashboardContext.homeroom_class?.name ?? null)
-			: SAMPLE_HOMEROOM_CLASS
-	);
+	const homeroomClass = $derived(data.dashboardContext?.homeroom_class?.name ?? null);
 	const homeroomLabel = $derived(
 		homeroomClass
 			? i18n.t('dashboard.role_switch.homeroom_class', { class: homeroomClass })
@@ -80,20 +74,8 @@
 	const roleLabel = $derived(
 		isHomeroomView ? homeroomLabel : i18n.t('dashboard.role_switch.teacher')
 	);
-	const liveIdentity = $derived(
-		areaIdentity(
-			data.dashboardContext,
-			roleLabel,
-			i18n.t('dashboard.role_switch.tenant_detail', {
-				role: isHomeroomView
-					? i18n.t('dashboard.role_switch.homeroom')
-					: i18n.t('dashboard.role_switch.teacher_short')
-			})
-		)
-	);
-	const fallbackIdentity = $derived(
-		isHomeroomView ? (data.homeroomIdentity ?? data.identity) : data.identity
-	);
+	// Kartu lembaga/user dari backend; detail user = tampilan aktif (toggle Guru mapel ↔ Wali kelas).
+	const identity = $derived(workspaceIdentity(data.workspace, i18n.t, { userDetail: roleLabel }));
 
 	// Toggle Guru mapel ↔ Wali kelas: hanya bila peran memiliki kedua tampilan (HOMEROOM_TEACHER).
 	const roleItems: RoleSwitchItem[] = $derived(
@@ -122,8 +104,8 @@
 <WorkspaceShell
 	areaLabel={isHomeroomView ? i18n.t('nav.homeroom.area') : i18n.t('nav.teacher.area')}
 	navItems={isHomeroomView ? homeroomNav : teacherNav}
-	tenant={liveIdentity?.tenant ?? fallbackIdentity?.tenant}
-	user={liveIdentity?.user ?? fallbackIdentity?.user}
+	tenant={identity?.tenant}
+	user={identity?.user}
 	searchPlaceholder={isHomeroomView
 		? homeroomClass
 			? i18n.t('nav.homeroom.search', { class: homeroomClass })
