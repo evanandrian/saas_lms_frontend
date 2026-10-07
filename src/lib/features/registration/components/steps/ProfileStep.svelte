@@ -99,6 +99,23 @@
 					class="input lms-input lms-focus-ring h-11 font-mono text-[0.9375rem]"
 				/>
 			</Field>
+			<div class="col-span-full pt-1 pb-2">
+				<label class="flex items-start gap-3 cursor-pointer">
+					<input
+						type="checkbox"
+						bind:checked={wizard.setup.isPrincipal}
+						onchange={() => {
+							if (wizard.setup.isPrincipal) {
+								wizard.setup.principalName = wizard.fullName;
+							} else if (wizard.setup.principalName === wizard.fullName) {
+								wizard.setup.principalName = '';
+							}
+						}}
+						class="accent-lms-interactive mt-0.5 size-5 flex-none"
+					/>
+					<span class="text-[0.9375rem] leading-6">Saya juga menjabat sebagai Kepala Sekolah pada lembaga ini</span>
+				</label>
+			</div>
 		{/if}
 		{#if wizard.type === 'personal'}
 			<div class="col-span-full flex flex-col gap-1.5">

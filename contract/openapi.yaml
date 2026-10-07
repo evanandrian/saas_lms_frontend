@@ -5450,6 +5450,8 @@ components:
           type: string
         principal_nip:
           type: string
+        is_principal:
+          type: boolean
         about:
           type: string
         coordinator:

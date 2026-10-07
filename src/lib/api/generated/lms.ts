@@ -2058,6 +2058,7 @@ export interface RegistrationTenant {
 export interface ProfileSetup {
 	principal_name: string;
 	principal_nip: string;
+	is_principal?: boolean;
 	about: string;
 	coordinator: string;
 	phone: string;

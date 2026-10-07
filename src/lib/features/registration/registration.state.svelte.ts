@@ -33,6 +33,7 @@ export interface Challenge {
 export interface SetupForm {
 	principalName: string;
 	principalNip: string;
+	isPrincipal: boolean;
 	about: string;
 	coordinator: string;
 	phone: string;
@@ -224,6 +225,7 @@ export class RegistrationWizard {
 		if (s.profile) {
 			next.principalName = s.profile.principal_name;
 			next.principalNip = s.profile.principal_nip;
+			next.isPrincipal = s.profile.is_principal ?? false;
 			next.about = s.profile.about;
 			next.coordinator = s.profile.coordinator;
 			next.phone = onlyDigits(s.profile.phone);
@@ -310,6 +312,7 @@ function emptySetup(): SetupForm {
 	return {
 		principalName: '',
 		principalNip: '',
+		isPrincipal: false,
 		about: '',
 		coordinator: '',
 		phone: '',
