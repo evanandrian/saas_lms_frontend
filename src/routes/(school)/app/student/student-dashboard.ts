@@ -208,3 +208,98 @@ const SECONDS_PER_MINUTE = 60;
 /** Detik menuju ujian (≤ 0 berarti sudah dimulai). */
 export const secondsUntilStart = (startMinutes: number, nowSeconds: number) =>
 	startMinutes * SECONDS_PER_MINUTE - nowSeconds;
+
+/** Menghasilkan pekan streak dinamis 7 hari (H-6 s.d. hari ini H-0) dan menghitung hari beruntun. */
+export function buildDynamicStreak(
+	todayIso: string,
+	attendanceHistory?: Record<string, string>
+): {
+	days: number;
+	week: { date: string; status: StreakStatus }[];
+} {
+	const todayDate = new Date(`${todayIso}T00:00:00Z`);
+	const week: { date: string; status: StreakStatus }[] = [];
+
+	for (let i = 6; i >= 0; i--) {
+		const d = new Date(todayDate.getTime() - i * MS_PER_DAY);
+		const dateStr = d.toISOString().slice(0, 10);
+		const dayOfWeek = d.getUTCDay(); // 0: Min, 6: Sab
+		const att = attendanceHistory ? attendanceHistory[dateStr] : undefined;
+
+		let status: StreakStatus = 'rest';
+		if (i === 0) {
+			status = att === 'present' ? 'done' : 'today';
+		} else if (dayOfWeek === 0 || dayOfWeek === 6) {
+			status = 'rest';
+		} else {
+			status = att === 'present' ? 'done' : (att ? 'rest' : 'done');
+		}
+		week.push({ date: dateStr, status });
+	}
+
+	let days = 0;
+	for (let i = week.length - 1; i >= 0; i--) {
+		const item = week[i];
+		if (!item) continue;
+		if (item.status === 'done') {
+			// Hari aktif belajar yang sudah selesai (centang)
+			days++;
+		} else if (item.status === 'today') {
+			// Hari ini sedang berlangsung (belum dihitung sebagai hari yang selesai)
+			continue;
+		} else if (item.status === 'rest') {
+			const d = new Date(`${item.date}T00:00:00Z`);
+			const dow = d.getUTCDay();
+			if (dow === 0 || dow === 6) {
+				// Akhir pekan tidak memutus rangkaian, namun bukan hari belajar (tidak menambah hitungan)
+				continue;
+			} else {
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+
+	return { days, week };
+}
+
+export interface LevelTier {
+	readonly level: number;
+	readonly name: string;
+	readonly requiredXp: number;
+	readonly nextLevelXp: number;
+}
+
+export const LEVEL_TIERS: readonly LevelTier[] = [
+	{ level: 10, name: 'Sang Juara', requiredXp: 3200, nextLevelXp: 4000 },
+	{ level: 9, name: 'Master Belajar', requiredXp: 2500, nextLevelXp: 3200 },
+	{ level: 8, name: 'Pakar Muda', requiredXp: 1900, nextLevelXp: 2500 },
+	{ level: 7, name: 'Penjelajah', requiredXp: 1400, nextLevelXp: 1900 },
+	{ level: 6, name: 'Petualang Ilmu', requiredXp: 1000, nextLevelXp: 1400 },
+	{ level: 5, name: 'Pembelajar Hebat', requiredXp: 700, nextLevelXp: 1000 },
+	{ level: 4, name: 'Cendekia Muda', requiredXp: 450, nextLevelXp: 700 },
+	{ level: 3, name: 'Murid Rajin', requiredXp: 250, nextLevelXp: 450 },
+	{ level: 2, name: 'Pelajar Baru', requiredXp: 100, nextLevelXp: 250 },
+	{ level: 1, name: 'Pemula', requiredXp: 0, nextLevelXp: 100 }
+];
+
+export function getLevelForXp(xp: number): {
+	number: number;
+	name: string;
+	xp: number;
+	nextLevelXp: number;
+} {
+	for (const tier of LEVEL_TIERS) {
+		if (xp >= tier.requiredXp) {
+			return {
+				number: tier.level,
+				name: tier.name,
+				xp,
+				nextLevelXp: tier.nextLevelXp
+			};
+		}
+	}
+	return { number: 1, name: 'Pemula', xp, nextLevelXp: 100 };
+}
+

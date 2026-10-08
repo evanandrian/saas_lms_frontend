@@ -589,6 +589,7 @@
 			},
 			"quests": "This week's tasks",
 			"quests_done": "{done}/{total} done",
+			"quests_empty": "No tasks or quizzes scheduled this week",
 			"mark_done": "Mark done: {title}",
 			"due": {
 				"today": "today",
@@ -597,14 +598,18 @@
 				"done": "done"
 			},
 			"toast_quest": "+{xp} XP · {title} done!",
+			"toast_exam": "Assessment {title} started. Good luck, {name}!",
 			"subjects": "Subject collection",
+			"subjects_empty": "No subjects registered yet",
 			"tier": {
 				"gold": "Gold",
 				"silver": "Silver",
 				"bronze": "Bronze"
 			},
 			"recent_scores": "Recent scores",
+			"recent_scores_empty": "No recent scores yet",
 			"remedial": "Needs remedial",
+			"remedial_empty": "All scores are above KKTP. Great job!",
 			"remedial_count": "{count} below KKTP {target}",
 			"remedial_due": "{subject} · remedial by {date}",
 			"remedial_start": "Start remedial · +{xp} XP",
@@ -613,8 +618,10 @@
 			"score_of": "/{target}",
 			"target_marker": "Target {target}",
 			"improve": "To improve this semester",
+			"improve_empty": "All learning objectives meet the target",
 			"improve_hint": "Learning objectives below target {target}. Tap for the teacher's tips.",
 			"attendance": "Attendance history",
+			"attendance_empty": "No attendance records available",
 			"attendance_month": "Month",
 			"attendance_days": "{present} of {total} school days",
 			"attendance_status": {

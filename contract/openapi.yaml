@@ -1723,6 +1723,26 @@ paths:
                     $ref: '#/components/schemas/TeacherDashboard'
         '403':
           $ref: '#/components/responses/DashboardError'
+  /api/v1/dashboards/student:
+    get:
+      operationId: getStudentDashboard
+      tags: [dashboards]
+      summary: Student dashboard (STUDENT only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data (sections without a backing module are null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StudentDashboard'
+        '403':
+          $ref: '#/components/responses/DashboardError'
   /api/v1/public/signup/catalog:
     get:
       operationId: getSignupCatalog
@@ -4715,6 +4735,250 @@ components:
           items:
             type: object
             additionalProperties: true
+    TodayAssessment:
+      type: object
+      required: [id, title, subject, start_minutes, end_minutes, question_count, xp_reward]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        subject:
+          type: string
+        start_minutes:
+          type: integer
+          format: int32
+        end_minutes:
+          type: integer
+          format: int32
+        question_count:
+          type: integer
+          format: int32
+        xp_reward:
+          type: integer
+          format: int32
+    StreakDay:
+      type: object
+      required: [date, status]
+      properties:
+        date:
+          type: string
+        status:
+          type: string
+          enum: [done, rest, today]
+    StudentStreak:
+      type: object
+      required: [days, week]
+      properties:
+        days:
+          type: integer
+          format: int32
+        week:
+          type: array
+          items:
+            $ref: '#/components/schemas/StreakDay'
+    StudentLevel:
+      type: object
+      required: [number, name, xp, next_level_xp]
+      properties:
+        number:
+          type: integer
+          format: int32
+        name:
+          type: string
+        xp:
+          type: integer
+          format: int32
+        next_level_xp:
+          type: integer
+          format: int32
+    StudentQuest:
+      type: object
+      required: [id, title, subject, due_date, xp, done]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        subject:
+          type: string
+        due_date:
+          type: string
+        xp:
+          type: integer
+          format: int32
+        done:
+          type: boolean
+    StudentSubjectMastery:
+      type: object
+      required: [id, name, icon, percent]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        percent:
+          type: integer
+          format: int32
+    StudentRecentScore:
+      type: object
+      required: [id, title, subject, date, score]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        subject:
+          type: string
+        date:
+          type: string
+        score:
+          type: number
+          format: double
+    StudentRemedial:
+      type: object
+      required: [id, title, subject, score, due_date]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        subject:
+          type: string
+        score:
+          type: number
+          format: double
+        due_date:
+          type: string
+    StudentBonusPractice:
+      type: object
+      required: [title, description, xp]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        xp:
+          type: integer
+          format: int32
+    StudentImprovement:
+      type: object
+      required: [id, objective, subject_label, score, tip]
+      properties:
+        id:
+          type: string
+        objective:
+          type: string
+        subject_label:
+          type: string
+        score:
+          type: number
+          format: double
+        tip:
+          type: string
+    StudentAttendanceMonth:
+      type: object
+      required: [year, month, label, exceptions]
+      properties:
+        year:
+          type: integer
+          format: int32
+        month:
+          type: integer
+          format: int32
+        label:
+          type: string
+        exceptions:
+          type: object
+          additionalProperties:
+            type: string
+    StudentDashboard:
+      type: object
+      required: [viewer, tenant_name, period, class_name, date, today_assessments]
+      properties:
+        viewer:
+          $ref: '#/components/schemas/DashboardViewer'
+        tenant_name:
+          type: string
+        period:
+          $ref: '#/components/schemas/DashboardPeriod'
+        class_name:
+          type: string
+        date:
+          type: string
+        clock_start_seconds:
+          type: integer
+          format: int64
+          nullable: true
+        today_assessments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodayAssessment'
+        streak:
+          $ref: '#/components/schemas/StudentStreak'
+          nullable: true
+        level:
+          $ref: '#/components/schemas/StudentLevel'
+          nullable: true
+        quests:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentQuest'
+        tier_thresholds:
+          type: object
+          nullable: true
+          additionalProperties: true
+        subjects:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentSubjectMastery'
+        score_bands:
+          type: object
+          nullable: true
+          additionalProperties: true
+        recent_scores:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentRecentScore'
+        mastery_target:
+          type: integer
+          format: int32
+          nullable: true
+        remedial_xp:
+          type: integer
+          format: int32
+          nullable: true
+        remedials:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentRemedial'
+        bonus_practice:
+          $ref: '#/components/schemas/StudentBonusPractice'
+          nullable: true
+        low_score_threshold:
+          type: integer
+          format: int32
+          nullable: true
+        improvements:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentImprovement'
+        attendance_months:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/StudentAttendanceMonth'
+        default_attendance_month:
+          type: integer
+          format: int32
+          nullable: true
     SignupPlan:
       type: object
       properties:

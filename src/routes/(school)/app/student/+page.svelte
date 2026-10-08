@@ -38,6 +38,7 @@
 		scoreBandOf,
 		secondsUntilStart,
 		tierOf,
+		getLevelForXp,
 		type CalendarStatus,
 		type ScoreBand,
 		type StreakStatus,
@@ -122,6 +123,7 @@
 		}, 0);
 		return dashboard.level.xp + questDelta + remedialStarted.length * dashboard.remedialXp;
 	});
+	const currentLevel = $derived(dashboard ? getLevelForXp(xp) : null);
 	const calendar = $derived.by(() => {
 		const month = dashboard?.attendanceMonths[attendanceIndex];
 		return month && dashboard ? attendanceCalendar(month, dashboard.date) : null;
@@ -178,6 +180,17 @@
 			Rocket
 		);
 	}
+
+	function startExam(assessment: { id: string; title: string }) {
+		if (!dashboard) return;
+		showToast(
+			i18n.t('dashboard.student.toast_exam', {
+				title: assessment.title,
+				name: firstName
+			}),
+			ClipboardCheck
+		);
+	}
 </script>
 
 <svelte:head>
@@ -194,7 +207,8 @@
 
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 			<section
-				class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[14px] p-7 md:col-span-2"
+				id="ujian"
+				class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[14px] p-7 md:col-span-2 scroll-mt-6"
 				aria-labelledby="{reasonId}-mission"
 			>
 				<img
@@ -254,9 +268,10 @@
 						</span>
 						<button
 							type="button"
-							class="bg-lms-on-hero text-lms-brand-deep-neutral lms-focus-ring flex h-11 items-center gap-2 rounded-lg px-5 text-[0.9375rem] font-bold disabled:cursor-not-allowed disabled:opacity-50"
-							disabled
-							aria-describedby={reasonId}
+							class="bg-lms-on-hero text-lms-brand-deep-neutral lms-focus-ring flex h-11 items-center gap-2 rounded-lg px-5 text-[0.9375rem] font-bold transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+							disabled={toExam > 0 && !data.canSimulate}
+							onclick={() => startExam(exam)}
+							aria-describedby={toExam > 0 && !data.canSimulate ? reasonId : undefined}
 						>
 							{i18n.t('dashboard.student.start_exam')}<Icon icon={ArrowRight} size="sm" />
 						</button>
@@ -266,7 +281,7 @@
 
 			<section
 				class="lms-card flex min-w-0 flex-col gap-4.5 rounded-[22px]! p-5.5 shadow-none!"
-				aria-label={i18n.t('dashboard.student.level_label', { level: dashboard.level.number })}
+				aria-label={i18n.t('dashboard.student.level_label', { level: currentLevel?.number ?? dashboard.level.number })}
 			>
 				<div class="flex items-center gap-3.5">
 					<span
@@ -275,15 +290,15 @@
 						<span class="text-[10px] font-bold tracking-widest">
 							{i18n.t('dashboard.student.level_short')}
 						</span>
-						<span class="text-2xl font-bold">{dashboard.level.number}</span>
+						<span class="text-2xl font-bold">{currentLevel?.number ?? dashboard.level.number}</span>
 					</span>
 					<span class="flex flex-col gap-0.5">
-						<span class="text-base font-bold">{dashboard.level.name}</span>
+						<span class="text-base font-bold">{currentLevel?.name ?? dashboard.level.name}</span>
 						<span class="text-lms-muted text-[0.8125rem]">
 							{i18n.t('dashboard.student.xp_to_next', {
 								xp: xp.toLocaleString(LOCALE),
-								target: dashboard.level.nextLevelXp.toLocaleString(LOCALE),
-								next: dashboard.level.number + 1
+								target: (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp).toLocaleString(LOCALE),
+								next: (currentLevel?.number ?? dashboard.level.number) + 1
 							})}
 						</span>
 					</span>
@@ -291,7 +306,7 @@
 				<div class="bg-lms-surface-muted h-3.5 overflow-hidden rounded-full" aria-hidden="true">
 					<div
 						class="bg-lms-interactive h-full rounded-full transition-[width] duration-500 ease-[cubic-bezier(.2,.9,.3,1.2)] motion-reduce:transition-none"
-						style:width="{Math.min(100, (xp / dashboard.level.nextLevelXp) * 100)}%"
+						style:width="{Math.min(100, (xp / (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp)) * 100)}%"
 					></div>
 				</div>
 				<div class="border-lms-input-border flex flex-col gap-2.5 border-t border-dashed pt-3.5">
@@ -327,7 +342,8 @@
 
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 			<section
-				class="lms-card flex min-w-0 flex-col gap-1.5 rounded-[22px]! p-5 shadow-none!"
+				id="tugas"
+				class="lms-card flex min-w-0 flex-col gap-1.5 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-quests"
 			>
 				<div class="mb-1.5 flex items-baseline justify-between">
@@ -341,127 +357,148 @@
 						})}
 					</span>
 				</div>
-				<ul class="flex flex-col gap-1.5">
-					{#each dashboard.quests as quest (quest.id)}
-						{@const done = questDone.includes(quest.id)}
-						<li
-							class={[
-								'flex items-center gap-3 rounded-[14px] px-3 py-2.5 transition-colors',
-								!done && 'bg-lms-interactive-subtle'
-							]}
-						>
-							<button
-								type="button"
-								role="checkbox"
-								aria-checked={done}
-								aria-label={i18n.t('dashboard.student.mark_done', { title: quest.title })}
+				{#if dashboard.quests.length === 0}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.quests_empty')}
+					</p>
+				{:else}
+					<ul class="flex flex-col gap-1.5">
+						{#each dashboard.quests as quest (quest.id)}
+							{@const done = questDone.includes(quest.id)}
+							<li
 								class={[
-									'border-lms-interactive lms-focus-ring flex size-7 flex-none items-center justify-center rounded-full border-2 transition-[background-color,transform] duration-250 ease-[cubic-bezier(.2,.9,.3,1.6)] disabled:cursor-not-allowed disabled:opacity-50',
-									done ? 'bg-lms-interactive text-lms-on-interactive scale-108' : ''
+									'flex items-center gap-3 rounded-[14px] px-3 py-2.5 transition-colors',
+									!done && 'bg-lms-interactive-subtle'
 								]}
-								disabled={actionsDisabled}
-								aria-describedby={actionsDisabled ? reasonId : undefined}
-								onclick={() => toggleQuest(quest)}
 							>
-								<span class={done ? 'opacity-100' : 'opacity-0'}
-									><Icon icon={Check} size="sm" /></span
+								<button
+									type="button"
+									role="checkbox"
+									aria-checked={done}
+									aria-label={i18n.t('dashboard.student.mark_done', { title: quest.title })}
+									class={[
+										'border-lms-interactive lms-focus-ring flex size-7 flex-none items-center justify-center rounded-full border-2 transition-[background-color,transform] duration-250 ease-[cubic-bezier(.2,.9,.3,1.6)] disabled:cursor-not-allowed disabled:opacity-50',
+										done ? 'bg-lms-interactive text-lms-on-interactive scale-108' : ''
+									]}
+									disabled={actionsDisabled}
+									aria-describedby={actionsDisabled ? reasonId : undefined}
+									onclick={() => toggleQuest(quest)}
 								>
-							</button>
-							<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-								<span class={['text-sm font-semibold', done ? 'text-lms-muted line-through' : '']}>
-									{quest.title}
-								</span>
-								<span class="text-lms-muted text-xs">
-									{quest.subject} ·
-									<span
-										class={[
-											'font-semibold',
-											done
-												? 'text-lms-progress-text'
-												: isUrgent(quest.dueDate, dashboard.date)
-													? 'text-lms-danger-text'
-													: 'text-lms-muted'
-										]}
+									<span class={done ? 'opacity-100' : 'opacity-0'}
+										><Icon icon={Check} size="sm" /></span
 									>
-										{done
-											? i18n.t('dashboard.student.due.done')
-											: dueText(quest.dueDate, dashboard.date)}
+								</button>
+								<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+									<span class={['text-sm font-semibold', done ? 'text-lms-muted line-through' : '']}>
+										{quest.title}
+									</span>
+									<span class="text-lms-muted text-xs">
+										{quest.subject} ·
+										<span
+											class={[
+												'font-semibold',
+												done
+													? 'text-lms-progress-text'
+													: isUrgent(quest.dueDate, dashboard.date)
+														? 'text-lms-danger-text'
+														: 'text-lms-muted'
+											]}
+										>
+											{done
+												? i18n.t('dashboard.student.due.done')
+												: dueText(quest.dueDate, dashboard.date)}
+										</span>
 									</span>
 								</span>
-							</span>
-							<span class="text-lms-link text-xs font-bold whitespace-nowrap">
-								{i18n.t('dashboard.student.xp', { xp: quest.xp })}
-							</span>
-						</li>
-					{/each}
-				</ul>
+								<span class="text-lms-link text-xs font-bold whitespace-nowrap">
+									{i18n.t('dashboard.student.xp', { xp: quest.xp })}
+								</span>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</section>
 
 			<section
-				class="lms-card flex min-w-0 flex-col gap-3.5 rounded-[22px]! p-5 shadow-none!"
+				id="materi"
+				class="lms-card flex min-w-0 flex-col gap-3.5 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-subjects"
 			>
 				<h2 id="{reasonId}-subjects" class="text-base font-bold">
 					{i18n.t('dashboard.student.subjects')}
 				</h2>
-				<ul class="grid grid-cols-[repeat(auto-fit,minmax(7.375rem,1fr))] gap-2.5">
-					{#each dashboard.subjects as subject (subject.id)}
-						{@const tier = tierOf(subject.percent, dashboard.tierThresholds)}
-						<li
-							class="bg-lms-interactive-subtle border-lms-interactive/18 flex flex-col items-center gap-2 rounded-2xl border p-3.5 text-center"
-						>
-							<span
-								class="flex size-14.5 items-center justify-center rounded-full"
-								style:background="conic-gradient({TIER_COLORS[tier].ring} 0 {subject.percent}%,
-								var(--color-lms-surface-muted) 0)"
-								aria-hidden="true"
+				{#if dashboard.subjects.length === 0}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.subjects_empty')}
+					</p>
+				{:else}
+					<ul class="grid grid-cols-[repeat(auto-fit,minmax(7.375rem,1fr))] gap-2.5">
+						{#each dashboard.subjects as subject (subject.id)}
+							{@const tier = tierOf(subject.percent, dashboard.tierThresholds)}
+							<li
+								class="bg-lms-interactive-subtle border-lms-interactive/18 flex flex-col items-center gap-2 rounded-2xl border p-3.5 text-center"
 							>
 								<span
-									class={[
-										'bg-lms-surface flex size-11.5 items-center justify-center rounded-full',
-										TIER_COLORS[tier].text
-									]}
+									class="flex size-14.5 items-center justify-center rounded-full"
+									style:background="conic-gradient({TIER_COLORS[tier].ring} 0 {subject.percent}%,
+									var(--color-lms-surface-muted) 0)"
+									aria-hidden="true"
 								>
-									<Icon icon={SUBJECT_ICONS[subject.icon]} />
+									<span
+										class={[
+											'bg-lms-surface flex size-11.5 items-center justify-center rounded-full',
+											TIER_COLORS[tier].text
+										]}
+									>
+										<Icon icon={SUBJECT_ICONS[subject.icon]} />
+									</span>
 								</span>
-							</span>
-							<span class="text-[0.8125rem] leading-[1.0625rem] font-bold">{subject.name}</span>
-							<span class="text-lms-muted text-[11px]">
-								{subject.percent}% · {i18n.t(`dashboard.student.tier.${tier}`)}
-							</span>
-						</li>
-					{/each}
-				</ul>
+								<span class="text-[0.8125rem] leading-[1.0625rem] font-bold">{subject.name}</span>
+								<span class="text-lms-muted text-[11px]">
+									{subject.percent}% · {i18n.t(`dashboard.student.tier.${tier}`)}
+								</span>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</section>
 
 			<section
-				class="lms-card flex min-w-0 flex-col gap-4 rounded-[22px]! p-5 shadow-none!"
+				id="nilai"
+				class="lms-card flex min-w-0 flex-col gap-4 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-scores"
 			>
 				<h2 id="{reasonId}-scores" class="text-base font-bold">
 					{i18n.t('dashboard.student.recent_scores')}
 				</h2>
-				<ul class="grid grid-cols-2 gap-3.5 p-1">
-					{#each dashboard.recentScores as score, index (score.id)}
-						<li
-							class={[
-								'flex flex-col gap-1 rounded-2xl p-3.5 transition-transform duration-200 hover:scale-104 hover:rotate-0',
-								STICKER_CLASSES[scoreBandOf(score.score, dashboard.scoreBands)],
-								STICKER_ROTATIONS[index % STICKER_ROTATIONS.length]
-							]}
-						>
-							<span class="text-3xl leading-none font-bold tabular-nums">{score.score}</span>
-							<span class="text-xs leading-4 font-bold">{score.title}</span>
-							<span class="text-[11px]">{score.subject} · {formatShortDayMonth(score.date)}</span>
-						</li>
-					{/each}
-				</ul>
+				{#if dashboard.recentScores.length === 0}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.recent_scores_empty')}
+					</p>
+				{:else}
+					<ul class="grid grid-cols-2 gap-3.5 p-1">
+						{#each dashboard.recentScores as score, index (score.id)}
+							<li
+								class={[
+									'flex flex-col gap-1 rounded-2xl p-3.5 transition-transform duration-200 hover:scale-104 hover:rotate-0',
+									STICKER_CLASSES[scoreBandOf(score.score, dashboard.scoreBands)],
+									STICKER_ROTATIONS[index % STICKER_ROTATIONS.length]
+								]}
+							>
+								<span class="text-3xl leading-none font-bold tabular-nums">{score.score}</span>
+								<span class="text-xs leading-4 font-bold">{score.title}</span>
+								<span class="text-[11px]">{score.subject} · {formatShortDayMonth(score.date)}</span>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</section>
 		</div>
 
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 			<section
-				class="lms-card flex min-w-0 flex-col gap-3 rounded-[22px]! p-5 shadow-none!"
+				id="remedial"
+				class="lms-card flex min-w-0 flex-col gap-3 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-remedial"
 			>
 				<div class="flex items-center justify-between gap-2">
@@ -475,54 +512,60 @@
 						})}
 					</span>
 				</div>
-				{#each dashboard.remedials as remedial (remedial.id)}
-					{@const started = remedialStarted.includes(remedial.id)}
-					<div class="border-lms-border flex flex-col gap-3 rounded-2xl border p-3.5">
-						<div class="flex items-center gap-3">
-							<span
-								class="bg-error-100 text-lms-brand-deep-neutral flex size-13 flex-none -rotate-3 flex-col items-center justify-center rounded-[14px] leading-none"
+				{#if dashboard.remedials.length === 0}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.remedial_empty')}
+					</p>
+				{:else}
+					{#each dashboard.remedials as remedial (remedial.id)}
+						{@const started = remedialStarted.includes(remedial.id)}
+						<div class="border-lms-border flex flex-col gap-3 rounded-2xl border p-3.5">
+							<div class="flex items-center gap-3">
+								<span
+									class="bg-error-100 text-lms-brand-deep-neutral flex size-13 flex-none -rotate-3 flex-col items-center justify-center rounded-[14px] leading-none"
+								>
+									<span class="text-xl font-bold">{remedial.score}</span>
+									<span class="mt-0.5 text-[10px]">
+										{i18n.t('dashboard.student.score_of', { target })}
+									</span>
+								</span>
+								<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+									<span class="text-sm font-bold">{remedial.title}</span>
+									<span class="text-lms-muted text-xs">
+										{i18n.t('dashboard.student.remedial_due', {
+											subject: remedial.subject,
+											date: formatWeekdayDate(remedial.dueDate)
+										})}
+									</span>
+								</span>
+							</div>
+							<span class="bg-lms-surface-muted relative block h-1.5 rounded-full" aria-hidden="true">
+								<span
+									class="bg-warning-500 absolute inset-y-0 left-0 rounded-full"
+									style:width="{remedial.score}%"
+								></span>
+								<span class="bg-lms-foreground absolute -inset-y-1 w-0.5" style:left="{target}%"
+								></span>
+							</span>
+							<button
+								type="button"
+								class={[
+									'lms-focus-ring flex h-9.5 items-center justify-center gap-2 rounded-xl text-[0.8125rem] font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+									started ? 'bg-lms-progress/12 text-lms-progress-text' : 'lms-action-primary'
+								]}
+								disabled={actionsDisabled}
+								aria-describedby={actionsDisabled ? reasonId : undefined}
+								aria-pressed={started}
+								onclick={() => startRemedial(remedial)}
 							>
-								<span class="text-xl font-bold">{remedial.score}</span>
-								<span class="mt-0.5 text-[10px]">
-									{i18n.t('dashboard.student.score_of', { target })}
-								</span>
-							</span>
-							<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-								<span class="text-sm font-bold">{remedial.title}</span>
-								<span class="text-lms-muted text-xs">
-									{i18n.t('dashboard.student.remedial_due', {
-										subject: remedial.subject,
-										date: formatWeekdayDate(remedial.dueDate)
-									})}
-								</span>
-							</span>
+								<Icon icon={started ? CircleCheck : Rocket} size="sm" />
+								{started
+									? i18n.t('dashboard.student.remedial_started')
+									: i18n.t('dashboard.student.remedial_start', { xp: dashboard.remedialXp })}
+							</button>
 						</div>
-						<span class="bg-lms-surface-muted relative block h-1.5 rounded-full" aria-hidden="true">
-							<span
-								class="bg-warning-500 absolute inset-y-0 left-0 rounded-full"
-								style:width="{remedial.score}%"
-							></span>
-							<span class="bg-lms-foreground absolute -inset-y-1 w-0.5" style:left="{target}%"
-							></span>
-						</span>
-						<button
-							type="button"
-							class={[
-								'lms-focus-ring flex h-9.5 items-center justify-center gap-2 rounded-xl text-[0.8125rem] font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
-								started ? 'bg-lms-progress/12 text-lms-progress-text' : 'lms-action-primary'
-							]}
-							disabled={actionsDisabled}
-							aria-describedby={actionsDisabled ? reasonId : undefined}
-							aria-pressed={started}
-							onclick={() => startRemedial(remedial)}
-						>
-							<Icon icon={started ? CircleCheck : Rocket} size="sm" />
-							{started
-								? i18n.t('dashboard.student.remedial_started')
-								: i18n.t('dashboard.student.remedial_start', { xp: dashboard.remedialXp })}
-						</button>
-					</div>
-				{/each}
+					{/each}
+				{/if}
 				{#if dashboard.bonusPractice}
 					<div
 						class="border-lms-interactive flex items-center gap-3 rounded-[14px] border-2 border-dashed p-3.5"
@@ -546,7 +589,8 @@
 			</section>
 
 			<section
-				class="lms-card flex min-w-0 flex-col gap-2.5 rounded-[22px]! p-5 shadow-none!"
+				id="peningkatan"
+				class="lms-card flex min-w-0 flex-col gap-2.5 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-improve"
 			>
 				<div>
@@ -557,20 +601,25 @@
 						{i18n.t('dashboard.student.improve_hint', { target })}
 					</p>
 				</div>
-				{#each dashboard.improvements as item (item.id)}
-					{@const open = openImprovement === item.id}
-					{@const low = item.score < dashboard.lowScoreThreshold}
-					<button
-						type="button"
-						class={[
-							'lms-focus-ring text-lms-foreground flex w-full flex-col gap-2 rounded-[14px] border p-3 text-left transition-colors',
-							open
-								? 'bg-lms-interactive-subtle border-lms-interactive/30'
-								: 'border-lms-border bg-transparent'
-						]}
-						aria-expanded={open}
-						onclick={() => (openImprovement = open ? null : item.id)}
-					>
+				{#if dashboard.improvements.length === 0}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.improve_empty')}
+					</p>
+				{:else}
+					{#each dashboard.improvements as item (item.id)}
+						{@const open = openImprovement === item.id}
+						{@const low = item.score < dashboard.lowScoreThreshold}
+						<button
+							type="button"
+							class={[
+								'lms-focus-ring text-lms-foreground flex w-full flex-col gap-2 rounded-[14px] border p-3 text-left transition-colors',
+								open
+									? 'bg-lms-interactive-subtle border-lms-interactive/30'
+									: 'border-lms-border bg-transparent'
+							]}
+							aria-expanded={open}
+							onclick={() => (openImprovement = open ? null : item.id)}
+						>
 						<span class="flex w-full items-center justify-between gap-2">
 							<span class="flex min-w-0 flex-col">
 								<span class="text-[0.8125rem] font-bold">{item.objective}</span>
@@ -612,10 +661,12 @@
 						{/if}
 					</button>
 				{/each}
+				{/if}
 			</section>
 
 			<section
-				class="lms-card flex min-w-0 flex-col gap-3.5 rounded-[22px]! p-5 shadow-none!"
+				id="presensi"
+				class="lms-card flex min-w-0 flex-col gap-3.5 rounded-[22px]! p-5 shadow-none! scroll-mt-6"
 				aria-labelledby="{reasonId}-attendance"
 			>
 				<div class="flex items-center justify-between gap-2">
@@ -644,7 +695,11 @@
 						{/each}
 					</div>
 				</div>
-				{#if calendar}
+				{#if dashboard.attendanceMonths.length === 0 || !calendar}
+					<p class="text-lms-muted py-8 text-center text-sm">
+						{i18n.t('dashboard.student.attendance_empty')}
+					</p>
+				{:else}
 					{@const month = dashboard.attendanceMonths[attendanceIndex]}
 					<p class="flex items-baseline gap-2" aria-live="polite">
 						<span class="text-[2.125rem] leading-none font-bold tabular-nums">
