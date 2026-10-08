@@ -1,0 +1,38 @@
+{
+  "listResult": {
+    "ok": true,
+    "data": {
+      "data": {
+        "items": [
+          {
+            "id": "01a2e000-0000-7000-8000-00000c1ba003",
+            "invoice_id": "01a2e000-0000-7000-8000-00000c1ba001",
+            "tenant_code": "sch_07041994",
+            "tenant_name": "SDN CIBABAT MANDIRI 3",
+            "invoice_number": "INV/2026/10/00001",
+            "amount_idr": 5550000,
+            "method": "gateway",
+            "status": "succeeded",
+            "paid_at": "2026-10-07T23:21:50.71375+07:00",
+            "created_at": "2026-10-08T02:47:16.536033+07:00",
+            "bank_account": "",
+            "reference": "Midtrans sandbox (rekonstruksi)",
+            "has_proof": false,
+            "proof_name": "",
+            "verifier_name": "",
+            "verified_at": "2026-10-07T23:21:50.71375+07:00",
+            "reject_reason": ""
+          }
+        ]
+      }
+    }
+  },
+  "unpaidResult": {
+    "ok": true,
+    "data": {
+      "data": {
+        "items": []
+      }
+    }
+  }
+}

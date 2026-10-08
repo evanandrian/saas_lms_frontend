@@ -15,6 +15,7 @@ export const APP_PATHS = {
 	PLATFORM_APPROVALS: '/settings/approvals',
 	/** Invoice konsol platform (referensi "04e Invoice"). */
 	PLATFORM_INVOICE: '/platform/invoice',
+	PLATFORM_PAYMENTS: '/platform/pembayaran',
 	/** Tagihan lembaga untuk admin sekolah/penyelenggara dan pemilik guru pribadi. */
 	SCHOOL_ADMIN_BILLING: '/app/admin/tagihan',
 	TEACHER_BILLING: '/app/teacher/tagihan',
