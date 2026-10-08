@@ -4,6 +4,7 @@
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import type { PlansFailure } from '$lib/features/plans/plans.api';
 	import {
 		DEFAULT_MODEL,
@@ -557,24 +558,24 @@
 
 <!-- Referensi: FLIXARE App v3 · layar "04b Master Paket Langganan" (PlanMaster). -->
 <div class="text-lms-foreground flex flex-col gap-4 pb-24 leading-[normal]">
-	<div class="flex flex-wrap items-end justify-between gap-4">
-		<div class="flex flex-col gap-1.5">
-			<span class="text-lms-interactive font-mono text-xs font-semibold tracking-widest"
-				>{t('eyebrow')}</span
-			>
-			<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-			<p class="text-lms-muted text-sm text-pretty">{t('description')}</p>
-		</div>
-		{#if plans}
-			<button
-				type="button"
-				class="lms-action-primary lms-focus-ring flex h-10 items-center gap-2 rounded-[10px] px-4 text-sm font-semibold"
-				onclick={() => load(null)}
-			>
-				<Icon icon={Plus} size="sm" />{t('new_plan')}
-			</button>
-		{/if}
-	</div>
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('description')}
+		actionsPlacement="end"
+	>
+		{#snippet actions()}
+			{#if plans}
+				<button
+					type="button"
+					class="bg-lms-on-hero/8 border-lms-on-hero/14 text-lms-on-hero lms-focus-ring flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+					onclick={() => load(null)}
+				>
+					<Icon icon={Plus} size="sm" />{t('new_plan')}
+				</button>
+			{/if}
+		{/snippet}
+	</HeroBanner>
 
 	{#if simulate}
 		<div

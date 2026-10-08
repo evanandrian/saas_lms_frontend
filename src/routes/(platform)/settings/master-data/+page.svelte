@@ -4,6 +4,7 @@
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import type { MasterDataFailure } from '$lib/features/master-data/master-data.api';
 	import {
 		MASTER_DEFINITIONS,
@@ -519,13 +520,11 @@
 
 <!-- Referensi: FLIXARE App v3 · layar "04d Master Data Platform" (DataMaster). -->
 <div class="text-lms-foreground flex flex-col gap-4 leading-[normal]">
-	<div class="flex flex-col gap-1.5">
-		<span class="text-lms-interactive font-mono text-xs font-semibold tracking-widest"
-			>{t('eyebrow')}</span
-		>
-		<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-		<p class="text-lms-muted max-w-180 text-sm text-pretty">{t('description')}</p>
-	</div>
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('description')}
+	/>
 
 	{#if simulate}
 		<div

@@ -4,6 +4,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import { useI18n } from '$lib/i18n';
 	import { runPageAction } from '$lib/utils/page-action';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -353,33 +354,31 @@
 		class="text-lms-foreground flex flex-col gap-4 pb-28"
 		data-screen-label="11 Kotak Persetujuan"
 	>
-		<div class="flex flex-wrap items-end justify-between gap-4">
-			<div class="flex flex-col gap-1.5">
-				<span class="text-lms-link font-mono text-xs font-semibold tracking-[0.1em]"
-					>{t('eyebrow', { role: t(`role_tag.${role}`) })}</span
-				>
-				<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-				<span class="text-lms-muted text-sm"
-					>{t(`desc.${role}`, { tenant: inbox.tenant_name })}</span
-				>
-			</div>
-			<dl class="flex flex-wrap gap-5">
-				{#each [['pending', pending.filter((x) => !x.self).length], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
-					<div class="flex flex-col gap-0.5">
-						<dt class="text-lms-muted font-mono text-[11px] tracking-[0.08em]">
-							{t(`stat.${key}`)}
-						</dt>
-						<dd
-							class="text-[22px] font-bold tabular-nums {key === 'overdue' && value
-								? 'text-lms-danger-text'
-								: ''}"
-						>
-							{value}
-						</dd>
-					</div>
-				{/each}
-			</dl>
-		</div>
+		<HeroBanner
+			eyebrow={t('eyebrow', { role: t(`role_tag.${role}`) })}
+			title={t('title')}
+			description={t(`desc.${role}`, { tenant: inbox.tenant_name })}
+			actionsPlacement="end"
+		>
+			{#snippet actions()}
+				<dl class="flex flex-wrap gap-5">
+					{#each [['pending', pending.filter((x) => !x.self).length], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
+						<div class="flex flex-col gap-0.5 border-lms-on-hero/14 bg-lms-on-hero/8 rounded-lg p-3 border">
+							<dt class="text-lms-on-hero-muted font-mono text-[11px] tracking-[0.08em]">
+								{t(`stat.${key}`)}
+							</dt>
+							<dd
+								class="text-[22px] font-bold tabular-nums {key === 'overdue' && value
+									? 'text-red-300'
+									: 'text-lms-on-hero'}"
+							>
+								{value}
+							</dd>
+						</div>
+					{/each}
+				</dl>
+			{/snippet}
+		</HeroBanner>
 
 		<section
 			class="bg-lms-surface border-lms-border flex flex-col overflow-hidden rounded-xl border"

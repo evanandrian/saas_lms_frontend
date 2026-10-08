@@ -3,6 +3,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import { useI18n } from '$lib/i18n';
 	import { onMount } from 'svelte';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -213,28 +214,28 @@
 {:else}
 	{@const ov = pageState.overview}
 	<div class="text-lms-foreground flex flex-col gap-4 pb-24" data-screen-label="10 Pengaturan Akun">
-		<div class="flex flex-wrap items-end justify-between gap-4">
-			<div class="flex flex-col gap-1.5">
-				<span class="text-lms-link font-mono text-xs font-semibold tracking-[0.1em]"
-					>{t('eyebrow')}</span
-				>
-				<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-				<span class="text-lms-muted text-sm">{t('subtitle')}</span>
-			</div>
-			<div class="flex items-center gap-2.5">
-				<span
-					class="bg-lms-interactive text-lms-on-interactive flex size-10 items-center justify-center overflow-hidden rounded-full bg-cover bg-center text-[13px] font-bold"
-					style:background-image={photoUrl ? `url(${photoUrl})` : undefined}
-					aria-hidden="true">{photoUrl ? '' : initials(ov.profile.full_name)}</span
-				>
-				<span class="flex flex-col">
-					<span class="text-sm font-bold">{ov.profile.full_name}</span>
-					<span class="text-lms-muted text-xs"
-						>{ov.context.role_name} · {ov.context.tenant_name}</span
+		<HeroBanner
+			eyebrow={t('eyebrow')}
+			title={t('title')}
+			description={t('subtitle')}
+			actionsPlacement="end"
+		>
+			{#snippet actions()}
+				<div class="flex items-center gap-2.5 bg-lms-on-hero/8 border-lms-on-hero/14 rounded-full border p-2 pr-4">
+					<span
+						class="bg-lms-interactive text-lms-on-interactive flex size-10 items-center justify-center overflow-hidden rounded-full bg-cover bg-center text-[13px] font-bold"
+						style:background-image={photoUrl ? `url(${photoUrl})` : undefined}
+						aria-hidden="true">{photoUrl ? '' : initials(ov.profile.full_name)}</span
 					>
-				</span>
-			</div>
-		</div>
+					<span class="flex flex-col text-lms-on-hero">
+						<span class="text-sm font-bold">{ov.profile.full_name}</span>
+						<span class="text-lms-on-hero-muted text-xs"
+							>{ov.context.role_name} · {ov.context.tenant_name}</span
+						>
+					</span>
+				</div>
+			{/snippet}
+		</HeroBanner>
 
 		<div class="flex flex-col items-start gap-4 min-[1000px]:flex-row">
 			<nav

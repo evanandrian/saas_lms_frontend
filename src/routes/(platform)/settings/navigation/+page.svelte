@@ -3,6 +3,7 @@
 	import { invalidate } from '$app/navigation';
 	import ConfirmDialog, { type ConfirmDialogDetail } from '$lib/components/ui/ConfirmDialog.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import type { NavigationFailure } from '$lib/features/navigation/navigation.api';
 	import {
 		NavigationEditor,
@@ -351,33 +352,33 @@
 <!-- Referensi: FLIXARE App v3 · layar "04c Menu & Navigasi" (MenuMaster). -->
 <!-- line-height `normal` mengikuti referensi (body referensi tidak menetapkan line-height). -->
 <div class="text-lms-foreground flex flex-col gap-4 leading-[normal]">
-	<div class="flex flex-wrap items-end justify-between gap-4">
-		<div class="flex flex-col gap-1.5">
-			<span class="text-lms-interactive font-mono text-xs font-semibold tracking-widest"
-				>{t('eyebrow')}</span
-			>
-			<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-			<p class="text-lms-muted max-w-180 text-sm text-pretty">{t('description')}</p>
-		</div>
-		{#if editor}
-			<div class="flex flex-wrap gap-2">
-				<button
-					type="button"
-					class="border-lms-border-strong bg-lms-surface lms-focus-ring flex h-10 items-center gap-2 rounded-[10px] border px-3.5 text-sm font-semibold"
-					onclick={() => editor.addGroup()}
-				>
-					<Icon icon={FolderPlus} size="sm" />{t('actions.new_group')}
-				</button>
-				<button
-					type="button"
-					class="lms-action-primary lms-focus-ring flex h-10 items-center gap-2 rounded-[10px] px-4 text-sm font-semibold"
-					onclick={() => editor.addItem()}
-				>
-					<Icon icon={Plus} size="sm" />{t('actions.new_item')}
-				</button>
-			</div>
-		{/if}
-	</div>
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('description')}
+		actionsPlacement="end"
+	>
+		{#snippet actions()}
+			{#if editor}
+				<div class="flex flex-wrap gap-2">
+					<button
+						type="button"
+						class="border-lms-on-hero/14 text-lms-on-hero lms-focus-ring flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+						onclick={() => editor.addGroup()}
+					>
+						<Icon icon={FolderPlus} size="sm" />{t('actions.new_group')}
+					</button>
+					<button
+						type="button"
+						class="bg-lms-on-hero/8 border-lms-on-hero/14 text-lms-on-hero lms-focus-ring flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold"
+						onclick={() => editor.addItem()}
+					>
+						<Icon icon={Plus} size="sm" />{t('actions.new_item')}
+					</button>
+				</div>
+			{/if}
+		{/snippet}
+	</HeroBanner>
 
 	{#if simulate}
 		<div

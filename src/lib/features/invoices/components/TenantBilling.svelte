@@ -4,6 +4,7 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import { useI18n } from '$lib/i18n';
 	import { runPageAction } from '$lib/utils/page-action';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -220,13 +221,11 @@
 	</div>
 {:else}
 	<div class="text-lms-foreground flex flex-col gap-4 pb-24">
-		<div class="flex flex-col gap-1.5">
-			<span class="text-lms-link font-mono text-xs font-semibold tracking-[0.1em]"
-				>{t('eyebrow')}</span
-			>
-			<h1 class="text-[26px] leading-[34px] font-bold">{t('title')}</h1>
-			<span class="text-lms-muted text-sm">{t('desc')}</span>
-		</div>
+		<HeroBanner
+			eyebrow={t('eyebrow')}
+			title={t('title')}
+			description={t('desc')}
+		/>
 
 		{#if !items.length}
 			<StatePanel title={t('empty_title')} description={t('empty_text')} />

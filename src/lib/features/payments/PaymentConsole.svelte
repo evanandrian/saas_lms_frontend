@@ -3,6 +3,7 @@
 	import type { BackendFailure } from '$lib/api/backend-call';
 	import { invalidateAll } from '$app/navigation';
 	import { runPageAction } from '$lib/utils/page-action';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	
 	let { list, unpaid, failure }: { list: PlatformPaymentList | null, unpaid: UnpaidInvoiceList | null, failure: BackendFailure | null } = $props();
 
@@ -100,10 +101,18 @@
 </script>
 
 <div style="display:flex;flex-direction:column;gap:16px;padding-bottom:96px;color:var(--color-lms-foreground);font-family:'Sora',system-ui,sans-serif">
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
-    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.1em;color:var(--color-lms-interactive);font-weight:600">KEUANGAN · PEMBAYARAN</span><span style="font-size:26px;line-height:34px;font-weight:700">Pembayaran</span><span style="font-size:14px;color:var(--color-lms-muted)">Verifikasi bukti transfer dan catat pembayaran manual. VA dan QRIS terverifikasi otomatis.</span></div>
-    <button onclick={() => { mode = 'new'; f = {...blank}; tried = false; }} style="height:40px;padding:0 16px;border:none;background:var(--color-lms-interactive);color:#fff;border-radius:10px;font-size:14px;font-weight:600;display:flex;gap:8px;align-items:center;cursor:pointer"><i class="icon-plus"></i>Catat pembayaran</button>
-  </div>
+  <HeroBanner
+    eyebrow="KEUANGAN · PEMBAYARAN"
+    title="Pembayaran"
+    description="Verifikasi bukti transfer dan catat pembayaran manual. VA dan QRIS terverifikasi otomatis."
+    actionsPlacement="end"
+  >
+    {#snippet actions()}
+      <button onclick={() => { mode = 'new'; f = {...blank}; tried = false; }} class="bg-lms-on-hero/8 border-lms-on-hero/14 text-lms-on-hero flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold cursor-pointer">
+        <i class="icon-plus"></i>Catat pembayaran
+      </button>
+    {/snippet}
+  </HeroBanner>
   
   {#if failure}
   <div style="background:#fee2e2;color:#b91c1c;padding:16px;border-radius:8px;font-size:14px">

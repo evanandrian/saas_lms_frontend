@@ -4,6 +4,7 @@
 	import type { RegistrationState, SignupCatalog, SignupCity } from '$lib/api/generated/lms';
 	import BrandLogo from '$lib/components/ui/BrandLogo.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { runPageAction, type PageActionOutcome } from '$lib/utils/page-action';
@@ -601,14 +602,11 @@
 				</div>
 			{/if}
 
-			<div class="flex flex-col gap-1.5">
-				<span
-					class="text-lms-interactive font-mono text-xs font-semibold tracking-[0.12em] uppercase"
-					>{head.kicker}</span
-				>
-				<h1 class="text-[1.875rem] leading-9.5 font-bold tracking-tight">{head.title}</h1>
-				<p class="text-lms-muted max-w-160 text-[0.9375rem] leading-5.75">{head.desc}</p>
-			</div>
+			<HeroBanner
+				eyebrow={head.kicker}
+				title={head.title}
+				description={head.desc}
+			/>
 
 			{#if wizard.step === 'akun'}
 				<AccountStep {wizard} {tried} />
