@@ -161,7 +161,7 @@
           <div style="flex:1 1 260px;background:var(--color-lms-surface);border:1px solid var(--color-lms-border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px">
             <span style="font-size:16px;font-weight:700">Detail transfer</span>
             <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:13px">
-              <span style="color:var(--color-lms-muted)">Metode</span><span style="font-weight:600;text-align:right">{p?.method ? (METHOD[p!.method] ? METHOD[p!.method][0] : p!.method) : '—'}</span>
+              <span style="color:var(--color-lms-muted)">Metode</span><span style="font-weight:600;text-align:right">{p?.method ? (METHOD[p.method]?.[0] ?? p.method) : '—'}</span>
               <span style="color:var(--color-lms-muted)">Waktu</span><span style="font-weight:600;text-align:right">{p?.paid_at ? new Date(p.paid_at).toLocaleString('id-ID') : '—'}</span>
               <span style="color:var(--color-lms-muted)">Pengirim</span><span style="font-weight:600;text-align:right">{p.bank_account || '—'}</span>
               <span style="color:var(--color-lms-muted)">Referensi</span><span style="font-weight:600;text-align:right">{p.reference || '—'}</span>
