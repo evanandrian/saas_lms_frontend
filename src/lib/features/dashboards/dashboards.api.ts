@@ -2,11 +2,13 @@ import {
 	getDashboardContext,
 	getHomeroomDashboard,
 	getPrincipalDashboard,
+	getStudentDashboard,
 	getTeacherDashboard,
 	type DashboardContext,
 	type GetDashboardContextArea,
 	type HomeroomDashboard,
 	type PrincipalDashboard,
+	type StudentDashboard,
 	type TeacherDashboard
 } from '$lib/api/generated/lms';
 import { callBackend, type BackendContext } from '$lib/api/backend-call';
@@ -26,3 +28,7 @@ export const loadHomeroom = (ctx: BackendContext) =>
 
 export const loadTeacher = (ctx: BackendContext) =>
 	callBackend<TeacherDashboard>(ctx, (init) => getTeacherDashboard(init));
+
+export const loadStudent = (ctx: BackendContext) =>
+	callBackend<StudentDashboard>(ctx, (init) => getStudentDashboard(init));
+

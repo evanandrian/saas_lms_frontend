@@ -590,6 +590,7 @@
 			},
 			"quests": "Tugas minggu ini",
 			"quests_done": "{done}/{total} selesai",
+			"quests_empty": "Tidak ada tugas atau kuis minggu ini",
 			"mark_done": "Tandai selesai: {title}",
 			"due": {
 				"today": "hari ini",
@@ -598,14 +599,18 @@
 				"done": "selesai"
 			},
 			"toast_quest": "+{xp} XP · {title} selesai!",
+			"toast_exam": "Asesmen {title} dimulai. Selamat mengerjakan, {name}!",
 			"subjects": "Koleksi mapel",
+			"subjects_empty": "Belum ada mata pelajaran terdaftar",
 			"tier": {
 				"gold": "Emas",
 				"silver": "Perak",
 				"bronze": "Perunggu"
 			},
 			"recent_scores": "Nilai terbaru",
+			"recent_scores_empty": "Belum ada riwayat nilai terbaru",
 			"remedial": "Perlu remedial",
+			"remedial_empty": "Semua nilai di atas KKTP. Kerja bagus!",
 			"remedial_count": "{count} di bawah KKTP {target}",
 			"remedial_due": "{subject} · remedial s.d. {date}",
 			"remedial_start": "Mulai remedial · +{xp} XP",
@@ -614,8 +619,10 @@
 			"score_of": "/{target}",
 			"target_marker": "Target {target}",
 			"improve": "Perlu ditingkatkan semester ini",
+			"improve_empty": "Semua capaian pembelajaran telah memenuhi target",
 			"improve_hint": "Tujuan pembelajaran di bawah target {target}. Ketuk untuk saran guru.",
 			"attendance": "Riwayat kehadiran",
+			"attendance_empty": "Belum ada catatan presensi",
 			"attendance_month": "Bulan",
 			"attendance_days": "{present} dari {total} hari sekolah",
 			"attendance_status": {

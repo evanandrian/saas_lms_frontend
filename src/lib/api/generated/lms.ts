@@ -1681,6 +1681,144 @@ export interface TeacherDashboard {
 	item_analysis?: TeacherDashboardItemAnalysisItem[] | null;
 }
 
+export interface TodayAssessment {
+	id: string;
+	title: string;
+	subject: string;
+	start_minutes: number;
+	end_minutes: number;
+	question_count: number;
+	xp_reward: number;
+}
+
+export type StreakDayStatus = (typeof StreakDayStatus)[keyof typeof StreakDayStatus];
+
+export const StreakDayStatus = {
+	done: 'done',
+	rest: 'rest',
+	today: 'today'
+} as const;
+
+export interface StreakDay {
+	date: string;
+	status: StreakDayStatus;
+}
+
+export interface StudentStreak {
+	days: number;
+	week: StreakDay[];
+}
+
+export interface StudentLevel {
+	number: number;
+	name: string;
+	xp: number;
+	next_level_xp: number;
+}
+
+export interface StudentQuest {
+	id: string;
+	title: string;
+	subject: string;
+	due_date: string;
+	xp: number;
+	done: boolean;
+}
+
+export interface StudentSubjectMastery {
+	id: string;
+	name: string;
+	icon: string;
+	percent: number;
+}
+
+export interface StudentRecentScore {
+	id: string;
+	title: string;
+	subject: string;
+	date: string;
+	score: number;
+}
+
+export interface StudentRemedial {
+	id: string;
+	title: string;
+	subject: string;
+	score: number;
+	due_date: string;
+}
+
+export interface StudentBonusPractice {
+	title: string;
+	description: string;
+	xp: number;
+}
+
+export interface StudentImprovement {
+	id: string;
+	objective: string;
+	subject_label: string;
+	score: number;
+	tip: string;
+}
+
+export type StudentAttendanceMonthExceptions = { [key: string]: string };
+
+export interface StudentAttendanceMonth {
+	year: number;
+	month: number;
+	label: string;
+	exceptions: StudentAttendanceMonthExceptions;
+}
+
+/**
+ * @nullable
+ */
+export type StudentDashboardTierThresholds = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type StudentDashboardScoreBands = { [key: string]: unknown } | null;
+
+export interface StudentDashboard {
+	viewer: DashboardViewer;
+	tenant_name: string;
+	period: DashboardPeriod;
+	class_name: string;
+	date: string;
+	/** @nullable */
+	clock_start_seconds?: number | null;
+	today_assessments: TodayAssessment[];
+	streak?: StudentStreak | null;
+	level?: StudentLevel | null;
+	/** @nullable */
+	quests?: StudentQuest[] | null;
+	/** @nullable */
+	tier_thresholds?: StudentDashboardTierThresholds;
+	/** @nullable */
+	subjects?: StudentSubjectMastery[] | null;
+	/** @nullable */
+	score_bands?: StudentDashboardScoreBands;
+	/** @nullable */
+	recent_scores?: StudentRecentScore[] | null;
+	/** @nullable */
+	mastery_target?: number | null;
+	/** @nullable */
+	remedial_xp?: number | null;
+	/** @nullable */
+	remedials?: StudentRemedial[] | null;
+	bonus_practice?: StudentBonusPractice | null;
+	/** @nullable */
+	low_score_threshold?: number | null;
+	/** @nullable */
+	improvements?: StudentImprovement[] | null;
+	/** @nullable */
+	attendance_months?: StudentAttendanceMonth[] | null;
+	/** @nullable */
+	default_attendance_month?: number | null;
+}
+
 export type SignupPlanTenantType = (typeof SignupPlanTenantType)[keyof typeof SignupPlanTenantType];
 
 export const SignupPlanTenantType = {
@@ -3061,6 +3199,10 @@ export type GetHomeroomDashboard200 = {
 
 export type GetTeacherDashboard200 = {
 	data: TeacherDashboard;
+};
+
+export type GetStudentDashboard200 = {
+	data: StudentDashboard;
 };
 
 export type GetSignupCatalog200 = {
@@ -7802,6 +7944,42 @@ export const getTeacherDashboard = async (
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<getTeacherDashboardResponse> => {
 	return lmsFetch<getTeacherDashboardResponse>(getGetTeacherDashboardUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getStudentDashboardResponse200 = {
+	data: GetStudentDashboard200;
+	status: 200;
+};
+
+export type getStudentDashboardResponse403 = {
+	data: DashboardErrorResponse;
+	status: 403;
+};
+
+export type getStudentDashboardResponseSuccess = getStudentDashboardResponse200 & {
+	headers: Headers;
+};
+export type getStudentDashboardResponseError = getStudentDashboardResponse403 & {
+	headers: Headers;
+};
+
+export type getStudentDashboardResponse =
+	getStudentDashboardResponseSuccess | getStudentDashboardResponseError;
+
+export const getGetStudentDashboardUrl = () => {
+	return `/api/v1/dashboards/student`;
+};
+
+/**
+ * @summary Student dashboard (STUDENT only)
+ */
+export const getStudentDashboard = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getStudentDashboardResponse> => {
+	return lmsFetch<getStudentDashboardResponse>(getGetStudentDashboardUrl(), {
 		...options,
 		method: 'GET'
 	});

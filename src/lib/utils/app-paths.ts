@@ -30,6 +30,12 @@ export const APP_PATHS = {
 	/** Dashboard wali kelas (peran HOMEROOM_TEACHER, toggle Guru mapel ↔ Wali kelas). */
 	HOMEROOM_HOME: '/app/teacher/homeroom',
 	STUDENT_HOME: '/app/student',
+	STUDENT_MATERIALS: '/app/student/materials',
+	STUDENT_TASKS: '/app/student/tasks',
+	STUDENT_ASSESSMENTS: '/app/student/assessments',
+	STUDENT_GRADES: '/app/student/grades',
+	STUDENT_ATTENDANCE: '/app/student/attendance',
+	STUDENT_MESSAGES: '/app/student/messages',
 	GUARDIAN_HOME: '/app/guardian',
 	SCHOOL_ADMIN_ACCOUNT: '/app/admin/settings',
 	SCHOOL_ADMIN_APPROVALS: '/app/admin/approvals',

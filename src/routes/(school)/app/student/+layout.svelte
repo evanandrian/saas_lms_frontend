@@ -19,19 +19,22 @@
 	const i18n = useI18n();
 	const identity = $derived(workspaceIdentity(data.workspace, i18n.t));
 
-	// Arsitektur informasi area (referensi FE-04). Item tanpa href = halaman belum dibangun.
+	const section = (hash: string) => ({ href: APP_PATHS.STUDENT_HOME, hash });
+
+	// Arsitektur informasi area murid (beranda, materi mandiri, dan seksi fitur).
 	const navItems: WorkspaceNavItem[] = $derived([
 		{ label: i18n.t('nav.student.home'), icon: House, href: APP_PATHS.STUDENT_HOME },
-		{ label: i18n.t('nav.student.materials'), icon: BookOpen },
+		{ label: i18n.t('nav.student.materials'), icon: BookOpen, href: APP_PATHS.STUDENT_MATERIALS },
 		{
 			label: i18n.t('nav.student.assignments'),
 			icon: ClipboardList,
+			href: APP_PATHS.STUDENT_TASKS,
 			badge: workspaceBadge(data.workspace, 'tasks')
 		},
-		{ label: i18n.t('nav.student.assessments'), icon: ClipboardCheck },
-		{ label: i18n.t('nav.student.grades'), icon: Award },
-		{ label: i18n.t('nav.student.attendance'), icon: CalendarCheck },
-		{ label: i18n.t('nav.student.messages'), icon: MessageSquare }
+		{ label: i18n.t('nav.student.assessments'), icon: ClipboardCheck, href: APP_PATHS.STUDENT_ASSESSMENTS },
+		{ label: i18n.t('nav.student.grades'), icon: Award, href: APP_PATHS.STUDENT_GRADES },
+		{ label: i18n.t('nav.student.attendance'), icon: CalendarCheck, href: APP_PATHS.STUDENT_ATTENDANCE },
+		{ label: i18n.t('nav.student.messages'), icon: MessageSquare, href: APP_PATHS.STUDENT_MESSAGES }
 	]);
 </script>
 
