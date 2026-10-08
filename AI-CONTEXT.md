@@ -22,6 +22,15 @@ ADR-019, ADR-020, ADR-021 berstatus **Accepted** (2 Okt 2026) dan mengikat. ADR 
 
 Keputusan yang mengubah isi SAD (dicatat untuk revisi SAD 1.0.2): host konsol `platform.<root>` (bukan `console.namalms.id`), `www` → root, vocabulary `assessment` di route/permission, `@lms/api-client` ditunda.
 
+## 1a. Active Agent Rules & Design Patterns
+
+Sistem secara otomatis menemukan dan menegakkan aturan yang didefinisikan dalam `.agents/rules/`. Sebelum menulis kode, perhatikan:
+- `.agents/rules/herobanner-pattern.md`: Penggunaan `HeroBanner` dan penyesuaian kontras (dark mode).
+- `.agents/rules/form-page-pattern.md`: Panduan struktur tata letak form dan referensi prototipe.
+- `.agents/rules/svelte-state-management.md`: Svelte 5 Runes dan segregasi class state eksternal.
+- `.agents/rules/data-fetching-errors.md`: Standar `runPageAction`, pemetaan error, dan umpan balik UI.
+- `.agents/rules/i18n-strict-policy.md`: Larangan hardcode string dan penggunaan fungsi terjemahan secara ketat.
+- `.agents/rules/design-system-colors.md`: Penggunaan variabel token semantik Tailwind secara ketat untuk warna desain.
 ## 2. Baseline (ringkas — detail di README §11)
 
 Node.js 24 LTS · pnpm 12.8.1 · **SvelteKit 2.70.3** (jangan naik ke 3 tanpa ADR) · Svelte 5.57.1 runes · TypeScript · Tailwind CSS 4.3.3 · Skeleton 5.0.1 · adapter-node 5.x (bukan adapter-static) · Zod 4.x · OpenAPI generated client via Orval · Vitest + Testing Library + Playwright.
