@@ -105,6 +105,7 @@ Route → Feature (<modul>.api.ts/.schema.ts/.types.ts/.store.svelte.ts)
 - **Pengajuan lembaga** (referensi "04c Pengajuan Tenant"): feature `src/lib/features/tenant-applications/`; rute konsol `/platform/pengajuan` (menu "Pengajuan", prefix `/platform` wajib area platform), proxy lampiran `/platform/pengajuan/file?id=`.
 - **Join sesi ujian** (`/join`): lookup/join/start lewat `src/lib/features/exam-sessions/`; tombol "Kode contoh" hanya dev (`DEMO_SESSION_CODE`).
 - **Identitas workspace**: feature `src/lib/features/workspace/` (`loadWorkspace(event, area)` di setiap layout area → `data.workspace`; `workspaceIdentity`, `workspaceGreeting`, `workspaceBadge`). Kartu lembaga/user, sapaan semua dashboard, dan angka badge menu berasal dari `GET /api/v1/account/workspace`; tidak ada fixture identitas. Badge tanpa sumber data (tugas, pesan) tidak tampil. Konsol memanggil `invalidate('app:workspace')` setelah keputusan pengajuan agar badge "Pengajuan" diperbarui. Halaman keluar memakai nama dari `/auth/me`.
+- **Invoice** (referensi "04e Invoice"): feature `src/lib/features/invoices/` (`InvoiceConsole` konsol `/platform/invoice?id=`, `TenantBilling` di `/app/admin/tagihan` & `/app/teacher/tagihan` khusus PERSONAL_OWNER, `InvoicePaper` kertas A4 warna tetap, `PrintOverlay` cetak/Simpan PDF lewat dialog cetak browser). Proxy bukti transfer `/platform/invoice/proof?id=` dan `/app/<area>/tagihan/proof?id=`. Pratinjau total di client memakai rumus yang sama dengan backend; nilai final selalu dari backend.
 
 ## 6. Tenant rules
 

@@ -492,15 +492,18 @@ export async function logoutCurrentDevice(fetcher: Fetch, cookies: Cookies): Pro
 	clearBackendTokens(cookies);
 }
 
-/** Peran keanggotaan aktif akun yang sedang masuk (`/auth/me`), untuk memetakan sesi frontend. */
+/** Identitas + peran keanggotaan aktif akun yang sedang masuk (`/auth/me`), untuk memetakan sesi frontend. */
+export interface BackendIdentity {
+	readonly id: string;
+	readonly email: string;
+	readonly fullName: string;
+	readonly roles: { readonly tenantCode: string; readonly roleCode: string }[];
+}
+
 export async function fetchBackendRoles(
 	fetcher: Fetch,
 	cookies: Cookies
-): Promise<{
-	email: string;
-	fullName: string;
-	roles: { tenantCode: string; roleCode: string }[];
-} | null> {
+): Promise<BackendIdentity | null> {
 	const token = cookies.get(ACCESS_TOKEN_COOKIE);
 	const url = authUrl('/me');
 	if (!token || !url) return null;
@@ -509,12 +512,14 @@ export async function fetchBackendRoles(
 		if (!response.ok) return null;
 		const body = (await response.json()) as {
 			data?: {
+				id?: unknown;
 				email?: unknown;
 				full_name?: unknown;
 				roles?: { tenant_code?: unknown; role_code?: unknown }[];
 			};
 		};
 		return {
+			id: typeof body.data?.id === 'string' ? body.data.id : '',
 			email: typeof body.data?.email === 'string' ? body.data.email : '',
 			fullName: typeof body.data?.full_name === 'string' ? body.data.full_name : '',
 			roles: (body.data?.roles ?? []).flatMap((r) =>

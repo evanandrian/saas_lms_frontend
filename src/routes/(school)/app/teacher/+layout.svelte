@@ -22,6 +22,7 @@
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 	import School from '@lucide/svelte/icons/school';
+	import Receipt from '@lucide/svelte/icons/receipt';
 	import Settings from '@lucide/svelte/icons/settings';
 	import Table from '@lucide/svelte/icons/table';
 	import Users from '@lucide/svelte/icons/users';
@@ -47,6 +48,10 @@
 		{ label: i18n.t('nav.teacher.exam_schedule'), icon: CalendarClock },
 		{ label: i18n.t('nav.teacher.progress'), icon: ChartLine },
 		{ label: i18n.t('nav.teacher.messages'), icon: MessageSquare },
+		// Tagihan lembaga hanya untuk pemilik tenant guru pribadi (peran dari backend).
+		...(data.workspace?.user.role_code === 'PERSONAL_OWNER'
+			? [{ label: i18n.t('nav.teacher.billing'), icon: Receipt, href: APP_PATHS.TEACHER_BILLING }]
+			: []),
 		{ label: i18n.t('nav.teacher.settings'), icon: Settings, href: APP_PATHS.TEACHER_ACCOUNT }
 	]);
 
