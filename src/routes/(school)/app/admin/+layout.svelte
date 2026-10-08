@@ -48,7 +48,11 @@
 		{ label: i18n.t('nav.school.guardians'), icon: HeartHandshake },
 		{ label: i18n.t('nav.school.attendance'), icon: CalendarCheck },
 		{ label: i18n.t('nav.school.report_cards'), icon: FileText },
-		{ label: i18n.t('nav.school.subscription'), icon: CreditCard },
+		{
+			label: i18n.t('nav.school.subscription'),
+			icon: CreditCard,
+			href: APP_PATHS.SCHOOL_ADMIN_BILLING
+		},
 		{ label: i18n.t('nav.school.settings'), icon: Settings, href: APP_PATHS.SCHOOL_ADMIN_ACCOUNT }
 	]);
 

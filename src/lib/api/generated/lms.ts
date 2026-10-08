@@ -2196,11 +2196,12 @@ export interface RegistrationTenant {
 export interface ProfileSetup {
 	principal_name: string;
 	principal_nip: string;
-	is_principal?: boolean;
 	about: string;
 	coordinator: string;
 	phone: string;
 	website: string;
+	/** Applicant is also the principal (gets the PRINCIPAL role). */
+	is_principal: boolean;
 }
 
 export interface SemesterSetup {
@@ -2414,6 +2415,333 @@ export interface ExamParticipant {
 	deadline_at: string | null;
 }
 
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus];
+
+export const InvoiceStatus = {
+	draft: 'draft',
+	issued: 'issued',
+	overdue: 'overdue',
+	paid: 'paid',
+	void: 'void'
+} as const;
+
+export type InvoiceSummarySource = (typeof InvoiceSummarySource)[keyof typeof InvoiceSummarySource];
+
+export const InvoiceSummarySource = {
+	registration: 'registration',
+	manual: 'manual',
+	renewal: 'renewal'
+} as const;
+
+export interface InvoiceSummary {
+	id: string;
+	/** @nullable */
+	number: string | null;
+	status: InvoiceStatus;
+	source: InvoiceSummarySource;
+	is_trial: boolean;
+	tenant_code: string;
+	tenant_name: string;
+	total_idr: number;
+	/** @nullable */
+	issue_date: string | null;
+	/** @nullable */
+	due_at: string | null;
+	/** @nullable */
+	paid_at: string | null;
+	/** @nullable */
+	voided_at: string | null;
+	has_pending_proof: boolean;
+}
+
+export interface InvoiceList {
+	items: InvoiceSummary[];
+}
+
+export interface InvoiceLine {
+	id: string;
+	item_type: string;
+	description: string;
+	quantity: number;
+	unit_label: string;
+	unit_price_idr: number;
+	amount_idr: number;
+}
+
+export type InvoicePaymentMethod = (typeof InvoicePaymentMethod)[keyof typeof InvoicePaymentMethod];
+
+export const InvoicePaymentMethod = {
+	gateway: 'gateway',
+	manual_transfer: 'manual_transfer',
+	zero_trial: 'zero_trial'
+} as const;
+
+export interface InvoicePayment {
+	id: string;
+	method: InvoicePaymentMethod;
+	status: string;
+	/** @nullable */
+	channel: string | null;
+	/** @nullable */
+	va_number: string | null;
+	/** @nullable */
+	biller_code: string | null;
+	/** @nullable */
+	qr_image_url: string | null;
+	/** @nullable */
+	expires_at: string | null;
+	amount_idr: number;
+	/** @nullable */
+	paid_at: string | null;
+	bank_name: string;
+	sender_name: string;
+	reference: string;
+	has_proof: boolean;
+	proof_name: string;
+	/** @nullable */
+	verified_at: string | null;
+	verifier_name: string;
+	reject_reason: string;
+	created_at: string;
+}
+
+export interface InvoiceBillTo {
+	name: string;
+	address: string;
+	pic: string;
+	email: string;
+	tenant_code: string;
+}
+
+export interface InvoiceIssuer {
+	company_name: string;
+	address: string;
+	npwp: string;
+	email: string;
+	phone: string;
+	city: string;
+	signer_name: string;
+	signer_title: string;
+	is_sample: boolean;
+}
+
+export interface BankAccount {
+	id: string;
+	bank_name: string;
+	account_number: string;
+	account_name: string;
+	is_default: boolean;
+}
+
+export interface InvoiceTotals {
+	subtotal_idr: number;
+	discount_idr: number;
+	dpp_idr: number;
+	tax_idr: number;
+	total_idr: number;
+}
+
+export type InvoiceDetailSource = (typeof InvoiceDetailSource)[keyof typeof InvoiceDetailSource];
+
+export const InvoiceDetailSource = {
+	registration: 'registration',
+	manual: 'manual',
+	renewal: 'renewal'
+} as const;
+
+export type InvoiceDetailDiscountType =
+	(typeof InvoiceDetailDiscountType)[keyof typeof InvoiceDetailDiscountType];
+
+export const InvoiceDetailDiscountType = {
+	percent: 'percent',
+	amount: 'amount'
+} as const;
+
+export interface InvoiceDetail {
+	id: string;
+	/** @nullable */
+	number: string | null;
+	status: InvoiceStatus;
+	source: InvoiceDetailSource;
+	is_trial: boolean;
+	tenant_code: string;
+	tenant_name: string;
+	total_idr: number;
+	/** @nullable */
+	issue_date: string | null;
+	/** @nullable */
+	due_at: string | null;
+	/** @nullable */
+	paid_at: string | null;
+	/** @nullable */
+	voided_at: string | null;
+	has_pending_proof: boolean;
+	tenant_id: string;
+	/** @nullable */
+	subscription_id: string | null;
+	/** @nullable */
+	terms_days: number | null;
+	period_label: string;
+	discount_type: InvoiceDetailDiscountType;
+	discount_value: number;
+	tax_enabled: boolean;
+	tax_rate_bp: number;
+	note: string;
+	/** @nullable */
+	bank_account_id: string | null;
+	totals: InvoiceTotals;
+	/** @nullable */
+	issued_at: string | null;
+	bill_to: InvoiceBillTo;
+	issuer: InvoiceIssuer;
+	bank: BankAccount | null;
+	items: InvoiceLine[];
+	payments: InvoicePayment[];
+	va: InvoicePayment | null;
+	reminder_count: number;
+	/** @nullable */
+	last_reminded_at: string | null;
+	void_reason: string;
+	default_note: string;
+}
+
+export type InvoiceLineInputItemType =
+	(typeof InvoiceLineInputItemType)[keyof typeof InvoiceLineInputItemType];
+
+export const InvoiceLineInputItemType = {
+	plan: 'plan',
+	addon: 'addon',
+	seat: 'seat',
+	session_credit: 'session_credit',
+	overage: 'overage',
+	other: 'other'
+} as const;
+
+export interface InvoiceLineInput {
+	item_type: InvoiceLineInputItemType;
+	description: string;
+	quantity: number;
+	unit_label: string;
+	unit_price_idr: number;
+}
+
+export type InvoiceDraftInputTermsDays =
+	(typeof InvoiceDraftInputTermsDays)[keyof typeof InvoiceDraftInputTermsDays];
+
+export const InvoiceDraftInputTermsDays = {
+	NUMBER_7: 7,
+	NUMBER_14: 14,
+	NUMBER_30: 30
+} as const;
+
+export type InvoiceDraftInputDiscountType =
+	(typeof InvoiceDraftInputDiscountType)[keyof typeof InvoiceDraftInputDiscountType];
+
+export const InvoiceDraftInputDiscountType = {
+	percent: 'percent',
+	amount: 'amount'
+} as const;
+
+export interface InvoiceDraftInput {
+	tenant_id: string;
+	subscription_id?: string;
+	issue_date: string;
+	terms_days: InvoiceDraftInputTermsDays;
+	period_label: string;
+	items: InvoiceLineInput[];
+	discount_type: InvoiceDraftInputDiscountType;
+	discount_value: number;
+	tax_enabled: boolean;
+	bank_account_id: string;
+	note: string;
+}
+
+export interface InvoiceTenantOption {
+	id: string;
+	code: string;
+	name: string;
+	address: string;
+	pic: string;
+	email: string;
+	/** @nullable */
+	subscription_id: string | null;
+	plan_name: string;
+	pricing_model: string;
+	billing_cycle: string;
+	free_months: number;
+	unit_price_idr: number;
+	seat_count: number;
+}
+
+export interface BillingSettings {
+	issuer: InvoiceIssuer;
+	default_terms_days: number;
+	default_va_channel: string;
+	default_note: string;
+	bank_accounts: BankAccount[];
+	va_channels: string[];
+	terms_options: number[];
+	tax_rate_bp: number;
+	gateway_ready: boolean;
+}
+
+export interface BillingSettingsInput {
+	issuer: InvoiceIssuer;
+	default_terms_days: number;
+	default_va_channel: string;
+	default_note: string;
+	bank_accounts: BankAccount[];
+}
+
+export interface InvoiceOptions {
+	tenants: InvoiceTenantOption[];
+	settings: BillingSettings;
+}
+
+export type PaymentProofInputContentType =
+	(typeof PaymentProofInputContentType)[keyof typeof PaymentProofInputContentType];
+
+export const PaymentProofInputContentType = {
+	'application/pdf': 'application/pdf',
+	'image/png': 'image/png',
+	'image/jpeg': 'image/jpeg'
+} as const;
+
+export interface PaymentProofInput {
+	file_name: string;
+	content_type: PaymentProofInputContentType;
+	data_base64: string;
+}
+
+export interface InvoiceTransferInput {
+	amount_idr: number;
+	paid_date: string;
+	bank_account_id: string;
+	sender_name: string;
+	reference: string;
+	proof?: PaymentProofInput | null;
+}
+
+export interface InvoiceReasonInput {
+	reason: string;
+}
+
+export type InvoicePayInputChannel =
+	(typeof InvoicePayInputChannel)[keyof typeof InvoicePayInputChannel];
+
+export const InvoicePayInputChannel = {
+	va_bca: 'va_bca',
+	va_bni: 'va_bni',
+	va_bri: 'va_bri',
+	va_mandiri: 'va_mandiri',
+	va_permata: 'va_permata',
+	qris: 'qris'
+} as const;
+
+export interface InvoicePayInput {
+	channel: InvoicePayInputChannel;
+}
+
 /**
  * Error envelope. Codes: `validation_failed` (details = [{field, code}]), `email_taken`, `invalid_code`, `too_many_attempts`, `resend_too_soon` (details.retry_at), `no_application`, `not_found`, `application_locked`, `invalid_transition`, `checks_incomplete`, `tenant_not_ready`, `gateway_unavailable`, `forbidden`, `internal_error`.
  */
@@ -2482,7 +2810,19 @@ export type NavigationLayoutResponse = {
 	data: NavigationLayout;
 };
 
+/**
+ * Billing error (validation_failed, not_found, invalid_transition, no_context, reminder_too_soon, gateway_unavailable)
+ */
+export type BillingErrorResponse = ErrorResponse;
+
 export type AccountAreaParameter = AccountArea;
+
+export type BillingAreaParameter = (typeof BillingAreaParameter)[keyof typeof BillingAreaParameter];
+
+export const BillingAreaParameter = {
+	school_admin: 'school_admin',
+	teacher: 'teacher'
+} as const;
 
 export type GetHealth200Data = {
 	status?: string;
@@ -2977,6 +3317,118 @@ export type RejectTenantApplication200 = {
 
 export type ReopenTenantApplication200 = {
 	data: ReviewList;
+};
+
+export type GetInvoiceOptions200 = {
+	data: InvoiceOptions;
+};
+
+export type GetBillingSettings200 = {
+	data: BillingSettings;
+};
+
+export type UpdateBillingSettings200 = {
+	data: BillingSettings;
+};
+
+export type IssueInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type RemindInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type DuplicateInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type VoidInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type RecordInvoicePayment200 = {
+	data: InvoiceDetail;
+};
+
+export type VerifyInvoicePayment200 = {
+	data: InvoiceDetail;
+};
+
+export type RejectInvoicePayment200 = {
+	data: InvoiceDetail;
+};
+
+export type ListTenantInvoicesParams = {
+	area: BillingAreaParameter;
+};
+
+export type ListTenantInvoices200 = {
+	data: InvoiceList;
+};
+
+export type GetTenantPaymentProofParams = {
+	area: BillingAreaParameter;
+};
+
+export type GetTenantInvoiceParams = {
+	area: BillingAreaParameter;
+};
+
+export type GetTenantInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type PayTenantInvoiceParams = {
+	area: BillingAreaParameter;
+};
+
+export type PayTenantInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type CheckTenantInvoicePaymentParams = {
+	area: BillingAreaParameter;
+};
+
+export type CheckTenantInvoicePayment200 = {
+	data: InvoiceDetail;
+};
+
+export type SubmitTenantTransferParams = {
+	area: BillingAreaParameter;
+};
+
+export type SubmitTenantTransfer200 = {
+	data: InvoiceDetail;
+};
+
+export type ListPlatformInvoicesParams = {
+	q?: string;
+};
+
+export type ListPlatformInvoices200 = {
+	data: InvoiceList;
+};
+
+export type CreateInvoiceDraft200 = {
+	data: InvoiceDetail;
+};
+
+export type GetPlatformInvoice200 = {
+	data: InvoiceDetail;
+};
+
+export type UpdateInvoiceDraft200 = {
+	data: InvoiceDetail;
+};
+
+export type DeleteInvoiceDraft200Data = {
+	deleted?: boolean;
+};
+
+export type DeleteInvoiceDraft200 = {
+	data: DeleteInvoiceDraft200Data;
 };
 
 export type getHealthResponse200 = {
@@ -9094,5 +9546,1479 @@ export const reopenTenantApplication = async (
 	return lmsFetch<reopenTenantApplicationResponse>(getReopenTenantApplicationUrl(applicationId), {
 		...options,
 		method: 'POST'
+	});
+};
+
+export type getInvoiceOptionsResponse200 = {
+	data: GetInvoiceOptions200;
+	status: 200;
+};
+
+export type getInvoiceOptionsResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getInvoiceOptionsResponseSuccess = getInvoiceOptionsResponse200 & {
+	headers: Headers;
+};
+export type getInvoiceOptionsResponseError = getInvoiceOptionsResponse403 & {
+	headers: Headers;
+};
+
+export type getInvoiceOptionsResponse =
+	getInvoiceOptionsResponseSuccess | getInvoiceOptionsResponseError;
+
+export const getGetInvoiceOptionsUrl = () => {
+	return `/api/v1/platform/invoices/options`;
+};
+
+/**
+ * @summary Billable tenants (latest subscription) and billing settings for the editor
+ */
+export const getInvoiceOptions = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getInvoiceOptionsResponse> => {
+	return lmsFetch<getInvoiceOptionsResponse>(getGetInvoiceOptionsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getBillingSettingsResponse200 = {
+	data: GetBillingSettings200;
+	status: 200;
+};
+
+export type getBillingSettingsResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getBillingSettingsResponseSuccess = getBillingSettingsResponse200 & {
+	headers: Headers;
+};
+export type getBillingSettingsResponseError = getBillingSettingsResponse403 & {
+	headers: Headers;
+};
+
+export type getBillingSettingsResponse =
+	getBillingSettingsResponseSuccess | getBillingSettingsResponseError;
+
+export const getGetBillingSettingsUrl = () => {
+	return `/api/v1/platform/invoices/settings`;
+};
+
+/**
+ * @summary Issuer letterhead, bank accounts, defaults
+ */
+export const getBillingSettings = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getBillingSettingsResponse> => {
+	return lmsFetch<getBillingSettingsResponse>(getGetBillingSettingsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateBillingSettingsResponse200 = {
+	data: UpdateBillingSettings200;
+	status: 200;
+};
+
+export type updateBillingSettingsResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type updateBillingSettingsResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type updateBillingSettingsResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type updateBillingSettingsResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type updateBillingSettingsResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type updateBillingSettingsResponseSuccess = updateBillingSettingsResponse200 & {
+	headers: Headers;
+};
+export type updateBillingSettingsResponseError = (
+	| updateBillingSettingsResponse400
+	| updateBillingSettingsResponse403
+	| updateBillingSettingsResponse404
+	| updateBillingSettingsResponse409
+	| updateBillingSettingsResponse422
+) & {
+	headers: Headers;
+};
+
+export type updateBillingSettingsResponse =
+	updateBillingSettingsResponseSuccess | updateBillingSettingsResponseError;
+
+export const getUpdateBillingSettingsUrl = () => {
+	return `/api/v1/platform/invoices/settings`;
+};
+
+/**
+ * @summary Update issuer letterhead and bank accounts (exactly one default account)
+ */
+export const updateBillingSettings = async (
+	billingSettingsInput: BillingSettingsInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateBillingSettingsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateBillingSettingsResponse>(getUpdateBillingSettingsUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(billingSettingsInput)
+	});
+};
+
+export type getPlatformPaymentProofResponse200ApplicationPdf = {
+	data: Blob;
+	status: 200;
+};
+
+export type getPlatformPaymentProofResponse200ImagePng = {
+	data: Blob;
+	status: 200;
+};
+
+export type getPlatformPaymentProofResponse200ImageJpeg = {
+	data: Blob;
+	status: 200;
+};
+
+export type getPlatformPaymentProofResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getPlatformPaymentProofResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type getPlatformPaymentProofResponseSuccess = (
+	| getPlatformPaymentProofResponse200ApplicationPdf
+	| getPlatformPaymentProofResponse200ImagePng
+	| getPlatformPaymentProofResponse200ImageJpeg
+) & {
+	headers: Headers;
+};
+export type getPlatformPaymentProofResponseError = (
+	getPlatformPaymentProofResponse403 | getPlatformPaymentProofResponse404
+) & {
+	headers: Headers;
+};
+
+export type getPlatformPaymentProofResponse =
+	getPlatformPaymentProofResponseSuccess | getPlatformPaymentProofResponseError;
+
+export const getGetPlatformPaymentProofUrl = (paymentID: string) => {
+	return `/api/v1/platform/invoices/payments/${paymentID}/proof`;
+};
+
+/**
+ * @summary Transfer proof file
+ */
+export const getPlatformPaymentProof = async (
+	paymentID: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getPlatformPaymentProofResponse> => {
+	return lmsFetch<getPlatformPaymentProofResponse>(getGetPlatformPaymentProofUrl(paymentID), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type issueInvoiceResponse200 = {
+	data: IssueInvoice200;
+	status: 200;
+};
+
+export type issueInvoiceResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type issueInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type issueInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type issueInvoiceResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type issueInvoiceResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type issueInvoiceResponseSuccess = issueInvoiceResponse200 & {
+	headers: Headers;
+};
+export type issueInvoiceResponseError = (
+	| issueInvoiceResponse400
+	| issueInvoiceResponse403
+	| issueInvoiceResponse404
+	| issueInvoiceResponse409
+	| issueInvoiceResponse422
+) & {
+	headers: Headers;
+};
+
+export type issueInvoiceResponse = issueInvoiceResponseSuccess | issueInvoiceResponseError;
+
+export const getIssueInvoiceUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}/issue`;
+};
+
+/**
+ * @summary Issue & send: assigns INV/YYYY/MM/NNNNN, snapshots bill-to & issuer, creates a Midtrans VA valid until due date, emails the tenant
+ */
+export const issueInvoice = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<issueInvoiceResponse> => {
+	return lmsFetch<issueInvoiceResponse>(getIssueInvoiceUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type remindInvoiceResponse200 = {
+	data: RemindInvoice200;
+	status: 200;
+};
+
+export type remindInvoiceResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type remindInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type remindInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type remindInvoiceResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type remindInvoiceResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type remindInvoiceResponseSuccess = remindInvoiceResponse200 & {
+	headers: Headers;
+};
+export type remindInvoiceResponseError = (
+	| remindInvoiceResponse400
+	| remindInvoiceResponse403
+	| remindInvoiceResponse404
+	| remindInvoiceResponse409
+	| remindInvoiceResponse422
+) & {
+	headers: Headers;
+};
+
+export type remindInvoiceResponse = remindInvoiceResponseSuccess | remindInvoiceResponseError;
+
+export const getRemindInvoiceUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}/remind`;
+};
+
+/**
+ * @summary Send a payment reminder email (once per hour)
+ */
+export const remindInvoice = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<remindInvoiceResponse> => {
+	return lmsFetch<remindInvoiceResponse>(getRemindInvoiceUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type duplicateInvoiceResponse200 = {
+	data: DuplicateInvoice200;
+	status: 200;
+};
+
+export type duplicateInvoiceResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type duplicateInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type duplicateInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type duplicateInvoiceResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type duplicateInvoiceResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type duplicateInvoiceResponseSuccess = duplicateInvoiceResponse200 & {
+	headers: Headers;
+};
+export type duplicateInvoiceResponseError = (
+	| duplicateInvoiceResponse400
+	| duplicateInvoiceResponse403
+	| duplicateInvoiceResponse404
+	| duplicateInvoiceResponse409
+	| duplicateInvoiceResponse422
+) & {
+	headers: Headers;
+};
+
+export type duplicateInvoiceResponse =
+	duplicateInvoiceResponseSuccess | duplicateInvoiceResponseError;
+
+export const getDuplicateInvoiceUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}/duplicate`;
+};
+
+/**
+ * @summary Copy into a new draft (e.g. from a void invoice)
+ */
+export const duplicateInvoice = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<duplicateInvoiceResponse> => {
+	return lmsFetch<duplicateInvoiceResponse>(getDuplicateInvoiceUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type voidInvoiceResponse200 = {
+	data: VoidInvoice200;
+	status: 200;
+};
+
+export type voidInvoiceResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type voidInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type voidInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type voidInvoiceResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type voidInvoiceResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type voidInvoiceResponseSuccess = voidInvoiceResponse200 & {
+	headers: Headers;
+};
+export type voidInvoiceResponseError = (
+	| voidInvoiceResponse400
+	| voidInvoiceResponse403
+	| voidInvoiceResponse404
+	| voidInvoiceResponse409
+	| voidInvoiceResponse422
+) & {
+	headers: Headers;
+};
+
+export type voidInvoiceResponse = voidInvoiceResponseSuccess | voidInvoiceResponseError;
+
+export const getVoidInvoiceUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}/void`;
+};
+
+/**
+ * @summary Void an issued/overdue invoice (cancels VA and pending proofs, emails tenant)
+ */
+export const voidInvoice = async (
+	id: string,
+	invoiceReasonInput: InvoiceReasonInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<voidInvoiceResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<voidInvoiceResponse>(getVoidInvoiceUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceReasonInput)
+	});
+};
+
+export type recordInvoicePaymentResponse200 = {
+	data: RecordInvoicePayment200;
+	status: 200;
+};
+
+export type recordInvoicePaymentResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type recordInvoicePaymentResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type recordInvoicePaymentResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type recordInvoicePaymentResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type recordInvoicePaymentResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type recordInvoicePaymentResponseSuccess = recordInvoicePaymentResponse200 & {
+	headers: Headers;
+};
+export type recordInvoicePaymentResponseError = (
+	| recordInvoicePaymentResponse400
+	| recordInvoicePaymentResponse403
+	| recordInvoicePaymentResponse404
+	| recordInvoicePaymentResponse409
+	| recordInvoicePaymentResponse422
+) & {
+	headers: Headers;
+};
+
+export type recordInvoicePaymentResponse =
+	recordInvoicePaymentResponseSuccess | recordInvoicePaymentResponseError;
+
+export const getRecordInvoicePaymentUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}/payments`;
+};
+
+/**
+ * @summary Record a verified manual transfer (SAD F12): invoice becomes paid
+ */
+export const recordInvoicePayment = async (
+	id: string,
+	invoiceTransferInput: InvoiceTransferInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<recordInvoicePaymentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<recordInvoicePaymentResponse>(getRecordInvoicePaymentUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceTransferInput)
+	});
+};
+
+export type verifyInvoicePaymentResponse200 = {
+	data: VerifyInvoicePayment200;
+	status: 200;
+};
+
+export type verifyInvoicePaymentResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type verifyInvoicePaymentResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type verifyInvoicePaymentResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type verifyInvoicePaymentResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type verifyInvoicePaymentResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type verifyInvoicePaymentResponseSuccess = verifyInvoicePaymentResponse200 & {
+	headers: Headers;
+};
+export type verifyInvoicePaymentResponseError = (
+	| verifyInvoicePaymentResponse400
+	| verifyInvoicePaymentResponse403
+	| verifyInvoicePaymentResponse404
+	| verifyInvoicePaymentResponse409
+	| verifyInvoicePaymentResponse422
+) & {
+	headers: Headers;
+};
+
+export type verifyInvoicePaymentResponse =
+	verifyInvoicePaymentResponseSuccess | verifyInvoicePaymentResponseError;
+
+export const getVerifyInvoicePaymentUrl = (id: string, paymentID: string) => {
+	return `/api/v1/platform/invoices/${id}/payments/${paymentID}/verify`;
+};
+
+/**
+ * @summary Verify a tenant-submitted transfer proof → invoice paid
+ */
+export const verifyInvoicePayment = async (
+	id: string,
+	paymentID: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifyInvoicePaymentResponse> => {
+	return lmsFetch<verifyInvoicePaymentResponse>(getVerifyInvoicePaymentUrl(id, paymentID), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type rejectInvoicePaymentResponse200 = {
+	data: RejectInvoicePayment200;
+	status: 200;
+};
+
+export type rejectInvoicePaymentResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type rejectInvoicePaymentResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type rejectInvoicePaymentResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type rejectInvoicePaymentResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type rejectInvoicePaymentResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type rejectInvoicePaymentResponseSuccess = rejectInvoicePaymentResponse200 & {
+	headers: Headers;
+};
+export type rejectInvoicePaymentResponseError = (
+	| rejectInvoicePaymentResponse400
+	| rejectInvoicePaymentResponse403
+	| rejectInvoicePaymentResponse404
+	| rejectInvoicePaymentResponse409
+	| rejectInvoicePaymentResponse422
+) & {
+	headers: Headers;
+};
+
+export type rejectInvoicePaymentResponse =
+	rejectInvoicePaymentResponseSuccess | rejectInvoicePaymentResponseError;
+
+export const getRejectInvoicePaymentUrl = (id: string, paymentID: string) => {
+	return `/api/v1/platform/invoices/${id}/payments/${paymentID}/reject`;
+};
+
+/**
+ * @summary Reject a tenant-submitted transfer proof
+ */
+export const rejectInvoicePayment = async (
+	id: string,
+	paymentID: string,
+	invoiceReasonInput: InvoiceReasonInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<rejectInvoicePaymentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<rejectInvoicePaymentResponse>(getRejectInvoicePaymentUrl(id, paymentID), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceReasonInput)
+	});
+};
+
+export type listTenantInvoicesResponse200 = {
+	data: ListTenantInvoices200;
+	status: 200;
+};
+
+export type listTenantInvoicesResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type listTenantInvoicesResponseSuccess = listTenantInvoicesResponse200 & {
+	headers: Headers;
+};
+export type listTenantInvoicesResponseError = listTenantInvoicesResponse403 & {
+	headers: Headers;
+};
+
+export type listTenantInvoicesResponse =
+	listTenantInvoicesResponseSuccess | listTenantInvoicesResponseError;
+
+export const getListTenantInvoicesUrl = (params: ListTenantInvoicesParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices?${stringifiedParams}`
+		: `/api/v1/billing/invoices`;
+};
+
+/**
+ * @summary Tenant's own invoices (no drafts)
+ */
+export const listTenantInvoices = async (
+	params: ListTenantInvoicesParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listTenantInvoicesResponse> => {
+	return lmsFetch<listTenantInvoicesResponse>(getListTenantInvoicesUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getTenantPaymentProofResponse200ApplicationPdf = {
+	data: Blob;
+	status: 200;
+};
+
+export type getTenantPaymentProofResponse200ImagePng = {
+	data: Blob;
+	status: 200;
+};
+
+export type getTenantPaymentProofResponse200ImageJpeg = {
+	data: Blob;
+	status: 200;
+};
+
+export type getTenantPaymentProofResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getTenantPaymentProofResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type getTenantPaymentProofResponseSuccess = (
+	| getTenantPaymentProofResponse200ApplicationPdf
+	| getTenantPaymentProofResponse200ImagePng
+	| getTenantPaymentProofResponse200ImageJpeg
+) & {
+	headers: Headers;
+};
+export type getTenantPaymentProofResponseError = (
+	getTenantPaymentProofResponse403 | getTenantPaymentProofResponse404
+) & {
+	headers: Headers;
+};
+
+export type getTenantPaymentProofResponse =
+	getTenantPaymentProofResponseSuccess | getTenantPaymentProofResponseError;
+
+export const getGetTenantPaymentProofUrl = (
+	paymentID: string,
+	params: GetTenantPaymentProofParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices/payments/${paymentID}/proof?${stringifiedParams}`
+		: `/api/v1/billing/invoices/payments/${paymentID}/proof`;
+};
+
+/**
+ * @summary Own transfer proof file
+ */
+export const getTenantPaymentProof = async (
+	paymentID: string,
+	params: GetTenantPaymentProofParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTenantPaymentProofResponse> => {
+	return lmsFetch<getTenantPaymentProofResponse>(getGetTenantPaymentProofUrl(paymentID, params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getTenantInvoiceResponse200 = {
+	data: GetTenantInvoice200;
+	status: 200;
+};
+
+export type getTenantInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getTenantInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type getTenantInvoiceResponseSuccess = getTenantInvoiceResponse200 & {
+	headers: Headers;
+};
+export type getTenantInvoiceResponseError = (
+	getTenantInvoiceResponse403 | getTenantInvoiceResponse404
+) & {
+	headers: Headers;
+};
+
+export type getTenantInvoiceResponse =
+	getTenantInvoiceResponseSuccess | getTenantInvoiceResponseError;
+
+export const getGetTenantInvoiceUrl = (id: string, params: GetTenantInvoiceParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices/${id}?${stringifiedParams}`
+		: `/api/v1/billing/invoices/${id}`;
+};
+
+/**
+ * @summary Own invoice detail
+ */
+export const getTenantInvoice = async (
+	id: string,
+	params: GetTenantInvoiceParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTenantInvoiceResponse> => {
+	return lmsFetch<getTenantInvoiceResponse>(getGetTenantInvoiceUrl(id, params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type payTenantInvoiceResponse200 = {
+	data: PayTenantInvoice200;
+	status: 200;
+};
+
+export type payTenantInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type payTenantInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type payTenantInvoiceResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type payTenantInvoiceResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type payTenantInvoiceResponse503 = {
+	data: BillingErrorResponse;
+	status: 503;
+};
+
+export type payTenantInvoiceResponseSuccess = payTenantInvoiceResponse200 & {
+	headers: Headers;
+};
+export type payTenantInvoiceResponseError = (
+	| payTenantInvoiceResponse403
+	| payTenantInvoiceResponse404
+	| payTenantInvoiceResponse409
+	| payTenantInvoiceResponse422
+	| payTenantInvoiceResponse503
+) & {
+	headers: Headers;
+};
+
+export type payTenantInvoiceResponse =
+	payTenantInvoiceResponseSuccess | payTenantInvoiceResponseError;
+
+export const getPayTenantInvoiceUrl = (id: string, params: PayTenantInvoiceParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices/${id}/pay?${stringifiedParams}`
+		: `/api/v1/billing/invoices/${id}/pay`;
+};
+
+/**
+ * @summary Create a Midtrans VA (until due date) or QRIS (15 minutes)
+ */
+export const payTenantInvoice = async (
+	id: string,
+	invoicePayInput: InvoicePayInput,
+	params: PayTenantInvoiceParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<payTenantInvoiceResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<payTenantInvoiceResponse>(getPayTenantInvoiceUrl(id, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoicePayInput)
+	});
+};
+
+export type checkTenantInvoicePaymentResponse200 = {
+	data: CheckTenantInvoicePayment200;
+	status: 200;
+};
+
+export type checkTenantInvoicePaymentResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type checkTenantInvoicePaymentResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type checkTenantInvoicePaymentResponse503 = {
+	data: BillingErrorResponse;
+	status: 503;
+};
+
+export type checkTenantInvoicePaymentResponseSuccess = checkTenantInvoicePaymentResponse200 & {
+	headers: Headers;
+};
+export type checkTenantInvoicePaymentResponseError = (
+	| checkTenantInvoicePaymentResponse403
+	| checkTenantInvoicePaymentResponse404
+	| checkTenantInvoicePaymentResponse503
+) & {
+	headers: Headers;
+};
+
+export type checkTenantInvoicePaymentResponse =
+	checkTenantInvoicePaymentResponseSuccess | checkTenantInvoicePaymentResponseError;
+
+export const getCheckTenantInvoicePaymentUrl = (
+	id: string,
+	params: CheckTenantInvoicePaymentParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices/${id}/check?${stringifiedParams}`
+		: `/api/v1/billing/invoices/${id}/check`;
+};
+
+/**
+ * @summary Check the latest Midtrans transaction status
+ */
+export const checkTenantInvoicePayment = async (
+	id: string,
+	params: CheckTenantInvoicePaymentParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<checkTenantInvoicePaymentResponse> => {
+	return lmsFetch<checkTenantInvoicePaymentResponse>(getCheckTenantInvoicePaymentUrl(id, params), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type submitTenantTransferResponse200 = {
+	data: SubmitTenantTransfer200;
+	status: 200;
+};
+
+export type submitTenantTransferResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type submitTenantTransferResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type submitTenantTransferResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type submitTenantTransferResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type submitTenantTransferResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type submitTenantTransferResponseSuccess = submitTenantTransferResponse200 & {
+	headers: Headers;
+};
+export type submitTenantTransferResponseError = (
+	| submitTenantTransferResponse400
+	| submitTenantTransferResponse403
+	| submitTenantTransferResponse404
+	| submitTenantTransferResponse409
+	| submitTenantTransferResponse422
+) & {
+	headers: Headers;
+};
+
+export type submitTenantTransferResponse =
+	submitTenantTransferResponseSuccess | submitTenantTransferResponseError;
+
+export const getSubmitTenantTransferUrl = (id: string, params: SubmitTenantTransferParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/billing/invoices/${id}/transfer?${stringifiedParams}`
+		: `/api/v1/billing/invoices/${id}/transfer`;
+};
+
+/**
+ * @summary Submit a bank transfer proof for verification
+ */
+export const submitTenantTransfer = async (
+	id: string,
+	invoiceTransferInput: InvoiceTransferInput,
+	params: SubmitTenantTransferParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<submitTenantTransferResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<submitTenantTransferResponse>(getSubmitTenantTransferUrl(id, params), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceTransferInput)
+	});
+};
+
+export type listPlatformInvoicesResponse200 = {
+	data: ListPlatformInvoices200;
+	status: 200;
+};
+
+export type listPlatformInvoicesResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type listPlatformInvoicesResponseSuccess = listPlatformInvoicesResponse200 & {
+	headers: Headers;
+};
+export type listPlatformInvoicesResponseError = listPlatformInvoicesResponse403 & {
+	headers: Headers;
+};
+
+export type listPlatformInvoicesResponse =
+	listPlatformInvoicesResponseSuccess | listPlatformInvoicesResponseError;
+
+export const getListPlatformInvoicesUrl = (params?: ListPlatformInvoicesParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/platform/invoices?${stringifiedParams}`
+		: `/api/v1/platform/invoices`;
+};
+
+/**
+ * @summary Invoice list (drafts first, newest issued first)
+ */
+export const listPlatformInvoices = async (
+	params?: ListPlatformInvoicesParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPlatformInvoicesResponse> => {
+	return lmsFetch<listPlatformInvoicesResponse>(getListPlatformInvoicesUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createInvoiceDraftResponse200 = {
+	data: CreateInvoiceDraft200;
+	status: 200;
+};
+
+export type createInvoiceDraftResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type createInvoiceDraftResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type createInvoiceDraftResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type createInvoiceDraftResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type createInvoiceDraftResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type createInvoiceDraftResponseSuccess = createInvoiceDraftResponse200 & {
+	headers: Headers;
+};
+export type createInvoiceDraftResponseError = (
+	| createInvoiceDraftResponse400
+	| createInvoiceDraftResponse403
+	| createInvoiceDraftResponse404
+	| createInvoiceDraftResponse409
+	| createInvoiceDraftResponse422
+) & {
+	headers: Headers;
+};
+
+export type createInvoiceDraftResponse =
+	createInvoiceDraftResponseSuccess | createInvoiceDraftResponseError;
+
+export const getCreateInvoiceDraftUrl = () => {
+	return `/api/v1/platform/invoices`;
+};
+
+/**
+ * @summary Create a manual invoice draft (no number until issued)
+ */
+export const createInvoiceDraft = async (
+	invoiceDraftInput: InvoiceDraftInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createInvoiceDraftResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createInvoiceDraftResponse>(getCreateInvoiceDraftUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceDraftInput)
+	});
+};
+
+export type getPlatformInvoiceResponse200 = {
+	data: GetPlatformInvoice200;
+	status: 200;
+};
+
+export type getPlatformInvoiceResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type getPlatformInvoiceResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type getPlatformInvoiceResponseSuccess = getPlatformInvoiceResponse200 & {
+	headers: Headers;
+};
+export type getPlatformInvoiceResponseError = (
+	getPlatformInvoiceResponse403 | getPlatformInvoiceResponse404
+) & {
+	headers: Headers;
+};
+
+export type getPlatformInvoiceResponse =
+	getPlatformInvoiceResponseSuccess | getPlatformInvoiceResponseError;
+
+export const getGetPlatformInvoiceUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}`;
+};
+
+/**
+ * @summary Invoice detail (editor + print)
+ */
+export const getPlatformInvoice = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getPlatformInvoiceResponse> => {
+	return lmsFetch<getPlatformInvoiceResponse>(getGetPlatformInvoiceUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateInvoiceDraftResponse200 = {
+	data: UpdateInvoiceDraft200;
+	status: 200;
+};
+
+export type updateInvoiceDraftResponse400 = {
+	data: BillingErrorResponse;
+	status: 400;
+};
+
+export type updateInvoiceDraftResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type updateInvoiceDraftResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type updateInvoiceDraftResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type updateInvoiceDraftResponse422 = {
+	data: BillingErrorResponse;
+	status: 422;
+};
+
+export type updateInvoiceDraftResponseSuccess = updateInvoiceDraftResponse200 & {
+	headers: Headers;
+};
+export type updateInvoiceDraftResponseError = (
+	| updateInvoiceDraftResponse400
+	| updateInvoiceDraftResponse403
+	| updateInvoiceDraftResponse404
+	| updateInvoiceDraftResponse409
+	| updateInvoiceDraftResponse422
+) & {
+	headers: Headers;
+};
+
+export type updateInvoiceDraftResponse =
+	updateInvoiceDraftResponseSuccess | updateInvoiceDraftResponseError;
+
+export const getUpdateInvoiceDraftUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}`;
+};
+
+/**
+ * @summary Update a draft (issued invoices are immutable)
+ */
+export const updateInvoiceDraft = async (
+	id: string,
+	invoiceDraftInput: InvoiceDraftInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateInvoiceDraftResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateInvoiceDraftResponse>(getUpdateInvoiceDraftUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(invoiceDraftInput)
+	});
+};
+
+export type deleteInvoiceDraftResponse200 = {
+	data: DeleteInvoiceDraft200;
+	status: 200;
+};
+
+export type deleteInvoiceDraftResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type deleteInvoiceDraftResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type deleteInvoiceDraftResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type deleteInvoiceDraftResponseSuccess = deleteInvoiceDraftResponse200 & {
+	headers: Headers;
+};
+export type deleteInvoiceDraftResponseError = (
+	deleteInvoiceDraftResponse403 | deleteInvoiceDraftResponse404 | deleteInvoiceDraftResponse409
+) & {
+	headers: Headers;
+};
+
+export type deleteInvoiceDraftResponse =
+	deleteInvoiceDraftResponseSuccess | deleteInvoiceDraftResponseError;
+
+export const getDeleteInvoiceDraftUrl = (id: string) => {
+	return `/api/v1/platform/invoices/${id}`;
+};
+
+/**
+ * @summary Delete a draft
+ */
+export const deleteInvoiceDraft = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteInvoiceDraftResponse> => {
+	return lmsFetch<deleteInvoiceDraftResponse>(getDeleteInvoiceDraftUrl(id), {
+		...options,
+		method: 'DELETE'
 	});
 };

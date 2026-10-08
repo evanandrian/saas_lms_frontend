@@ -3,12 +3,10 @@ import type { AccessContext } from './access-context';
 /**
  * Batas integrasi sesi (ADR-019).
  *
- * Bentuk sesi final, endpoint auth, nama cookie, dan alur refresh ditentukan oleh kontrak
- * auth backend yang belum tersedia (BLOCKED-02, OQ-1..OQ-3). Sampai kontrak itu ada,
- * frontend tidak mem-parse JWT, tidak menyimpan token, dan di build produksi tidak pernah
- * menganggap pengguna terautentikasi (`unresolved` diperlakukan sebagai anonim).
- * Status `authenticated` saat ini hanya dihasilkan sesi contoh dev-only (FE-05).
- * Backend tetap otoritas keamanan.
+ * Produksi: `resolveProductionSession()` (`backend-session.ts`) memverifikasi cookie token ke
+ * `/auth/me` tiap request dan memetakan roles → WorkspaceArea; `unresolved` = anonim (fail-closed).
+ * Dev: sesi contoh dev-only (FE-05) yang juga diverifikasi ke backend bila token ada.
+ * Backend tetap otoritas keamanan; frontend tidak mem-parse JWT.
  */
 export type SessionState =
 	| { readonly status: 'unresolved' }

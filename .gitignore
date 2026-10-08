@@ -23,3 +23,7 @@ blob-report/
 .DS_Store
 Thumbs.db
 *.log
+
+# graphify knowledge graph artifacts
+graphify-out/
+.graphifyignore

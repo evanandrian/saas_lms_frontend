@@ -2,9 +2,8 @@
  * Konteks akses pengguna terautentikasi (FE-05).
  *
  * Kunci frontend adalah *workspace area* — area kerja yang memang dimiliki frontend sebagai route —
- * bukan katalog role/permission backend (BLOCKED-04). Bentuk data identitas backend (`me`,
- * membership, role) belum ada di kontrak (BLOCKED-02); `toAccessContext()` adalah satu-satunya
- * adapter yang kelak menerjemahkan respons backend ke bentuk ini.
+ * bukan katalog role/permission backend (BLOCKED-04). `toAccessContext()` adalah satu-satunya adapter
+ * yang menerjemahkan respons backend (`/auth/me` → `backend-session.ts`) ke bentuk ini.
  *
  * Model mendukung banyak membership per pengguna (mis. guru di sekolah A dan admin di sekolah B);
  * tidak ada asumsi satu pengguna = satu peran = satu tenant.

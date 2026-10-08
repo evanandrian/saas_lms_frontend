@@ -2,11 +2,14 @@ import { dev } from '$app/environment';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env } from '$env/dynamic/public';
 import { clearBackendTokens, verifyBackendSession } from '$lib/auth/backend-auth';
+import { resolveProductionSession } from '$lib/auth/backend-session';
 import { UNRESOLVED_SESSION } from '$lib/auth/session';
 import { clearSessionMeta, writeSessionEnded } from '$lib/auth/session-meta';
 import { DEFAULT_LOCALE } from '$lib/i18n';
 import { COLOR_MODE_COOKIE, resolveColorMode } from '$lib/utils/color-mode';
 import { RESERVED_SUBDOMAINS, UNIFIED_DEV_HOST, resolveHostContext } from '$lib/utils/host-context';
+import { noteUnknownHost } from '$lib/utils/host-observability';
+import { enforceHostAccess } from '$lib/utils/host-policy';
 import { REQUIRED_BODY_BYTES, parseBodySizeLimit } from '$lib/utils/upload-limits';
 import type { Handle, HandleServerError, RequestEvent, ServerInit } from '@sveltejs/kit';
 
@@ -36,6 +39,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Dev: root domain = host gabungan (satu URL untuk platform & sekolah). Produksi: tidak pernah.
 	const host = dev && resolvedHost.kind === 'public' ? UNIFIED_DEV_HOST : resolvedHost;
 
+	// Observabilitas host di luar topologi (P1): catat sebelum kebijakan menolak dengan 404.
+	noteUnknownHost(resolvedHost, event.url.hostname, event.url.pathname);
+
 	if (host.kind === 'www') {
 		const target = new URL(event.url);
 		target.hostname = target.hostname.slice(RESERVED_SUBDOMAINS.WWW.length + 1);
@@ -46,13 +52,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	event.locals.host = host;
+	// Kebijakan host terpusat (P0-2): tolak path di host yang salah sebelum route load;
+	// assertHostKind di route tetap sebagai lapis kedua.
+	enforceHostAccess(host, event.url.pathname);
 	// UI hanya Bahasa Indonesia (FE-04R); tidak ada preferensi bahasa yang dibaca dari request.
 	event.locals.locale = DEFAULT_LOCALE;
 	// Preferensi mode warna (FE-05R); nilai tak dikenal → `system`.
 	event.locals.colorMode = resolveColorMode(event.cookies.get(COLOR_MODE_COOKIE));
-	// Integrasi sesi menunggu kontrak auth backend (BLOCKED-02, ADR-019 OQ-1..OQ-3).
-	// Produksi: selalu `unresolved` (anonim). Dev: sesi contoh (FE-05), tidak ikut build produksi.
-	event.locals.session = dev ? await resolveDevSession(event) : UNRESOLVED_SESSION;
+	// Sesi per request: verifikasi cookie token ke backend (BLOCKED-02 teratasi, ADR-019 OQ-1..OQ-3).
+	// Produksi: `resolveProductionSession` (fail-closed; anonim bila token tak ada/tak sah/backend tak
+	// terjangkau). Dev: sesi contoh (FE-05), tidak ikut build produksi.
+	event.locals.session = dev
+		? await resolveDevSession(event)
+		: await resolveProductionSession(event.fetch, event.cookies);
 
 	return resolve(event, {
 		transformPageChunk: ({ html }) =>
