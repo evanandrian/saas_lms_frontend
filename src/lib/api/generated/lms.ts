@@ -6,6 +6,1291 @@
  * OpenAPI spec version: 1.0.0
  */
 import { lmsFetch } from '../client';
+/**
+ * full is computed automatically (available and used >= max; back to available when below). maintenance pauses tenant connections (503 tenant_maintenance).
+ */
+export type ClusterStatus = (typeof ClusterStatus)[keyof typeof ClusterStatus];
+
+export const ClusterStatus = {
+	available: 'available',
+	full: 'full',
+	draining: 'draining',
+	maintenance: 'maintenance',
+	retired: 'retired'
+} as const;
+
+export type ClusterSSLMode = (typeof ClusterSSLMode)[keyof typeof ClusterSSLMode];
+
+export const ClusterSSLMode = {
+	'verify-full': 'verify-full',
+	require: 'require',
+	disable: 'disable'
+} as const;
+
+export type ClusterBackupStatus = (typeof ClusterBackupStatus)[keyof typeof ClusterBackupStatus];
+
+export const ClusterBackupStatus = {
+	running: 'running',
+	succeeded: 'succeeded',
+	failed: 'failed'
+} as const;
+
+export interface ClusterBackup {
+	started_at: string;
+	/** @nullable */
+	finished_at: string | null;
+	status: ClusterBackupStatus;
+	databases: number;
+	size_bytes: number;
+}
+
+export type ClusterViewBackupSchedule =
+	(typeof ClusterViewBackupSchedule)[keyof typeof ClusterViewBackupSchedule];
+
+export const ClusterViewBackupSchedule = {
+	'6h': '6h',
+	daily: 'daily',
+	weekly: 'weekly'
+} as const;
+
+export type ClusterViewBackupRetentionDays =
+	(typeof ClusterViewBackupRetentionDays)[keyof typeof ClusterViewBackupRetentionDays];
+
+export const ClusterViewBackupRetentionDays = {
+	NUMBER_7: 7,
+	NUMBER_14: 14,
+	NUMBER_30: 30,
+	NUMBER_90: 90
+} as const;
+
+/**
+ * The admin password is never returned; has_password tells whether one is stored.
+ */
+export interface ClusterView {
+	id: string;
+	code: string;
+	region_code: string;
+	region_name: string;
+	region_zone: string;
+	outside_indonesia: boolean;
+	pg_version: string;
+	host: string;
+	port: number;
+	admin_user: string;
+	has_password: boolean;
+	ssl_mode: ClusterSSLMode;
+	max_databases: number;
+	/** Live tenant databases (tenants with db_name, not terminated) */
+	used_databases: number;
+	pool_size: number;
+	warn_pct: number;
+	status: ClusterStatus;
+	backup_schedule: ClusterViewBackupSchedule;
+	backup_retention_days: ClusterViewBackupRetentionDays;
+	pitr: boolean;
+	last_backup: ClusterBackup | null;
+	/** @nullable */
+	last_connected_at: string | null;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface ClusterRegion {
+	code: string;
+	name: string;
+	zone: string;
+	outside_indonesia: boolean;
+}
+
+export interface ClusterList {
+	clusters: ClusterView[];
+	regions: ClusterRegion[];
+}
+
+/**
+ * Send available for a cluster shown as full; the server recomputes full.
+ */
+export type ClusterInputStatus = (typeof ClusterInputStatus)[keyof typeof ClusterInputStatus];
+
+export const ClusterInputStatus = {
+	available: 'available',
+	draining: 'draining',
+	maintenance: 'maintenance'
+} as const;
+
+export type ClusterInputBackupSchedule =
+	(typeof ClusterInputBackupSchedule)[keyof typeof ClusterInputBackupSchedule];
+
+export const ClusterInputBackupSchedule = {
+	'6h': '6h',
+	daily: 'daily',
+	weekly: 'weekly'
+} as const;
+
+export type ClusterInputBackupRetentionDays =
+	(typeof ClusterInputBackupRetentionDays)[keyof typeof ClusterInputBackupRetentionDays];
+
+export const ClusterInputBackupRetentionDays = {
+	NUMBER_7: 7,
+	NUMBER_14: 14,
+	NUMBER_30: 30,
+	NUMBER_90: 90
+} as const;
+
+export interface ClusterInput {
+	/**
+	 * Create only (ignored on update); unique (code_taken)
+	 * @pattern ^[a-z0-9-]{4,24}$
+	 */
+	code?: string;
+	region_code: string;
+	host: string;
+	/**
+	 * @minimum 1
+	 * @maximum 65535
+	 */
+	port: number;
+	/** @minLength 3 */
+	admin_user: string;
+	/**
+	 * Required on create; empty on update = keep the stored password
+	 * @minLength 12
+	 */
+	password?: string;
+	ssl_mode: ClusterSSLMode;
+	/**
+	 * Must be >= used_databases on update (below_used)
+	 * @minimum 1
+	 */
+	max_databases: number;
+	/**
+	 * @minimum 5
+	 * @maximum 100
+	 */
+	pool_size: number;
+	/**
+	 * @minimum 50
+	 * @maximum 95
+	 */
+	warn_pct: number;
+	/** Send available for a cluster shown as full; the server recomputes full. */
+	status: ClusterInputStatus;
+	backup_schedule: ClusterInputBackupSchedule;
+	backup_retention_days: ClusterInputBackupRetentionDays;
+	pitr: boolean;
+}
+
+export interface ClusterTestInput {
+	/** With an empty password the stored password of this cluster is used */
+	cluster_id?: string;
+	host: string;
+	port: number;
+	admin_user: string;
+	password?: string;
+	ssl_mode: ClusterSSLMode;
+}
+
+export interface ClusterTestResult {
+	ok: boolean;
+	pg_version: string;
+	latency_ms: number;
+	/** Whether the connection actually used TLS */
+	ssl: boolean;
+	/** Empty when ok; connection_dns | connection_refused | connection_auth | connection_tls | connection_timeout | connection_failed */
+	error_code: string;
+	/** Always empty (kept for compatibility). The raw driver message is only written to the server log with the request_id; clients must use error_code. */
+	error: string;
+}
+
+export type ClusterDatabaseListItemsItem = {
+	db_name: string;
+	tenant_code: string;
+	tenant_name: string;
+	size_bytes: number;
+};
+
+export interface ClusterDatabaseList {
+	items: ClusterDatabaseListItemsItem[];
+}
+
+export interface SchoolAcceptInput {
+	tenant?: string;
+	token?: string;
+	password?: string;
+}
+
+export interface SchoolActivateInput {
+	username?: string;
+	code?: string;
+	password?: string;
+}
+
+export interface SchoolActivationCode {
+	name: string;
+	username: string;
+	code: string;
+}
+
+export interface SchoolPlanAssessment {
+	code: string;
+	name: string;
+	category: string;
+	is_exam: boolean;
+	weight: number;
+}
+
+export interface SchoolAssessmentsInput {
+	use_default?: boolean;
+	items?: SchoolPlanAssessment[];
+}
+
+export interface SchoolAssignment {
+	subject: string;
+	class: string;
+}
+
+export interface SchoolAssignmentInput {
+	class_id?: string;
+	subject_id?: string;
+	teacher_id?: string;
+}
+
+export interface SchoolAttendanceEntry {
+	student_id?: string;
+	status?: string;
+	note?: string;
+}
+
+export interface SchoolAttendanceInput {
+	date?: string;
+	entries?: SchoolAttendanceEntry[];
+}
+
+export interface SchoolAttendanceRow {
+	class_id: string;
+	name: string;
+	homeroom: string;
+	students: number;
+	filled: boolean;
+	days: number;
+	present: number;
+	sick: number;
+	permit: number;
+	absent: number;
+}
+
+/**
+ * Actual outcome of POST /school/attendance/remind (only present in that response). Emails are enqueued in one transaction (all or none).
+ */
+export interface SchoolRemindOutcome {
+	/** Classes that have not filled today's attendance */
+	target_classes: number;
+	/** Distinct homeroom teachers whose reminder email was enqueued */
+	notified_teachers: number;
+	/** Target classes without a homeroom teacher */
+	skipped_no_homeroom: number;
+	/** Target classes whose homeroom teacher has no email */
+	skipped_no_contact: number;
+}
+
+export interface SchoolAttendanceView {
+	mode: string;
+	date: string;
+	today: string;
+	holiday: boolean;
+	term: number;
+	term_start: string;
+	term_until: string;
+	school_days: number;
+	absent_risk: number;
+	reminded_at: string;
+	rows: SchoolAttendanceRow[];
+	reminder?: SchoolRemindOutcome;
+}
+
+export interface SchoolChildRef {
+	id: string;
+	name: string;
+	class_name: string;
+	relation: string;
+	primary: boolean;
+}
+
+export interface SchoolClassStudent {
+	id: string;
+	name: string;
+	nis: string;
+}
+
+export interface SchoolClassDetail {
+	id: string;
+	name: string;
+	grade_id: string;
+	grade: number;
+	grade_label: string;
+	phase: string;
+	capacity: number;
+	students: number;
+	/** @nullable */
+	homeroom_id: string | null;
+	homeroom_name: string;
+	student_list: SchoolClassStudent[];
+}
+
+export interface SchoolClassInput {
+	grade_id?: string;
+	name?: string;
+	capacity?: number;
+	homeroom_id?: string;
+}
+
+export interface SchoolClassName {
+	name: string;
+	has_students: boolean;
+}
+
+export interface SchoolClassRow {
+	id: string;
+	name: string;
+	grade_id: string;
+	grade: number;
+	grade_label: string;
+	phase: string;
+	capacity: number;
+	students: number;
+	/** @nullable */
+	homeroom_id: string | null;
+	homeroom_name: string;
+}
+
+export type SchoolClassesInputGradesItem = {
+	grade?: number;
+	count?: number;
+	capacity?: number;
+};
+
+export interface SchoolClassesInput {
+	scheme?: string;
+	grades?: SchoolClassesInputGradesItem[];
+}
+
+export interface SchoolGradeOption {
+	id: string;
+	grade: number;
+	label: string;
+	phase: string;
+}
+
+export interface SchoolOption {
+	value: string;
+	label: string;
+}
+
+export interface SchoolClassesView {
+	year: string;
+	/** @nullable */
+	year_id: string | null;
+	grades: SchoolGradeOption[];
+	teachers: SchoolOption[];
+	items: SchoolClassRow[];
+	students: number;
+	no_homeroom: number;
+}
+
+export interface SchoolCurriculumInput {
+	code?: string;
+}
+
+export interface SchoolDashboardAbsent {
+	name: string;
+	status: string;
+}
+
+export interface SchoolDashboardRoom {
+	class_id: string;
+	name: string;
+	homeroom: string;
+	students: number;
+	filled: boolean;
+	present: number;
+	/** @nullable */
+	pct: number | null;
+	absent: SchoolDashboardAbsent[];
+}
+
+export interface SchoolDashboardFloor {
+	grade: number;
+	label: string;
+	phase: string;
+	rooms: SchoolDashboardRoom[];
+}
+
+export interface SchoolDashboardTodo {
+	kind: string;
+	count: number;
+	ref: string;
+	extra: string;
+}
+
+export interface SchoolDashboardTrial {
+	ends_at: string;
+	days: string[];
+	day_no: number;
+}
+
+export interface SchoolDashboardUsage {
+	students_active_7d: number;
+	students_total: number;
+	teachers_active_7d: number;
+	teachers_total: number;
+	storage_bytes: number;
+}
+
+export interface SchoolProgress {
+	done: number;
+	total: number;
+	req_done: number;
+	req_total: number;
+	missing: string[];
+}
+
+export type SchoolSectionMetrics = { [key: string]: number };
+
+export interface SchoolSection {
+	key: string;
+	required: boolean;
+	done: boolean;
+	metrics: SchoolSectionMetrics;
+	label: string;
+}
+
+export interface SchoolReportRow {
+	class_id: string;
+	name: string;
+	homeroom: string;
+	students: number;
+	status: string;
+	locked_subjects: number;
+	subjects: number;
+	submitted: number;
+}
+
+export type SchoolReportsViewCounts = { [key: string]: number };
+
+export type SchoolReportsViewReminded = { [key: string]: string };
+
+export interface SchoolReportsView {
+	term: number;
+	year: string;
+	counts: SchoolReportsViewCounts;
+	rows: SchoolReportRow[];
+	reminded: SchoolReportsViewReminded;
+}
+
+export interface SchoolSeatUsage {
+	used: number;
+	seats: number;
+}
+
+export interface SchoolDashboardView {
+	viewer: string;
+	school: string;
+	plan: string;
+	today: string;
+	year: string;
+	term: number;
+	setup: SchoolProgress;
+	sections: SchoolSection[];
+	classes: number;
+	filled: number;
+	holiday: boolean;
+	reminded_at: string;
+	floors: SchoolDashboardFloor[];
+	reports: SchoolReportsView;
+	seats: SchoolSeatUsage;
+	subscription_status: string;
+	trial: SchoolDashboardTrial | null;
+	usage: SchoolDashboardUsage;
+	todo: SchoolDashboardTodo[];
+}
+
+export interface SchoolExtraInput {
+	name?: string;
+	coach_id?: string;
+}
+
+export interface SchoolGradeRow {
+	grade: number;
+	label: string;
+	phase: string;
+	count: number;
+	capacity: number;
+	names: SchoolClassName[];
+}
+
+export interface SchoolGuardianInput {
+	name?: string;
+	relation?: string;
+	email?: string;
+	phone?: string;
+	student_id?: string;
+	primary?: boolean;
+}
+
+export interface SchoolGuardianRef {
+	id: string;
+	name: string;
+	relation: string;
+	primary: boolean;
+}
+
+export interface SchoolGuardianRow {
+	id: string;
+	name: string;
+	email: string;
+	phone: string;
+	relation: string;
+	primary: boolean;
+	status: string;
+	children: SchoolChildRef[];
+}
+
+export interface SchoolGuardiansView {
+	students: SchoolOption[];
+	students_total: number;
+	students_linked: number;
+	items: SchoolGuardianRow[];
+}
+
+export interface SchoolHomeroomStudent {
+	id: string;
+	name: string;
+	nis: string;
+	status: string;
+	note: string;
+}
+
+export interface SchoolHomeroomAttendanceView {
+	class_id: string;
+	class: string;
+	date: string;
+	today: string;
+	min_date: string;
+	holiday: boolean;
+	filled: boolean;
+	students: SchoolHomeroomStudent[];
+}
+
+export interface SchoolHomeroomInput {
+	teacher_id?: string;
+}
+
+export type SchoolImportCheckErrors = { [key: string]: string };
+
+export interface SchoolImportCheck {
+	no: number;
+	errors: SchoolImportCheckErrors;
+	warn: string;
+	over: boolean;
+	skip: boolean;
+}
+
+export interface SchoolImportColumn {
+	key: string;
+	label: string;
+	required: boolean;
+	example: string;
+	format: string;
+	field: string;
+	group: string;
+}
+
+export interface SchoolImportFile {
+	file_name?: string;
+	content_base64?: string;
+}
+
+export interface SchoolImportPreview {
+	checks: SchoolImportCheck[];
+	valid: number;
+	invalid: number;
+	over: number;
+	skipped: number;
+	/** @nullable */
+	seats_avail: number | null;
+	seats: SchoolSeatUsage;
+}
+
+export type SchoolImportRowValues = { [key: string]: string };
+
+export interface SchoolImportRow {
+	no: number;
+	values: SchoolImportRowValues;
+	skip: boolean;
+}
+
+export interface SchoolImportRequest {
+	rows?: SchoolImportRow[];
+	invite?: boolean;
+}
+
+export interface SchoolInviteResult {
+	sent: number;
+	linked: number;
+	skipped: number;
+	codes: SchoolActivationCode[];
+	/** Jumlah orang yang diproses worker (undangan massal > 50). */
+	queued?: number;
+	job_ids?: string[];
+}
+
+export interface SchoolImportResult {
+	saved: number;
+	skipped: SchoolImportCheck[];
+	invite: SchoolInviteResult;
+	invited: boolean;
+}
+
+export interface SchoolImportSpec {
+	kind: string;
+	title: string;
+	file: string;
+	note: string;
+	invite: boolean;
+	seats: boolean;
+	columns: SchoolImportColumn[];
+}
+
+export interface SchoolInfo {
+	name: string;
+	npsn: string;
+	level: string;
+	ownership: string;
+	city_code: string;
+	timezone: string;
+	curriculum: string;
+	tenant_code: string;
+}
+
+export interface SchoolInvitationInfo {
+	name: string;
+	email: string;
+	school: string;
+	expires_at: string;
+}
+
+export interface SchoolInviteInput {
+	kind?: string;
+	ids?: string[];
+}
+
+export type SchoolInviteJobStatus =
+	(typeof SchoolInviteJobStatus)[keyof typeof SchoolInviteJobStatus];
+
+export const SchoolInviteJobStatus = {
+	queued: 'queued',
+	running: 'running',
+	succeeded: 'succeeded',
+	failed: 'failed'
+} as const;
+
+export interface SchoolInviteJob {
+	id: string;
+	kind: string;
+	status: SchoolInviteJobStatus;
+	done: number;
+	total: number;
+	sent: number;
+	linked: number;
+	skipped: number;
+	failed: number;
+	codes: SchoolActivationCode[];
+	error: string;
+	created_at: string;
+	/** @nullable */
+	finished_at: string | null;
+}
+
+export type SchoolAuditEntryDetails = { [key: string]: unknown };
+
+export interface SchoolAuditEntry {
+	id: string;
+	at: string;
+	actor_name: string;
+	action: string;
+	entity_type: string;
+	subject: string;
+	details: SchoolAuditEntryDetails;
+}
+
+export interface SchoolAuditView {
+	items: SchoolAuditEntry[];
+	/** Kursor opak halaman berikutnya (seq entri terakhir); kosong bila habis. */
+	next_before: string;
+}
+
+export interface SchoolGradeAssignment {
+	id: string;
+	class_id: string;
+	class: string;
+	subject: string;
+	kkm: number;
+	students: number;
+	filled: number;
+	locked: boolean;
+}
+
+export interface SchoolGradeAssignmentsView {
+	term: number;
+	year: string;
+	assignments: SchoolGradeAssignment[];
+}
+
+export interface SchoolGradeSheetRow {
+	student_id: string;
+	name: string;
+	nis: string;
+	/** @nullable */
+	score: number | null;
+	description: string;
+}
+
+export type SchoolGradeSheetReportStatus =
+	(typeof SchoolGradeSheetReportStatus)[keyof typeof SchoolGradeSheetReportStatus];
+
+export const SchoolGradeSheetReportStatus = {
+	draft: 'draft',
+	submitted: 'submitted',
+	approved: 'approved',
+	locked: 'locked'
+} as const;
+
+export type SchoolGradeSheet = SchoolGradeAssignment & {
+	teacher: string;
+	rows: SchoolGradeSheetRow[];
+	report_status: SchoolGradeSheetReportStatus;
+};
+
+export interface SchoolGradeEntry {
+	student_id: string;
+	/**
+	 * @minimum 0
+	 * @maximum 100
+	 * @nullable
+	 */
+	score: number | null;
+	/** @maxLength 500 */
+	description: string;
+}
+
+export interface SchoolGradesInput {
+	entries: SchoolGradeEntry[];
+}
+
+export interface SchoolReportSubjectProgress {
+	subject_id: string;
+	subject: string;
+	teacher: string;
+	filled: number;
+	locked: boolean;
+}
+
+export interface SchoolReportScore {
+	subject_id: string;
+	score: number;
+	description: string;
+}
+
+export interface SchoolReportStudent {
+	student_id: string;
+	name: string;
+	nis: string;
+	note: string;
+	sick: number;
+	permit: number;
+	absent: number;
+	/** @nullable */
+	average: number | null;
+	scores: SchoolReportScore[];
+	has_pdf: boolean;
+}
+
+export type SchoolClassReportStatus =
+	(typeof SchoolClassReportStatus)[keyof typeof SchoolClassReportStatus];
+
+export const SchoolClassReportStatus = {
+	draft: 'draft',
+	submitted: 'submitted',
+	approved: 'approved',
+	locked: 'locked'
+} as const;
+
+export type SchoolClassReportActionsItem =
+	(typeof SchoolClassReportActionsItem)[keyof typeof SchoolClassReportActionsItem];
+
+export const SchoolClassReportActionsItem = {
+	notes: 'notes',
+	submit: 'submit',
+	approve: 'approve',
+	return: 'return',
+	lock: 'lock',
+	unlock: 'unlock',
+	download: 'download'
+} as const;
+
+export interface SchoolClassReport {
+	class_id: string;
+	class: string;
+	homeroom: string;
+	term: number;
+	year: string;
+	status: SchoolClassReportStatus;
+	version: number;
+	subjects: SchoolReportSubjectProgress[];
+	students: SchoolReportStudent[];
+	all_locked: boolean;
+	notes_complete: boolean;
+	can_submit: boolean;
+	returned_note: string;
+	returned_by: string;
+	submitted_by: string;
+	/** @nullable */
+	submitted_at: string | null;
+	approved_by: string;
+	/** @nullable */
+	approved_at: string | null;
+	locked_by: string;
+	/** @nullable */
+	locked_at: string | null;
+	actions: SchoolClassReportActionsItem[];
+}
+
+export interface SchoolNoteEntry {
+	student_id: string;
+	/** @maxLength 1000 */
+	note: string;
+}
+
+export interface SchoolNotesInput {
+	entries: SchoolNoteEntry[];
+}
+
+export interface SchoolReasonInput {
+	/**
+	 * @minLength 10
+	 * @maxLength 500
+	 */
+	reason: string;
+}
+
+export interface LearnerSubject {
+	subject_id: string;
+	subject: string;
+	kkm: number;
+	score: number;
+	description: string;
+}
+
+export interface LearnerReport {
+	id: string;
+	term: number;
+	year: string;
+	class: string;
+	homeroom: string;
+	version: number;
+	/** @nullable */
+	issued_at: string | null;
+	/** @nullable */
+	average: number | null;
+	sick: number;
+	permit: number;
+	absent: number;
+	note: string;
+	subjects: LearnerSubject[];
+	has_pdf: boolean;
+}
+
+export type LearnerCurrentStatus = (typeof LearnerCurrentStatus)[keyof typeof LearnerCurrentStatus];
+
+export const LearnerCurrentStatus = {
+	draft: 'draft',
+	submitted: 'submitted',
+	approved: 'approved',
+	locked: 'locked'
+} as const;
+
+export interface LearnerCurrent {
+	term: number;
+	year: string;
+	status: LearnerCurrentStatus;
+}
+
+export interface LearnerChild {
+	student_id: string;
+	name: string;
+	nis: string;
+	nisn: string;
+	class: string;
+	current: LearnerCurrent | null;
+	reports: LearnerReport[];
+}
+
+export type LearnerReportsViewRole =
+	(typeof LearnerReportsViewRole)[keyof typeof LearnerReportsViewRole];
+
+export const LearnerReportsViewRole = {
+	student: 'student',
+	parent: 'parent'
+} as const;
+
+export interface LearnerReportsView {
+	role: LearnerReportsViewRole;
+	school: string;
+	children: LearnerChild[];
+}
+
+export interface SchoolInvoiceBrief {
+	id: string;
+	number: string;
+	description: string;
+	total_idr: number;
+	status: string;
+	due_at: string;
+	paid_at: string;
+	is_trial: boolean;
+}
+
+export interface SchoolLogoInput {
+	file_name?: string;
+	content_type?: string;
+	data_base64?: string;
+}
+
+export interface SchoolObjectiveInput {
+	subject_id?: string;
+	grade_id?: string;
+	description?: string;
+}
+
+export interface SchoolParsedImport {
+	file_name: string;
+	rows: SchoolImportRow[];
+}
+
+export interface SchoolPendingSeats {
+	seats: number;
+	invoice_id: string;
+	amount_idr: number;
+}
+
+export interface SchoolPlanPeriod {
+	no: number;
+	start: string;
+	end: string;
+}
+
+export interface SchoolPeriodsInput {
+	use_default?: boolean;
+	items?: SchoolPlanPeriod[];
+}
+
+export interface SchoolPhaseRow {
+	code: string;
+	grade_from: number;
+	grade_to: number;
+}
+
+export interface SchoolPlanAssignment {
+	class_id: string;
+	subject_id: string;
+	teacher_id: string;
+	teacher_name: string;
+}
+
+export interface SchoolPlanCell {
+	class_id: string;
+	weekday: number;
+	period_no: number;
+	subject_id: string;
+	teacher_id: string;
+}
+
+export interface SchoolPlanClass {
+	id: string;
+	name: string;
+	grade_id: string;
+	/** @nullable */
+	homeroom_id: string | null;
+}
+
+export interface SchoolPlanExtra {
+	id: string;
+	name: string;
+	/** @nullable */
+	coach_id: string | null;
+	coach_name: string;
+}
+
+export interface SchoolPlanObjective {
+	id: string;
+	subject_id: string;
+	grade_id: string;
+	code: string;
+	description: string;
+}
+
+export interface SchoolPlanSubject {
+	id: string;
+	code: string;
+	name: string;
+}
+
+export interface SchoolPlanningView {
+	year: string;
+	/** @nullable */
+	semester_id: string | null;
+	term: number;
+	grades: SchoolGradeOption[];
+	classes: SchoolPlanClass[];
+	teachers: SchoolOption[];
+	subjects: SchoolPlanSubject[];
+	assignments: SchoolPlanAssignment[];
+	objectives: SchoolPlanObjective[];
+	assessments: SchoolPlanAssessment[];
+	weight_total: number;
+	periods: SchoolPlanPeriod[];
+	schedule: SchoolPlanCell[];
+	extras: SchoolPlanExtra[];
+}
+
+export interface SchoolProfileData {
+	address: string;
+	district_code: string;
+	accreditation: string;
+	principal_name: string;
+	principal_nip: string;
+	phone: string;
+	has_logo: boolean;
+}
+
+export interface SchoolProfileInput {
+	address?: string;
+	district_code?: string;
+	accreditation?: string;
+	principal_name?: string;
+	principal_nip?: string;
+	phone?: string;
+}
+
+export interface SchoolProgressView {
+	progress: SchoolProgress;
+	sections: SchoolSection[];
+}
+
+export interface SchoolScheduleCellInput {
+	class_id?: string;
+	weekday?: number;
+	period_no?: number;
+	subject_id?: string;
+}
+
+export interface SchoolSeatsInput {
+	seats?: number;
+}
+
+export interface SchoolSubscriptionView {
+	has_subscription: boolean;
+	plan: string;
+	plan_code: string;
+	pricing_model: string;
+	billing_cycle: string;
+	unit_price_idr: number;
+	status: string;
+	trial_ends_at: string;
+	period_start: string;
+	period_end: string;
+	auto_renew: boolean;
+	seats: SchoolSeatUsage;
+	annual_total_idr: number;
+	can_add_seats: boolean;
+	prorata_months: number;
+	max_seat_add: number;
+	pending: SchoolPendingSeats[];
+	invoices: SchoolInvoiceBrief[];
+}
+
+export interface SchoolSeatsResult {
+	subscription: SchoolSubscriptionView;
+	invoice_id: string;
+	applied: boolean;
+}
+
+export interface SchoolSemester {
+	term: number;
+	start: string;
+	end: string;
+	active: boolean;
+}
+
+export interface SchoolYearData {
+	/** @nullable */
+	id: string | null;
+	name: string;
+	start: string;
+	end: string;
+	semesters: SchoolSemester[];
+}
+
+export interface SchoolSubjectItem {
+	code: string;
+	name: string;
+	kktp: number;
+	enabled: boolean;
+	custom: boolean;
+}
+
+export interface SchoolSetupState {
+	school: SchoolInfo;
+	progress: SchoolProgress;
+	sections: SchoolSection[];
+	profile: SchoolProfileData;
+	districts: SchoolOption[];
+	curricula: SchoolOption[];
+	phases: SchoolPhaseRow[];
+	year: SchoolYearData;
+	scheme: string;
+	grades: SchoolGradeRow[];
+	subjects: SchoolSubjectItem[];
+	default_kktp: number;
+}
+
+export interface SchoolStudentInput {
+	name?: string;
+	nis?: string;
+	nisn?: string;
+	gender?: string;
+	birth_date?: string;
+	religion?: string;
+	address?: string;
+	email?: string;
+	class_id?: string;
+	/** @nullable */
+	active?: boolean | null;
+}
+
+export interface SchoolStudentRow {
+	id: string;
+	name: string;
+	nis: string;
+	nisn: string;
+	gender: string;
+	birth_date: string;
+	religion: string;
+	address: string;
+	email: string;
+	/** @nullable */
+	class_id: string | null;
+	class_name: string;
+	active: boolean;
+	status: string;
+	username: string;
+	guardians: SchoolGuardianRef[];
+}
+
+export interface SchoolStudentsView {
+	seats: SchoolSeatUsage;
+	classes: SchoolOption[];
+	religions: SchoolOption[];
+	items: SchoolStudentRow[];
+}
+
+export interface SchoolSubjectsInput {
+	subjects?: SchoolSubjectItem[];
+}
+
+export interface SchoolTeacherDetail {
+	id: string;
+	name: string;
+	nip: string;
+	gender: string;
+	email: string;
+	phone: string;
+	active: boolean;
+	status: string;
+	assignments: number;
+	homeroom_class: string;
+	assignment_list: SchoolAssignment[];
+}
+
+export interface SchoolTeacherInput {
+	name?: string;
+	nip?: string;
+	gender?: string;
+	email?: string;
+	phone?: string;
+	/** @nullable */
+	active?: boolean | null;
+}
+
+export interface SchoolTeacherRow {
+	id: string;
+	name: string;
+	nip: string;
+	gender: string;
+	email: string;
+	phone: string;
+	active: boolean;
+	status: string;
+	assignments: number;
+	homeroom_class: string;
+}
+
+export interface SchoolTeachersView {
+	items: SchoolTeacherRow[];
+}
+
+export interface SchoolYearDetail {
+	/** @nullable */
+	id: string | null;
+	name: string;
+	start: string;
+	end: string;
+	semesters: SchoolSemester[];
+	active: boolean;
+	active_term: number;
+}
+
+export interface SchoolYearInput {
+	name?: string;
+	start?: string;
+	end?: string;
+	active?: boolean;
+	semesters?: SchoolSemester[];
+	active_term?: number;
+	copy_classes?: boolean;
+}
+
+export interface SchoolYearRow {
+	id: string;
+	name: string;
+	start: string;
+	end: string;
+	active: boolean;
+	status: string;
+	class_count: number;
+	active_term: number;
+	term_end: string;
+}
+
+export interface SchoolYearsView {
+	active_year: string;
+	active_term: number;
+	term_start: string;
+	term_end: string;
+	classes_count: number;
+	items: SchoolYearRow[];
+}
+
 export interface RequestDocument {
 	id: string;
 	file_name: string;
@@ -958,7 +2243,7 @@ export interface SavePlanRequest {
 }
 
 /**
- * institution = tenants (excluding the platform tenant; created as PENDING without provisioning), tenant_type = tenant_type_g, education_level = education_level_g, academic_year = academic_year_g, curriculum = curriculum_g, subject = subject_catalog_g, grade_level = grade_level_g, user = users + primary tenant membership (record code = email), role = role_g, permission = permissions (code = key), notification_template = notification_template_g (code = key). academic_year and grade_level are platform references; tenant data is not synchronised.
+ * institution = tenants (excluding the platform tenant; created as PENDING without provisioning), tenant_type = tenant_type_g, education_level = education_level_g, academic_year = academic_year_g, curriculum = curriculum_g, subject = subject_catalog_g, grade_level = grade_level_g, user = users + primary tenant membership (record code = email), role = role_g, permission = permissions (code = key), notification_template = notification_template_g (code = key), cluster_region = cluster_region_g (lowercase code, e.g. jakarta-3a; fields zone, outside_indonesia, sort_order). academic_year and grade_level are platform references; tenant data is not synchronised.
  */
 export type MasterKind = (typeof MasterKind)[keyof typeof MasterKind];
 
@@ -973,7 +2258,8 @@ export const MasterKind = {
 	user: 'user',
 	role: 'role',
 	permission: 'permission',
-	notification_template: 'notification_template'
+	notification_template: 'notification_template',
+	cluster_region: 'cluster_region'
 } as const;
 
 export type MasterStatus = (typeof MasterStatus)[keyof typeof MasterStatus];
@@ -1050,7 +2336,7 @@ export const MasterNotificationChannel = {
 } as const;
 
 /**
- * database = institution already provisioned; self = the actor's own account (cannot be deleted).
+ * database = institution already provisioned; self = the actor's own account (cannot be deleted); cluster = DB clusters using the region.
  */
 export type MasterUsageEntity = (typeof MasterUsageEntity)[keyof typeof MasterUsageEntity];
 
@@ -1065,11 +2351,12 @@ export const MasterUsageEntity = {
 	database: 'database',
 	session: 'session',
 	grant: 'grant',
-	self: 'self'
+	self: 'self',
+	cluster: 'cluster'
 } as const;
 
 export interface MasterUsage {
-	/** database = institution already provisioned; self = the actor's own account (cannot be deleted). */
+	/** database = institution already provisioned; self = the actor's own account (cannot be deleted); cluster = DB clusters using the region. */
 	entity: MasterUsageEntity;
 	count: number;
 }
@@ -1152,6 +2439,10 @@ export interface MasterRecord {
 	subject?: string;
 	/** notification_template */
 	body?: string;
+	/** cluster_region */
+	zone?: string;
+	/** cluster_region */
+	outside_indonesia?: boolean;
 	usage: MasterUsage[];
 	updated_at: string;
 }
@@ -1212,10 +2503,17 @@ export interface SaveMasterRecordRequest {
 	 */
 	subject?: string;
 	/**
-	 * notification_template (required; variables nama_siswa, nama_tugas, tenggat, nama_kelas, nilai, nama_sekolah)
+	 * notification_template (required; variables nama_siswa, nama_tugas, tenggat, nama_kelas, nilai, nama_sekolah, kode_cluster, persen_terpakai, jumlah_db, maks_db, ambang)
 	 * @maxLength 2000
 	 */
 	body?: string;
+	/**
+	 * cluster_region (e.g. ap-southeast-3a)
+	 * @maxLength 100
+	 */
+	zone?: string;
+	/** cluster_region (data stored outside Indonesia; UI shows a PDP warning) */
+	outside_indonesia?: boolean;
 	/** Required on update; must equal the stored value */
 	updated_at?: string;
 }
@@ -2315,8 +3613,11 @@ export interface ReviewCluster {
 	code: string;
 	region: string;
 	used_units: number;
+	/** Max tenant databases (used_units = live tenant databases) */
 	max_units: number;
 	status: string;
+	/** Accepts new tenants (status available and remaining capacity > 0); only these can be chosen on approve */
+	available: boolean;
 }
 
 export interface ReviewList {
@@ -2503,6 +3804,10 @@ export interface InvoicePayment {
 	verifier_name: string;
 	reject_reason: string;
 	created_at: string;
+	/** transfer | va | qris | cash (pembayaran manual); kosong untuk gateway. */
+	manual_channel: string;
+	/** @nullable */
+	mutation_checked_at: string | null;
 }
 
 export interface InvoiceBillTo {
@@ -2603,6 +3908,8 @@ export interface InvoiceDetail {
 	last_reminded_at: string | null;
 	void_reason: string;
 	default_note: string;
+	paid_idr: number;
+	remaining_idr: number;
 }
 
 export type InvoiceLineInputItemType =
@@ -2713,13 +4020,31 @@ export interface PaymentProofInput {
 	data_base64: string;
 }
 
+/**
+ * Default transfer; tenant hanya transfer.
+ */
+export type InvoiceTransferInputChannel =
+	(typeof InvoiceTransferInputChannel)[keyof typeof InvoiceTransferInputChannel];
+
+export const InvoiceTransferInputChannel = {
+	transfer: 'transfer',
+	va: 'va',
+	qris: 'qris',
+	cash: 'cash'
+} as const;
+
 export interface InvoiceTransferInput {
+	/** Default transfer; tenant hanya transfer. */
+	channel?: InvoiceTransferInputChannel;
+	/** Boleh sebagian; tidak boleh melebihi sisa tagihan. */
 	amount_idr: number;
 	paid_date: string;
-	bank_account_id: string;
-	sender_name: string;
-	reference: string;
+	bank_account_id?: string;
+	sender_name?: string;
+	reference?: string;
 	proof?: PaymentProofInput | null;
+	/** Staf saja. Transfer sudah dicek di mutasi rekening; bukti boleh kosong, pemeriksa & waktu disimpan. */
+	mutation_checked?: boolean;
 }
 
 export interface InvoiceReasonInput {
@@ -2741,6 +4066,235 @@ export const InvoicePayInputChannel = {
 export interface InvoicePayInput {
 	channel: InvoicePayInputChannel;
 }
+
+export interface PlatformPayment {
+	id: string;
+	invoice_id: string;
+	tenant_code: string;
+	tenant_name: string;
+	invoice_number: string;
+	amount_idr: number;
+	method: string;
+	status: string;
+	paid_at: string;
+	created_at: string;
+	bank_account: string;
+	reference: string;
+	has_proof: boolean;
+	proof_name: string;
+	verifier_name: string;
+	verified_at: string;
+	reject_reason: string;
+	manual_channel: string;
+	channel: string;
+	sender_name: string;
+	va_number: string;
+	invoice_total_idr: number;
+	invoice_paid_idr: number;
+	invoice_status: string;
+	/** @nullable */
+	due_at: string | null;
+	/** @nullable */
+	mutation_checked_at: string | null;
+	mutation_checker_name: string;
+}
+
+export interface PlatformPaymentList {
+	items: PlatformPayment[];
+}
+
+export interface UnpaidInvoice {
+	id: string;
+	invoice_number: string;
+	tenant_name: string;
+	total_idr: number;
+	paid_amount_idr: number;
+	remaining_idr: number;
+	due_at: string;
+	/** @nullable */
+	bank_account_id: string | null;
+}
+
+export interface UnpaidInvoiceList {
+	items: UnpaidInvoice[];
+}
+
+export interface SchoolActivationPlan {
+	code: string;
+	name: string;
+	badge: string;
+	description: string;
+	price_idr: number;
+	tax_mode: string;
+	free_months: number;
+	billed_months: number;
+	min_seats: number;
+	max_seats: number;
+	current: boolean;
+	features: string[];
+}
+
+export interface SchoolPendingActivation {
+	invoice_id: string;
+	invoice_number: string;
+	invoice_status: string;
+	total_idr: number;
+	plan_code: string;
+	plan_name: string;
+	seats: number;
+}
+
+export interface SchoolActivationView {
+	eligible: boolean;
+	school: string;
+	level: string;
+	status: string;
+	trial_ends_at: string;
+	period_start: string;
+	current_plan: string;
+	current_seats: number;
+	active_students: number;
+	min_seats: number;
+	max_seats: number;
+	seat_step: number;
+	vat_basis_points: number;
+	gateway_ready: boolean;
+	plans: SchoolActivationPlan[];
+	features: string[];
+	pending: SchoolPendingActivation | null;
+}
+
+export interface SchoolActivationInput {
+	plan_code?: string;
+	seats?: number;
+}
+
+export interface SchoolActivationResult {
+	invoice_id: string;
+}
+
+export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType];
+
+export const AuditActorType = {
+	user: 'user',
+	system: 'system',
+	gateway: 'gateway'
+} as const;
+
+export interface AuditActor {
+	type: AuditActorType;
+	/** @nullable */
+	id: string | null;
+	/** Kosong untuk system/gateway (label diterjemahkan FE) */
+	name: string;
+	email: string;
+}
+
+export interface AuditDiffItem {
+	/** Nama field; `value` untuk perubahan nilai tunggal */
+	field: string;
+	before: string;
+	after: string;
+}
+
+export type AuditEntryModule = (typeof AuditEntryModule)[keyof typeof AuditEntryModule];
+
+export const AuditEntryModule = {
+	applications: 'applications',
+	tenants: 'tenants',
+	invoices: 'invoices',
+	payments: 'payments',
+	clusters: 'clusters',
+	plans: 'plans',
+	auth: 'auth',
+	master_data: 'master_data',
+	navigation: 'navigation',
+	audit: 'audit',
+	other: 'other'
+} as const;
+
+export type AuditEntrySeverity = (typeof AuditEntrySeverity)[keyof typeof AuditEntrySeverity];
+
+export const AuditEntrySeverity = {
+	info: 'info',
+	warn: 'warn',
+	crit: 'crit'
+} as const;
+
+export interface AuditEntry {
+	id: string;
+	ref: string;
+	seq: number;
+	request_id: string;
+	at: string;
+	actor: AuditActor;
+	module: AuditEntryModule;
+	/** Kode aksi mentah (label via i18n FE) */
+	action: string;
+	entity_type: string;
+	/** @nullable */
+	entity_id: string | null;
+	entity_label: string;
+	severity: AuditEntrySeverity;
+	success: boolean;
+	ip: string;
+	/** "Chrome 129 · Windows", "service" untuk system/gateway, kosong bila tidak diketahui */
+	device: string;
+	diff: AuditDiffItem[];
+	note: string;
+}
+
+export type AuditActorOptionType = (typeof AuditActorOptionType)[keyof typeof AuditActorOptionType];
+
+export const AuditActorOptionType = {
+	user: 'user',
+	system: 'system',
+	gateway: 'gateway'
+} as const;
+
+export interface AuditActorOption {
+	/** UUID user | system | gateway */
+	key: string;
+	name: string;
+	type: AuditActorOptionType;
+}
+
+export interface AuditList {
+	items: AuditEntry[];
+	total: number;
+	/** @nullable */
+	next_before: number | null;
+	actors: AuditActorOption[];
+	modules: string[];
+}
+
+export interface AuditVerify {
+	ok: boolean;
+	checked: number;
+	last_seq: number;
+	/** Seq pertama yang rusak/hilang (hanya bila ok=false) */
+	broken_seq?: number;
+}
+
+/**
+ * Audit error: invalid_filter (400, details [{field, code}] — range_invalid, invalid_date, required, invalid, too_long), export_too_large (422, details {max_rows}), forbidden, internal_error
+ */
+export type AuditErrorResponse = AccountErrorResponse;
+
+/**
+ * Error envelope. Cluster codes: `validation_failed` (422, details = [{field, code}]; codes required, invalid, too_short, out_of_range, code_taken, not_found (region_code), below_used (max_databases)), `connection_failed` (422, details = {error_code}; error_code = connection_dns | connection_refused | connection_auth | connection_tls | connection_timeout | connection_failed), `cluster_unreachable` (503, details = {error_code}; raw driver text is logged server-side with the request_id, never returned), `not_found` (404), `forbidden`, `invalid_request`, `internal_error`. Update/test: a changed host, port, admin_user or ssl_mode without a new password → `validation_failed` issue {field: password, code: required} (the stored password is only reused for the same endpoint).
+ */
+export type ClusterErrorResponse = AccountErrorResponse;
+
+/**
+ * Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.
+ */
+export type SchoolAdminErrorResponse = AccountErrorResponse;
+
+/**
+ * Too many attempts (`rate_limited`). Public credential endpoints are limited per client IP — failed credential attempts only (invalid/expired code or token; default 20 / 15 min, PUBLIC_AUTH_RATE_LIMIT_IP*; successful attempts are not counted and never reset it), optional total requests per IP (PUBLIC_AUTH_RATE_LIMIT_IP_TOTAL, default 0 = off) — and per target — activation username or invitation token (all attempts, default 5 / 15 min, PUBLIC_AUTH_RATE_LIMIT_TARGET*; reset after a successful attempt). Client IP comes from X-Forwarded-For only when the connection is from TRUSTED_PROXIES. details = {retry_after (seconds), retry_at (RFC 3339)}.
+ */
+export type SchoolRateLimitedResponse = AccountErrorResponse;
 
 /**
  * Error envelope. Codes: `validation_failed` (details = [{field, code}]), `email_taken`, `invalid_code`, `too_many_attempts`, `resend_too_soon` (details.retry_at), `no_application`, `not_found`, `application_locked`, `invalid_transition`, `checks_incomplete`, `tenant_not_ready`, `gateway_unavailable`, `forbidden`, `internal_error`.
@@ -2811,7 +4365,7 @@ export type NavigationLayoutResponse = {
 };
 
 /**
- * Billing error (validation_failed, not_found, invalid_transition, no_context, reminder_too_soon, gateway_unavailable)
+ * Billing error (validation_failed, not_found, invalid_transition, invoice_partially_paid (409, void ditolak karena invoice sudah menerima pembayaran sukses), no_context, reminder_too_soon, gateway_unavailable)
  */
 export type BillingErrorResponse = ErrorResponse;
 
@@ -3430,6 +4984,563 @@ export type DeleteInvoiceDraft200Data = {
 export type DeleteInvoiceDraft200 = {
 	data: DeleteInvoiceDraft200Data;
 };
+
+export type GetSchoolDashboard200 = {
+	data: SchoolDashboardView;
+};
+
+export type GetSchoolSetup200 = {
+	data: SchoolSetupState;
+};
+
+export type GetSchoolSetupProgress200 = {
+	data: SchoolProgressView;
+};
+
+export type SaveSchoolSetupProfile200 = {
+	data: SchoolSetupState;
+};
+
+export type SaveSchoolSetupLogo200 = {
+	data: SchoolSetupState;
+};
+
+export type SaveSchoolSetupCurriculum200 = {
+	data: SchoolSetupState;
+};
+
+export type SaveSchoolSetupYear200 = {
+	data: SchoolSetupState;
+};
+
+export type SaveSchoolSetupClasses200 = {
+	data: SchoolSetupState;
+};
+
+export type SaveSchoolSetupSubjects200 = {
+	data: SchoolSetupState;
+};
+
+export type GetSchoolPlanning200 = {
+	data: SchoolPlanningView;
+};
+
+export type SetSchoolHomeroom200 = {
+	data: SchoolPlanningView;
+};
+
+export type SetSchoolAssignment200 = {
+	data: SchoolPlanningView;
+};
+
+export type AddSchoolObjective200 = {
+	data: SchoolPlanningView;
+};
+
+export type DeleteSchoolObjective200 = {
+	data: SchoolPlanningView;
+};
+
+export type SaveSchoolAssessments200 = {
+	data: SchoolPlanningView;
+};
+
+export type SaveSchoolPeriods200 = {
+	data: SchoolPlanningView;
+};
+
+export type SetSchoolScheduleCell200 = {
+	data: SchoolPlanningView;
+};
+
+export type CreateSchoolExtra200 = {
+	data: SchoolPlanningView;
+};
+
+export type UpdateSchoolExtra200 = {
+	data: SchoolPlanningView;
+};
+
+export type DeleteSchoolExtra200 = {
+	data: SchoolPlanningView;
+};
+
+export type ListSchoolYears200 = {
+	data: SchoolYearsView;
+};
+
+export type CreateSchoolYear200 = {
+	data: SchoolYearsView;
+};
+
+export type GetSchoolYear200 = {
+	data: SchoolYearDetail;
+};
+
+export type UpdateSchoolYear200 = {
+	data: SchoolYearsView;
+};
+
+export type DeleteSchoolYear200 = {
+	data: SchoolYearsView;
+};
+
+export type ListSchoolClasses200 = {
+	data: SchoolClassesView;
+};
+
+export type CreateSchoolClass200 = {
+	data: SchoolClassesView;
+};
+
+export type GetSchoolClass200 = {
+	data: SchoolClassDetail;
+};
+
+export type UpdateSchoolClass200 = {
+	data: SchoolClassesView;
+};
+
+export type DeleteSchoolClass200 = {
+	data: SchoolClassesView;
+};
+
+export type ListSchoolTeachers200 = {
+	data: SchoolTeachersView;
+};
+
+export type CreateSchoolTeacher200 = {
+	data: SchoolTeachersView;
+};
+
+export type GetSchoolTeacher200 = {
+	data: SchoolTeacherDetail;
+};
+
+export type UpdateSchoolTeacher200 = {
+	data: SchoolTeachersView;
+};
+
+export type DeleteSchoolTeacher200 = {
+	data: SchoolTeachersView;
+};
+
+export type ListSchoolStudents200 = {
+	data: SchoolStudentsView;
+};
+
+export type CreateSchoolStudent200 = {
+	data: SchoolStudentsView;
+};
+
+export type UpdateSchoolStudent200 = {
+	data: SchoolStudentsView;
+};
+
+export type DeleteSchoolStudent200 = {
+	data: SchoolStudentsView;
+};
+
+export type ListSchoolGuardians200 = {
+	data: SchoolGuardiansView;
+};
+
+export type CreateSchoolGuardian200 = {
+	data: SchoolGuardiansView;
+};
+
+export type UpdateSchoolGuardian200 = {
+	data: SchoolGuardiansView;
+};
+
+export type DeleteSchoolGuardian200 = {
+	data: SchoolGuardiansView;
+};
+
+export type UnlinkSchoolGuardian200 = {
+	data: SchoolGuardiansView;
+};
+
+export type InviteSchoolAccounts200 = {
+	data: SchoolInviteResult;
+};
+
+export type GetLatestSchoolInviteJob200 = {
+	data: SchoolInviteJob | null;
+};
+
+export type GetSchoolInviteJob200 = {
+	data: SchoolInviteJob;
+};
+
+export type GetSchoolAuditParams = {
+	category?: GetSchoolAuditCategory;
+	from?: string;
+	to?: string;
+	/**
+	 * Kursor opak next_before dari halaman sebelumnya (seq audit); kirim balik apa adanya.
+	 */
+	before?: string;
+};
+
+export type GetSchoolAuditCategory =
+	(typeof GetSchoolAuditCategory)[keyof typeof GetSchoolAuditCategory];
+
+export const GetSchoolAuditCategory = {
+	person: 'person',
+	guardian: 'guardian',
+	account: 'account',
+	report: 'report'
+} as const;
+
+export type GetSchoolAudit200 = {
+	data: SchoolAuditView;
+};
+
+export type GetSchoolAttendanceParams = {
+	mode?: string;
+	date?: string;
+};
+
+export type GetSchoolAttendance200 = {
+	data: SchoolAttendanceView;
+};
+
+export type RemindSchoolAttendance200 = {
+	data: SchoolAttendanceView;
+};
+
+export type GetHomeroomAttendanceParams = {
+	date?: string;
+};
+
+export type GetHomeroomAttendance200 = {
+	data: SchoolHomeroomAttendanceView;
+};
+
+export type SaveHomeroomAttendance200 = {
+	data: SchoolHomeroomAttendanceView;
+};
+
+export type GetSchoolReports200 = {
+	data: SchoolReportsView;
+};
+
+export type RemindSchoolReport200 = {
+	data: SchoolReportsView;
+};
+
+export type GetSchoolClassReport200 = {
+	data: SchoolClassReport;
+};
+
+export type ApproveSchoolClassReport200 = {
+	data: SchoolClassReport;
+};
+
+export type ReturnSchoolClassReport200 = {
+	data: SchoolClassReport;
+};
+
+export type LockSchoolClassReport200 = {
+	data: SchoolClassReport;
+};
+
+export type UnlockSchoolClassReport200 = {
+	data: SchoolClassReport;
+};
+
+export type DownloadSchoolClassReportPdfParams = {
+	/**
+	 * Satu murid (PDF tersimpan); kosong = seluruh kelas.
+	 */
+	student?: string;
+};
+
+export type GetTeacherGradeAssignments200 = {
+	data: SchoolGradeAssignmentsView;
+};
+
+export type GetTeacherGradeSheet200 = {
+	data: SchoolGradeSheet;
+};
+
+export type SaveTeacherGrades200 = {
+	data: SchoolGradeSheet;
+};
+
+export type LockTeacherGrades200 = {
+	data: SchoolGradeSheet;
+};
+
+export type GetHomeroomReport200 = {
+	data: SchoolClassReport;
+};
+
+export type SaveHomeroomReportNotes200 = {
+	data: SchoolClassReport;
+};
+
+export type SubmitHomeroomReport200 = {
+	data: SchoolClassReport;
+};
+
+export type GetLearnerReports200 = {
+	data: LearnerReportsView;
+};
+
+export type GetSchoolSubscription200 = {
+	data: SchoolSubscriptionView;
+};
+
+export type AddSchoolSeats200 = {
+	data: SchoolSeatsResult;
+};
+
+export type GetSchoolImportSpec200 = {
+	data: SchoolImportSpec;
+};
+
+export type GetSchoolImportTemplateParams = {
+	format?: string;
+};
+
+export type ParseSchoolImport200 = {
+	data: SchoolParsedImport;
+};
+
+export type PreviewSchoolImport200 = {
+	data: SchoolImportPreview;
+};
+
+export type CommitSchoolImport200 = {
+	data: SchoolImportResult;
+};
+
+export type GetSchoolInvitationParams = {
+	t?: string;
+	token?: string;
+};
+
+export type GetSchoolInvitation200 = {
+	data: SchoolInvitationInfo;
+};
+
+export type AcceptSchoolInvitation200 = {
+	data: SchoolInvitationInfo;
+};
+
+export type ActivateSchoolStudent200 = {
+	data: SchoolInvitationInfo;
+};
+
+export type ListPlatformPaymentsParams = {
+	q?: string;
+	status?: string;
+};
+
+export type ListPlatformPayments200 = {
+	data: PlatformPaymentList;
+};
+
+export type ListUnpaidInvoices200 = {
+	data: UnpaidInvoiceList;
+};
+
+export type CheckInvoicePaymentMutation200 = {
+	data: InvoiceDetail;
+};
+
+export type GetSchoolActivation200 = {
+	data: SchoolActivationView;
+};
+
+export type ActivateSchoolSubscription200 = {
+	data: SchoolActivationResult;
+};
+
+export type ListPlatformClusters200 = {
+	data: ClusterList;
+};
+
+export type CreatePlatformCluster200 = {
+	data: ClusterView;
+};
+
+export type TestPlatformClusterConnection200 = {
+	data: ClusterTestResult;
+};
+
+export type UpdatePlatformCluster200 = {
+	data: ClusterView;
+};
+
+export type ListPlatformClusterDatabases200 = {
+	data: ClusterDatabaseList;
+};
+
+export type ListPlatformAuditParams = {
+	/**
+	 * Cari di action, entity_type, IP, request_id, id, details; `AUD-123`/`123` juga mencocokkan seq
+	 * @maxLength 200
+	 */
+	q?: string;
+	/**
+	 * UUID user | `system` | `gateway`
+	 */
+	actor?: string;
+	/**
+	 * Rentang tanggal Asia/Jakarta
+	 */
+	range?: ListPlatformAuditRange;
+	/**
+	 * Wajib bila range=custom
+	 */
+	from?: string;
+	/**
+	 * Wajib bila range=custom; inklusif; from > to → 400 issue to/range_invalid
+	 */
+	to?: string;
+	/**
+	 * Daftar kode modul dipisah koma (applications,tenants,invoices,payments,clusters,plans,auth,master_data,navigation,audit)
+	 */
+	module?: string;
+	/**
+	 * Daftar dipisah koma: info,warn,crit
+	 */
+	severity?: string;
+	/**
+	 * true = hanya yang gagal
+	 */
+	failed?: ListPlatformAuditFailed;
+	/**
+	 * Cursor — ambil entri dengan seq < before (next_before halaman sebelumnya)
+	 */
+	before?: number;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
+};
+
+export type ListPlatformAuditRange =
+	(typeof ListPlatformAuditRange)[keyof typeof ListPlatformAuditRange];
+
+export const ListPlatformAuditRange = {
+	today: 'today',
+	NUMBER_7: '7',
+	NUMBER_30: '30',
+	custom: 'custom'
+} as const;
+
+export type ListPlatformAuditFailed =
+	(typeof ListPlatformAuditFailed)[keyof typeof ListPlatformAuditFailed];
+
+export const ListPlatformAuditFailed = {
+	true: 'true',
+	false: 'false'
+} as const;
+
+export type ListPlatformAudit200 = {
+	data: AuditList;
+};
+
+export type ExportPlatformAuditParams = {
+	/**
+	 * Cari di action, entity_type, IP, request_id, id, details; `AUD-123`/`123` juga mencocokkan seq
+	 * @maxLength 200
+	 */
+	q?: string;
+	/**
+	 * UUID user | `system` | `gateway`
+	 */
+	actor?: string;
+	/**
+	 * Rentang tanggal Asia/Jakarta
+	 */
+	range?: ExportPlatformAuditRange;
+	/**
+	 * Wajib bila range=custom
+	 */
+	from?: string;
+	/**
+	 * Wajib bila range=custom; inklusif; from > to → 400 issue to/range_invalid
+	 */
+	to?: string;
+	/**
+	 * Daftar kode modul dipisah koma (applications,tenants,invoices,payments,clusters,plans,auth,master_data,navigation,audit)
+	 */
+	module?: string;
+	/**
+	 * Daftar dipisah koma: info,warn,crit
+	 */
+	severity?: string;
+	/**
+	 * true = hanya yang gagal
+	 */
+	failed?: ExportPlatformAuditFailed;
+};
+
+export type ExportPlatformAuditRange =
+	(typeof ExportPlatformAuditRange)[keyof typeof ExportPlatformAuditRange];
+
+export const ExportPlatformAuditRange = {
+	today: 'today',
+	NUMBER_7: '7',
+	NUMBER_30: '30',
+	custom: 'custom'
+} as const;
+
+export type ExportPlatformAuditFailed =
+	(typeof ExportPlatformAuditFailed)[keyof typeof ExportPlatformAuditFailed];
+
+export const ExportPlatformAuditFailed = {
+	true: 'true',
+	false: 'false'
+} as const;
+
+export type VerifyPlatformAudit200 = {
+	data: AuditVerify;
+};
+
+export type HTTPStatusCode1xx = 100 | 101 | 102 | 103;
+export type HTTPStatusCode2xx = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207;
+export type HTTPStatusCode3xx = 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
+export type HTTPStatusCode4xx =
+	| 400
+	| 401
+	| 402
+	| 403
+	| 404
+	| 405
+	| 406
+	| 407
+	| 408
+	| 409
+	| 410
+	| 411
+	| 412
+	| 413
+	| 414
+	| 415
+	| 416
+	| 417
+	| 418
+	| 419
+	| 420
+	| 421
+	| 422
+	| 423
+	| 424
+	| 426
+	| 428
+	| 429
+	| 431
+	| 451;
+export type HTTPStatusCode5xx = 500 | 501 | 502 | 503 | 504 | 505 | 507 | 511;
+export type HTTPStatusCodes =
+	HTTPStatusCode1xx | HTTPStatusCode2xx | HTTPStatusCode3xx | HTTPStatusCode4xx | HTTPStatusCode5xx;
 
 export type getHealthResponse200 = {
 	data: GetHealth200;
@@ -4589,6 +6700,7 @@ export const getListMasterRecordsUrl = (
 		| 'role'
 		| 'permission'
 		| 'notification_template'
+		| 'cluster_region'
 ) => {
 	return `/api/v1/platform/master-data/${master}`;
 };
@@ -4609,7 +6721,8 @@ export const listMasterRecords = async (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<listMasterRecordsResponse> => {
 	return lmsFetch<listMasterRecordsResponse>(getListMasterRecordsUrl(master), {
@@ -4677,6 +6790,7 @@ export const getCreateMasterRecordUrl = (
 		| 'role'
 		| 'permission'
 		| 'notification_template'
+		| 'cluster_region'
 ) => {
 	return `/api/v1/platform/master-data/${master}`;
 };
@@ -4697,7 +6811,8 @@ export const createMasterRecord = async (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	saveMasterRecordRequest: SaveMasterRecordRequest,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<createMasterRecordResponse> => {
@@ -4792,7 +6907,8 @@ export const getUpdateMasterRecordUrl = (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	code: string
 ) => {
 	return `/api/v1/platform/master-data/${master}/${code}`;
@@ -4814,7 +6930,8 @@ export const updateMasterRecord = async (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	code: string,
 	saveMasterRecordRequest: SaveMasterRecordRequest,
 	options?: Parameters<typeof lmsFetch>[1]
@@ -4898,7 +7015,8 @@ export const getDeleteMasterRecordUrl = (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	code: string
 ) => {
 	return `/api/v1/platform/master-data/${master}/${code}`;
@@ -4920,7 +7038,8 @@ export const deleteMasterRecord = async (
 		| 'user'
 		| 'role'
 		| 'permission'
-		| 'notification_template',
+		| 'notification_template'
+		| 'cluster_region',
 	code: string,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<deleteMasterRecordResponse> => {
@@ -10000,7 +12119,7 @@ export const getVoidInvoiceUrl = (id: string) => {
 };
 
 /**
- * @summary Void an issued/overdue invoice (cancels VA and pending proofs, emails tenant)
+ * @summary Void an issued/overdue invoice (cancels VA and pending proofs, emails tenant). Invoice with succeeded payments → 409 invoice_partially_paid.
  */
 export const voidInvoice = async (
 	id: string,
@@ -11020,5 +13139,4490 @@ export const deleteInvoiceDraft = async (
 	return lmsFetch<deleteInvoiceDraftResponse>(getDeleteInvoiceDraftUrl(id), {
 		...options,
 		method: 'DELETE'
+	});
+};
+
+export type getSchoolDashboardResponse200 = {
+	data: GetSchoolDashboard200;
+	status: 200;
+};
+
+export type getSchoolDashboardResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolDashboardResponseSuccess = getSchoolDashboardResponse200 & {
+	headers: Headers;
+};
+export type getSchoolDashboardResponseError = getSchoolDashboardResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolDashboardResponse =
+	getSchoolDashboardResponseSuccess | getSchoolDashboardResponseError;
+
+export const getGetSchoolDashboardUrl = () => {
+	return `/api/v1/school/dashboard`;
+};
+
+/**
+ * @summary School admin dashboard (05)
+ */
+export const getSchoolDashboard = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolDashboardResponse> => {
+	return lmsFetch<getSchoolDashboardResponse>(getGetSchoolDashboardUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolSetupResponse200 = {
+	data: GetSchoolSetup200;
+	status: 200;
+};
+
+export type getSchoolSetupResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolSetupResponseSuccess = getSchoolSetupResponse200 & {
+	headers: Headers;
+};
+export type getSchoolSetupResponseError = getSchoolSetupResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolSetupResponse = getSchoolSetupResponseSuccess | getSchoolSetupResponseError;
+
+export const getGetSchoolSetupUrl = () => {
+	return `/api/v1/school/setup`;
+};
+
+/**
+ * @summary Setup state 03b
+ */
+export const getSchoolSetup = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolSetupResponse> => {
+	return lmsFetch<getSchoolSetupResponse>(getGetSchoolSetupUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolSetupProgressResponse200 = {
+	data: GetSchoolSetupProgress200;
+	status: 200;
+};
+
+export type getSchoolSetupProgressResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolSetupProgressResponseSuccess = getSchoolSetupProgressResponse200 & {
+	headers: Headers;
+};
+export type getSchoolSetupProgressResponseError = getSchoolSetupProgressResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolSetupProgressResponse =
+	getSchoolSetupProgressResponseSuccess | getSchoolSetupProgressResponseError;
+
+export const getGetSchoolSetupProgressUrl = () => {
+	return `/api/v1/school/setup/progress`;
+};
+
+/**
+ * @summary Status 12 bagian data sekolah
+ */
+export const getSchoolSetupProgress = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolSetupProgressResponse> => {
+	return lmsFetch<getSchoolSetupProgressResponse>(getGetSchoolSetupProgressUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type saveSchoolSetupProfileResponse200 = {
+	data: SaveSchoolSetupProfile200;
+	status: 200;
+};
+
+export type saveSchoolSetupProfileResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupProfileResponseSuccess = saveSchoolSetupProfileResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupProfileResponseError = saveSchoolSetupProfileResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupProfileResponse =
+	saveSchoolSetupProfileResponseSuccess | saveSchoolSetupProfileResponseError;
+
+export const getSaveSchoolSetupProfileUrl = () => {
+	return `/api/v1/school/setup/profile`;
+};
+
+/**
+ * @summary Step 1 profile
+ */
+export const saveSchoolSetupProfile = async (
+	schoolProfileInput: SchoolProfileInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupProfileResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupProfileResponse>(getSaveSchoolSetupProfileUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolProfileInput)
+	});
+};
+
+export type saveSchoolSetupLogoResponse200 = {
+	data: SaveSchoolSetupLogo200;
+	status: 200;
+};
+
+export type saveSchoolSetupLogoResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupLogoResponseSuccess = saveSchoolSetupLogoResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupLogoResponseError = saveSchoolSetupLogoResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupLogoResponse =
+	saveSchoolSetupLogoResponseSuccess | saveSchoolSetupLogoResponseError;
+
+export const getSaveSchoolSetupLogoUrl = () => {
+	return `/api/v1/school/setup/logo`;
+};
+
+/**
+ * @summary Step 1 logo
+ */
+export const saveSchoolSetupLogo = async (
+	schoolLogoInput: SchoolLogoInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupLogoResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupLogoResponse>(getSaveSchoolSetupLogoUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolLogoInput)
+	});
+};
+
+export type saveSchoolSetupCurriculumResponse200 = {
+	data: SaveSchoolSetupCurriculum200;
+	status: 200;
+};
+
+export type saveSchoolSetupCurriculumResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupCurriculumResponseSuccess = saveSchoolSetupCurriculumResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupCurriculumResponseError = saveSchoolSetupCurriculumResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupCurriculumResponse =
+	saveSchoolSetupCurriculumResponseSuccess | saveSchoolSetupCurriculumResponseError;
+
+export const getSaveSchoolSetupCurriculumUrl = () => {
+	return `/api/v1/school/setup/curriculum`;
+};
+
+/**
+ * @summary Step 2 curriculum
+ */
+export const saveSchoolSetupCurriculum = async (
+	schoolCurriculumInput: SchoolCurriculumInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupCurriculumResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupCurriculumResponse>(getSaveSchoolSetupCurriculumUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolCurriculumInput)
+	});
+};
+
+export type saveSchoolSetupYearResponse200 = {
+	data: SaveSchoolSetupYear200;
+	status: 200;
+};
+
+export type saveSchoolSetupYearResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupYearResponseSuccess = saveSchoolSetupYearResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupYearResponseError = saveSchoolSetupYearResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupYearResponse =
+	saveSchoolSetupYearResponseSuccess | saveSchoolSetupYearResponseError;
+
+export const getSaveSchoolSetupYearUrl = () => {
+	return `/api/v1/school/setup/year`;
+};
+
+/**
+ * @summary Step 3 academic year
+ */
+export const saveSchoolSetupYear = async (
+	schoolYearInput: SchoolYearInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupYearResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupYearResponse>(getSaveSchoolSetupYearUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolYearInput)
+	});
+};
+
+export type saveSchoolSetupClassesResponse200 = {
+	data: SaveSchoolSetupClasses200;
+	status: 200;
+};
+
+export type saveSchoolSetupClassesResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupClassesResponseSuccess = saveSchoolSetupClassesResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupClassesResponseError = saveSchoolSetupClassesResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupClassesResponse =
+	saveSchoolSetupClassesResponseSuccess | saveSchoolSetupClassesResponseError;
+
+export const getSaveSchoolSetupClassesUrl = () => {
+	return `/api/v1/school/setup/classes`;
+};
+
+/**
+ * @summary Step 4 grades & classes
+ */
+export const saveSchoolSetupClasses = async (
+	schoolClassesInput: SchoolClassesInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupClassesResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupClassesResponse>(getSaveSchoolSetupClassesUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolClassesInput)
+	});
+};
+
+export type saveSchoolSetupSubjectsResponse200 = {
+	data: SaveSchoolSetupSubjects200;
+	status: 200;
+};
+
+export type saveSchoolSetupSubjectsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolSetupSubjectsResponseSuccess = saveSchoolSetupSubjectsResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolSetupSubjectsResponseError = saveSchoolSetupSubjectsResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolSetupSubjectsResponse =
+	saveSchoolSetupSubjectsResponseSuccess | saveSchoolSetupSubjectsResponseError;
+
+export const getSaveSchoolSetupSubjectsUrl = () => {
+	return `/api/v1/school/setup/subjects`;
+};
+
+/**
+ * @summary Step 5 subjects
+ */
+export const saveSchoolSetupSubjects = async (
+	schoolSubjectsInput: SchoolSubjectsInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolSetupSubjectsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolSetupSubjectsResponse>(getSaveSchoolSetupSubjectsUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolSubjectsInput)
+	});
+};
+
+export type getSchoolLogoResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getSchoolLogoResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolLogoResponseSuccess = getSchoolLogoResponse200 & {
+	headers: Headers;
+};
+export type getSchoolLogoResponseError = getSchoolLogoResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolLogoResponse = getSchoolLogoResponseSuccess | getSchoolLogoResponseError;
+
+export const getGetSchoolLogoUrl = () => {
+	return `/api/v1/school/logo`;
+};
+
+/**
+ * @summary School logo image
+ */
+export const getSchoolLogo = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolLogoResponse> => {
+	return lmsFetch<getSchoolLogoResponse>(getGetSchoolLogoUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolPlanningResponse200 = {
+	data: GetSchoolPlanning200;
+	status: 200;
+};
+
+export type getSchoolPlanningResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolPlanningResponseSuccess = getSchoolPlanningResponse200 & {
+	headers: Headers;
+};
+export type getSchoolPlanningResponseError = getSchoolPlanningResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolPlanningResponse =
+	getSchoolPlanningResponseSuccess | getSchoolPlanningResponseError;
+
+export const getGetSchoolPlanningUrl = () => {
+	return `/api/v1/school/planning`;
+};
+
+/**
+ * @summary Optional 03b data
+ */
+export const getSchoolPlanning = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolPlanningResponse> => {
+	return lmsFetch<getSchoolPlanningResponse>(getGetSchoolPlanningUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type setSchoolHomeroomResponse200 = {
+	data: SetSchoolHomeroom200;
+	status: 200;
+};
+
+export type setSchoolHomeroomResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type setSchoolHomeroomResponseSuccess = setSchoolHomeroomResponse200 & {
+	headers: Headers;
+};
+export type setSchoolHomeroomResponseError = setSchoolHomeroomResponseDefault & {
+	headers: Headers;
+};
+
+export type setSchoolHomeroomResponse =
+	setSchoolHomeroomResponseSuccess | setSchoolHomeroomResponseError;
+
+export const getSetSchoolHomeroomUrl = (id: string) => {
+	return `/api/v1/school/planning/homerooms/${id}`;
+};
+
+/**
+ * @summary Set class homeroom
+ */
+export const setSchoolHomeroom = async (
+	id: string,
+	schoolHomeroomInput: SchoolHomeroomInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<setSchoolHomeroomResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<setSchoolHomeroomResponse>(getSetSchoolHomeroomUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolHomeroomInput)
+	});
+};
+
+export type setSchoolAssignmentResponse200 = {
+	data: SetSchoolAssignment200;
+	status: 200;
+};
+
+export type setSchoolAssignmentResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type setSchoolAssignmentResponseSuccess = setSchoolAssignmentResponse200 & {
+	headers: Headers;
+};
+export type setSchoolAssignmentResponseError = setSchoolAssignmentResponseDefault & {
+	headers: Headers;
+};
+
+export type setSchoolAssignmentResponse =
+	setSchoolAssignmentResponseSuccess | setSchoolAssignmentResponseError;
+
+export const getSetSchoolAssignmentUrl = () => {
+	return `/api/v1/school/planning/assignments`;
+};
+
+/**
+ * @summary Set teaching assignment cell
+ */
+export const setSchoolAssignment = async (
+	schoolAssignmentInput: SchoolAssignmentInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<setSchoolAssignmentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<setSchoolAssignmentResponse>(getSetSchoolAssignmentUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAssignmentInput)
+	});
+};
+
+export type addSchoolObjectiveResponse200 = {
+	data: AddSchoolObjective200;
+	status: 200;
+};
+
+export type addSchoolObjectiveResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type addSchoolObjectiveResponseSuccess = addSchoolObjectiveResponse200 & {
+	headers: Headers;
+};
+export type addSchoolObjectiveResponseError = addSchoolObjectiveResponseDefault & {
+	headers: Headers;
+};
+
+export type addSchoolObjectiveResponse =
+	addSchoolObjectiveResponseSuccess | addSchoolObjectiveResponseError;
+
+export const getAddSchoolObjectiveUrl = () => {
+	return `/api/v1/school/planning/objectives`;
+};
+
+/**
+ * @summary Add learning objective
+ */
+export const addSchoolObjective = async (
+	schoolObjectiveInput: SchoolObjectiveInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<addSchoolObjectiveResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<addSchoolObjectiveResponse>(getAddSchoolObjectiveUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolObjectiveInput)
+	});
+};
+
+export type deleteSchoolObjectiveResponse200 = {
+	data: DeleteSchoolObjective200;
+	status: 200;
+};
+
+export type deleteSchoolObjectiveResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolObjectiveResponseSuccess = deleteSchoolObjectiveResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolObjectiveResponseError = deleteSchoolObjectiveResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolObjectiveResponse =
+	deleteSchoolObjectiveResponseSuccess | deleteSchoolObjectiveResponseError;
+
+export const getDeleteSchoolObjectiveUrl = (id: string) => {
+	return `/api/v1/school/planning/objectives/${id}`;
+};
+
+/**
+ * @summary Delete learning objective
+ */
+export const deleteSchoolObjective = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolObjectiveResponse> => {
+	return lmsFetch<deleteSchoolObjectiveResponse>(getDeleteSchoolObjectiveUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type saveSchoolAssessmentsResponse200 = {
+	data: SaveSchoolAssessments200;
+	status: 200;
+};
+
+export type saveSchoolAssessmentsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolAssessmentsResponseSuccess = saveSchoolAssessmentsResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolAssessmentsResponseError = saveSchoolAssessmentsResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolAssessmentsResponse =
+	saveSchoolAssessmentsResponseSuccess | saveSchoolAssessmentsResponseError;
+
+export const getSaveSchoolAssessmentsUrl = () => {
+	return `/api/v1/school/planning/assessments`;
+};
+
+/**
+ * @summary Assessment types & weights
+ */
+export const saveSchoolAssessments = async (
+	schoolAssessmentsInput: SchoolAssessmentsInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolAssessmentsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolAssessmentsResponse>(getSaveSchoolAssessmentsUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAssessmentsInput)
+	});
+};
+
+export type saveSchoolPeriodsResponse200 = {
+	data: SaveSchoolPeriods200;
+	status: 200;
+};
+
+export type saveSchoolPeriodsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveSchoolPeriodsResponseSuccess = saveSchoolPeriodsResponse200 & {
+	headers: Headers;
+};
+export type saveSchoolPeriodsResponseError = saveSchoolPeriodsResponseDefault & {
+	headers: Headers;
+};
+
+export type saveSchoolPeriodsResponse =
+	saveSchoolPeriodsResponseSuccess | saveSchoolPeriodsResponseError;
+
+export const getSaveSchoolPeriodsUrl = () => {
+	return `/api/v1/school/planning/periods`;
+};
+
+/**
+ * @summary Lesson periods
+ */
+export const saveSchoolPeriods = async (
+	schoolPeriodsInput: SchoolPeriodsInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveSchoolPeriodsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveSchoolPeriodsResponse>(getSaveSchoolPeriodsUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolPeriodsInput)
+	});
+};
+
+export type setSchoolScheduleCellResponse200 = {
+	data: SetSchoolScheduleCell200;
+	status: 200;
+};
+
+export type setSchoolScheduleCellResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type setSchoolScheduleCellResponseSuccess = setSchoolScheduleCellResponse200 & {
+	headers: Headers;
+};
+export type setSchoolScheduleCellResponseError = setSchoolScheduleCellResponseDefault & {
+	headers: Headers;
+};
+
+export type setSchoolScheduleCellResponse =
+	setSchoolScheduleCellResponseSuccess | setSchoolScheduleCellResponseError;
+
+export const getSetSchoolScheduleCellUrl = () => {
+	return `/api/v1/school/planning/schedule`;
+};
+
+/**
+ * @summary Set schedule cell
+ */
+export const setSchoolScheduleCell = async (
+	schoolScheduleCellInput: SchoolScheduleCellInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<setSchoolScheduleCellResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<setSchoolScheduleCellResponse>(getSetSchoolScheduleCellUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolScheduleCellInput)
+	});
+};
+
+export type createSchoolExtraResponse200 = {
+	data: CreateSchoolExtra200;
+	status: 200;
+};
+
+export type createSchoolExtraResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolExtraResponseSuccess = createSchoolExtraResponse200 & {
+	headers: Headers;
+};
+export type createSchoolExtraResponseError = createSchoolExtraResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolExtraResponse =
+	createSchoolExtraResponseSuccess | createSchoolExtraResponseError;
+
+export const getCreateSchoolExtraUrl = () => {
+	return `/api/v1/school/planning/extras`;
+};
+
+/**
+ * @summary Create extracurricular
+ */
+export const createSchoolExtra = async (
+	schoolExtraInput: SchoolExtraInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolExtraResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolExtraResponse>(getCreateSchoolExtraUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolExtraInput)
+	});
+};
+
+export type updateSchoolExtraResponse200 = {
+	data: UpdateSchoolExtra200;
+	status: 200;
+};
+
+export type updateSchoolExtraResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolExtraResponseSuccess = updateSchoolExtraResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolExtraResponseError = updateSchoolExtraResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolExtraResponse =
+	updateSchoolExtraResponseSuccess | updateSchoolExtraResponseError;
+
+export const getUpdateSchoolExtraUrl = (id: string) => {
+	return `/api/v1/school/planning/extras/${id}`;
+};
+
+/**
+ * @summary Update extracurricular
+ */
+export const updateSchoolExtra = async (
+	id: string,
+	schoolExtraInput: SchoolExtraInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolExtraResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolExtraResponse>(getUpdateSchoolExtraUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolExtraInput)
+	});
+};
+
+export type deleteSchoolExtraResponse200 = {
+	data: DeleteSchoolExtra200;
+	status: 200;
+};
+
+export type deleteSchoolExtraResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolExtraResponseSuccess = deleteSchoolExtraResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolExtraResponseError = deleteSchoolExtraResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolExtraResponse =
+	deleteSchoolExtraResponseSuccess | deleteSchoolExtraResponseError;
+
+export const getDeleteSchoolExtraUrl = (id: string) => {
+	return `/api/v1/school/planning/extras/${id}`;
+};
+
+/**
+ * @summary Delete extracurricular
+ */
+export const deleteSchoolExtra = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolExtraResponse> => {
+	return lmsFetch<deleteSchoolExtraResponse>(getDeleteSchoolExtraUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type listSchoolYearsResponse200 = {
+	data: ListSchoolYears200;
+	status: 200;
+};
+
+export type listSchoolYearsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolYearsResponseSuccess = listSchoolYearsResponse200 & {
+	headers: Headers;
+};
+export type listSchoolYearsResponseError = listSchoolYearsResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolYearsResponse = listSchoolYearsResponseSuccess | listSchoolYearsResponseError;
+
+export const getListSchoolYearsUrl = () => {
+	return `/api/v1/school/years`;
+};
+
+/**
+ * @summary Academic years (05a)
+ */
+export const listSchoolYears = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolYearsResponse> => {
+	return lmsFetch<listSchoolYearsResponse>(getListSchoolYearsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolYearResponse200 = {
+	data: CreateSchoolYear200;
+	status: 200;
+};
+
+export type createSchoolYearResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolYearResponseSuccess = createSchoolYearResponse200 & {
+	headers: Headers;
+};
+export type createSchoolYearResponseError = createSchoolYearResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolYearResponse =
+	createSchoolYearResponseSuccess | createSchoolYearResponseError;
+
+export const getCreateSchoolYearUrl = () => {
+	return `/api/v1/school/years`;
+};
+
+/**
+ * @summary Create academic year
+ */
+export const createSchoolYear = async (
+	schoolYearInput: SchoolYearInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolYearResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolYearResponse>(getCreateSchoolYearUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolYearInput)
+	});
+};
+
+export type getSchoolYearResponse200 = {
+	data: GetSchoolYear200;
+	status: 200;
+};
+
+export type getSchoolYearResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolYearResponseSuccess = getSchoolYearResponse200 & {
+	headers: Headers;
+};
+export type getSchoolYearResponseError = getSchoolYearResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolYearResponse = getSchoolYearResponseSuccess | getSchoolYearResponseError;
+
+export const getGetSchoolYearUrl = (id: string) => {
+	return `/api/v1/school/years/${id}`;
+};
+
+/**
+ * @summary Academic year detail
+ */
+export const getSchoolYear = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolYearResponse> => {
+	return lmsFetch<getSchoolYearResponse>(getGetSchoolYearUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateSchoolYearResponse200 = {
+	data: UpdateSchoolYear200;
+	status: 200;
+};
+
+export type updateSchoolYearResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolYearResponseSuccess = updateSchoolYearResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolYearResponseError = updateSchoolYearResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolYearResponse =
+	updateSchoolYearResponseSuccess | updateSchoolYearResponseError;
+
+export const getUpdateSchoolYearUrl = (id: string) => {
+	return `/api/v1/school/years/${id}`;
+};
+
+/**
+ * @summary Update academic year
+ */
+export const updateSchoolYear = async (
+	id: string,
+	schoolYearInput: SchoolYearInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolYearResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolYearResponse>(getUpdateSchoolYearUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolYearInput)
+	});
+};
+
+export type deleteSchoolYearResponse200 = {
+	data: DeleteSchoolYear200;
+	status: 200;
+};
+
+export type deleteSchoolYearResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolYearResponseSuccess = deleteSchoolYearResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolYearResponseError = deleteSchoolYearResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolYearResponse =
+	deleteSchoolYearResponseSuccess | deleteSchoolYearResponseError;
+
+export const getDeleteSchoolYearUrl = (id: string) => {
+	return `/api/v1/school/years/${id}`;
+};
+
+/**
+ * @summary Delete academic year
+ */
+export const deleteSchoolYear = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolYearResponse> => {
+	return lmsFetch<deleteSchoolYearResponse>(getDeleteSchoolYearUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type listSchoolClassesResponse200 = {
+	data: ListSchoolClasses200;
+	status: 200;
+};
+
+export type listSchoolClassesResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolClassesResponseSuccess = listSchoolClassesResponse200 & {
+	headers: Headers;
+};
+export type listSchoolClassesResponseError = listSchoolClassesResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolClassesResponse =
+	listSchoolClassesResponseSuccess | listSchoolClassesResponseError;
+
+export const getListSchoolClassesUrl = () => {
+	return `/api/v1/school/classes`;
+};
+
+/**
+ * @summary Classes (05b)
+ */
+export const listSchoolClasses = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolClassesResponse> => {
+	return lmsFetch<listSchoolClassesResponse>(getListSchoolClassesUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolClassResponse200 = {
+	data: CreateSchoolClass200;
+	status: 200;
+};
+
+export type createSchoolClassResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolClassResponseSuccess = createSchoolClassResponse200 & {
+	headers: Headers;
+};
+export type createSchoolClassResponseError = createSchoolClassResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolClassResponse =
+	createSchoolClassResponseSuccess | createSchoolClassResponseError;
+
+export const getCreateSchoolClassUrl = () => {
+	return `/api/v1/school/classes`;
+};
+
+/**
+ * @summary Create class
+ */
+export const createSchoolClass = async (
+	schoolClassInput: SchoolClassInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolClassResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolClassResponse>(getCreateSchoolClassUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolClassInput)
+	});
+};
+
+export type getSchoolClassResponse200 = {
+	data: GetSchoolClass200;
+	status: 200;
+};
+
+export type getSchoolClassResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolClassResponseSuccess = getSchoolClassResponse200 & {
+	headers: Headers;
+};
+export type getSchoolClassResponseError = getSchoolClassResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolClassResponse = getSchoolClassResponseSuccess | getSchoolClassResponseError;
+
+export const getGetSchoolClassUrl = (id: string) => {
+	return `/api/v1/school/classes/${id}`;
+};
+
+/**
+ * @summary Class detail
+ */
+export const getSchoolClass = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolClassResponse> => {
+	return lmsFetch<getSchoolClassResponse>(getGetSchoolClassUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateSchoolClassResponse200 = {
+	data: UpdateSchoolClass200;
+	status: 200;
+};
+
+export type updateSchoolClassResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolClassResponseSuccess = updateSchoolClassResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolClassResponseError = updateSchoolClassResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolClassResponse =
+	updateSchoolClassResponseSuccess | updateSchoolClassResponseError;
+
+export const getUpdateSchoolClassUrl = (id: string) => {
+	return `/api/v1/school/classes/${id}`;
+};
+
+/**
+ * @summary Update class
+ */
+export const updateSchoolClass = async (
+	id: string,
+	schoolClassInput: SchoolClassInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolClassResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolClassResponse>(getUpdateSchoolClassUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolClassInput)
+	});
+};
+
+export type deleteSchoolClassResponse200 = {
+	data: DeleteSchoolClass200;
+	status: 200;
+};
+
+export type deleteSchoolClassResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolClassResponseSuccess = deleteSchoolClassResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolClassResponseError = deleteSchoolClassResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolClassResponse =
+	deleteSchoolClassResponseSuccess | deleteSchoolClassResponseError;
+
+export const getDeleteSchoolClassUrl = (id: string) => {
+	return `/api/v1/school/classes/${id}`;
+};
+
+/**
+ * @summary Delete class
+ */
+export const deleteSchoolClass = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolClassResponse> => {
+	return lmsFetch<deleteSchoolClassResponse>(getDeleteSchoolClassUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type listSchoolTeachersResponse200 = {
+	data: ListSchoolTeachers200;
+	status: 200;
+};
+
+export type listSchoolTeachersResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolTeachersResponseSuccess = listSchoolTeachersResponse200 & {
+	headers: Headers;
+};
+export type listSchoolTeachersResponseError = listSchoolTeachersResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolTeachersResponse =
+	listSchoolTeachersResponseSuccess | listSchoolTeachersResponseError;
+
+export const getListSchoolTeachersUrl = () => {
+	return `/api/v1/school/teachers`;
+};
+
+/**
+ * @summary Teachers (05c)
+ */
+export const listSchoolTeachers = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolTeachersResponse> => {
+	return lmsFetch<listSchoolTeachersResponse>(getListSchoolTeachersUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolTeacherResponse200 = {
+	data: CreateSchoolTeacher200;
+	status: 200;
+};
+
+export type createSchoolTeacherResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolTeacherResponseSuccess = createSchoolTeacherResponse200 & {
+	headers: Headers;
+};
+export type createSchoolTeacherResponseError = createSchoolTeacherResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolTeacherResponse =
+	createSchoolTeacherResponseSuccess | createSchoolTeacherResponseError;
+
+export const getCreateSchoolTeacherUrl = () => {
+	return `/api/v1/school/teachers`;
+};
+
+/**
+ * @summary Create teacher
+ */
+export const createSchoolTeacher = async (
+	schoolTeacherInput: SchoolTeacherInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolTeacherResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolTeacherResponse>(getCreateSchoolTeacherUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolTeacherInput)
+	});
+};
+
+export type getSchoolTeacherResponse200 = {
+	data: GetSchoolTeacher200;
+	status: 200;
+};
+
+export type getSchoolTeacherResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolTeacherResponseSuccess = getSchoolTeacherResponse200 & {
+	headers: Headers;
+};
+export type getSchoolTeacherResponseError = getSchoolTeacherResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolTeacherResponse =
+	getSchoolTeacherResponseSuccess | getSchoolTeacherResponseError;
+
+export const getGetSchoolTeacherUrl = (id: string) => {
+	return `/api/v1/school/teachers/${id}`;
+};
+
+/**
+ * @summary Teacher detail
+ */
+export const getSchoolTeacher = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolTeacherResponse> => {
+	return lmsFetch<getSchoolTeacherResponse>(getGetSchoolTeacherUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateSchoolTeacherResponse200 = {
+	data: UpdateSchoolTeacher200;
+	status: 200;
+};
+
+export type updateSchoolTeacherResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolTeacherResponseSuccess = updateSchoolTeacherResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolTeacherResponseError = updateSchoolTeacherResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolTeacherResponse =
+	updateSchoolTeacherResponseSuccess | updateSchoolTeacherResponseError;
+
+export const getUpdateSchoolTeacherUrl = (id: string) => {
+	return `/api/v1/school/teachers/${id}`;
+};
+
+/**
+ * @summary Update teacher
+ */
+export const updateSchoolTeacher = async (
+	id: string,
+	schoolTeacherInput: SchoolTeacherInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolTeacherResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolTeacherResponse>(getUpdateSchoolTeacherUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolTeacherInput)
+	});
+};
+
+export type deleteSchoolTeacherResponse200 = {
+	data: DeleteSchoolTeacher200;
+	status: 200;
+};
+
+export type deleteSchoolTeacherResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolTeacherResponseSuccess = deleteSchoolTeacherResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolTeacherResponseError = deleteSchoolTeacherResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolTeacherResponse =
+	deleteSchoolTeacherResponseSuccess | deleteSchoolTeacherResponseError;
+
+export const getDeleteSchoolTeacherUrl = (id: string) => {
+	return `/api/v1/school/teachers/${id}`;
+};
+
+/**
+ * @summary Delete teacher
+ */
+export const deleteSchoolTeacher = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolTeacherResponse> => {
+	return lmsFetch<deleteSchoolTeacherResponse>(getDeleteSchoolTeacherUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type listSchoolStudentsResponse200 = {
+	data: ListSchoolStudents200;
+	status: 200;
+};
+
+export type listSchoolStudentsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolStudentsResponseSuccess = listSchoolStudentsResponse200 & {
+	headers: Headers;
+};
+export type listSchoolStudentsResponseError = listSchoolStudentsResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolStudentsResponse =
+	listSchoolStudentsResponseSuccess | listSchoolStudentsResponseError;
+
+export const getListSchoolStudentsUrl = () => {
+	return `/api/v1/school/students`;
+};
+
+/**
+ * @summary Students (05d)
+ */
+export const listSchoolStudents = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolStudentsResponse> => {
+	return lmsFetch<listSchoolStudentsResponse>(getListSchoolStudentsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolStudentResponse200 = {
+	data: CreateSchoolStudent200;
+	status: 200;
+};
+
+export type createSchoolStudentResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolStudentResponseSuccess = createSchoolStudentResponse200 & {
+	headers: Headers;
+};
+export type createSchoolStudentResponseError = createSchoolStudentResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolStudentResponse =
+	createSchoolStudentResponseSuccess | createSchoolStudentResponseError;
+
+export const getCreateSchoolStudentUrl = () => {
+	return `/api/v1/school/students`;
+};
+
+/**
+ * @summary Create student (402 quota_students_exceeded)
+ */
+export const createSchoolStudent = async (
+	schoolStudentInput: SchoolStudentInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolStudentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolStudentResponse>(getCreateSchoolStudentUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolStudentInput)
+	});
+};
+
+export type updateSchoolStudentResponse200 = {
+	data: UpdateSchoolStudent200;
+	status: 200;
+};
+
+export type updateSchoolStudentResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolStudentResponseSuccess = updateSchoolStudentResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolStudentResponseError = updateSchoolStudentResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolStudentResponse =
+	updateSchoolStudentResponseSuccess | updateSchoolStudentResponseError;
+
+export const getUpdateSchoolStudentUrl = (id: string) => {
+	return `/api/v1/school/students/${id}`;
+};
+
+/**
+ * @summary Update student
+ */
+export const updateSchoolStudent = async (
+	id: string,
+	schoolStudentInput: SchoolStudentInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolStudentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolStudentResponse>(getUpdateSchoolStudentUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolStudentInput)
+	});
+};
+
+export type deleteSchoolStudentResponse200 = {
+	data: DeleteSchoolStudent200;
+	status: 200;
+};
+
+export type deleteSchoolStudentResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolStudentResponseSuccess = deleteSchoolStudentResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolStudentResponseError = deleteSchoolStudentResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolStudentResponse =
+	deleteSchoolStudentResponseSuccess | deleteSchoolStudentResponseError;
+
+export const getDeleteSchoolStudentUrl = (id: string) => {
+	return `/api/v1/school/students/${id}`;
+};
+
+/**
+ * @summary Delete student
+ */
+export const deleteSchoolStudent = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolStudentResponse> => {
+	return lmsFetch<deleteSchoolStudentResponse>(getDeleteSchoolStudentUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type listSchoolGuardiansResponse200 = {
+	data: ListSchoolGuardians200;
+	status: 200;
+};
+
+export type listSchoolGuardiansResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolGuardiansResponseSuccess = listSchoolGuardiansResponse200 & {
+	headers: Headers;
+};
+export type listSchoolGuardiansResponseError = listSchoolGuardiansResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolGuardiansResponse =
+	listSchoolGuardiansResponseSuccess | listSchoolGuardiansResponseError;
+
+export const getListSchoolGuardiansUrl = () => {
+	return `/api/v1/school/guardians`;
+};
+
+/**
+ * @summary Guardians (05e)
+ */
+export const listSchoolGuardians = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolGuardiansResponse> => {
+	return lmsFetch<listSchoolGuardiansResponse>(getListSchoolGuardiansUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolGuardianResponse200 = {
+	data: CreateSchoolGuardian200;
+	status: 200;
+};
+
+export type createSchoolGuardianResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type createSchoolGuardianResponseSuccess = createSchoolGuardianResponse200 & {
+	headers: Headers;
+};
+export type createSchoolGuardianResponseError = createSchoolGuardianResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolGuardianResponse =
+	createSchoolGuardianResponseSuccess | createSchoolGuardianResponseError;
+
+export const getCreateSchoolGuardianUrl = () => {
+	return `/api/v1/school/guardians`;
+};
+
+/**
+ * @summary Create guardian
+ */
+export const createSchoolGuardian = async (
+	schoolGuardianInput: SchoolGuardianInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolGuardianResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolGuardianResponse>(getCreateSchoolGuardianUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolGuardianInput)
+	});
+};
+
+export type updateSchoolGuardianResponse200 = {
+	data: UpdateSchoolGuardian200;
+	status: 200;
+};
+
+export type updateSchoolGuardianResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolGuardianResponseSuccess = updateSchoolGuardianResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolGuardianResponseError = updateSchoolGuardianResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolGuardianResponse =
+	updateSchoolGuardianResponseSuccess | updateSchoolGuardianResponseError;
+
+export const getUpdateSchoolGuardianUrl = (id: string) => {
+	return `/api/v1/school/guardians/${id}`;
+};
+
+/**
+ * @summary Update guardian
+ */
+export const updateSchoolGuardian = async (
+	id: string,
+	schoolGuardianInput: SchoolGuardianInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolGuardianResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolGuardianResponse>(getUpdateSchoolGuardianUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolGuardianInput)
+	});
+};
+
+export type deleteSchoolGuardianResponse200 = {
+	data: DeleteSchoolGuardian200;
+	status: 200;
+};
+
+export type deleteSchoolGuardianResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type deleteSchoolGuardianResponseSuccess = deleteSchoolGuardianResponse200 & {
+	headers: Headers;
+};
+export type deleteSchoolGuardianResponseError = deleteSchoolGuardianResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolGuardianResponse =
+	deleteSchoolGuardianResponseSuccess | deleteSchoolGuardianResponseError;
+
+export const getDeleteSchoolGuardianUrl = (id: string) => {
+	return `/api/v1/school/guardians/${id}`;
+};
+
+/**
+ * @summary Delete guardian
+ */
+export const deleteSchoolGuardian = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolGuardianResponse> => {
+	return lmsFetch<deleteSchoolGuardianResponse>(getDeleteSchoolGuardianUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type unlinkSchoolGuardianResponse200 = {
+	data: UnlinkSchoolGuardian200;
+	status: 200;
+};
+
+export type unlinkSchoolGuardianResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type unlinkSchoolGuardianResponseSuccess = unlinkSchoolGuardianResponse200 & {
+	headers: Headers;
+};
+export type unlinkSchoolGuardianResponseError = unlinkSchoolGuardianResponseDefault & {
+	headers: Headers;
+};
+
+export type unlinkSchoolGuardianResponse =
+	unlinkSchoolGuardianResponseSuccess | unlinkSchoolGuardianResponseError;
+
+export const getUnlinkSchoolGuardianUrl = (id: string, studentID: string) => {
+	return `/api/v1/school/guardians/${id}/students/${studentID}`;
+};
+
+/**
+ * @summary Unlink guardian from student
+ */
+export const unlinkSchoolGuardian = async (
+	id: string,
+	studentID: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<unlinkSchoolGuardianResponse> => {
+	return lmsFetch<unlinkSchoolGuardianResponse>(getUnlinkSchoolGuardianUrl(id, studentID), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type inviteSchoolAccountsResponse200 = {
+	data: InviteSchoolAccounts200;
+	status: 200;
+};
+
+export type inviteSchoolAccountsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type inviteSchoolAccountsResponseSuccess = inviteSchoolAccountsResponse200 & {
+	headers: Headers;
+};
+export type inviteSchoolAccountsResponseError = inviteSchoolAccountsResponseDefault & {
+	headers: Headers;
+};
+
+export type inviteSchoolAccountsResponse =
+	inviteSchoolAccountsResponseSuccess | inviteSchoolAccountsResponseError;
+
+export const getInviteSchoolAccountsUrl = () => {
+	return `/api/v1/school/invitations`;
+};
+
+/**
+ * @summary Send/resend account invitations
+ */
+export const inviteSchoolAccounts = async (
+	schoolInviteInput: SchoolInviteInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<inviteSchoolAccountsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<inviteSchoolAccountsResponse>(getInviteSchoolAccountsUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolInviteInput)
+	});
+};
+
+export type getLatestSchoolInviteJobResponse200 = {
+	data: GetLatestSchoolInviteJob200;
+	status: 200;
+};
+
+export type getLatestSchoolInviteJobResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getLatestSchoolInviteJobResponseSuccess = getLatestSchoolInviteJobResponse200 & {
+	headers: Headers;
+};
+export type getLatestSchoolInviteJobResponseError = getLatestSchoolInviteJobResponseDefault & {
+	headers: Headers;
+};
+
+export type getLatestSchoolInviteJobResponse =
+	getLatestSchoolInviteJobResponseSuccess | getLatestSchoolInviteJobResponseError;
+
+export const getGetLatestSchoolInviteJobUrl = () => {
+	return `/api/v1/school/invitations/jobs/latest`;
+};
+
+/**
+ * @summary Latest bulk invitation job
+ */
+export const getLatestSchoolInviteJob = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getLatestSchoolInviteJobResponse> => {
+	return lmsFetch<getLatestSchoolInviteJobResponse>(getGetLatestSchoolInviteJobUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolInviteJobResponse200 = {
+	data: GetSchoolInviteJob200;
+	status: 200;
+};
+
+export type getSchoolInviteJobResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolInviteJobResponseSuccess = getSchoolInviteJobResponse200 & {
+	headers: Headers;
+};
+export type getSchoolInviteJobResponseError = getSchoolInviteJobResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolInviteJobResponse =
+	getSchoolInviteJobResponseSuccess | getSchoolInviteJobResponseError;
+
+export const getGetSchoolInviteJobUrl = (id: string) => {
+	return `/api/v1/school/invitations/jobs/${id}`;
+};
+
+/**
+ * @summary Bulk invitation job progress (codes visible for 72 hours)
+ */
+export const getSchoolInviteJob = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolInviteJobResponse> => {
+	return lmsFetch<getSchoolInviteJobResponse>(getGetSchoolInviteJobUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolAuditResponse200 = {
+	data: GetSchoolAudit200;
+	status: 200;
+};
+
+export type getSchoolAuditResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolAuditResponseSuccess = getSchoolAuditResponse200 & {
+	headers: Headers;
+};
+export type getSchoolAuditResponseError = getSchoolAuditResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolAuditResponse = getSchoolAuditResponseSuccess | getSchoolAuditResponseError;
+
+export const getGetSchoolAuditUrl = (params?: GetSchoolAuditParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/audit?${stringifiedParams}`
+		: `/api/v1/school/audit`;
+};
+
+/**
+ * @summary Tenant change history (delete/deactivate people, invitations, report cards)
+ */
+export const getSchoolAudit = async (
+	params?: GetSchoolAuditParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolAuditResponse> => {
+	return lmsFetch<getSchoolAuditResponse>(getGetSchoolAuditUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolAttendanceResponse200 = {
+	data: GetSchoolAttendance200;
+	status: 200;
+};
+
+export type getSchoolAttendanceResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolAttendanceResponseSuccess = getSchoolAttendanceResponse200 & {
+	headers: Headers;
+};
+export type getSchoolAttendanceResponseError = getSchoolAttendanceResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolAttendanceResponse =
+	getSchoolAttendanceResponseSuccess | getSchoolAttendanceResponseError;
+
+export const getGetSchoolAttendanceUrl = (params?: GetSchoolAttendanceParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/attendance?${stringifiedParams}`
+		: `/api/v1/school/attendance`;
+};
+
+/**
+ * @summary Attendance monitoring (05f)
+ */
+export const getSchoolAttendance = async (
+	params?: GetSchoolAttendanceParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolAttendanceResponse> => {
+	return lmsFetch<getSchoolAttendanceResponse>(getGetSchoolAttendanceUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type remindSchoolAttendanceResponse200 = {
+	data: RemindSchoolAttendance200;
+	status: 200;
+};
+
+export type remindSchoolAttendanceResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type remindSchoolAttendanceResponseSuccess = remindSchoolAttendanceResponse200 & {
+	headers: Headers;
+};
+export type remindSchoolAttendanceResponseError = remindSchoolAttendanceResponseDefault & {
+	headers: Headers;
+};
+
+export type remindSchoolAttendanceResponse =
+	remindSchoolAttendanceResponseSuccess | remindSchoolAttendanceResponseError;
+
+export const getRemindSchoolAttendanceUrl = () => {
+	return `/api/v1/school/attendance/remind`;
+};
+
+/**
+ * Emails homeroom teachers of classes that have not filled today's attendance, at most once per hour (422 validation_failed date=remind_cooldown). Other 422 codes: holiday, all_filled, no_homeroom_contact (no reachable homeroom teacher). On success data.reminder carries the actual outcome counts.
+ * @summary Remind homeroom teachers
+ */
+export const remindSchoolAttendance = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<remindSchoolAttendanceResponse> => {
+	return lmsFetch<remindSchoolAttendanceResponse>(getRemindSchoolAttendanceUrl(), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type getHomeroomAttendanceResponse200 = {
+	data: GetHomeroomAttendance200;
+	status: 200;
+};
+
+export type getHomeroomAttendanceResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getHomeroomAttendanceResponseSuccess = getHomeroomAttendanceResponse200 & {
+	headers: Headers;
+};
+export type getHomeroomAttendanceResponseError = getHomeroomAttendanceResponseDefault & {
+	headers: Headers;
+};
+
+export type getHomeroomAttendanceResponse =
+	getHomeroomAttendanceResponseSuccess | getHomeroomAttendanceResponseError;
+
+export const getGetHomeroomAttendanceUrl = (params?: GetHomeroomAttendanceParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/homeroom/attendance?${stringifiedParams}`
+		: `/api/v1/school/homeroom/attendance`;
+};
+
+/**
+ * @summary Homeroom daily attendance
+ */
+export const getHomeroomAttendance = async (
+	params?: GetHomeroomAttendanceParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getHomeroomAttendanceResponse> => {
+	return lmsFetch<getHomeroomAttendanceResponse>(getGetHomeroomAttendanceUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type saveHomeroomAttendanceResponse200 = {
+	data: SaveHomeroomAttendance200;
+	status: 200;
+};
+
+export type saveHomeroomAttendanceResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveHomeroomAttendanceResponseSuccess = saveHomeroomAttendanceResponse200 & {
+	headers: Headers;
+};
+export type saveHomeroomAttendanceResponseError = saveHomeroomAttendanceResponseDefault & {
+	headers: Headers;
+};
+
+export type saveHomeroomAttendanceResponse =
+	saveHomeroomAttendanceResponseSuccess | saveHomeroomAttendanceResponseError;
+
+export const getSaveHomeroomAttendanceUrl = () => {
+	return `/api/v1/school/homeroom/attendance`;
+};
+
+/**
+ * @summary Save homeroom daily attendance
+ */
+export const saveHomeroomAttendance = async (
+	schoolAttendanceInput: SchoolAttendanceInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveHomeroomAttendanceResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveHomeroomAttendanceResponse>(getSaveHomeroomAttendanceUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAttendanceInput)
+	});
+};
+
+export type getSchoolReportsResponse200 = {
+	data: GetSchoolReports200;
+	status: 200;
+};
+
+export type getSchoolReportsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolReportsResponseSuccess = getSchoolReportsResponse200 & {
+	headers: Headers;
+};
+export type getSchoolReportsResponseError = getSchoolReportsResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolReportsResponse =
+	getSchoolReportsResponseSuccess | getSchoolReportsResponseError;
+
+export const getGetSchoolReportsUrl = () => {
+	return `/api/v1/school/reports`;
+};
+
+/**
+ * @summary Report card monitoring (05g)
+ */
+export const getSchoolReports = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolReportsResponse> => {
+	return lmsFetch<getSchoolReportsResponse>(getGetSchoolReportsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type remindSchoolReportResponse200 = {
+	data: RemindSchoolReport200;
+	status: 200;
+};
+
+export type remindSchoolReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type remindSchoolReportResponseSuccess = remindSchoolReportResponse200 & {
+	headers: Headers;
+};
+export type remindSchoolReportResponseError = remindSchoolReportResponseDefault & {
+	headers: Headers;
+};
+
+export type remindSchoolReportResponse =
+	remindSchoolReportResponseSuccess | remindSchoolReportResponseError;
+
+export const getRemindSchoolReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/remind`;
+};
+
+/**
+ * @summary Remind homeroom about draft report
+ */
+export const remindSchoolReport = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<remindSchoolReportResponse> => {
+	return lmsFetch<remindSchoolReportResponse>(getRemindSchoolReportUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type getSchoolClassReportResponse200 = {
+	data: GetSchoolClassReport200;
+	status: 200;
+};
+
+export type getSchoolClassReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolClassReportResponseSuccess = getSchoolClassReportResponse200 & {
+	headers: Headers;
+};
+export type getSchoolClassReportResponseError = getSchoolClassReportResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolClassReportResponse =
+	getSchoolClassReportResponseSuccess | getSchoolClassReportResponseError;
+
+export const getGetSchoolClassReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}`;
+};
+
+/**
+ * @summary Class report card review (admin & principal)
+ */
+export const getSchoolClassReport = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolClassReportResponse> => {
+	return lmsFetch<getSchoolClassReportResponse>(getGetSchoolClassReportUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type approveSchoolClassReportResponse200 = {
+	data: ApproveSchoolClassReport200;
+	status: 200;
+};
+
+export type approveSchoolClassReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type approveSchoolClassReportResponseSuccess = approveSchoolClassReportResponse200 & {
+	headers: Headers;
+};
+export type approveSchoolClassReportResponseError = approveSchoolClassReportResponseDefault & {
+	headers: Headers;
+};
+
+export type approveSchoolClassReportResponse =
+	approveSchoolClassReportResponseSuccess | approveSchoolClassReportResponseError;
+
+export const getApproveSchoolClassReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/approve`;
+};
+
+/**
+ * @summary Principal approves submitted class report cards
+ */
+export const approveSchoolClassReport = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<approveSchoolClassReportResponse> => {
+	return lmsFetch<approveSchoolClassReportResponse>(getApproveSchoolClassReportUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type returnSchoolClassReportResponse200 = {
+	data: ReturnSchoolClassReport200;
+	status: 200;
+};
+
+export type returnSchoolClassReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type returnSchoolClassReportResponseSuccess = returnSchoolClassReportResponse200 & {
+	headers: Headers;
+};
+export type returnSchoolClassReportResponseError = returnSchoolClassReportResponseDefault & {
+	headers: Headers;
+};
+
+export type returnSchoolClassReportResponse =
+	returnSchoolClassReportResponseSuccess | returnSchoolClassReportResponseError;
+
+export const getReturnSchoolClassReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/return`;
+};
+
+/**
+ * @summary Principal returns submitted report cards to the homeroom teacher
+ */
+export const returnSchoolClassReport = async (
+	id: string,
+	schoolReasonInput: SchoolReasonInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<returnSchoolClassReportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<returnSchoolClassReportResponse>(getReturnSchoolClassReportUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolReasonInput)
+	});
+};
+
+export type lockSchoolClassReportResponse200 = {
+	data: LockSchoolClassReport200;
+	status: 200;
+};
+
+export type lockSchoolClassReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type lockSchoolClassReportResponseSuccess = lockSchoolClassReportResponse200 & {
+	headers: Headers;
+};
+export type lockSchoolClassReportResponseError = lockSchoolClassReportResponseDefault & {
+	headers: Headers;
+};
+
+export type lockSchoolClassReportResponse =
+	lockSchoolClassReportResponseSuccess | lockSchoolClassReportResponseError;
+
+export const getLockSchoolClassReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/lock`;
+};
+
+/**
+ * @summary Lock approved report cards and publish PDFs
+ */
+export const lockSchoolClassReport = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<lockSchoolClassReportResponse> => {
+	return lmsFetch<lockSchoolClassReportResponse>(getLockSchoolClassReportUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type unlockSchoolClassReportResponse200 = {
+	data: UnlockSchoolClassReport200;
+	status: 200;
+};
+
+export type unlockSchoolClassReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type unlockSchoolClassReportResponseSuccess = unlockSchoolClassReportResponse200 & {
+	headers: Headers;
+};
+export type unlockSchoolClassReportResponseError = unlockSchoolClassReportResponseDefault & {
+	headers: Headers;
+};
+
+export type unlockSchoolClassReportResponse =
+	unlockSchoolClassReportResponseSuccess | unlockSchoolClassReportResponseError;
+
+export const getUnlockSchoolClassReportUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/unlock`;
+};
+
+/**
+ * @summary Principal reopens locked report cards for correction
+ */
+export const unlockSchoolClassReport = async (
+	id: string,
+	schoolReasonInput: SchoolReasonInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<unlockSchoolClassReportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<unlockSchoolClassReportResponse>(getUnlockSchoolClassReportUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolReasonInput)
+	});
+};
+
+export type downloadSchoolClassReportPdfResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type downloadSchoolClassReportPdfResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type downloadSchoolClassReportPdfResponseSuccess =
+	downloadSchoolClassReportPdfResponse200 & {
+		headers: Headers;
+	};
+export type downloadSchoolClassReportPdfResponseError =
+	downloadSchoolClassReportPdfResponseDefault & {
+		headers: Headers;
+	};
+
+export type downloadSchoolClassReportPdfResponse =
+	downloadSchoolClassReportPdfResponseSuccess | downloadSchoolClassReportPdfResponseError;
+
+export const getDownloadSchoolClassReportPdfUrl = (
+	id: string,
+	params?: DownloadSchoolClassReportPdfParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/reports/${id}/pdf?${stringifiedParams}`
+		: `/api/v1/school/reports/${id}/pdf`;
+};
+
+/**
+ * @summary Download locked report card PDF
+ */
+export const downloadSchoolClassReportPdf = async (
+	id: string,
+	params?: DownloadSchoolClassReportPdfParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<downloadSchoolClassReportPdfResponse> => {
+	return lmsFetch<downloadSchoolClassReportPdfResponse>(
+		getDownloadSchoolClassReportPdfUrl(id, params),
+		{
+			...options,
+			method: 'GET'
+		}
+	);
+};
+
+export type getTeacherGradeAssignmentsResponse200 = {
+	data: GetTeacherGradeAssignments200;
+	status: 200;
+};
+
+export type getTeacherGradeAssignmentsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getTeacherGradeAssignmentsResponseSuccess = getTeacherGradeAssignmentsResponse200 & {
+	headers: Headers;
+};
+export type getTeacherGradeAssignmentsResponseError = getTeacherGradeAssignmentsResponseDefault & {
+	headers: Headers;
+};
+
+export type getTeacherGradeAssignmentsResponse =
+	getTeacherGradeAssignmentsResponseSuccess | getTeacherGradeAssignmentsResponseError;
+
+export const getGetTeacherGradeAssignmentsUrl = () => {
+	return `/api/v1/school/teacher/grades`;
+};
+
+/**
+ * @summary Subject teacher assignments with final grade progress
+ */
+export const getTeacherGradeAssignments = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTeacherGradeAssignmentsResponse> => {
+	return lmsFetch<getTeacherGradeAssignmentsResponse>(getGetTeacherGradeAssignmentsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getTeacherGradeSheetResponse200 = {
+	data: GetTeacherGradeSheet200;
+	status: 200;
+};
+
+export type getTeacherGradeSheetResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getTeacherGradeSheetResponseSuccess = getTeacherGradeSheetResponse200 & {
+	headers: Headers;
+};
+export type getTeacherGradeSheetResponseError = getTeacherGradeSheetResponseDefault & {
+	headers: Headers;
+};
+
+export type getTeacherGradeSheetResponse =
+	getTeacherGradeSheetResponseSuccess | getTeacherGradeSheetResponseError;
+
+export const getGetTeacherGradeSheetUrl = (id: string) => {
+	return `/api/v1/school/teacher/grades/${id}`;
+};
+
+/**
+ * @summary Final grade sheet for one teaching assignment
+ */
+export const getTeacherGradeSheet = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getTeacherGradeSheetResponse> => {
+	return lmsFetch<getTeacherGradeSheetResponse>(getGetTeacherGradeSheetUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type saveTeacherGradesResponse200 = {
+	data: SaveTeacherGrades200;
+	status: 200;
+};
+
+export type saveTeacherGradesResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveTeacherGradesResponseSuccess = saveTeacherGradesResponse200 & {
+	headers: Headers;
+};
+export type saveTeacherGradesResponseError = saveTeacherGradesResponseDefault & {
+	headers: Headers;
+};
+
+export type saveTeacherGradesResponse =
+	saveTeacherGradesResponseSuccess | saveTeacherGradesResponseError;
+
+export const getSaveTeacherGradesUrl = (id: string) => {
+	return `/api/v1/school/teacher/grades/${id}`;
+};
+
+/**
+ * @summary Save final grades (partial allowed)
+ */
+export const saveTeacherGrades = async (
+	id: string,
+	schoolGradesInput: SchoolGradesInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveTeacherGradesResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveTeacherGradesResponse>(getSaveTeacherGradesUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolGradesInput)
+	});
+};
+
+export type lockTeacherGradesResponse200 = {
+	data: LockTeacherGrades200;
+	status: 200;
+};
+
+export type lockTeacherGradesResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type lockTeacherGradesResponseSuccess = lockTeacherGradesResponse200 & {
+	headers: Headers;
+};
+export type lockTeacherGradesResponseError = lockTeacherGradesResponseDefault & {
+	headers: Headers;
+};
+
+export type lockTeacherGradesResponse =
+	lockTeacherGradesResponseSuccess | lockTeacherGradesResponseError;
+
+export const getLockTeacherGradesUrl = (id: string) => {
+	return `/api/v1/school/teacher/grades/${id}/lock`;
+};
+
+/**
+ * @summary Lock final grades (all students need score and description)
+ */
+export const lockTeacherGrades = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<lockTeacherGradesResponse> => {
+	return lmsFetch<lockTeacherGradesResponse>(getLockTeacherGradesUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type getHomeroomReportResponse200 = {
+	data: GetHomeroomReport200;
+	status: 200;
+};
+
+export type getHomeroomReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getHomeroomReportResponseSuccess = getHomeroomReportResponse200 & {
+	headers: Headers;
+};
+export type getHomeroomReportResponseError = getHomeroomReportResponseDefault & {
+	headers: Headers;
+};
+
+export type getHomeroomReportResponse =
+	getHomeroomReportResponseSuccess | getHomeroomReportResponseError;
+
+export const getGetHomeroomReportUrl = () => {
+	return `/api/v1/school/homeroom/report`;
+};
+
+/**
+ * @summary Homeroom class report card
+ */
+export const getHomeroomReport = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getHomeroomReportResponse> => {
+	return lmsFetch<getHomeroomReportResponse>(getGetHomeroomReportUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type saveHomeroomReportNotesResponse200 = {
+	data: SaveHomeroomReportNotes200;
+	status: 200;
+};
+
+export type saveHomeroomReportNotesResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type saveHomeroomReportNotesResponseSuccess = saveHomeroomReportNotesResponse200 & {
+	headers: Headers;
+};
+export type saveHomeroomReportNotesResponseError = saveHomeroomReportNotesResponseDefault & {
+	headers: Headers;
+};
+
+export type saveHomeroomReportNotesResponse =
+	saveHomeroomReportNotesResponseSuccess | saveHomeroomReportNotesResponseError;
+
+export const getSaveHomeroomReportNotesUrl = () => {
+	return `/api/v1/school/homeroom/report/notes`;
+};
+
+/**
+ * @summary Save homeroom notes (draft only)
+ */
+export const saveHomeroomReportNotes = async (
+	schoolNotesInput: SchoolNotesInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<saveHomeroomReportNotesResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<saveHomeroomReportNotesResponse>(getSaveHomeroomReportNotesUrl(), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolNotesInput)
+	});
+};
+
+export type submitHomeroomReportResponse200 = {
+	data: SubmitHomeroomReport200;
+	status: 200;
+};
+
+export type submitHomeroomReportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type submitHomeroomReportResponseSuccess = submitHomeroomReportResponse200 & {
+	headers: Headers;
+};
+export type submitHomeroomReportResponseError = submitHomeroomReportResponseDefault & {
+	headers: Headers;
+};
+
+export type submitHomeroomReportResponse =
+	submitHomeroomReportResponseSuccess | submitHomeroomReportResponseError;
+
+export const getSubmitHomeroomReportUrl = () => {
+	return `/api/v1/school/homeroom/report/submit`;
+};
+
+/**
+ * @summary Submit class report cards to the principal
+ */
+export const submitHomeroomReport = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<submitHomeroomReportResponse> => {
+	return lmsFetch<submitHomeroomReportResponse>(getSubmitHomeroomReportUrl(), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type getLearnerReportsResponse200 = {
+	data: GetLearnerReports200;
+	status: 200;
+};
+
+export type getLearnerReportsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getLearnerReportsResponseSuccess = getLearnerReportsResponse200 & {
+	headers: Headers;
+};
+export type getLearnerReportsResponseError = getLearnerReportsResponseDefault & {
+	headers: Headers;
+};
+
+export type getLearnerReportsResponse =
+	getLearnerReportsResponseSuccess | getLearnerReportsResponseError;
+
+export const getGetLearnerReportsUrl = () => {
+	return `/api/v1/school/learner/reports`;
+};
+
+/**
+ * @summary Published report cards for the signed-in student or the guardian's linked children
+ */
+export const getLearnerReports = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getLearnerReportsResponse> => {
+	return lmsFetch<getLearnerReportsResponse>(getGetLearnerReportsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type downloadLearnerReportPdfResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type downloadLearnerReportPdfResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type downloadLearnerReportPdfResponseSuccess = downloadLearnerReportPdfResponse200 & {
+	headers: Headers;
+};
+export type downloadLearnerReportPdfResponseError = downloadLearnerReportPdfResponseDefault & {
+	headers: Headers;
+};
+
+export type downloadLearnerReportPdfResponse =
+	downloadLearnerReportPdfResponseSuccess | downloadLearnerReportPdfResponseError;
+
+export const getDownloadLearnerReportPdfUrl = (id: string) => {
+	return `/api/v1/school/learner/reports/${id}/pdf`;
+};
+
+/**
+ * @summary Download a published report card PDF
+ */
+export const downloadLearnerReportPdf = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<downloadLearnerReportPdfResponse> => {
+	return lmsFetch<downloadLearnerReportPdfResponse>(getDownloadLearnerReportPdfUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolSubscriptionResponse200 = {
+	data: GetSchoolSubscription200;
+	status: 200;
+};
+
+export type getSchoolSubscriptionResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolSubscriptionResponseSuccess = getSchoolSubscriptionResponse200 & {
+	headers: Headers;
+};
+export type getSchoolSubscriptionResponseError = getSchoolSubscriptionResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolSubscriptionResponse =
+	getSchoolSubscriptionResponseSuccess | getSchoolSubscriptionResponseError;
+
+export const getGetSchoolSubscriptionUrl = () => {
+	return `/api/v1/school/subscription`;
+};
+
+/**
+ * @summary Subscription & seats (05h)
+ */
+export const getSchoolSubscription = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolSubscriptionResponse> => {
+	return lmsFetch<getSchoolSubscriptionResponse>(getGetSchoolSubscriptionUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type addSchoolSeatsResponse200 = {
+	data: AddSchoolSeats200;
+	status: 200;
+};
+
+export type addSchoolSeatsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type addSchoolSeatsResponseSuccess = addSchoolSeatsResponse200 & {
+	headers: Headers;
+};
+export type addSchoolSeatsResponseError = addSchoolSeatsResponseDefault & {
+	headers: Headers;
+};
+
+export type addSchoolSeatsResponse = addSchoolSeatsResponseSuccess | addSchoolSeatsResponseError;
+
+export const getAddSchoolSeatsUrl = () => {
+	return `/api/v1/school/subscription/seats`;
+};
+
+/**
+ * @summary Add seats (prorata invoice)
+ */
+export const addSchoolSeats = async (
+	schoolSeatsInput: SchoolSeatsInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<addSchoolSeatsResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<addSchoolSeatsResponse>(getAddSchoolSeatsUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolSeatsInput)
+	});
+};
+
+export type getSchoolImportSpecResponse200 = {
+	data: GetSchoolImportSpec200;
+	status: 200;
+};
+
+export type getSchoolImportSpecResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolImportSpecResponseSuccess = getSchoolImportSpecResponse200 & {
+	headers: Headers;
+};
+export type getSchoolImportSpecResponseError = getSchoolImportSpecResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolImportSpecResponse =
+	getSchoolImportSpecResponseSuccess | getSchoolImportSpecResponseError;
+
+export const getGetSchoolImportSpecUrl = (kind: string) => {
+	return `/api/v1/school/imports/${kind}`;
+};
+
+/**
+ * @summary Import spec
+ */
+export const getSchoolImportSpec = async (
+	kind: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolImportSpecResponse> => {
+	return lmsFetch<getSchoolImportSpecResponse>(getGetSchoolImportSpecUrl(kind), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type getSchoolImportTemplateResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type getSchoolImportTemplateResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolImportTemplateResponseSuccess = getSchoolImportTemplateResponse200 & {
+	headers: Headers;
+};
+export type getSchoolImportTemplateResponseError = getSchoolImportTemplateResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolImportTemplateResponse =
+	getSchoolImportTemplateResponseSuccess | getSchoolImportTemplateResponseError;
+
+export const getGetSchoolImportTemplateUrl = (
+	kind: string,
+	params?: GetSchoolImportTemplateParams
+) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/imports/${kind}/template?${stringifiedParams}`
+		: `/api/v1/school/imports/${kind}/template`;
+};
+
+/**
+ * @summary Import template file
+ */
+export const getSchoolImportTemplate = async (
+	kind: string,
+	params?: GetSchoolImportTemplateParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolImportTemplateResponse> => {
+	return lmsFetch<getSchoolImportTemplateResponse>(getGetSchoolImportTemplateUrl(kind, params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type parseSchoolImportResponse200 = {
+	data: ParseSchoolImport200;
+	status: 200;
+};
+
+export type parseSchoolImportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type parseSchoolImportResponseSuccess = parseSchoolImportResponse200 & {
+	headers: Headers;
+};
+export type parseSchoolImportResponseError = parseSchoolImportResponseDefault & {
+	headers: Headers;
+};
+
+export type parseSchoolImportResponse =
+	parseSchoolImportResponseSuccess | parseSchoolImportResponseError;
+
+export const getParseSchoolImportUrl = (kind: string) => {
+	return `/api/v1/school/imports/${kind}/parse`;
+};
+
+/**
+ * @summary Read uploaded xlsx/csv
+ */
+export const parseSchoolImport = async (
+	kind: string,
+	schoolImportFile: SchoolImportFile,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<parseSchoolImportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<parseSchoolImportResponse>(getParseSchoolImportUrl(kind), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolImportFile)
+	});
+};
+
+export type previewSchoolImportResponse200 = {
+	data: PreviewSchoolImport200;
+	status: 200;
+};
+
+export type previewSchoolImportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type previewSchoolImportResponseSuccess = previewSchoolImportResponse200 & {
+	headers: Headers;
+};
+export type previewSchoolImportResponseError = previewSchoolImportResponseDefault & {
+	headers: Headers;
+};
+
+export type previewSchoolImportResponse =
+	previewSchoolImportResponseSuccess | previewSchoolImportResponseError;
+
+export const getPreviewSchoolImportUrl = (kind: string) => {
+	return `/api/v1/school/imports/${kind}/preview`;
+};
+
+/**
+ * @summary Validate rows
+ */
+export const previewSchoolImport = async (
+	kind: string,
+	schoolImportRequest: SchoolImportRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<previewSchoolImportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<previewSchoolImportResponse>(getPreviewSchoolImportUrl(kind), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolImportRequest)
+	});
+};
+
+export type commitSchoolImportResponse200 = {
+	data: CommitSchoolImport200;
+	status: 200;
+};
+
+export type commitSchoolImportResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type commitSchoolImportResponseSuccess = commitSchoolImportResponse200 & {
+	headers: Headers;
+};
+export type commitSchoolImportResponseError = commitSchoolImportResponseDefault & {
+	headers: Headers;
+};
+
+export type commitSchoolImportResponse =
+	commitSchoolImportResponseSuccess | commitSchoolImportResponseError;
+
+export const getCommitSchoolImportUrl = (kind: string) => {
+	return `/api/v1/school/imports/${kind}/commit`;
+};
+
+/**
+ * @summary Import valid rows
+ */
+export const commitSchoolImport = async (
+	kind: string,
+	schoolImportRequest: SchoolImportRequest,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<commitSchoolImportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<commitSchoolImportResponse>(getCommitSchoolImportUrl(kind), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolImportRequest)
+	});
+};
+
+export type getSchoolInvitationResponse200 = {
+	data: GetSchoolInvitation200;
+	status: 200;
+};
+
+export type getSchoolInvitationResponse429 = {
+	data: SchoolRateLimitedResponse;
+	status: 429;
+};
+
+export type getSchoolInvitationResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200 | 429>;
+};
+
+export type getSchoolInvitationResponseSuccess = getSchoolInvitationResponse200 & {
+	headers: Headers;
+};
+export type getSchoolInvitationResponseError = (
+	getSchoolInvitationResponse429 | getSchoolInvitationResponseDefault
+) & {
+	headers: Headers;
+};
+
+export type getSchoolInvitationResponse =
+	getSchoolInvitationResponseSuccess | getSchoolInvitationResponseError;
+
+export const getGetSchoolInvitationUrl = (params?: GetSchoolInvitationParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/public/school/invitations?${stringifiedParams}`
+		: `/api/v1/public/school/invitations`;
+};
+
+/**
+ * @summary Invitation info
+ */
+export const getSchoolInvitation = async (
+	params?: GetSchoolInvitationParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolInvitationResponse> => {
+	return lmsFetch<getSchoolInvitationResponse>(getGetSchoolInvitationUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type acceptSchoolInvitationResponse200 = {
+	data: AcceptSchoolInvitation200;
+	status: 200;
+};
+
+export type acceptSchoolInvitationResponse429 = {
+	data: SchoolRateLimitedResponse;
+	status: 429;
+};
+
+export type acceptSchoolInvitationResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200 | 429>;
+};
+
+export type acceptSchoolInvitationResponseSuccess = acceptSchoolInvitationResponse200 & {
+	headers: Headers;
+};
+export type acceptSchoolInvitationResponseError = (
+	acceptSchoolInvitationResponse429 | acceptSchoolInvitationResponseDefault
+) & {
+	headers: Headers;
+};
+
+export type acceptSchoolInvitationResponse =
+	acceptSchoolInvitationResponseSuccess | acceptSchoolInvitationResponseError;
+
+export const getAcceptSchoolInvitationUrl = () => {
+	return `/api/v1/public/school/invitations/accept`;
+};
+
+/**
+ * @summary Accept invitation
+ */
+export const acceptSchoolInvitation = async (
+	schoolAcceptInput: SchoolAcceptInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<acceptSchoolInvitationResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<acceptSchoolInvitationResponse>(getAcceptSchoolInvitationUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAcceptInput)
+	});
+};
+
+export type activateSchoolStudentResponse200 = {
+	data: ActivateSchoolStudent200;
+	status: 200;
+};
+
+export type activateSchoolStudentResponse429 = {
+	data: SchoolRateLimitedResponse;
+	status: 429;
+};
+
+export type activateSchoolStudentResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200 | 429>;
+};
+
+export type activateSchoolStudentResponseSuccess = activateSchoolStudentResponse200 & {
+	headers: Headers;
+};
+export type activateSchoolStudentResponseError = (
+	activateSchoolStudentResponse429 | activateSchoolStudentResponseDefault
+) & {
+	headers: Headers;
+};
+
+export type activateSchoolStudentResponse =
+	activateSchoolStudentResponseSuccess | activateSchoolStudentResponseError;
+
+export const getActivateSchoolStudentUrl = () => {
+	return `/api/v1/public/school/activate`;
+};
+
+/**
+ * @summary Activate student by code
+ */
+export const activateSchoolStudent = async (
+	schoolActivateInput: SchoolActivateInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<activateSchoolStudentResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<activateSchoolStudentResponse>(getActivateSchoolStudentUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolActivateInput)
+	});
+};
+
+export type listPlatformPaymentsResponse200 = {
+	data: ListPlatformPayments200;
+	status: 200;
+};
+
+export type listPlatformPaymentsResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type listPlatformPaymentsResponseSuccess = listPlatformPaymentsResponse200 & {
+	headers: Headers;
+};
+export type listPlatformPaymentsResponseError = listPlatformPaymentsResponse403 & {
+	headers: Headers;
+};
+
+export type listPlatformPaymentsResponse =
+	listPlatformPaymentsResponseSuccess | listPlatformPaymentsResponseError;
+
+export const getListPlatformPaymentsUrl = (params?: ListPlatformPaymentsParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/platform/invoices/payments?${stringifiedParams}`
+		: `/api/v1/platform/invoices/payments`;
+};
+
+/**
+ * @summary Daftar pembayaran (verifikasi, semua, terverifikasi, ditolak)
+ */
+export const listPlatformPayments = async (
+	params?: ListPlatformPaymentsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPlatformPaymentsResponse> => {
+	return lmsFetch<listPlatformPaymentsResponse>(getListPlatformPaymentsUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type listUnpaidInvoicesResponse200 = {
+	data: ListUnpaidInvoices200;
+	status: 200;
+};
+
+export type listUnpaidInvoicesResponse403 = {
+	data: BillingErrorResponse;
+	status: 403;
+};
+
+export type listUnpaidInvoicesResponseSuccess = listUnpaidInvoicesResponse200 & {
+	headers: Headers;
+};
+export type listUnpaidInvoicesResponseError = listUnpaidInvoicesResponse403 & {
+	headers: Headers;
+};
+
+export type listUnpaidInvoicesResponse =
+	listUnpaidInvoicesResponseSuccess | listUnpaidInvoicesResponseError;
+
+export const getListUnpaidInvoicesUrl = () => {
+	return `/api/v1/platform/invoices/unpaid`;
+};
+
+/**
+ * @summary Invoice terbit dengan sisa tagihan (catat pembayaran manual)
+ */
+export const listUnpaidInvoices = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listUnpaidInvoicesResponse> => {
+	return lmsFetch<listUnpaidInvoicesResponse>(getListUnpaidInvoicesUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type checkInvoicePaymentMutationResponse200 = {
+	data: CheckInvoicePaymentMutation200;
+	status: 200;
+};
+
+export type checkInvoicePaymentMutationResponse404 = {
+	data: BillingErrorResponse;
+	status: 404;
+};
+
+export type checkInvoicePaymentMutationResponse409 = {
+	data: BillingErrorResponse;
+	status: 409;
+};
+
+export type checkInvoicePaymentMutationResponseSuccess = checkInvoicePaymentMutationResponse200 & {
+	headers: Headers;
+};
+export type checkInvoicePaymentMutationResponseError = (
+	checkInvoicePaymentMutationResponse404 | checkInvoicePaymentMutationResponse409
+) & {
+	headers: Headers;
+};
+
+export type checkInvoicePaymentMutationResponse =
+	checkInvoicePaymentMutationResponseSuccess | checkInvoicePaymentMutationResponseError;
+
+export const getCheckInvoicePaymentMutationUrl = (id: string, paymentID: string) => {
+	return `/api/v1/platform/invoices/${id}/payments/${paymentID}/mutation-check`;
+};
+
+/**
+ * @summary Tandai transfer sudah dicek di mutasi rekening
+ */
+export const checkInvoicePaymentMutation = async (
+	id: string,
+	paymentID: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<checkInvoicePaymentMutationResponse> => {
+	return lmsFetch<checkInvoicePaymentMutationResponse>(
+		getCheckInvoicePaymentMutationUrl(id, paymentID),
+		{
+			...options,
+			method: 'POST'
+		}
+	);
+};
+
+export type getSchoolActivationResponse200 = {
+	data: GetSchoolActivation200;
+	status: 200;
+};
+
+export type getSchoolActivationResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolActivationResponseSuccess = getSchoolActivationResponse200 & {
+	headers: Headers;
+};
+export type getSchoolActivationResponseError = getSchoolActivationResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolActivationResponse =
+	getSchoolActivationResponseSuccess | getSchoolActivationResponseError;
+
+export const getGetSchoolActivationUrl = () => {
+	return `/api/v1/school/subscription/activation`;
+};
+
+/**
+ * @summary Pilihan aktivasi trial → berbayar
+ */
+export const getSchoolActivation = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolActivationResponse> => {
+	return lmsFetch<getSchoolActivationResponse>(getGetSchoolActivationUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type activateSchoolSubscriptionResponse200 = {
+	data: ActivateSchoolSubscription200;
+	status: 200;
+};
+
+export type activateSchoolSubscriptionResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type activateSchoolSubscriptionResponseSuccess = activateSchoolSubscriptionResponse200 & {
+	headers: Headers;
+};
+export type activateSchoolSubscriptionResponseError = activateSchoolSubscriptionResponseDefault & {
+	headers: Headers;
+};
+
+export type activateSchoolSubscriptionResponse =
+	activateSchoolSubscriptionResponseSuccess | activateSchoolSubscriptionResponseError;
+
+export const getActivateSchoolSubscriptionUrl = () => {
+	return `/api/v1/school/subscription/activation`;
+};
+
+/**
+ * @summary Terbitkan invoice aktivasi tahunan
+ */
+export const activateSchoolSubscription = async (
+	schoolActivationInput: SchoolActivationInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<activateSchoolSubscriptionResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<activateSchoolSubscriptionResponse>(getActivateSchoolSubscriptionUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolActivationInput)
+	});
+};
+
+export type listPlatformClustersResponse200 = {
+	data: ListPlatformClusters200;
+	status: 200;
+};
+
+export type listPlatformClustersResponse403 = {
+	data: ClusterErrorResponse;
+	status: 403;
+};
+
+export type listPlatformClustersResponseSuccess = listPlatformClustersResponse200 & {
+	headers: Headers;
+};
+export type listPlatformClustersResponseError = listPlatformClustersResponse403 & {
+	headers: Headers;
+};
+
+export type listPlatformClustersResponse =
+	listPlatformClustersResponseSuccess | listPlatformClustersResponseError;
+
+export const getListPlatformClustersUrl = () => {
+	return `/api/v1/platform/clusters`;
+};
+
+/**
+ * @summary Tenant database clusters + active cluster regions (permission platform.cluster.manage)
+ */
+export const listPlatformClusters = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPlatformClustersResponse> => {
+	return lmsFetch<listPlatformClustersResponse>(getListPlatformClustersUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createPlatformClusterResponse200 = {
+	data: CreatePlatformCluster200;
+	status: 200;
+};
+
+export type createPlatformClusterResponse400 = {
+	data: ClusterErrorResponse;
+	status: 400;
+};
+
+export type createPlatformClusterResponse403 = {
+	data: ClusterErrorResponse;
+	status: 403;
+};
+
+export type createPlatformClusterResponse422 = {
+	data: ClusterErrorResponse;
+	status: 422;
+};
+
+export type createPlatformClusterResponseSuccess = createPlatformClusterResponse200 & {
+	headers: Headers;
+};
+export type createPlatformClusterResponseError = (
+	| createPlatformClusterResponse400
+	| createPlatformClusterResponse403
+	| createPlatformClusterResponse422
+) & {
+	headers: Headers;
+};
+
+export type createPlatformClusterResponse =
+	createPlatformClusterResponseSuccess | createPlatformClusterResponseError;
+
+export const getCreatePlatformClusterUrl = () => {
+	return `/api/v1/platform/clusters`;
+};
+
+/**
+ * @summary Create a cluster. The server re-runs a real connection test; failure = 422 connection_failed.
+ */
+export const createPlatformCluster = async (
+	clusterInput: ClusterInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createPlatformClusterResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createPlatformClusterResponse>(getCreatePlatformClusterUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(clusterInput)
+	});
+};
+
+export type testPlatformClusterConnectionResponse200 = {
+	data: TestPlatformClusterConnection200;
+	status: 200;
+};
+
+export type testPlatformClusterConnectionResponse400 = {
+	data: ClusterErrorResponse;
+	status: 400;
+};
+
+export type testPlatformClusterConnectionResponse403 = {
+	data: ClusterErrorResponse;
+	status: 403;
+};
+
+export type testPlatformClusterConnectionResponse404 = {
+	data: ClusterErrorResponse;
+	status: 404;
+};
+
+export type testPlatformClusterConnectionResponse422 = {
+	data: ClusterErrorResponse;
+	status: 422;
+};
+
+export type testPlatformClusterConnectionResponseSuccess =
+	testPlatformClusterConnectionResponse200 & {
+		headers: Headers;
+	};
+export type testPlatformClusterConnectionResponseError = (
+	| testPlatformClusterConnectionResponse400
+	| testPlatformClusterConnectionResponse403
+	| testPlatformClusterConnectionResponse404
+	| testPlatformClusterConnectionResponse422
+) & {
+	headers: Headers;
+};
+
+export type testPlatformClusterConnectionResponse =
+	testPlatformClusterConnectionResponseSuccess | testPlatformClusterConnectionResponseError;
+
+export const getTestPlatformClusterConnectionUrl = () => {
+	return `/api/v1/platform/clusters/test`;
+};
+
+/**
+ * @summary Real connection test (pgx, 5 s timeout, SHOW server_version). Connection failure is ok=false, not an HTTP error.
+ */
+export const testPlatformClusterConnection = async (
+	clusterTestInput: ClusterTestInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<testPlatformClusterConnectionResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<testPlatformClusterConnectionResponse>(getTestPlatformClusterConnectionUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(clusterTestInput)
+	});
+};
+
+export type updatePlatformClusterResponse200 = {
+	data: UpdatePlatformCluster200;
+	status: 200;
+};
+
+export type updatePlatformClusterResponse404 = {
+	data: ClusterErrorResponse;
+	status: 404;
+};
+
+export type updatePlatformClusterResponse422 = {
+	data: ClusterErrorResponse;
+	status: 422;
+};
+
+export type updatePlatformClusterResponseSuccess = updatePlatformClusterResponse200 & {
+	headers: Headers;
+};
+export type updatePlatformClusterResponseError = (
+	updatePlatformClusterResponse404 | updatePlatformClusterResponse422
+) & {
+	headers: Headers;
+};
+
+export type updatePlatformClusterResponse =
+	updatePlatformClusterResponseSuccess | updatePlatformClusterResponseError;
+
+export const getUpdatePlatformClusterUrl = (id: string) => {
+	return `/api/v1/platform/clusters/${id}`;
+};
+
+/**
+ * @summary Update a cluster (code is fixed; empty password = keep). Connection changes require a passing re-test.
+ */
+export const updatePlatformCluster = async (
+	id: string,
+	clusterInput: ClusterInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updatePlatformClusterResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updatePlatformClusterResponse>(getUpdatePlatformClusterUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(clusterInput)
+	});
+};
+
+export type listPlatformClusterDatabasesResponse200 = {
+	data: ListPlatformClusterDatabases200;
+	status: 200;
+};
+
+export type listPlatformClusterDatabasesResponse404 = {
+	data: ClusterErrorResponse;
+	status: 404;
+};
+
+export type listPlatformClusterDatabasesResponse503 = {
+	data: ClusterErrorResponse;
+	status: 503;
+};
+
+export type listPlatformClusterDatabasesResponseSuccess =
+	listPlatformClusterDatabasesResponse200 & {
+		headers: Headers;
+	};
+export type listPlatformClusterDatabasesResponseError = (
+	listPlatformClusterDatabasesResponse404 | listPlatformClusterDatabasesResponse503
+) & {
+	headers: Headers;
+};
+
+export type listPlatformClusterDatabasesResponse =
+	listPlatformClusterDatabasesResponseSuccess | listPlatformClusterDatabasesResponseError;
+
+export const getListPlatformClusterDatabasesUrl = (id: string) => {
+	return `/api/v1/platform/clusters/${id}/databases`;
+};
+
+/**
+ * @summary Tenant databases on the cluster with their size (largest first); connects to the cluster.
+ */
+export const listPlatformClusterDatabases = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPlatformClusterDatabasesResponse> => {
+	return lmsFetch<listPlatformClusterDatabasesResponse>(getListPlatformClusterDatabasesUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type listPlatformAuditResponse200 = {
+	data: ListPlatformAudit200;
+	status: 200;
+};
+
+export type listPlatformAuditResponse400 = {
+	data: AuditErrorResponse;
+	status: 400;
+};
+
+export type listPlatformAuditResponse403 = {
+	data: AuditErrorResponse;
+	status: 403;
+};
+
+export type listPlatformAuditResponseSuccess = listPlatformAuditResponse200 & {
+	headers: Headers;
+};
+export type listPlatformAuditResponseError = (
+	listPlatformAuditResponse400 | listPlatformAuditResponse403
+) & {
+	headers: Headers;
+};
+
+export type listPlatformAuditResponse =
+	listPlatformAuditResponseSuccess | listPlatformAuditResponseError;
+
+export const getListPlatformAuditUrl = (params?: ListPlatformAuditParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/platform/audit?${stringifiedParams}`
+		: `/api/v1/platform/audit`;
+};
+
+/**
+ * @summary Audit log platform (BR-23) dengan filter & cursor seq (permission platform.audit.view)
+ */
+export const listPlatformAudit = async (
+	params?: ListPlatformAuditParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPlatformAuditResponse> => {
+	return lmsFetch<listPlatformAuditResponse>(getListPlatformAuditUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type exportPlatformAuditResponse200 = {
+	data: string;
+	status: 200;
+};
+
+export type exportPlatformAuditResponse400 = {
+	data: AuditErrorResponse;
+	status: 400;
+};
+
+export type exportPlatformAuditResponse422 = {
+	data: AuditErrorResponse;
+	status: 422;
+};
+
+export type exportPlatformAuditResponseSuccess = exportPlatformAuditResponse200 & {
+	headers: Headers;
+};
+export type exportPlatformAuditResponseError = (
+	exportPlatformAuditResponse400 | exportPlatformAuditResponse422
+) & {
+	headers: Headers;
+};
+
+export type exportPlatformAuditResponse =
+	exportPlatformAuditResponseSuccess | exportPlatformAuditResponseError;
+
+export const getExportPlatformAuditUrl = (params?: ExportPlatformAuditParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/platform/audit/export?${stringifiedParams}`
+		: `/api/v1/platform/audit/export`;
+};
+
+/**
+ * @summary Ekspor CSV (UTF-8 BOM) sesuai filter, maks 50.000 baris; mencatat audit.export
+ */
+export const exportPlatformAudit = async (
+	params?: ExportPlatformAuditParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<exportPlatformAuditResponse> => {
+	return lmsFetch<exportPlatformAuditResponse>(getExportPlatformAuditUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type verifyPlatformAuditResponse200 = {
+	data: VerifyPlatformAudit200;
+	status: 200;
+};
+
+export type verifyPlatformAuditResponse403 = {
+	data: AuditErrorResponse;
+	status: 403;
+};
+
+export type verifyPlatformAuditResponseSuccess = verifyPlatformAuditResponse200 & {
+	headers: Headers;
+};
+export type verifyPlatformAuditResponseError = verifyPlatformAuditResponse403 & {
+	headers: Headers;
+};
+
+export type verifyPlatformAuditResponse =
+	verifyPlatformAuditResponseSuccess | verifyPlatformAuditResponseError;
+
+export const getVerifyPlatformAuditUrl = () => {
+	return `/api/v1/platform/audit/verify`;
+};
+
+/**
+ * @summary Verifikasi rantai hash audit dari jangkar retensi sampai kepala rantai
+ */
+export const verifyPlatformAudit = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<verifyPlatformAuditResponse> => {
+	return lmsFetch<verifyPlatformAuditResponse>(getVerifyPlatformAuditUrl(), {
+		...options,
+		method: 'GET'
 	});
 };

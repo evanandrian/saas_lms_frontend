@@ -145,6 +145,7 @@
 				name: greeting
 			})}
 			description={child.headline}
+			help="help.guardian_dashboard"
 		>
 			{#snippet actions()}
 				<div

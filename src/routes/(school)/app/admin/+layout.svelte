@@ -16,6 +16,7 @@
 	import FileText from '@lucide/svelte/icons/file-text';
 	import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 	import HeartHandshake from '@lucide/svelte/icons/heart-handshake';
+	import History from '@lucide/svelte/icons/history';
 	import House from '@lucide/svelte/icons/house';
 	import Inbox from '@lucide/svelte/icons/inbox';
 	import Megaphone from '@lucide/svelte/icons/megaphone';
@@ -32,7 +33,7 @@
 	const isPrincipalView = $derived(data.activeView === 'principal');
 	const approvalsBadge = $derived(data.pendingApprovals ?? undefined);
 
-	// Arsitektur informasi area (referensi FE-04). Item tanpa href = halaman belum dibangun.
+	// Arsitektur informasi area (referensi v4 05a–05h). Langganan menggabungkan paket, kursi, dan tagihan.
 	const schoolNav: WorkspaceNavItem[] = $derived([
 		{ label: i18n.t('nav.school.home'), icon: House, href: APP_PATHS.SCHOOL_ADMIN_HOME },
 		{
@@ -41,18 +42,39 @@
 			href: APP_PATHS.SCHOOL_ADMIN_APPROVALS,
 			badge: approvalsBadge
 		},
-		{ label: i18n.t('nav.school.academic_years'), icon: CalendarRange },
-		{ label: i18n.t('nav.school.classes'), icon: School },
-		{ label: i18n.t('nav.school.teachers'), icon: Users },
-		{ label: i18n.t('nav.school.students'), icon: GraduationCap },
-		{ label: i18n.t('nav.school.guardians'), icon: HeartHandshake },
-		{ label: i18n.t('nav.school.attendance'), icon: CalendarCheck },
-		{ label: i18n.t('nav.school.report_cards'), icon: FileText },
+		{
+			label: i18n.t('nav.school.academic_years'),
+			icon: CalendarRange,
+			href: APP_PATHS.SCHOOL_ADMIN_YEARS
+		},
+		{ label: i18n.t('nav.school.classes'), icon: School, href: APP_PATHS.SCHOOL_ADMIN_CLASSES },
+		{ label: i18n.t('nav.school.teachers'), icon: Users, href: APP_PATHS.SCHOOL_ADMIN_TEACHERS },
+		{
+			label: i18n.t('nav.school.students'),
+			icon: GraduationCap,
+			href: APP_PATHS.SCHOOL_ADMIN_STUDENTS
+		},
+		{
+			label: i18n.t('nav.school.guardians'),
+			icon: HeartHandshake,
+			href: APP_PATHS.SCHOOL_ADMIN_GUARDIANS
+		},
+		{
+			label: i18n.t('nav.school.attendance'),
+			icon: CalendarCheck,
+			href: APP_PATHS.SCHOOL_ADMIN_ATTENDANCE
+		},
+		{
+			label: i18n.t('nav.school.report_cards'),
+			icon: FileText,
+			href: APP_PATHS.SCHOOL_ADMIN_REPORTS
+		},
 		{
 			label: i18n.t('nav.school.subscription'),
 			icon: CreditCard,
-			href: APP_PATHS.SCHOOL_ADMIN_BILLING
+			href: APP_PATHS.SCHOOL_ADMIN_SUBSCRIPTION
 		},
+		{ label: i18n.t('nav.school.audit'), icon: History, href: APP_PATHS.SCHOOL_ADMIN_AUDIT },
 		{ label: i18n.t('nav.school.settings'), icon: Settings, href: APP_PATHS.SCHOOL_ADMIN_ACCOUNT }
 	]);
 
@@ -69,7 +91,11 @@
 		{ label: i18n.t('nav.principal.attendance'), icon: CalendarCheck, ...section('presensi') },
 		{ label: i18n.t('nav.principal.reports'), icon: ChartColumn, ...section('laporan') },
 		{ label: i18n.t('nav.principal.classes'), icon: School, ...section('kelas') },
-		{ label: i18n.t('nav.principal.report_cards'), icon: FileText, ...section('rapor') },
+		{
+			label: i18n.t('nav.principal.report_cards'),
+			icon: FileText,
+			href: APP_PATHS.SCHOOL_ADMIN_REPORTS
+		},
 		{ label: i18n.t('nav.principal.teachers'), icon: Users, ...section('guru') },
 		{ label: i18n.t('nav.principal.students'), icon: GraduationCap, ...section('murid') },
 		{ label: i18n.t('nav.principal.announcements'), icon: Megaphone, ...section('pengumuman') },

@@ -167,6 +167,7 @@
 				pending: gradeLeft
 			})}
 			watermark="top"
+			help="help.teacher_dashboard"
 		>
 			{#snippet eyebrowTrail()}
 				<span class="font-mono">{formatHourMinute(nowSeconds)} WIB</span>

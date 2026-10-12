@@ -12,6 +12,21 @@ const usage = (entity: MasterRecord['usage'][number]['entity'], count: number) =
 ];
 
 export const masterDataFixture: Record<MasterKind, MasterRecord[]> = {
+	// Cermin seed migration `20231012000017_db_cluster_management.sql`.
+	cluster_region: [
+		{ ...base, code: 'jakarta-3a', name: 'Jakarta', zone: 'ap-southeast-3a', sort_order: 1 },
+		{ ...base, code: 'jakarta-3b', name: 'Jakarta', zone: 'ap-southeast-3b', sort_order: 2 },
+		{ ...base, code: 'surabaya', name: 'Surabaya', zone: 'id-east-1', sort_order: 3 },
+		{
+			...base,
+			code: 'singapore',
+			name: 'Singapura',
+			zone: 'ap-southeast-1',
+			outside_indonesia: true,
+			sort_order: 4
+		},
+		{ ...base, code: 'local', name: 'Lokal', zone: 'localhost', sort_order: 99 }
+	],
 	institution: [
 		{
 			...base,

@@ -16,7 +16,10 @@
 			"forbidden_title": "Access denied",
 			"forbidden_description": "You do not have permission to open this page.",
 			"unexpected_title": "Something went wrong",
-			"unexpected_description": "An unexpected error occurred. Please try again."
+			"unexpected_description": "An unexpected error occurred. Please try again.",
+			"maintenance_title": "Under maintenance",
+			"maintenance_description": "Your school database is undergoing scheduled maintenance. Your data is safe; try again in a few minutes.",
+			"maintenance_retry": "Try again"
 		},
 		"workspace": {
 			"open_navigation": "Open navigation",
@@ -57,6 +60,15 @@
 			"busy": "Closing session…",
 			"cancel": "Cancel",
 			"key_hint": "ESC to cancel · ENTER to sign out"
+		},
+		"page_help": {
+			"open": "{title} page guide",
+			"eyebrow": "PAGE GUIDE",
+			"close": "Close guide",
+			"purpose": "Page purpose",
+			"features": "What you can do",
+			"steps": "How to use",
+			"tips": "Important notes"
 		}
 	},
 	"auth": {
@@ -66,7 +78,7 @@
 			"subtitle": "Sign in with your institution account. Your role is recognized automatically.",
 			"google": "Sign in with Google",
 			"or_email": "or with email",
-			"email": "Email",
+			"email": "Email or username",
 			"password": "Password",
 			"remember": "Remember me on this device",
 			"submit": "Sign in",
@@ -339,7 +351,8 @@
 			"subscription": "Subscription",
 			"settings": "Settings",
 			"search": "Search classes, teachers, students…",
-			"approvals": "Approvals"
+			"approvals": "Approvals",
+			"audit": "Change history"
 		},
 		"teacher": {
 			"area": "Teacher Workspace",
@@ -353,7 +366,8 @@
 			"messages": "Messages",
 			"settings": "Settings",
 			"search": "Search classes, students, materials…",
-			"billing": "Billing"
+			"billing": "Billing",
+			"grades": "Final grades"
 		},
 		"student": {
 			"area": "Learning Space",
@@ -405,7 +419,8 @@
 			"behavior": "Behavior notes",
 			"settings": "Settings",
 			"search": "Search {class} students, messages…",
-			"search_any": "Search students, messages…"
+			"search_any": "Search students, messages…",
+			"final_grades": "Subject final grades"
 		}
 	},
 	"brand": {
@@ -830,7 +845,13 @@
 			"agenda_announcements": "Agenda & announcements",
 			"tab_agenda": "Agenda",
 			"tab_announcements": "Announcements",
-			"announcements_by_admin": "Announcements are created by the school admin."
+			"announcements_by_admin": "Announcements are created by the school admin.",
+			"report_approval_live_hint": "{count} classes · Semester {term} · {year}",
+			"report_row_detail": "Homeroom teacher {name} · {count} students",
+			"report_ready_lock": "Ready to lock",
+			"report_none": "No report cards are awaiting your decision.",
+			"report_unavailable": "Report card data could not be loaded. Try reloading the page.",
+			"report_unavailable_short": "Report card data unavailable"
 		},
 		"homeroom": {
 			"eyebrow": "Homeroom {class} · {count} students",
@@ -920,17 +941,14 @@
 			"subject_reminded": "Reminded",
 			"subject_pending": "Not final",
 			"toast_remind": "Reminder sent to {name}. Scores are finalized in 3 seconds.",
-			"toast_finalized": "{subject} scores finalized by {name}.",
 			"homeroom_notes": "Homeroom notes · {done}/{total}",
 			"draft_notes": "Draft notes",
-			"toast_draft": "Homeroom note drafts created for {count} students. Edit them if needed.",
 			"attendance_recap_auto": "Attendance recap · automatic from attendance",
 			"report_msg_pending": "Waiting for the principal's decision. Limit is 3 working days.",
 			"report_msg_ready": "All components are complete. The report card is ready to submit.",
 			"report_msg_incomplete": "Complete all subject scores and homeroom notes before submitting.",
 			"report_submit": "Submit to the principal",
 			"report_submitted": "Submitted",
-			"toast_report": "{class} report card submitted to the principal.",
 			"schedule": "{class} lesson schedule",
 			"now": "Now",
 			"behavior": "Behavior & counseling notes",
@@ -1205,6 +1223,11 @@
 				"name": "Notification templates",
 				"sub": "System messages",
 				"desc": "Automatic messages with variables, filled with real data when sent."
+			},
+			"cluster_region": {
+				"name": "DB cluster regions",
+				"sub": "Database cluster locations",
+				"desc": "Used by the DB Cluster page for cluster locations and the PDP warning when data is outside Indonesia."
 			}
 		},
 		"fields": {
@@ -1304,6 +1327,21 @@
 				"channels": "Channels",
 				"subject": "Title",
 				"body": "Message body"
+			},
+			"cluster_region": {
+				"name": "Region name",
+				"name_ph": "Jakarta",
+				"code": "Code",
+				"code_ph": "jakarta-3a",
+				"code_help": "Lowercase letters, digits, or - (2–30).",
+				"zone": "Zone",
+				"zone_ph": "ap-southeast-3a",
+				"zone_help": "Shown next to the name, e.g. \"Jakarta · ap-southeast-3a\".",
+				"sort_order": "Order",
+				"sort_order_help": "Sets the order in the DB Cluster region list.",
+				"outside_indonesia": "Data location",
+				"outside_indonesia_on": "Data is stored outside Indonesia",
+				"outside_indonesia_help": "Clusters in this region show a school PDP policy warning."
 			}
 		},
 		"status": {
@@ -1340,7 +1378,8 @@
 			"database": "an active tenant database",
 			"session": "{count} sign-in sessions",
 			"grant": "{count} grants",
-			"self": "your own account"
+			"self": "your own account",
+			"cluster": "{count} DB clusters"
 		},
 		"errors": {
 			"required": "Required.",
@@ -1357,7 +1396,8 @@
 			"year_name": "Use two consecutive years, e.g. 2026/2027.",
 			"end_date": "Must be after the start date.",
 			"current_active": "The current period must be Active.",
-			"unknown_vars": "Unknown variables: {other}"
+			"unknown_vars": "Unknown variables: {other}",
+			"code_region": "Lowercase letters, digits, or - (2–30). Example: jakarta-3a"
 		},
 		"panel": {
 			"new_eyebrow": "NEW DATA",
@@ -3377,7 +3417,9 @@
 			"discount": "Discount",
 			"vat": "VAT 11%",
 			"no_vat": "Not charged",
-			"total": "Total"
+			"total": "Total",
+			"paid": "Paid",
+			"remaining": "Remaining"
 		},
 		"err": {
 			"tenant": "Choose the tenant to bill.",
@@ -3435,7 +3477,8 @@
 			"status_succeeded": "Succeeded",
 			"status_failed": "Rejected",
 			"status_expired": "Expired",
-			"status_refunded": "Refunded"
+			"status_refunded": "Refunded",
+			"manual_channel": "Recorded manually · {channel}"
 		},
 		"toast": {
 			"saved": "Draft saved.",
@@ -3459,7 +3502,8 @@
 			"min_length": "The reason needs at least 5 characters.",
 			"forbidden": "You are not allowed to do this.",
 			"no_context": "Your account has no billing access.",
-			"generic": "The request could not be processed. Please try again."
+			"generic": "The request could not be processed. Please try again.",
+			"invoice_partially_paid": "The invoice has already received a payment, so it cannot be cancelled."
 		},
 		"paper": {
 			"label": "Invoice {number}",
@@ -3511,7 +3555,15 @@
 			"pick": "Choose proof file",
 			"file_hint": "PDF, PNG, or JPG, max 5 MB",
 			"file_invalid": "The file must be PDF, PNG, or JPG, max 5 MB.",
-			"proof_required": "Upload the transfer proof."
+			"proof_required": "Upload the transfer proof.",
+			"pay_full": "Pay in full",
+			"amount_invalid": "Enter an amount between 1 and the remaining {remaining}.",
+			"amount_full": "Paid in full once this payment is accepted.",
+			"amount_partial": "Partial payment · {left} left after this.",
+			"sender_required": "Enter the sender bank & name (min. 3 characters).",
+			"reference_required": "Enter the reference number (min. 4 characters).",
+			"mutation_checked": "Checked against the bank statement",
+			"mutation_checked_hint": "The transfer proof may be left empty; your name and the time are recorded."
 		},
 		"settings": {
 			"title": "Invoice issuer settings",
@@ -3584,7 +3636,3015 @@
 				"paid": "Payment received. Thank you!",
 				"not_yet": "Payment not received yet. Try again after paying.",
 				"sent": "Transfer proof sent and awaiting verification."
+			},
+			"partial_status": "Paid {paid} · {remaining} remaining"
+		}
+	},
+	"school_admin": {
+		"common": {
+			"all": "All",
+			"search": "Search",
+			"filter": "Filter",
+			"import": "Import Excel/CSV",
+			"import_from": "Import from Excel/CSV",
+			"save": "Save",
+			"cancel": "Cancel",
+			"close": "Close",
+			"delete": "Delete",
+			"deleting": "Deleting…",
+			"edit": "EDIT",
+			"new": "NEW",
+			"added": "Record added",
+			"saved": "Changes saved",
+			"deleted": "Record deleted",
+			"imported": "{count} rows imported",
+			"required_hint": "Fields marked * are required.",
+			"check_fields": "Check the highlighted fields.",
+			"no_match": "No records match the filter.",
+			"empty_import": "No data yet. Import from Excel/CSV to go faster.",
+			"shown": "{count} records shown",
+			"load_failed": "Data could not be loaded",
+			"not_set": "Not assigned",
+			"not_set_option": "— Not assigned —",
+			"class_of": "Class {class}",
+			"active": "Active",
+			"inactive": "Inactive",
+			"yes": "Yes",
+			"no": "No",
+			"delete_message": "Records can only be deleted when they have no history. If already used, deactivate them to keep history intact."
+		},
+		"failure": {
+			"unauthenticated": "Your session ended. Please sign in again.",
+			"forbidden": "This account has no school admin access.",
+			"not_found": "Data not found.",
+			"conflict": "Data cannot be processed right now. Reload the page.",
+			"validation": "Invalid request.",
+			"gone": "The link is no longer valid.",
+			"too_many": "Too many requests. Try again shortly.",
+			"unavailable": "Service is unavailable. Try again in a moment.",
+			"null": "Service is unavailable. Try again in a moment."
+		},
+		"errors": {
+			"generic": "Data could not be saved. Check the fields and try again.",
+			"required": "Required.",
+			"invalid": "Invalid value.",
+			"invalid_request": "Invalid request.",
+			"too_long": "Too long.",
+			"number": "Must be a number.",
+			"email_format": "Invalid email format.",
+			"email_taken": "Email is already registered.",
+			"email_locked": "The email of an invited/active account cannot be changed here.",
+			"nip_format": "NIP must be 18 digits or NUPTK 16 digits.",
+			"nip_taken": "NIP/NUPTK is already used.",
+			"principal_nip": "Principal NIP must be 18 digits.",
+			"phone_format": "Invalid phone number.",
+			"nis_format": "NIS must be 4–20 digits.",
+			"nis_taken": "NIS is already registered.",
+			"nis_not_found": "NIS not found.",
+			"nisn_format": "NISN must be 10 digits.",
+			"nisn_taken": "NISN is already registered.",
+			"nik_format": "NIK must be 16 digits.",
+			"gender": "Use L or P.",
+			"date_invalid": "Invalid date.",
+			"date_format": "Use YYYY-MM-DD.",
+			"religion_unknown": "Unknown religion code.",
+			"address_short": "Address needs at least 8 characters.",
+			"address_min": "Address needs at least 8 characters.",
+			"year_format": "Use YYYY/YYYY.",
+			"year_exists": "Academic year already exists.",
+			"year_required": "Set an active academic year first.",
+			"end_after_start": "Must be after the start date.",
+			"semester_order": "Semester dates must be in order.",
+			"keep_one_active": "There must be one active academic year. Activate another year first.",
+			"semester_required": "There is no active semester.",
+			"class_exists": "Class name is already used.",
+			"class_not_found": "Class does not exist.",
+			"capacity_range": "Must be 1–60.",
+			"homeroom_taken": "This teacher is already a homeroom teacher of another class.",
+			"grade_not_in_level": "Grade is not part of the school level.",
+			"rombel_required": "Create at least one class.",
+			"subjects_required": "Select at least one subject.",
+			"code_format": "Letters/digits only, 2–20.",
+			"code_invalid": "Invalid code.",
+			"code_taken": "Code is already used.",
+			"kktp_range": "Must be 0–100.",
+			"teacher_invalid": "Teacher is invalid or inactive.",
+			"assignment_required": "This class has no assignment for that subject.",
+			"schedule_clash": "Clash: the teacher teaches {value} at this time.",
+			"period_invalid": "Invalid day/period.",
+			"period_order": "Periods must be ordered and not overlap.",
+			"too_many": "Exceeds the limit.",
+			"objective_length": "Write a 10–500 character objective.",
+			"objective_exists": "Learning objective already exists.",
+			"weight_range": "Weight 0–100; formative 0%.",
+			"weight_total_100": "Total weight must be 100%.",
+			"assessment_in_use": "Assessment type is used by grades and cannot be removed.",
+			"extra_exists": "Activity already exists.",
+			"not_in_class": "Student is not in this class.",
+			"all_students_required": "Fill attendance for every student in the class.",
+			"date_out_of_semester": "Date must be within the active semester and not in the future.",
+			"holiday": "Holiday (Sunday).",
+			"remind_cooldown": "A reminder was just sent. Try again in an hour.",
+			"all_filled": "All classes have filled attendance.",
+			"no_homeroom_contact": "Homeroom teacher is not assigned or has no email.",
+			"seats_range": "Seats must be 1–2,000.",
+			"password_weak": "Password needs at least 8 characters without leading/trailing spaces.",
+			"logo_invalid": "Logo must be PNG/JPG up to 1 MB.",
+			"file_empty": "The file is empty.",
+			"file_too_large": "File exceeds 5 MB. Split it into several files.",
+			"file_format": "Unsupported format. Use .xlsx or .csv.",
+			"file_unreadable": "The file cannot be read. Make sure it is .xlsx or .csv.",
+			"file_no_rows": "There are no data rows below the column names.",
+			"too_many_rows": "Maximum 2,000 rows per file.",
+			"missing_columns": "Required columns not found: {value}. Use the latest template.",
+			"dup_in_file": "Duplicate in file.",
+			"over_seats": "Exceeds seats.",
+			"guardian_name_required": "Name is required when contact is filled.",
+			"primary_invalid": "Use AYAH, IBU, or WALI.",
+			"primary_empty": "Primary contact data is empty.",
+			"relation_invalid": "Use AYAH, IBU, or WALI.",
+			"yes_no": "Use YA or TIDAK.",
+			"quota_students_exceeded": "Student seats are full. Add seats in Subscription.",
+			"validation_failed": "Some fields are not valid. Check the highlighted data.",
+			"not_found": "Data not found.",
+			"in_use": "Data is still used (history/account) and cannot be deleted. Deactivate it instead.",
+			"invalid_transition": "This action is not allowed in the current state.",
+			"invitation_invalid": "The link or code is no longer valid.",
+			"forbidden": "This account has no access.",
+			"not_ready": "The school workspace is not ready.",
+			"internal_error": "A server error occurred. Try again.",
+			"unavailable": "Service is unavailable.",
+			"seats_below_min": "At least {value} seats (active students/plan minimum).",
+			"reason_length": "Reason must be 10–500 characters.",
+			"tenant_maintenance": "The school database is under maintenance. Try again in a few minutes.",
+			"tenant_read_only": "The school is read-only until the subscription is paid. Data can still be viewed but not changed.",
+			"tenant_terminated": "The school subscription has been terminated. Contact the FLIXARE team to reactivate it.",
+			"invoice_partially_paid": "The previous activation invoice has already received a payment, so it cannot be replaced. Settle that invoice or contact the FLIXARE team.",
+			"duplicate_no": "Duplicate import row numbers. Upload the file again and retry.",
+			"rate_limited": "Too many attempts. Try again in {minutes} minutes.",
+			"rate_limited_later": "Too many attempts. Try again in a moment."
+		},
+		"gap": {
+			"title": "{section} is incomplete.",
+			"action": "Complete"
+		},
+		"account": {
+			"active": "Active",
+			"invited": "Invited",
+			"not_invited": "Not invited",
+			"inactive": "Inactive",
+			"status_label": "Account status: {status}",
+			"note_active": "Already signed in to FLIXARE.",
+			"note_invited": "The link is valid for 72 hours and single use. Resend if it expires.",
+			"note_inactive": "Record is inactive; account access is closed.",
+			"note_code": "No email: a username + activation code will be created.",
+			"note_no_email": "No email: cannot be invited to the portal.",
+			"note_not_invited": "Invitation not sent yet.",
+			"send": "Send invitation",
+			"resend": "Resend",
+			"reset": "Reset access"
+		},
+		"invite": {
+			"result": "Invitations processed: {sent} sent, {linked} linked to existing accounts, {skipped} skipped."
+		},
+		"codes": {
+			"title": "{count} student activation codes",
+			"note": "Shown only once. Share with students; activate at {path} with the username and code (valid for 72 hours).",
+			"copy": "Copy all",
+			"copied": "Copied",
+			"copy_header": "Activate your FLIXARE account at {url} (name · username · code):",
+			"name": "NAME",
+			"username": "USERNAME",
+			"code": "CODE"
+		},
+		"fields": {
+			"full_name": "Full name",
+			"nip": "NIP / NUPTK",
+			"gender": "Gender",
+			"email": "Email",
+			"phone": "Phone",
+			"encrypted": "Stored encrypted.",
+			"status": "Status",
+			"grade": "Grade",
+			"class_name": "Class name",
+			"capacity": "Capacity",
+			"homeroom": "Homeroom teacher",
+			"year_name": "Academic year name",
+			"start": "Start",
+			"end": "End",
+			"birth_date": "Date of birth",
+			"class": "Class",
+			"religion": "Religion",
+			"student_email": "Student email",
+			"address": "Address",
+			"relation": "Relationship",
+			"child": "Child",
+			"nis": "NIS",
+			"nisn": "NISN"
+		},
+		"gender": {
+			"L": "Male",
+			"P": "Female"
+		},
+		"relation": {
+			"father": "Father",
+			"mother": "Mother",
+			"guardian": "Guardian"
+		},
+		"weekday": {
+			"1": "MON",
+			"2": "TUE",
+			"3": "WED",
+			"4": "THU",
+			"5": "FRI",
+			"6": "SAT"
+		},
+		"attendance_status": {
+			"present": "Present",
+			"sick": "Sick",
+			"permit": "Excused",
+			"absent": "Absent"
+		},
+		"teachers": {
+			"eyebrow": "PEOPLE · TEACHER_M",
+			"title": "Teachers",
+			"desc": "Teacher data, accounts, and teaching assignments. New teachers can sign in after accepting the invitation.",
+			"add": "Add teacher",
+			"search": "Search name, email, or NIP",
+			"stat_total": "Teachers",
+			"stat_active": "Active accounts",
+			"stat_invited": "Invited",
+			"stat_not_invited": "Not invited",
+			"head_teacher": "TEACHER",
+			"head_email": "EMAIL",
+			"head_teaching": "TEACHING",
+			"head_account": "ACCOUNT",
+			"no_nip": "NIP not filled",
+			"assignments": "{count} assignments",
+			"no_assignments": "No assignments yet",
+			"homeroom_of": "Homeroom {class}",
+			"bulk_text": "{count} teachers have not received an account invitation.",
+			"bulk_action": "Invite {count} teachers",
+			"name_ph": "Including titles",
+			"nip_ph": "18 or 16 digits",
+			"email_ph": "name@school.sch.id",
+			"email_note": "Used for invitations and sign-in.",
+			"inactive_note": "Inactive teachers cannot sign in; teaching history is kept.",
+			"assignment_list": "TEACHING ASSIGNMENTS · {count}",
+			"delete_title": "Delete teacher?"
+		},
+		"classes": {
+			"eyebrow": "ACADEMIC · CLASS_M",
+			"title": "Classes",
+			"desc": "Study groups for academic year {year} and their homeroom teachers.",
+			"add": "Add class",
+			"search": "Search class name",
+			"stat_classes": "Classes",
+			"grades_count": "{count} grades",
+			"stat_no_homeroom": "Without homeroom",
+			"stat_students": "Enrolled students",
+			"grade_tab": "Grade {grade}",
+			"tab_no_homeroom": "No homeroom",
+			"code": "Grade {grade} · Phase {phase}",
+			"status_no_homeroom": "No homeroom",
+			"status_full": "Full",
+			"status_complete": "Complete",
+			"head_class": "CLASS",
+			"head_homeroom": "HOMEROOM",
+			"head_capacity": "STUDENTS / CAPACITY",
+			"head_status": "STATUS",
+			"gap_why": "Every class needs a homeroom teacher for attendance and report cards.",
+			"no_year_title": "No active academic year",
+			"no_year_desc": "Classes are created in the active academic year. Set the academic year first.",
+			"go_years": "Set academic year",
+			"grade_option": "Grade {grade} · Phase {phase}",
+			"homeroom_note": "A teacher can be homeroom of only one class per year.",
+			"students_count": "{count} students",
+			"student_list": "STUDENTS IN THIS CLASS · {count}",
+			"no_students": "No students yet.",
+			"delete_title": "Delete class?",
+			"delete_message": "A class can only be deleted when it has no students, attendance, or report cards."
+		},
+		"years": {
+			"eyebrow": "ACADEMIC · ACADEMIC_YEAR_M",
+			"title": "Academic years",
+			"desc": "Only one academic year and one semester are active. Classes, grades, attendance, and report cards are tied to the active year.",
+			"add": "Add academic year",
+			"search": "Search academic year",
+			"stat_active": "Active academic year",
+			"stat_term": "Active semester",
+			"stat_classes": "Classes this year",
+			"term_odd": "Odd",
+			"term_even": "Even",
+			"classes_count": "{count} classes",
+			"term_until": "{term} · until {date}",
+			"status_active": "Active",
+			"status_archived": "Archived",
+			"status_upcoming": "Upcoming",
+			"head_year": "ACADEMIC YEAR",
+			"head_period": "PERIOD",
+			"head_term": "ACTIVE SEMESTER",
+			"head_status": "STATUS",
+			"empty": "No academic years yet.",
+			"foot": "The active academic year cannot be deleted.",
+			"active_note": "Activating this year deactivates the others.",
+			"s1_start": "Odd semester start",
+			"s1_end": "Odd semester end",
+			"s2_start": "Even semester start",
+			"s2_end": "Even semester end",
+			"active_term": "Active semester",
+			"copy": "Copy classes from the active year",
+			"copy_yes": "Yes, copy names & grades",
+			"copy_no": "No",
+			"copy_note": "Students are not copied; promotion is done separately.",
+			"delete_title": "Delete academic year?",
+			"delete_message": "Only inactive academic years without classes can be deleted."
+		},
+		"students": {
+			"eyebrow": "PEOPLE · STUDENT_M",
+			"title": "Students",
+			"desc": "Active students count against subscription seats. Parent data can be imported in the same file.",
+			"add": "Add student",
+			"search": "Search name, NIS, or NISN",
+			"stat_seats": "Seats used",
+			"no_seat_limit": "No seat limit yet",
+			"stat_no_guardian": "Without parents",
+			"stat_active": "Active accounts",
+			"stat_not_invited": "Not invited",
+			"tab_no_guardian": "Without parents",
+			"head_student": "STUDENT",
+			"head_class": "CLASS",
+			"head_guardian": "PARENTS",
+			"head_account": "ACCOUNT",
+			"no_class": "Not in a class",
+			"no_guardian": "Not linked",
+			"bulk_text": "{count} students have not been invited. Students without email get a username + activation code.",
+			"bulk_action": "Invite {count} students",
+			"limit_note": "(max {limit}, narrow with filters)",
+			"class_filter": "Class filter",
+			"all_classes": "All classes",
+			"seat_full": "Seats are full ({seats}). New students are rejected until seats are added.",
+			"add_seats": "Add seats",
+			"nisn_ph": "10 digits",
+			"email_note": "Optional. Leave empty → the account uses a username + activation code.",
+			"inactive_note": "Inactive students do not count as seats and cannot sign in.",
+			"guardian_list": "LINKED PARENTS",
+			"no_guardian_hint": "No parents yet.",
+			"add_guardian": "Add parent",
+			"username": "Username: {username}",
+			"seats_applied": "{count} seats added",
+			"seats_invoiced": "Prorated invoice issued. Seats activate once paid.",
+			"delete_title": "Delete student?",
+			"delete_message": "A student can only be deleted without attendance, grades, or report cards. Otherwise, deactivate.",
+			"code_nis": "NIS {nis}",
+			"code_nis_nisn": "NIS {nis} · NISN {nisn}"
+		},
+		"guardians": {
+			"eyebrow": "PEOPLE · GUARDIAN_M",
+			"title": "Parents",
+			"desc": "Parents/guardians linked to students. Portal access covers linked children only.",
+			"add": "Add parent",
+			"search": "Search name, email, or child name",
+			"stat_total": "Parents/guardians",
+			"stat_linked": "Linked students",
+			"stat_no_email": "Without email",
+			"no_email_sub": "Cannot be invited to the portal",
+			"tab_primary": "Primary contact",
+			"tab_no_email": "No email",
+			"head_guardian": "PARENT",
+			"head_children": "CHILDREN",
+			"head_contact": "CONTACT",
+			"head_account": "ACCOUNT",
+			"primary": "primary contact",
+			"no_contact": "No contact",
+			"bulk_text": "{count} parents have an email but are not invited yet.",
+			"bulk_action": "Invite {count} parents",
+			"email_note": "For the parent portal invitation.",
+			"link_child": "Link to child",
+			"link_note": "Saving with another child adds a new link.",
+			"linked": "linked",
+			"primary_label": "Primary contact",
+			"primary_note": "One primary contact per student.",
+			"children_list": "LINKED CHILDREN",
+			"unlink": "Unlink {name}",
+			"unlinked": "Link removed",
+			"delete_title": "Delete parent?"
+		},
+		"attendance": {
+			"eyebrow": "ATTENDANCE · ATTENDANCE_T",
+			"title": "Attendance",
+			"desc": "Monitor which classes have filled attendance, and the semester summary.",
+			"holiday": "Holiday",
+			"sunday": "Sunday",
+			"stat_filled": "Classes filled",
+			"stat_presence": "Presence",
+			"stat_sick_permit": "Sick · Excused",
+			"stat_absent": "Absent",
+			"stat_term": "Semester",
+			"term_range": "{from} – today · {days} school days",
+			"stat_avg": "Average presence",
+			"stat_risk": "Students absent ≥ {days} days",
+			"risk_sub": "Needs homeroom follow-up",
+			"mode": "Attendance mode",
+			"tab_day": "Daily",
+			"tab_semester": "Semester summary",
+			"prev_day": "Previous day",
+			"next_day": "Next day",
+			"today": "Today",
+			"monitor_only": "Monitor only · filled by homeroom teachers",
+			"unfilled": "{count} classes have not filled attendance:",
+			"remind": "Remind homeroom teachers",
+			"reminded_label": "Reminder sent",
+			"reminded": "Reminder sent to {count} homeroom teachers.",
+			"reminded_no_homeroom": "{count} classes have no homeroom teacher yet.",
+			"reminded_no_contact": "{count} homeroom teachers have no email address.",
+			"head_class": "CLASS",
+			"head_present": "PRESENT",
+			"head_days": "DAYS FILLED",
+			"head_sick": "SICK",
+			"head_permit": "EXCUSED",
+			"head_absent": "ABSENT",
+			"head_presence": "PRESENCE",
+			"head_avg": "AVERAGE PRESENCE",
+			"no_homeroom": "Homeroom teacher not assigned",
+			"not_filled": "Not yet",
+			"no_classes": "No classes in the active academic year.",
+			"foot": "One record per student per class per date (school time zone). The semester summary feeds report cards."
+		},
+		"reports": {
+			"eyebrow": "REPORT CARDS · REPORT_CARD_T",
+			"title": "Report cards",
+			"desc": "Monitor report card progress per class from draft to locked, and download published PDFs.",
+			"status_draft": "Draft",
+			"status_submitted": "Submitted",
+			"status_approved": "Approved",
+			"status_locked": "Locked · PDF",
+			"flow_note": "Prepared by homeroom · approved by principal",
+			"head_class": "CLASS",
+			"head_homeroom": "HOMEROOM",
+			"head_locked": "LOCKED SUBJECT GRADES",
+			"head_status": "STATUS",
+			"students": "{count} students",
+			"no_homeroom": "Homeroom teacher not assigned",
+			"remind": "Remind",
+			"reminded_label": "Reminded",
+			"reminded": "Reminder sent to {name}",
+			"homeroom_fallback": "homeroom teacher",
+			"download": "Download PDF",
+			"view": "View",
+			"empty": "No classes in the active academic year.",
+			"empty_status": "No classes in this status.",
+			"foot": "Report cards cannot be submitted while a subject lacks locked final grades. Corrections after locking are opened by the principal and logged.",
+			"review": {
+				"back": "Back to report cards",
+				"eyebrow": "CLASS REPORT CARD · REVIEW",
+				"title": "Report card {class}",
+				"desc": "Semester {term} · Academic year {year} · Homeroom teacher {homeroom}",
+				"version": "Version {version}",
+				"stat_status": "Report status",
+				"stat_subjects": "Locked subjects",
+				"stat_students": "Students",
+				"stat_version": "Report version",
+				"status_hint_draft": "Waiting for the homeroom teacher to complete and submit the report card.",
+				"status_hint_submitted": "Submitted by the homeroom teacher, awaiting the principal's decision.",
+				"status_hint_approved": "Approved by the principal, ready to be locked to issue PDFs.",
+				"status_hint_locked": "The report card is final and PDFs are ready to download.",
+				"timeline_title": "Status history",
+				"step_submitted": "Submitted by homeroom teacher",
+				"step_approved": "Approved by principal",
+				"step_locked": "Locked & PDFs issued",
+				"step_by": "{name} · {date}",
+				"step_pending": "Not yet",
+				"someone": "User",
+				"returned_title": "Report card returned for revision",
+				"returned_by": "Returned by {name}",
+				"subjects_title": "Subject grade progress",
+				"subjects_desc": "{locked} of {total} subjects have locked final grades",
+				"subject_locked": "Locked",
+				"subject_open": "Not locked",
+				"subject_filled": "{count} grades filled",
+				"no_teacher": "No teacher assigned",
+				"no_subjects": "No subjects in this class yet.",
+				"students_title": "Student grades & notes",
+				"attendance_legend": "S = sick · P = permit · A = absent (days)",
+				"head_student": "STUDENT",
+				"head_average": "AVERAGE",
+				"head_sick": "S",
+				"head_permit": "P",
+				"head_absent": "A",
+				"head_note": "HOMEROOM NOTE",
+				"head_pdf": "Report card PDF",
+				"sick": "Sick",
+				"permit": "Permit",
+				"absent": "Absent",
+				"no_students": "No students in this class yet.",
+				"no_note": "No note yet",
+				"note_more": "Show more",
+				"note_less": "Show less",
+				"pdf_student": "PDF",
+				"pdf_student_label": "Download report card PDF for {name}",
+				"download_class": "Download class PDF",
+				"approve": "Approve",
+				"approve_title": "Approve report card {class}?",
+				"approve_message": "The report card will be approved and ready to lock. Once approved it can no longer be returned; corrections are made by unlocking after it is published.",
+				"approving": "Approving…",
+				"approved_toast": "Report card {class} approved",
+				"return": "Return",
+				"return_title": "Return report card {class} to the homeroom teacher?",
+				"return_message": "The report card goes back to draft so the homeroom teacher can revise it. Please give a clear reason.",
+				"returning": "Returning…",
+				"returned_toast": "Report card {class} returned to the homeroom teacher",
+				"lock": "Lock & issue PDFs",
+				"lock_confirm": "Lock report card",
+				"lock_title": "Lock report card {class}?",
+				"lock_message": "Report card PDFs for {count} students will be issued and grades become final. Later corrections are only possible if the principal unlocks it.",
+				"locking": "Locking…",
+				"locked_toast": "Report card {class} locked and PDFs issued",
+				"unlock": "Unlock",
+				"unlock_title": "Unlock report card {class}?",
+				"unlock_message": "The report card goes back to draft for correction and its version increases. This action is recorded in the audit log.",
+				"unlocking": "Unlocking…",
+				"unlocked_toast": "Report card {class} unlocked (version {version})",
+				"reason_label": "Reason",
+				"reason_placeholder": "Example: The Mathematics achievement description does not match the final grade.",
+				"reason_hint": "{count}/{max} characters · minimum {min}",
+				"reason_error": "Reason must be {min}–{max} characters."
 			}
+		},
+		"subscription": {
+			"eyebrow": "SUBSCRIPTION · SUBSCRIPTION_T",
+			"title": "Subscription",
+			"desc": "Plan, student seats, and school invoices.",
+			"none_title": "No subscription yet",
+			"none_desc": "The subscription is created when the school registration is approved.",
+			"plan_eyebrow": "PLAN",
+			"plan": "{name} plan",
+			"price": "{price} per student per month · billed yearly",
+			"status_active": "Active",
+			"status_trial": "Trial",
+			"status_past_due": "Past due",
+			"status_cancelled": "Cancelled",
+			"status_expired": "Expired",
+			"seats_used": "Student seats used",
+			"seats_note": "Inactive students are not counted. Student #{next} is rejected until seats are added.",
+			"pending_seats": "{count} seats are awaiting prorated invoice payment.",
+			"trial_ends": "Trial ends",
+			"trial_limit": "Trial student limit",
+			"seats_value": "{count} students",
+			"after_activation": "After activation",
+			"period_until": "Period until {date}",
+			"period": "Period",
+			"auto_renew": "Auto renew",
+			"annual_total": "Annual total",
+			"activate": "Pay & activate subscription",
+			"add_title": "Add seats",
+			"add_desc": "Prorated: seats × price per student per month × remaining full months.",
+			"decrease": "Decrease",
+			"increase": "Increase",
+			"seat_count": "Number of seats",
+			"seats_suffix": "seats",
+			"formula": "{seats} seats × {price} × {months} months",
+			"invoice_note": "A prorated invoice is issued on confirmation and can be paid via the gateway. Seats activate once paid.",
+			"cannot_add": "Adding seats is not available for this subscription status/period.",
+			"trial_add_note": "During the trial, extra seats activate immediately and are billed at activation.",
+			"buy": "Add {count} seats · {amount}",
+			"buy_trial": "Add {count} seats",
+			"invoices": "Invoices",
+			"all_invoices": "Open invoices page",
+			"no_invoices": "No invoices yet."
+		},
+		"import": {
+			"eyebrow": "IMPORT EXCEL/CSV",
+			"title": "Import {title}",
+			"loading": "Loading import format…",
+			"step_prep": "Prepare file",
+			"step_preview": "Review & fix",
+			"step_done": "Done",
+			"format_title": "Column format",
+			"col_column": "COLUMN",
+			"col_label": "LABEL · FORMAT",
+			"col_example": "EXAMPLE",
+			"col_field": "DATABASE FIELD",
+			"template_title": "Download template",
+			"template_xlsx": "Template .xlsx",
+			"template_csv": "Template .csv",
+			"drop": "Drag a file here or choose a file",
+			"drop_hint": ".xlsx or .csv · max 5 MB · 2,000 rows",
+			"reading": "Reading file…",
+			"file_too_large": "File exceeds 5 MB. Split it into several files.",
+			"file_format": "Unsupported format. Use .xlsx or .csv.",
+			"tabs_label": "Row filter",
+			"tab_all": "All",
+			"tab_err": "Needs fixing",
+			"tab_ok": "Valid",
+			"seat_text": "{avail} of {seats} seats left while {valid} rows are valid. The last {over} rows will not be imported unless seats are added.",
+			"seat_trial": "During the trial, extra seats are billed at activation.",
+			"seat_prorata": "Prorated {months} months: {amount}.",
+			"seat_buy": "Add {count} seats",
+			"seat_buy_amount": "Add {count} seats · {amount}",
+			"col_row": "ROW",
+			"col_status": "STATUS",
+			"col_action": "Action",
+			"row_skipped": "Excluded",
+			"row_over": "Exceeds seats",
+			"row_errors": "{count} errors",
+			"row_valid": "Valid",
+			"warn_no_guardian": "No parent data",
+			"include": "Include again",
+			"exclude": "Exclude this row",
+			"no_rows": "No rows in this filter.",
+			"foot_errors": "{count} rows will not be imported. Fix them in the table or download the error report.",
+			"foot_ready": "All rows are ready to import.",
+			"invite_label": "Account invitations",
+			"invite_now": "Send now",
+			"invite_later": "Later",
+			"reupload": "Upload again",
+			"error_report": "Error report",
+			"commit": "Import {count} valid rows",
+			"done_title": "{count} rows imported",
+			"done_invited": "Account invitations are sent gradually. Track account status in the related menu.",
+			"done_not_invited": "Invitations not sent yet. Send them anytime from the related menu.",
+			"done_saved": "Data is saved and ready to use.",
+			"stat_saved": "Saved",
+			"stat_skipped": "Skipped",
+			"stat_invited": "Invitations processed",
+			"finish": "Done",
+			"csv_col_row": "row",
+			"csv_col_error": "error_details",
+			"csv_file_name": "{file}-error-report.csv"
+		},
+		"dashboard": {
+			"setup_label": "Complete school data",
+			"setup_title_required": "Required school data is incomplete",
+			"setup_title_optional": "Complete school data",
+			"setup_pill": "{done} of {total} sections",
+			"setup_sub_required": "Teachers and students cannot use FLIXARE until the profile, curriculum, academic year, classes, and subjects are filled.",
+			"setup_sub_optional": "These features are not optimal until their data is filled: {list}.",
+			"setup_btn_required": "Continue required data",
+			"setup_btn_optional": "Continue filling",
+			"term_odd": "Odd Semester",
+			"term_even": "Even Semester",
+			"hero_sub": "{school} · {plan} plan. {classes} active classes, {filled} filled attendance today.",
+			"trial_ends": "Ends {date}. {used} of {limit} trial students used.",
+			"holiday": "Today is a holiday.",
+			"holiday_tile": "Holiday",
+			"no_classes": "No classes yet.",
+			"no_homeroom": "Homeroom teacher not assigned",
+			"remind_all": "Remind homeroom teachers",
+			"reminded_toast": "Attendance reminder sent to homeroom teachers.",
+			"report_title": "Report card flow · {term}",
+			"report_meta": "{classes} classes · computed from active semester report status",
+			"step_locked_subjects": "All subject grades locked",
+			"step_submitted": "Submitted by homeroom",
+			"step_approved": "Approved by principal",
+			"step_published": "Locked · PDF published",
+			"open_reports": "Open report cards",
+			"no_seat_limit": "no seat limit yet",
+			"todo_empty": "Nothing needs follow-up.",
+			"todo_attendance_title": "Attendance for {ref} not filled",
+			"todo_attendance_sub": "{count} classes not filled today · homeroom: {extra}",
+			"todo_attendance_action": "Remind",
+			"todo_homeroom_title": "{count} classes without homeroom",
+			"todo_homeroom_sub": "Homeroom teachers are needed for attendance and report cards",
+			"todo_homeroom_action": "Assign",
+			"todo_teachers_invite_title": "{count} teachers not invited",
+			"todo_teachers_invite_sub": "Teachers cannot sign in to FLIXARE yet",
+			"todo_teachers_invite_action": "Send invitations",
+			"todo_guardians_invite_title": "{count} parents not invited",
+			"todo_guardians_invite_sub": "Have an email but no portal invitation yet",
+			"todo_guardians_invite_action": "Send invitations",
+			"todo_report_draft_title": "{count} classes with draft report cards",
+			"todo_report_draft_sub": "Status from active semester report cards",
+			"todo_report_draft_action": "View classes",
+			"todo_invoice_title": "Invoice {ref} unpaid",
+			"todo_invoice_sub": "Status: {extra}",
+			"todo_invoice_action": "Pay"
+		},
+		"homeroom": {
+			"eyebrow": "HOMEROOM · ATTENDANCE_T",
+			"title": "Class attendance",
+			"title_class": "Class {class} attendance",
+			"desc": "Record daily student attendance. One record per student per date in the school time zone.",
+			"prev_day": "Previous day",
+			"next_day": "Next day",
+			"today": "Today",
+			"filled": "Filled",
+			"all_present": "Mark all present",
+			"holiday": "Holiday — no attendance.",
+			"status_of": "Status of {name}",
+			"note_of": "Note for {name}",
+			"note_ph": "Note (optional)",
+			"no_students": "No active students in this class.",
+			"foot": "School admins monitor this summary; absences of 3+ days need follow-up.",
+			"save": "Save attendance",
+			"update": "Update attendance",
+			"saved": "Attendance saved",
+			"not_homeroom_title": "You are not a homeroom teacher",
+			"not_homeroom_desc": "Daily attendance is filled by homeroom teachers of the active year. Contact the school admin if you should be one."
+		},
+		"planning": {
+			"tabs": "Sections",
+			"tab_homeroom": "Homeroom teachers",
+			"tab_teaching": "Teaching assignments",
+			"tab_periods": "Lesson periods",
+			"tab_grid": "Schedule per class",
+			"people_teachers": "Teachers",
+			"people_students": "Students",
+			"people_linked": "Linked to parents",
+			"people_seats": "Seats",
+			"people_import_teachers": "Import teachers from Excel/CSV",
+			"people_import_teachers_sub": "Template with NIP, name, email, and phone",
+			"people_import_students": "Import students & parents",
+			"people_import_students_sub": "One row = one student, parent columns optional",
+			"people_manual_teachers": "Add teachers manually",
+			"people_manual_students": "Add students manually",
+			"people_manual_sub": "Manage data and account invitations on the module page",
+			"recent": "RECENTLY ADDED",
+			"homeroom_note": "One homeroom teacher per class per academic year (class_homeroom_m).",
+			"homeroom_of": "Homeroom teacher of {class}",
+			"no_classes": "No classes yet.",
+			"pick_class": "Choose class",
+			"teaching_note": "Semester {term} · {filled}/{total} subjects filled",
+			"no_semester": "No active semester.",
+			"teacher_of": "Teacher for {subject}",
+			"pick_subject": "Choose subject",
+			"pick_grade": "Grade",
+			"grade": "Grade {grade}",
+			"objectives_empty": "No learning objectives for this subject & grade yet.",
+			"objective_add": "Add objective",
+			"objective_ph": "Students are able to …",
+			"objective_short": "Write an objective of at least 10 characters",
+			"delete": "Delete",
+			"assess_note": "Weights are used when teachers compute final grades. Formative may be 0% when used for feedback only.",
+			"assess_default": "Use default",
+			"assess_empty": "No assessment types yet. Use the default to start.",
+			"formative": "Formative",
+			"summative": "Summative",
+			"exam": "exam",
+			"weight_of": "Weight of {name}",
+			"weight_total": "Total weight",
+			"save_weights": "Save weights",
+			"periods_note": "Lesson period master (lesson_period_m) is used by all classes.",
+			"periods_default": "Use default 8 periods",
+			"periods_empty": "No lesson periods yet.",
+			"period": "Period {no}",
+			"period_start": "Start of period {no}",
+			"period_end": "End of period {no}",
+			"period_add": "Add period",
+			"save_periods": "Save periods",
+			"grid_no_periods": "Set lesson periods first.",
+			"grid_no_assignments": "This class has no teaching assignments yet.",
+			"grid_note": "Options come from this class’s teaching assignments.",
+			"grid_period": "PERIOD",
+			"grid_cell": "{day} period {no}",
+			"coach": "Coach: {name}",
+			"coach_label": "Coach",
+			"coach_none": "— No coach —",
+			"extras_empty": "No extracurricular activities yet.",
+			"extra_ph": "Activity name, e.g. Scouts",
+			"extra_add": "Add",
+			"extra_name_required": "Enter the activity name",
+			"saved": "Saved",
+			"autosaved": "Changes are saved automatically",
+			"done": "Done"
+		},
+		"setup": {
+			"title": "Complete school data",
+			"progress": "{done}/{total} sections",
+			"save_later": "Save & continue later",
+			"to_home": "Go to Home",
+			"required_eyebrow": "REQUIRED DATA · {step} OF 5",
+			"required_desc": "These five sections are needed before teachers and students can use FLIXARE. Progress is saved automatically.",
+			"steps_label": "Required data steps",
+			"step_current": "In progress",
+			"step_locked": "Locked",
+			"step_open": "Not finished",
+			"later_title": "Data to follow",
+			"later_sub": "7 sections · teachers, students, schedule, etc.",
+			"step_desc_profile": "Official identity for report card letterheads and school documents.",
+			"step_desc_curriculum": "Determines learning phases, subject templates, and report card format.",
+			"step_desc_year": "All classes, grades, attendance, and report cards are tied to the active academic year and semester.",
+			"step_desc_classes": "Set the number of study groups per grade. Class names are generated and can be imported.",
+			"step_desc_subjects": "Start from the national template, then adjust to the school.",
+			"step_table_profile": "school_profile_m",
+			"step_table_curriculum": "curriculum_g → institution",
+			"step_table_year": "academic_year_m · semester_m",
+			"step_table_classes": "grade_level_m · class_m",
+			"step_table_subjects": "subject_catalog_g → subject_m",
+			"step_table_teachers": "teacher_m",
+			"step_table_students": "student_m · guardian_m · student_guardian_m",
+			"step_table_assign": "teaching_assignment_m · class_homeroom_m",
+			"step_table_objectives": "learning_objective_m",
+			"step_table_assess": "assessment_type_m · grading_policy_m",
+			"step_table_schedule": "lesson_period_m · lesson_schedule_m",
+			"step_table_extras": "extracurricular_m",
+			"locked_name": "School name",
+			"locked_npsn": "NPSN",
+			"locked_level": "Level",
+			"locked_timezone": "Time zone",
+			"locked_note": "Taken from tenant registration. Changes are requested to the platform via Settings.",
+			"address": "School address",
+			"address_ph": "Street, number, village",
+			"district": "District",
+			"district_empty": "The district list follows the city from registration.",
+			"accreditation": "Accreditation",
+			"accreditation_none": "None",
+			"principal": "Principal name",
+			"principal_ph": "Including titles",
+			"principal_nip": "Principal NIP",
+			"principal_nip_ph": "18 digits",
+			"principal_nip_note": "Optional · shown in the report card signature",
+			"logo": "School logo",
+			"logo_note": "Shown on the report card letterhead. Square PNG/JPG, max 1 MB. Can follow later.",
+			"logo_pick": "Choose file",
+			"logo_invalid": "Logo must be PNG/JPG up to 1 MB.",
+			"logo_saved": "Logo saved",
+			"curriculum_desc_KM": "Phase-based outcomes, formative & summative assessment, report cards with achievement descriptions. Recommended per the Learning and Assessment Guide.",
+			"curriculum_desc_K13": "Curriculum 2013 with core and basic competencies.",
+			"phases_title": "Learning phases for level {level}",
+			"phase": "Phase {code}",
+			"grade_single": "Grade {grade}",
+			"grade_range": "Grades {from}–{to}",
+			"year_name": "Academic year name",
+			"start": "Start",
+			"end": "End",
+			"term_odd": "Odd semester",
+			"term_even": "Even semester",
+			"term_active": "Active",
+			"term_make_active": "Make active",
+			"term_note": "Only one semester is active. Attendance dates and deadlines use the school time zone ({tz}).",
+			"pattern": "Naming pattern",
+			"import_classes": "Import classes",
+			"grade_label": "Grade {grade}",
+			"grade_sub": "Phase {phase} · {count} groups",
+			"capacity": "Capacity",
+			"group_dec": "Remove group",
+			"group_inc": "Add group",
+			"grade_none": "No classes in this grade.",
+			"classes_note": "{count} classes will be created for academic year {year}. Capacity is a warning, not a hard limit.",
+			"classes_required": "Create at least one class.",
+			"subjects_intro": "{curriculum} template · {level}. Tick the subjects taught and adjust the default KKTP if needed.",
+			"subjects_all": "Select all",
+			"subjects_none": "Clear all",
+			"import_subjects": "Import subjects",
+			"col_code": "CODE",
+			"col_subject": "SUBJECT",
+			"custom_badge": "SCHOOL",
+			"custom_code": "Code",
+			"custom_name": "School-specific subject, e.g. Mandarin",
+			"custom_add": "Add",
+			"custom_invalid": "Enter a code (letters/digits 2–20) and subject name.",
+			"subjects_note": "{count} subjects selected. KKTP can be changed per learning objective later.",
+			"subjects_required": "Select at least one subject.",
+			"back": "Back",
+			"autosave": "Progress is saved automatically",
+			"saved_status": "Saved · continue anytime",
+			"save": "Save",
+			"save_next": "Save & continue",
+			"finish_required": "Finish required data",
+			"required_complete": "Required data complete. The school is ready.",
+			"checklist_title": "Required data complete. The school is ready.",
+			"checklist_sub": "Continue the sections below now or anytime from Home. Start with teachers and students so accounts can be invited soon.",
+			"all_done_title": "All school data is complete",
+			"all_done_sub": "Teachers, students, and parents can use every feature.",
+			"go_home": "Go to Home",
+			"later_heading": "Can follow later",
+			"later_count": "{done} of {total} done · suggested order",
+			"proposal": "SAD ADDITION PROPOSAL",
+			"st_done": "Done",
+			"st_locked": "Locked",
+			"st_todo": "To do",
+			"needs_teachers": "Needs teacher data first",
+			"import": "Import",
+			"manage": "Manage",
+			"required_heading": "Required data",
+			"edit": "Edit"
+		},
+		"invite_page": {
+			"heading": "Activate your FLIXARE account",
+			"welcome": "Hello, {name}",
+			"intro": "You are invited to {school} with the email {email}. Create a password to activate the account.",
+			"password": "New password",
+			"password_hint": "At least 8 characters.",
+			"password_short": "At least 8 characters.",
+			"confirm": "Repeat password",
+			"mismatch": "Passwords do not match.",
+			"submit": "Activate account",
+			"expires": "The link is valid until {date} and can be used once.",
+			"done_title": "Account activated",
+			"done_text": "Sign in with {email} and your new password.",
+			"login": "Sign in",
+			"invalid_title": "Invitation link is not valid",
+			"invalid_text": "The link was used, expired (72 hours), or is incomplete. Ask the school admin to resend the invitation.",
+			"rate_limited_title": "Too many attempts"
+		},
+		"activate_page": {
+			"heading": "Student account activation",
+			"intro": "Enter the username and activation code from your school, then create a password.",
+			"username": "Username",
+			"code": "Activation code",
+			"code_hint": "8 characters, valid for 72 hours.",
+			"password": "New password",
+			"password_short": "At least 8 characters.",
+			"confirm": "Repeat password",
+			"mismatch": "Passwords do not match.",
+			"submit": "Activate account",
+			"done_title": "Account activated",
+			"done_text": "Sign in with the username {username} and your new password.",
+			"login": "Sign in",
+			"username_ph": "school.242601"
+		},
+		"sections": {
+			"profile": {
+				"title": "School profile",
+				"why": "Report card letterhead and identity.",
+				"count": "{label}",
+				"count_done": "Complete",
+				"count_todo": "Not filled"
+			},
+			"curriculum": {
+				"title": "Curriculum",
+				"why": "Determines learning phases and subject templates.",
+				"count": "{label}",
+				"name_KM": "Kurikulum Merdeka",
+				"name_K13": "Curriculum 2013",
+				"count_todo": "Not selected"
+			},
+			"year": {
+				"title": "Academic year & semester",
+				"why": "Context for classes, grades, attendance, and report cards.",
+				"count": "{label}",
+				"count_todo": "Not filled"
+			},
+			"classes": {
+				"title": "Grades & classes",
+				"why": "Study groups for students and schedules.",
+				"count": "{classes} classes · {grades} grades"
+			},
+			"subjects": {
+				"title": "Subjects",
+				"why": "Basis for teaching assignments, question banks, and report cards.",
+				"count": "{subjects} subjects"
+			},
+			"teachers": {
+				"title": "Teachers",
+				"why": "Teachers need an account before teaching and recording attendance.",
+				"count": "{teachers} teachers"
+			},
+			"students": {
+				"title": "Students & parents",
+				"why": "Students join classes; parents follow grades and attendance.",
+				"count": "{students} students · {linked} linked to parents"
+			},
+			"assign": {
+				"title": "Teaching assignments & homeroom teachers",
+				"why": "Basis for teacher access to classes and report cards.",
+				"count": "{assignments} assignments · {homerooms}/{classes} homeroom teachers"
+			},
+			"objectives": {
+				"title": "Learning objectives",
+				"why": "Used for achievement descriptions in report cards.",
+				"count": "{objectives} objectives · {with}/{subjects} subjects"
+			},
+			"assess": {
+				"title": "Assessment types & weights",
+				"why": "Final grade formula.",
+				"count": "{types} types · weight {weight}%"
+			},
+			"schedule": {
+				"title": "Lesson schedule",
+				"why": "Daily schedule for teachers and students.",
+				"count": "{periods} periods · {scheduled}/{classes} classes scheduled"
+			},
+			"extras": {
+				"title": "Extracurriculars",
+				"why": "Appears in the extracurricular section of report cards.",
+				"count": "{extras} activities"
+			}
+		},
+		"activation": {
+			"title": "Activate subscription",
+			"steps": "Activation steps",
+			"step_institution": "Institution data",
+			"step_plan": "Plan & seats",
+			"step_payment": "Payment",
+			"step_activation": "Activation",
+			"heading": "Choose a plan for {school}",
+			"subheading": "Price per student per month, billed yearly. Trial data stays after activation.",
+			"pending": "Activation invoice {number} ({plan}, {seats} seats, {total}) is issued and unpaid.",
+			"pending_pay": "Continue payment",
+			"features": "Features",
+			"per_student_month": "/student/month",
+			"included": "included",
+			"not_included": "not included",
+			"no_features": "Plan features are not configured yet.",
+			"seats_title": "Student seats",
+			"seats_desc": "Caps active students. Adding seats mid-year is prorated.",
+			"decrease": "Decrease",
+			"increase": "Increase",
+			"seats_value": "{seats} seats",
+			"cell_hint": "1 box = {seats} seats",
+			"groups_hint": "Enough for ±{groups} classes of {per} students",
+			"seats_min": "At least {min} seats · {students} active students now.",
+			"pay_title": "Payment method",
+			"pay_transfer": "Bank transfer",
+			"pay_transfer_desc": "Upload proof, verified by the finance team. Suits payments via the treasurer.",
+			"pay_gateway": "Virtual account / QRIS",
+			"pay_gateway_desc": "Verified automatically by the payment gateway.",
+			"pay_gateway_off": "The payment gateway is not configured yet.",
+			"receipt_title": "SUBSCRIPTION DETAILS",
+			"r_plan": "Plan",
+			"r_price": "Price/student",
+			"r_seats": "Seats",
+			"r_months": "Months",
+			"r_monthly": "Per month",
+			"r_subtotal": "Subtotal",
+			"r_tax": "VAT 11%",
+			"r_tax_incl": "VAT (included)",
+			"r_total": "TOTAL/YEAR",
+			"free_months": "Includes {months} free months.",
+			"trial_label": "TRIAL",
+			"trial_until": "ends {date}",
+			"period_note": "The 12-month term starts when the invoice is paid. Remaining trial days are not carried over.",
+			"submit": "Pay & activate",
+			"submit_replace": "Change choice & reissue",
+			"submit_note": "The activation invoice is issued and payable right away. The school becomes active once paid.",
+			"replace_note": "The previous activation invoice will be voided and replaced.",
+			"not_eligible_title": "Subscription already active",
+			"not_eligible_desc": "Activation is only for schools in or after trial. Manage seats in Subscription.",
+			"to_subscription": "Go to Subscription"
+		},
+		"invite_job": {
+			"title": "Sending bulk invitations",
+			"title_done": "Bulk invitations finished",
+			"note": "This runs in the background and progress updates automatically. You can keep working on this page.",
+			"note_done": "The account list has been refreshed with the invitation results.",
+			"queued_toast": "{count} accounts queued for invitation. Progress is shown on this page.",
+			"stat_queued": "Invitations queued",
+			"progress_label": "{kind} invitation progress",
+			"progress": "{done} of {total} accounts",
+			"count_sent": "{count} sent",
+			"count_linked": "{count} linked",
+			"count_skipped": "{count} skipped",
+			"count_failed": "{count} failed",
+			"failed_note": "The invitation process stopped before finishing. Resend invitations from the list for accounts that have not been invited.",
+			"poll_error": "Progress could not be loaded ({message}). Retrying automatically…",
+			"codes_note": "Activation codes from this run remain visible for 72 hours.",
+			"kind": {
+				"teachers": "Teachers",
+				"students": "Students",
+				"guardians": "Guardians",
+				"generic": "Accounts"
+			},
+			"status": {
+				"queued": "Queued",
+				"running": "Processing",
+				"succeeded": "Done",
+				"failed": "Failed"
+			},
+			"poll_stopped": "Progress could not be loaded ({message}). Reload the page to see the latest status."
+		},
+		"audit": {
+			"eyebrow": "SCHOOL ADMIN",
+			"title": "Change history",
+			"desc": "A trail of important school changes: deleted and deactivated records, account invitations, and report card workflow.",
+			"category_label": "History category",
+			"category": {
+				"all": "All",
+				"person": "Teachers & students",
+				"guardian": "Guardians",
+				"account": "Account invitations",
+				"report": "Report cards"
+			},
+			"from": "From date",
+			"to": "To date",
+			"reset": "Reset filters",
+			"range_invalid": "The start date cannot be after the end date.",
+			"today": "Today",
+			"yesterday": "Yesterday",
+			"by": "By {actor} · {time}",
+			"system": "System",
+			"load_more": "Load more",
+			"loading": "Loading…",
+			"end": "All history is shown.",
+			"empty_title": "No change history yet",
+			"empty_desc": "Important changes such as deleted records, account invitations, and report card steps will be recorded here.",
+			"empty_filtered_title": "No matching history",
+			"empty_filtered_desc": "Change the category or date range to see other entries.",
+			"entity": {
+				"teacher": "teacher",
+				"student": "student",
+				"guardian": "guardian",
+				"teachers": "teacher",
+				"students": "student",
+				"guardians": "guardian",
+				"class": "class",
+				"generic": "record"
+			},
+			"action": {
+				"person": {
+					"delete": "Deleted {entity} record {subject}",
+					"deactivate": "Deactivated {entity} {subject}",
+					"reactivate": "Reactivated {entity} {subject}"
+				},
+				"guardian": {
+					"unlink": "Unlinked guardian {subject} from {student}"
+				},
+				"account": {
+					"invite": "Sent {entity} account invitations"
+				},
+				"report": {
+					"grades_lock": "Locked {subject_name} grades for class {subject}",
+					"submit": "Submitted report cards for class {subject}",
+					"approve": "Approved report cards for class {subject}",
+					"return": "Returned report cards for class {subject} for revision",
+					"lock": "Locked report cards for class {subject}",
+					"unlock": "Unlocked report cards for class {subject}",
+					"notify_failed": "Report card notification for class {subject} failed to send"
+				},
+				"generic": "Activity {action} on {subject}"
+			},
+			"detail": {
+				"nip": "NIP {value}",
+				"nis": "NIS {value}",
+				"version": "Version {value}",
+				"students": "{value} students",
+				"reason": "Reason: {value}",
+				"sent": "{count} sent",
+				"linked": "{count} linked",
+				"codes": "{count} activation codes",
+				"skipped": "{count} skipped",
+				"failed": "{count} failed"
+			}
+		}
+	},
+	"payments": {
+		"eyebrow": "FINANCE · PAYMENTS",
+		"title": "Payments",
+		"desc": "Verify transfer proofs and record manual payments. VA and QRIS are verified automatically.",
+		"new": "Record payment",
+		"load_failed": "Payments could not be loaded",
+		"search": "Search tenant, invoice, reference",
+		"tabs": "Status filter",
+		"tab": {
+			"pending": "Verify · {count}",
+			"all": "All · {count}",
+			"succeeded": "Verified · {count}",
+			"failed": "Rejected · {count}"
+		},
+		"status": {
+			"pending": "NEEDS REVIEW",
+			"succeeded": "VERIFIED",
+			"failed": "REJECTED",
+			"refunded": "REFUNDED",
+			"expired": "EXPIRED"
+		},
+		"channel": {
+			"transfer": "Bank transfer",
+			"va": "Virtual account",
+			"qris": "QRIS",
+			"cash": "Cash / cheque",
+			"va_bank": "VA {bank}"
+		},
+		"empty": "No payments here.",
+		"no_selection_title": "Select a payment",
+		"no_selection_desc": "There are no payments to review yet.",
+		"auto_gateway": "Automatic · payment gateway",
+		"compare": {
+			"remaining": "Remaining",
+			"paid": "Paid",
+			"diff": "Difference"
+		},
+		"diff": {
+			"exact": "Amount matches the remaining balance. The invoice is paid once verified.",
+			"short": "Short by {amount}. If verified, it is recorded as a partial payment and the invoice stays open.",
+			"over": "{amount} over the remaining balance. Overpayments cannot be recorded — reject and ask the tenant to send the correct amount.",
+			"verified_by": "Verified by {by} · {at}.",
+			"rejected": "Rejected: {reason} · {by}."
+		},
+		"proof": {
+			"title": "Payment proof",
+			"gateway": "{method} payments need no proof; confirmed by the payment gateway.",
+			"none": "This payment has no attached proof."
+		},
+		"detail": {
+			"title": "Transfer details",
+			"method": "Method",
+			"time": "Time",
+			"sender": "Sender",
+			"reference": "Reference",
+			"invoice": "Invoice",
+			"due": "Due"
+		},
+		"mutation": {
+			"unchecked": "Not yet checked against the bank statement",
+			"checked": "Checked against the bank statement · {by} · {at}",
+			"mark": "Mark as checked"
+		},
+		"action": {
+			"title": "Action",
+			"verify": "Verify",
+			"verify_sub": "Record to the invoice",
+			"reject": "Reject",
+			"reject_sub": "Ask the tenant to resend",
+			"verify_ready": "Statement checked. Safe to verify.",
+			"verify_hint": "Check the bank statement before verifying.",
+			"go_verify": "Verify payment",
+			"go_reject": "Reject payment"
+		},
+		"reject": {
+			"title": "Rejection reason",
+			"unreadable": "Proof is unreadable",
+			"amount_mismatch": "Amount does not match",
+			"not_in_statement": "Not in the statement",
+			"wrong_account": "Wrong destination account",
+			"required": "Choose a rejection reason",
+			"hint": "The reason is emailed to the tenant PIC."
+		},
+		"bar": {
+			"paid": "The invoice will be marked Paid",
+			"partial": "Recorded as a partial payment",
+			"reject": "The tenant is asked to send a new proof"
+		},
+		"confirm": {
+			"verify_title": "Verify {amount}?",
+			"verify_paid": "{invoice} will be marked paid and a receipt emailed to the tenant.",
+			"verify_partial": "Recorded as a partial payment. The remaining {left} is still billed.",
+			"reject_title": "Reject this payment?",
+			"reject_message": "The tenant is emailed to resend the proof. The invoice stays unpaid.",
+			"tenant": "Tenant",
+			"invoice": "Invoice",
+			"reason": "Reason",
+			"verify_label": "Yes, verify",
+			"reject_label": "Yes, reject",
+			"busy": "Processing…"
+		},
+		"toast": {
+			"verified_paid": "Payment verified. {invoice} is paid.",
+			"verified_partial": "Payment verified. {left} remaining.",
+			"rejected": "Payment rejected. The tenant has been emailed.",
+			"mutation": "Marked as checked against the bank statement.",
+			"recorded": "Payment of {amount} recorded for {invoice}."
+		},
+		"form": {
+			"title": "Record a manual payment",
+			"sub": "For transfers confirmed outside the system",
+			"invoice": "Invoice being paid",
+			"no_invoices": "There are no unpaid invoices.",
+			"left_of": "left of {total}",
+			"unpaid": "unpaid",
+			"amount": "Amount received",
+			"full": "Pay in full",
+			"amount_hint": "As stated on the transfer proof",
+			"amount_full": "Paid in full once saved",
+			"amount_left": "{left} left after this payment",
+			"date": "Date received",
+			"method": "Method",
+			"bank_account": "Destination account",
+			"sender": "Sender bank",
+			"sender_ph": "e.g. BRI on behalf of Bina Ilmu Foundation",
+			"ref": "Reference no.",
+			"ref_ph": "Transaction number on the proof",
+			"proof": "Proof",
+			"proof_hint": "(JPG, PNG, PDF · max 5 MB)",
+			"file_ph": "Drag a file here or choose from your device",
+			"pick": "Choose file",
+			"bar_info": "Manual payments are verified immediately",
+			"bar_errors": "{count} fields need fixing",
+			"cancel": "Cancel",
+			"save": "Save & verify",
+			"err_inv": "Choose the invoice being paid.",
+			"err_amount": "Enter the amount received.",
+			"err_amount_over": "Exceeds the remaining {left}.",
+			"err_date": "Enter the date.",
+			"err_date_future": "The date cannot be in the future.",
+			"err_bank_account": "Choose the destination account.",
+			"err_sender": "Enter the sender bank and name.",
+			"err_ref": "Enter the reference number.",
+			"err_file": "Attach the transfer proof.",
+			"err_file_invalid": "The file must be PDF, PNG, or JPG up to 5 MB.",
+			"checked": "Checked against the bank statement",
+			"checked_hint": "Proof may be left empty; your name and the time are recorded as the checker.",
+			"optional": "optional"
+		},
+		"failure": {
+			"unauthenticated": "Your session ended. Please sign in again.",
+			"forbidden": "This account has no finance access.",
+			"not_found": "Data not found.",
+			"conflict": "Data changed. Reload the page.",
+			"validation": "Invalid request.",
+			"gone": "Data is no longer available.",
+			"too_many": "Too many requests.",
+			"unavailable": "Service is unavailable."
+		},
+		"errors": {
+			"generic": "The action did not succeed. Try again.",
+			"amount_exceeds_remaining": "The amount exceeds the remaining balance.",
+			"amount_invalid": "Invalid amount.",
+			"required": "Required fields are missing.",
+			"proof_invalid": "Invalid proof file.",
+			"invalid": "Invalid input.",
+			"invalid_transition": "The payment status changed. Reload the page.",
+			"not_found": "Data not found.",
+			"min_length": "The reason is too short.",
+			"invalid_request": "Invalid request.",
+			"internal_error": "A server error occurred.",
+			"unavailable": "Service is unavailable.",
+			"invoice_partially_paid": "The invoice has already received a payment, so it cannot be cancelled."
+		}
+	},
+	"grades": {
+		"kkm": "Passing grade {value}",
+		"filled_of": "{filled}/{total}",
+		"list": {
+			"eyebrow": "SUBJECT TEACHER · FINAL GRADES",
+			"eyebrow_term": "FINAL GRADES · SEMESTER {term} · {year}",
+			"title": "Report card final grades",
+			"desc": "Enter the final grade and achievement description for each student per class and subject you teach, then lock the grades so the homeroom teacher can use them for the report card.",
+			"locked_summary": "{locked}/{total} locked",
+			"no_semester_title": "No active semester yet",
+			"no_semester_desc": "Final grades can be entered once the school admin activates the academic year and semester.",
+			"empty_title": "No teaching assignments yet",
+			"empty_desc": "You have not been assigned to any class and subject this semester. Contact the school admin if this seems wrong.",
+			"progress_locked": "Locked",
+			"progress_ready": "Ready to lock",
+			"progress_partial": "Partial",
+			"progress_empty": "Not started",
+			"filled_label": "Grade progress for {subject}, class {class}",
+			"open": "Enter grades",
+			"view": "View grades"
+		},
+		"sheet": {
+			"title": "Grade sheet",
+			"page_title": "{subject} grades · {class}",
+			"back": "Back to list",
+			"not_found_title": "Grade sheet not found",
+			"not_found_desc": "This assignment does not exist or is not yours in the active semester.",
+			"eyebrow": "FINAL GRADES · CLASS {class}",
+			"desc": "Enter a grade from 0–100 (decimals allowed) and an achievement description of up to {max} characters. Grades can be saved partially, then locked once every student is complete.",
+			"desc_locked": "Grades are locked and read-only.",
+			"stat_kkm": "Passing grade",
+			"stat_filled": "Grades entered",
+			"stat_below": "Below passing grade",
+			"locked_title": "Grades locked.",
+			"locked_desc": "Changes are only possible after the principal reopens them.",
+			"report_status": "Class report: {status}",
+			"students_title": "Students ({count})",
+			"hint": "Grades are rounded to 2 decimal places.",
+			"no_students": "There are no active students in this class yet.",
+			"col_student": "Student",
+			"col_score": "Final grade",
+			"col_description": "Achievement description",
+			"nis": "NIS {nis}",
+			"score_ph": "0–100",
+			"score_of": "Final grade for {name}",
+			"below_kkm": "Below passing grade ({kkm})",
+			"description_ph": "Describe the student's competency achievement…",
+			"description_of": "Achievement description for {name}",
+			"description_needs_score": "The description is saved once a grade is entered.",
+			"char_count": "{count}/{max}",
+			"progress": "{filled}/{total} students graded",
+			"below_count": "{count} below passing grade",
+			"unsaved": "You have unsaved changes.",
+			"all_saved": "All changes are saved.",
+			"save": "Save",
+			"lock": "Lock grades",
+			"locking": "Locking…",
+			"lock_title": "Lock final grades?",
+			"lock_message": "The {subject} grades for class {class} will be locked and used for the report card. Once locked you can no longer change them; only the principal can reopen them.",
+			"lock_detail_students": "Students complete",
+			"fix_errors": "Fix the highlighted fields before saving.",
+			"nothing_to_save": "No grades entered to save yet.",
+			"saved": "Grades for {count} students saved",
+			"lock_incomplete": "Complete the grade and description for {count} students before locking.",
+			"locked_toast": "{subject} grades for class {class} locked"
+		},
+		"issue": {
+			"score_score_range": "Grade must be 0–100.",
+			"score_required": "Grade is required.",
+			"description_max_length": "Maximum {max} characters.",
+			"description_required": "Description is required.",
+			"generic": "Invalid value."
+		},
+		"errors": {
+			"score_range": "Some grades are outside the 0–100 range.",
+			"max_length": "Some descriptions exceed 500 characters.",
+			"required": "Complete the grade and description for every student before locking.",
+			"no_students": "There are no active students in this class, so grades cannot be locked.",
+			"invalid_transition": "Grades are already locked and cannot be changed. Contact the principal to reopen them.",
+			"semester_required": "There is no active semester."
+		}
+	},
+	"homeroom_report": {
+		"eyebrow": "HOMEROOM · REPORT CARD · SEMESTER {term} · {year}",
+		"eyebrow_plain": "HOMEROOM · REPORT CARD",
+		"title": "Class {class} report card",
+		"title_plain": "Class report card",
+		"desc_draft": "Write a homeroom note for each student. The report can be submitted to the principal once all subject grades are locked and notes are complete.",
+		"desc_submitted": "The report has been submitted and is awaiting the principal's decision.",
+		"desc_approved": "The report has been approved by the principal.",
+		"desc_locked": "The report is locked and published.",
+		"version": "v{version}",
+		"returned_title": "Report returned by the principal",
+		"returned_by": "Returned by {name}",
+		"banner_submitted": "The report is under review by the principal. Notes cannot be changed unless the report is returned.",
+		"banner_approved": "The report has been approved. Notes and grades can no longer be changed.",
+		"banner_locked": "The report is locked. Corrections are only possible after the principal reopens it.",
+		"checklist_title": "Report completeness",
+		"check_subjects": "All subject grades locked",
+		"check_subjects_detail": "{locked}/{total} subjects locked",
+		"check_notes": "Homeroom notes complete",
+		"check_notes_detail": "{filled}/{total} students have a note",
+		"check_attendance": "Attendance summary",
+		"check_attendance_detail": "Calculated automatically from daily attendance.",
+		"subjects_title": "Subject grades ({locked}/{total} locked)",
+		"no_teacher": "No teacher assigned",
+		"subject_locked": "Locked",
+		"subject_open": "Not locked",
+		"no_subjects": "This class has no subjects yet.",
+		"timeline_title": "Submission history",
+		"timeline_submitted": "Submitted",
+		"timeline_approved": "Approved",
+		"timeline_locked": "Locked",
+		"timeline_by": "{name} · {date}",
+		"timeline_waiting": "Pending",
+		"students_title": "Students ({count})",
+		"attendance_legend": "S = sick · P = permit · A = absent",
+		"average": "Average {value}",
+		"attendance_title": "Sick · permit · absent (days)",
+		"attendance_short": "S {sick} · P {permit} · A {absent}",
+		"scores_of": "Subject grades for {name}",
+		"note_label": "Homeroom note",
+		"note_ph": "Write a note on the student's progress and attitude…",
+		"no_students": "There are no active students in this class yet.",
+		"notes_progress": "{filled}/{total} notes written",
+		"hint_unsaved": "Save the notes to update report completeness.",
+		"hint_subjects": "The report can be submitted once all subject grades are locked.",
+		"hint_notes": "Complete the notes for every student before submitting.",
+		"hint_ready": "Everything is complete. The report is ready to submit.",
+		"save_notes": "Save notes",
+		"submit": "Submit to principal",
+		"submitting": "Submitting…",
+		"submit_title": "Submit the report to the principal?",
+		"submit_message": "The class {class} report will be sent for review. While under review, notes cannot be changed unless the principal returns it.",
+		"submit_detail_students": "Students",
+		"submit_detail_subjects": "Subjects locked",
+		"fix_errors": "Fix the highlighted notes before saving.",
+		"notes_saved": "Homeroom notes saved",
+		"submitted_toast": "Class {class} report submitted to the principal",
+		"not_homeroom_title": "You are not a homeroom teacher yet",
+		"not_homeroom_desc": "Class reports are prepared by the homeroom teacher in the active academic year. Contact the school admin if you should be one.",
+		"issue": {
+			"note_max_length": "Maximum {max} characters.",
+			"generic": "Invalid value."
+		},
+		"errors": {
+			"max_length": "Some notes exceed 1000 characters.",
+			"subjects_not_locked": "Some subjects still have unlocked grades.",
+			"notes_incomplete": "Homeroom notes are not complete for every student.",
+			"invalid_transition": "The report has already been submitted and cannot be changed. Reload the page to see the latest status.",
+			"semester_required": "There is no active semester."
+		},
+		"card": {
+			"title": "Semester {term} report card",
+			"hint": "Academic year {year} · version {version} · submitted to the principal",
+			"status_unavailable": "Unavailable",
+			"unavailable": "The report status could not be loaded. Open the class report page to try again.",
+			"msg_returned": "The report was returned by the principal. Review the return note and resubmit.",
+			"msg_approved": "The report has been approved by the principal.",
+			"msg_locked": "The report is locked and published.",
+			"open": "Open class report",
+			"view": "View class report"
+		}
+	},
+	"learner_reports": {
+		"eyebrow": "GRADES & REPORT CARDS · {school}",
+		"title_student": "My report card",
+		"title_parent": "Child report card",
+		"desc_student": "See final grades, competency achievements, attendance, and homeroom notes from report cards published by the school.",
+		"desc_parent": "Follow your child's published report cards: final grades, competency achievements, attendance, and homeroom notes.",
+		"download": "Download report PDF",
+		"child_picker": "Choose child",
+		"semester_picker": "Choose semester",
+		"semester_tab": "Semester {term} · {year}",
+		"identity": "NIS {nis}",
+		"identity_nisn": "NIS {nis} · NISN {nisn}",
+		"class_of": "Class {class}",
+		"current": {
+			"title": "Semester {term} report · {year}",
+			"desc_draft": "Subject teachers are completing and locking final grades; the homeroom teacher is preparing notes.",
+			"desc_submitted": "The homeroom teacher has submitted the report card; the principal is reviewing it.",
+			"desc_approved": "The principal has approved the report card; it will be published soon.",
+			"desc_locked": "This semester's report card is published and shown below."
+		},
+		"status": {
+			"draft": "In progress",
+			"submitted": "Under review",
+			"approved": "Approved",
+			"locked": "Published"
+		},
+		"step": {
+			"draft": "Grades & notes prepared",
+			"submitted": "Submitted by homeroom",
+			"approved": "Approved by principal",
+			"locked": "Report published"
+		},
+		"stat": {
+			"average": "Average score",
+			"subjects": "Subjects",
+			"below_kkm": "Below passing grade",
+			"absent": "Absences"
+		},
+		"days": "{count} days",
+		"subjects_title": "Final grades & competency achievements",
+		"score_aria": "Score {score}",
+		"kkm": "Passing {kkm}",
+		"below_kkm": "Below passing {kkm}",
+		"no_description": "No achievement description.",
+		"no_subjects": "This report card has no subject grades.",
+		"attendance_title": "Absences",
+		"attendance": {
+			"sick": "Sick",
+			"permit": "Excused",
+			"absent": "Unexcused"
+		},
+		"note_title": "Homeroom teacher's note",
+		"no_note": "No note.",
+		"note_by": "Homeroom teacher {name}",
+		"document_title": "Report document",
+		"doc": {
+			"class": "Class",
+			"issued": "Published",
+			"version": "Version"
+		},
+		"version": "Version {version}",
+		"pdf_missing": "The report PDF is not available yet. Contact the school administrator.",
+		"no_report_title": "No published report card yet",
+		"no_report_desc": "Report cards appear here once the school approves and publishes them.",
+		"empty_student_title": "Student record not linked",
+		"empty_student_desc": "This account is not linked to a student record. Contact the school administrator.",
+		"empty_children_title": "No linked children yet",
+		"empty_children_desc": "Ask the school administrator to link your child to your parent account.",
+		"load_failed": "Report cards could not be loaded",
+		"failure": {
+			"unauthenticated": "Your session ended. Please sign in again.",
+			"forbidden": "This account cannot access student report cards.",
+			"not_found": "Report card data not found.",
+			"conflict": "School data is not ready. Try again later.",
+			"validation": "Invalid request.",
+			"gone": "Data is no longer available.",
+			"too_many": "Too many requests. Try again shortly.",
+			"unavailable": "Service is unavailable."
+		}
+	},
+	"student_tasks": {
+		"hero": {
+			"eyebrow": "TASKS & ASSIGNMENTS",
+			"title": "Class Tasks & Projects",
+			"desc": "Track task deadlines, hand in your homework, and see correction notes and scores directly from your teachers.",
+			"stat_total": "Total Tasks",
+			"stat_pending": "To Do",
+			"stat_submitted": "Awaiting Score",
+			"stat_graded": "Graded"
+		}
+	},
+	"help": {
+		"platform_tenant": {
+			"purpose": "This page lists every institution (tenant) registered on FLIXARE with its status, identity, subscription, and access settings, so the platform team can monitor and control each school's access.",
+			"features": {
+				"summary": "See the tenant count summary (total, active, needs action) at the top of the page.",
+				"filter": "Filter the list by status: All, Active, Trial, or Rejected/Suspended.",
+				"search": "Search tenants by name or tenant code.",
+				"detail": "View tenant details: institution identity, PIC contact, subscription (plan, seats, billing cycle), and access & domain.",
+				"access": "Suspend a tenant or reactivate it."
+			},
+			"steps": {
+				"s1": "Pick a status tab or type a tenant name/code in the search box to find an institution.",
+				"s2": "Click a tenant name in the left list to open its details in the right panel.",
+				"s3": "Review the tenant's identity, PIC contact, and subscription data.",
+				"s4": "To stop access, click \"Suspend...\" and confirm. To restore it, click \"Activate...\" and confirm."
+			},
+			"tips": {
+				"suspend": "A suspended tenant blocks access for all of that school's users until it is reactivated.",
+				"subdomain": "The subdomain is locked once the tenant is active and cannot be changed from this page."
+			}
+		},
+		"school_admin_students": {
+			"purpose": "This page manages the school's student data: identity, class, linked parents, and student login accounts. Active students count against the school's subscription seats.",
+			"features": {
+				"add": "Add students one by one or import many at once from an Excel/CSV file (parent data can be imported too).",
+				"find": "Search students by name, NIS, or NISN, and filter by class or students without parents.",
+				"edit": "Edit student data, move classes, link parents, and deactivate or delete students.",
+				"invite": "Invite students to get an account: students with email receive an email invitation, students without email get a username and activation code.",
+				"seats": "Monitor subscription seat usage and add seats when full."
+			},
+			"steps": {
+				"s1": "Make sure classes exist first; the \"Add student\" button is enabled only when there is at least one class.",
+				"s2": "Click \"Add student\" to enter one by one, or \"Import Excel/CSV\", download the template, fill it in, and upload the file.",
+				"s3": "Complete the fields marked * and click \"Save\".",
+				"s4": "Open a student record to link parents if none are linked yet.",
+				"s5": "Click the invite button to send account invitations to students not yet invited.",
+				"s6": "If activation codes appear, copy and share them with students; codes are shown only once."
+			},
+			"tips": {
+				"seat_full": "When seats are full, new students are rejected until seats are added from the subscription page.",
+				"delete": "A student can only be deleted if they have no attendance, grades, or report cards. Otherwise, deactivate them.",
+				"inactive": "Inactive students do not count as seats and cannot sign in.",
+				"code_expiry": "Activation codes are valid for 72 hours."
+			}
+		},
+		"teacher_grades": {
+			"purpose": "This page lists all classes and subjects you teach in the active semester, with the progress of final report-card grades. Locked grades are used by homeroom teachers to compile report cards.",
+			"features": {
+				"overview": "See your teaching assignments (class × subject) for the active semester.",
+				"progress": "Track each grade sheet's progress: Not started, Partial, Ready to lock, or Locked.",
+				"fill": "Open a grade sheet to enter each student's final score and achievement description.",
+				"lock": "Lock grades once all students are complete so they can be used for report cards."
+			},
+			"steps": {
+				"s1": "Pick a class and subject from the list, then click \"Enter grades\".",
+				"s2": "Enter a final score of 0–100 (decimals allowed) and an achievement description for each student.",
+				"s3": "Save your changes; grades can be saved partially and continued later.",
+				"s4": "Once all students are complete, lock the grades.",
+				"s5": "Return to the list to confirm the grade sheet status is \"Locked\"."
+			},
+			"tips": {
+				"semester": "Grades can be entered only after the school admin activates the academic year and semester.",
+				"locked": "Locked grades cannot be changed unless the principal unlocks them.",
+				"assignment": "If the list is empty, you have no teaching assignment this semester. Contact the school admin."
+			}
+		},
+		"student_tasks": {
+			"purpose": "This page shows all tasks and projects from your teachers, with deadlines, submission status, scores, and correction notes.",
+			"features": {
+				"summary": "See a summary of tasks: total, to do, awaiting score, and graded.",
+				"filter": "Filter tasks by subject and status.",
+				"search": "Search tasks by title, instructions, subject, or teacher name.",
+				"detail": "Open a task to read its instructions and submit your answer.",
+				"feedback": "See scores and correction notes from teachers for graded tasks."
+			},
+			"steps": {
+				"s1": "Use the subject filter or the \"To Do\" status to see unfinished tasks.",
+				"s2": "Click a task card to open its details and read the instructions.",
+				"s3": "Attach your answer file and add a note if needed.",
+				"s4": "Submit the task before the deadline; its status changes to \"Submitted\".",
+				"s5": "Check the \"Graded\" tab later to see your score and teacher notes."
+			},
+			"tips": {
+				"deadline": "Watch the deadline on each task card so you don't submit late."
+			}
+		},
+		"platform_audit_log": {
+			"purpose": "This page shows a record of every change in the platform console (applications, tenants, invoices, payments, clusters, plans, authentication, master data, and navigation) so the platform team can trace who did what and when. Records cannot be edited or deleted.",
+			"features": {
+				"filter": "Filter records by keyword, actor, date range, module, severity, or failed only.",
+				"detail": "View record details: before/after changes, note, WIB time, IP address, device, and request ID.",
+				"chain": "Check the hash chain status that proves records were not altered.",
+				"export": "Export the filtered records to CSV."
+			},
+			"steps": {
+				"s1": "Set filters in the top card; the list updates immediately and the filters are kept in the page address.",
+				"s2": "Click a record row to open its details in the right panel.",
+				"s3": "Click \"Load 10 more\" to see older records.",
+				"s4": "Click \"This actor's activity\" to see the same actor's activity over the last 30 days.",
+				"s5": "Click \"Export CSV\" to download the filtered records."
+			},
+			"tips": {
+				"retention": "Records are kept for 2 years, then removed automatically by the retention job.",
+				"export": "Exports are recorded in the audit log too."
+			}
+		},
+		"platform_clusters": {
+			"purpose": "This page lets the platform infrastructure team manage the PostgreSQL clusters where each tenant database is created: connection, capacity, placement status, and backup policy.",
+			"features": {
+				"cards": "Monitor each cluster’s capacity (databases used out of the maximum) on the cards at the top.",
+				"test": "Run a real connection test and see the PostgreSQL version, latency, and SSL usage.",
+				"capacity": "Set the maximum tenant databases, connection pool per database, and capacity warning threshold.",
+				"status": "Set the placement status: \"Accepting tenants\", \"Draining\", or \"Maintenance\".",
+				"backup": "Set the snapshot schedule, retention, and point-in-time recovery, and see the last snapshot.",
+				"dbs": "See the largest tenant databases on the selected cluster."
+			},
+			"steps": {
+				"s1": "Click a cluster card to open its settings, or click \"New cluster\" to add one.",
+				"s2": "Fill in the host, port, admin user, password, and SSL mode, then click \"Test connection\".",
+				"s3": "Adjust capacity, backup, and placement status as needed.",
+				"s4": "Click \"Save changes\" (or \"Add cluster\") in the bottom bar; click \"Discard\" to revert the form."
+			},
+			"tips": {
+				"test": "A new cluster can only be saved after a successful connection test; the server re-tests whenever the connection changes.",
+				"maintenance": "\"Maintenance\" immediately cuts off every tenant on that cluster, and tenant admins are notified by email.",
+				"full": "\"Full\" is computed automatically when used databases reach the maximum.",
+				"password": "The admin password is stored encrypted and never shown; leave it empty to keep it."
+			}
+		},
+		"school_admin_dashboard": {
+			"purpose": "This page is the school admin's daily overview: school data completeness, today's attendance, report card flow, subscription seats, and items that need follow-up. All figures come from your school's data.",
+			"features": {
+				"setup": "Monitor school data completeness and continue filling incomplete sections.",
+				"attendance": "View today's attendance map per class, then select a class to see students who are sick, excused, or absent.",
+				"remind": "Remind homeroom teachers who have not recorded attendance today.",
+				"reports": "Monitor the active semester report card flow, from locked grades to published PDFs.",
+				"seats": "Monitor student seat usage, students and teachers active in the last 7 days, and storage.",
+				"follow_up": "Jump straight to the related page from the \"Needs follow-up\" list."
+			},
+			"steps": {
+				"s1": "If the data completeness card appears, click \"Continue required data\" or \"Continue filling\", or click the name of an unfilled section.",
+				"s2": "Use \"Import students\" or \"Invite teachers\" in the banner to add data quickly.",
+				"s3": "In \"Attendance map · today\", click a class tile to see that class's attendance details.",
+				"s4": "If a class has not recorded attendance, click \"Remind homeroom teachers\" to send a reminder.",
+				"s5": "Click \"Open class attendance\", \"Open report cards\", or \"Add seats\" to go to the detail page.",
+				"s6": "Review \"Needs follow-up\" and click the action link on each row to resolve it."
+			},
+			"tips": {
+				"required": "Teachers and students cannot use FLIXARE until the profile, curriculum, academic year, classes, and subjects are filled.",
+				"remind": "The \"Remind homeroom teachers\" button is disabled when the class has no homeroom teacher or a reminder has already been sent.",
+				"trial": "During the trial, use \"Pay & activate\" or \"View bill\" so the school stays active after the trial ends."
+			}
+		},
+		"school_admin_attendance": {
+			"purpose": "This page monitors which classes have and have not filled attendance, and shows the attendance summary per semester. Attendance is filled by homeroom teachers; admins only monitor it.",
+			"features": {
+				"daily": "View daily attendance per class: present, sick, excused, absent, and presence percentage.",
+				"navigate": "Move to previous days to view past attendance.",
+				"unfilled": "See the list of classes that have not filled attendance today.",
+				"remind": "Send a reminder to homeroom teachers who have not filled attendance today.",
+				"semester": "View the semester summary: average presence per class and the number of students absent 3 days or more."
+			},
+			"steps": {
+				"s1": "Select the \"Daily\" tab for attendance by date, or \"Semester summary\" for the semester overview.",
+				"s2": "On the \"Daily\" tab, use the arrow buttons to change the date.",
+				"s3": "Check the \"PRESENCE\" column; classes that have not filled attendance are marked \"Not yet\".",
+				"s4": "If any class has not filled attendance today, click \"Remind homeroom teachers\".",
+				"s5": "In \"Semester summary\", check \"Students absent ≥ 3 days\" to follow up with homeroom teachers."
+			},
+			"tips": {
+				"monitor": "Admins cannot change attendance entries on this page; homeroom teachers fill them in.",
+				"remind_today": "The \"Remind homeroom teachers\" button is only available for today's attendance and changes to \"Reminder sent\" once sent.",
+				"homeroom": "Classes without a homeroom teacher are marked \"Homeroom teacher not assigned\"; assign one on the Classes page.",
+				"report": "The semester summary is used as attendance data in report cards."
+			}
+		},
+		"school_admin_audit": {
+			"purpose": "This page shows a trail of important school changes, such as deleted and deactivated records, account invitations, and the report card workflow. Use it to trace who did what and when.",
+			"features": {
+				"timeline": "View change history newest first, grouped by day, with the actor and time.",
+				"category": "Filter history by category: teachers & students, guardians, account invitations, or report cards.",
+				"range": "Filter history by date range.",
+				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
+				"more": "Load older history step by step."
+			},
+			"steps": {
+				"s1": "Select a category tab, for example \"Account invitations\" or \"Report cards\".",
+				"s2": "Fill in \"From date\" and \"To date\" to limit the time range.",
+				"s3": "Read each entry along with its actor and time on the \"By …\" line.",
+				"s4": "Click \"Load more\" to see older history.",
+				"s5": "Click \"Reset filters\" to show all history again."
+			},
+			"tips": {
+				"read_only": "This page is read-only; history cannot be changed or deleted.",
+				"range": "The start date cannot be after the end date.",
+				"system": "Entries with \"System\" as the actor come from automated processes, not from a user."
+			}
+		},
+		"school_admin_classes": {
+			"purpose": "This page manages study groups (classes) in the active academic year and their homeroom teachers. Homeroom teachers are required for attendance and report cards.",
+			"features": {
+				"add": "Add classes one by one or import many at once from an Excel/CSV file.",
+				"homeroom": "Assign or change the homeroom teacher for each class.",
+				"find": "Search classes by name and filter by grade or classes without a homeroom teacher.",
+				"capacity": "Monitor student counts against class capacity and view the student list of each class.",
+				"edit": "Change a class's grade, name, and capacity, or delete the class."
+			},
+			"steps": {
+				"s1": "Make sure an active academic year is set; if not, click \"Set academic year\".",
+				"s2": "Click \"Add class\" to enter one by one, or \"Import Excel/CSV\", download the template, fill it in, and upload the file.",
+				"s3": "Select a \"Grade\", fill in the \"Class name\", and optionally the \"Capacity\" and \"Homeroom teacher\".",
+				"s4": "Click \"Save\".",
+				"s5": "Use the \"No homeroom\" tab to find classes without a homeroom teacher, then click a row to assign one."
+			},
+			"tips": {
+				"capacity": "Class capacity must be 1–60 students.",
+				"homeroom": "A teacher can be homeroom of only one class per academic year.",
+				"delete": "A class can only be deleted when it has no students, attendance, or report cards."
+			}
+		},
+		"school_admin_guardians": {
+			"purpose": "This page manages parents/guardians linked to students and invites them to the parent portal. Parents can only see data of their linked children.",
+			"features": {
+				"add": "Add parents one by one or import many at once from an Excel/CSV file.",
+				"link": "Link a parent to one or more children, set the primary contact, and remove links.",
+				"find": "Search by name, email, or child name, and filter by primary contact, not invited, or no email.",
+				"invite": "Send portal invitations to parents with an email, one by one or in bulk.",
+				"edit": "Edit parent data or delete it."
+			},
+			"steps": {
+				"s1": "Make sure student data exists; the \"Add parent\" button is enabled only when there is at least one student.",
+				"s2": "Click \"Add parent\" to enter one by one, or \"Import Excel/CSV\", download the template, fill it in, and upload the file.",
+				"s3": "Fill in \"Full name\", choose the \"Relationship\" and \"Child\", add an \"Email\" for the portal invitation, then click \"Save\".",
+				"s4": "To link another child, open the parent record, choose the child in \"Link to child\", then click \"Save\".",
+				"s5": "Click \"Invite … parents\" on the list to invite in bulk, or \"Send invitation\" inside a parent record."
+			},
+			"tips": {
+				"no_email": "Parents without an email cannot be invited to the portal.",
+				"primary": "Each student has only one primary contact.",
+				"invite_expiry": "Invitation links are valid for 72 hours and single use; use \"Resend\" if one expires.",
+				"delete": "Records can only be deleted when they have no history."
+			}
+		},
+		"principal_dashboard": {
+			"purpose": "This page is the principal's dashboard for monitoring the school and acting on items that need your decision. School data is changed by the school admin and teachers; here you are in view mode.",
+			"features": {
+				"decide": "See how many items need your decision, such as class report cards submitted by homeroom teachers and school admin data changes.",
+				"approvals": "Open the approval inbox to review data change requests.",
+				"reports": "Monitor active semester report card status per step and open class report cards awaiting approval or ready to lock.",
+				"subscription": "View the plan, subscription status, and student seat quota usage."
+			},
+			"steps": {
+				"s1": "Check \"Needs your decision\" in the banner and click the row you want to act on.",
+				"s2": "Click \"Open approval inbox\" to review data change requests.",
+				"s3": "In \"Report card approval\", click a class marked \"Pending\" or \"Ready to lock\" to open its report cards.",
+				"s4": "Click \"Review\" to see all class report cards.",
+				"s5": "Monitor \"Subscription & seat quota\"; adding seats is done by the school admin."
+			},
+			"tips": {
+				"sample": "Sections labeled \"Sample data\" are not connected to school data yet; figures are samples and actions are not saved.",
+				"report_error": "If a message says report card data could not be loaded, reload the page."
+			}
+		},
+		"school_admin_reports": {
+			"purpose": "This page tracks report card progress for every class in the active academic year, from draft to locked. Report cards are prepared by homeroom teachers and approved by the principal; here you monitor them, send reminders, and download PDFs.",
+			"features": {
+				"monitor": "See each class's report status: \"Draft\", \"Submitted\", \"Approved\", or \"Locked · PDF\", along with how many subjects have locked final grades.",
+				"filter": "Filter classes by status using the tabs above the table.",
+				"remind": "Send a reminder to the homeroom teacher for report cards still in draft.",
+				"review": "Open the class report review for submitted report cards to see the details and follow up.",
+				"download": "Download the report card PDF for a locked class."
+			},
+			"steps": {
+				"s1": "Check the summary of report cards per status at the top of the page.",
+				"s2": "Choose a status tab to show the classes you want to monitor.",
+				"s3": "For classes in \"Draft\", click \"Remind\" so the homeroom teacher completes and submits the report card.",
+				"s4": "For submitted or approved classes, click \"View\" to open the class report review.",
+				"s5": "Once the status is \"Locked · PDF\", click \"Download PDF\" to download that class's report cards."
+			},
+			"tips": {
+				"homeroom": "The \"Remind\" button is disabled when no homeroom teacher is assigned. Assign one in the class data first.",
+				"locked_subjects": "A report card cannot be submitted while any subject still lacks locked final grades.",
+				"correction": "Locked report cards can only be corrected after the principal unlocks them, and this is recorded in the audit log."
+			}
+		},
+		"school_admin_report_class": {
+			"purpose": "This page shows the review of one class's report card: status history, subject grade progress, and each student's grades and notes. From here the report card is processed according to your role and its status, from approval to locking and issuing PDFs.",
+			"features": {
+				"timeline": "See the \"Status history\": when the report card was submitted by the homeroom teacher, approved by the principal, and locked, and by whom.",
+				"subjects": "Track \"Subject grade progress\" to make sure every subject has locked its final grades.",
+				"students": "Review \"Student grades & notes\": grades per subject, average, attendance summary (sick, permit, absent), and the homeroom teacher's note.",
+				"decide": "Approve, return to the homeroom teacher, lock, or unlock the report card. The buttons shown depend on your role and the report status.",
+				"pdf": "Download the report card PDF for the whole class or per student once it is locked."
+			},
+			"steps": {
+				"s1": "Read the status and hint in the \"Status history\" card to see the current stage.",
+				"s2": "Check \"Subject grade progress\" and the \"Student grades & notes\" table; click \"Show more\" to read long homeroom notes.",
+				"s3": "If something needs fixing, click \"Return\", write the reason, and confirm to send the report card back to draft.",
+				"s4": "If the report card is correct, click \"Approve\" and confirm.",
+				"s5": "For an approved report card, click \"Lock & issue PDFs\" and confirm with \"Lock report card\" so grades become final and PDFs are issued.",
+				"s6": "Once locked, click \"Download class PDF\" or the \"PDF\" button on a student row to download report cards."
+			},
+			"tips": {
+				"reason": "The reason for returning or unlocking must be 10–500 characters and is sent to the homeroom teacher.",
+				"approve_final": "An approved report card can no longer be returned. Corrections are made by unlocking after it is published.",
+				"unlock": "\"Unlock\" sends the report card back to draft, increases its version, and is recorded in the audit log.",
+				"role": "If no action buttons appear, the current stage is not within your role or is still waiting for the homeroom teacher."
+			}
+		},
+		"school_admin_subscription": {
+			"purpose": "This page shows the school's subscription plan, student seat usage, and recent invoices. Use it to add seats when the number of active students approaches the subscription limit.",
+			"features": {
+				"plan": "See the plan, price per student, subscription status, and the period or trial window.",
+				"seats": "Track \"Student seats used\" against available seats, including seats awaiting payment.",
+				"add_seats": "Add seats at a prorated cost based on the remaining full months in the current period.",
+				"activate": "Open the activation page with \"Pay & activate subscription\" during the trial.",
+				"invoices": "See recent invoices and open their details on the invoices page."
+			},
+			"steps": {
+				"s1": "Check the subscription status and seat usage on the plan card.",
+				"s2": "If you are still on trial, click \"Pay & activate subscription\" to activate the full subscription.",
+				"s3": "To add seats, set the number in the \"Add seats\" section using \"Decrease\"/\"Increase\" or by typing it.",
+				"s4": "Review the prorated cost, then click the add seats button below it.",
+				"s5": "If a prorated invoice is issued, use \"Open invoices page\" or click the invoice in the list to pay it."
+			},
+			"tips": {
+				"no_confirm": "The add seats button processes the request immediately without a confirmation dialog. Make sure the number of seats is right before clicking.",
+				"paid_first": "Outside the trial, extra seats only activate once the prorated invoice is paid.",
+				"trial": "During the trial, extra seats activate immediately and are billed at activation.",
+				"inactive": "Inactive students are not counted as seats. New students are rejected when seats are full."
+			}
+		},
+		"school_admin_teachers": {
+			"purpose": "This page manages the school's teacher records and their sign-in accounts. New teachers can sign in to FLIXARE after receiving and opening their invitation.",
+			"features": {
+				"add": "Add teachers one by one or import many at once from an Excel/CSV file.",
+				"find": "Search teachers by name, email, or NIP, and filter by account status.",
+				"edit": "Edit teacher details, deactivate teachers, or delete teachers who have no history.",
+				"assignments": "See each teacher's number of teaching assignments and homeroom class.",
+				"invite": "Send account invitations to one teacher or to all teachers who have not been invited yet."
+			},
+			"steps": {
+				"s1": "Click \"Add teacher\" to enter one at a time, or \"Import Excel/CSV\" to import many teachers at once.",
+				"s2": "Fill in the fields marked * (full name, gender, and email), then click \"Save\".",
+				"s3": "Use the search field and the \"All\", \"Active\", \"Invited\", or \"Not invited\" tabs to find teachers.",
+				"s4": "Click a teacher row to open the details, edit the data, or see the list of teaching assignments.",
+				"s5": "Click \"Invite … teachers\" on the bar above the list to invite all uninvited teachers at once, or use \"Send invitation\" in the teacher details.",
+				"s6": "If an invitation has expired, open the teacher details and click \"Resend\"."
+			},
+			"tips": {
+				"email": "The email is used for invitations and sign-in, and cannot be changed once the teacher is invited or the account is active.",
+				"expiry": "Invitation links are valid for 72 hours and can only be used once.",
+				"delete": "A teacher can only be deleted if they have no history. Otherwise, deactivate them to keep their teaching history.",
+				"bulk": "Invitations for more than 50 accounts are processed in stages; progress appears on this page."
+			}
+		},
+		"school_admin_years": {
+			"purpose": "This page sets up the school's academic years and semesters. Only one academic year and one semester are active; classes, grades, attendance, and report cards are tied to the active year.",
+			"features": {
+				"overview": "See the active academic year, the active semester and its dates, and the number of classes this year.",
+				"add": "Add a new academic year with odd and even semester dates.",
+				"activate": "Set which academic year and semester are active.",
+				"copy": "Copy class names and grade levels from the active year when creating a new academic year.",
+				"edit": "Change an academic year's dates, or delete an inactive academic year that has no classes."
+			},
+			"steps": {
+				"s1": "Click \"Add academic year\"; the form is prefilled with a suggestion for the next year.",
+				"s2": "Check the \"Academic year name\" (format YYYY/YYYY), the \"Start\" and \"End\" dates, and the start and end dates of the odd and even semesters.",
+				"s3": "Choose the \"Active semester\" (\"Odd\" or \"Even\") and set \"Status\" to \"Active\" if this year will be used right away.",
+				"s4": "For a new academic year, decide whether to copy classes from the active year.",
+				"s5": "Click \"Save\", then click an academic year row whenever you need to edit it again."
+			},
+			"tips": {
+				"one_active": "Activating one academic year deactivates the others. The active year cannot be deactivated until another year is activated.",
+				"dates": "Semester dates must be in order: the odd semester ends before the even semester starts.",
+				"copy": "Students are not copied; promotion is done separately.",
+				"delete": "The active academic year, or one that already has classes, cannot be deleted."
+			}
+		},
+		"account_settings": {
+			"purpose": "This page manages the details and security of the account you use to sign in to FLIXARE, from your profile and password to devices, notifications, and data privacy.",
+			"features": {
+				"profile": "Update your profile photo and personal details in \"My profile\". Some details are managed by your institution or need approval before they apply.",
+				"password": "Change your password with OTP verification in \"Manage password\", or request a reset link if you forgot your current password.",
+				"security": "Turn on 2-step verification and save backup codes in \"Security & 2-step\".",
+				"sessions": "Review signed-in devices and 30 days of sign-in activity, and sign out devices you do not recognize.",
+				"notif": "Choose notification channels per event and set quiet hours in \"Notification preferences\".",
+				"privacy": "Link other accounts for signing in, control who sees your data, download a copy of your data, or request account deletion."
+			},
+			"steps": {
+				"s1": "Choose a menu on the left (or scroll the menu on small screens) for the section you want to change.",
+				"s2": "In \"My profile\", update the details you are allowed to change, then click \"Save profile\".",
+				"s3": "To change your password, open \"Manage password\", enter your current and new password, click \"Continue to OTP verification\", and enter the code.",
+				"s4": "Open \"Security & 2-step\", click \"Turn on 2-step verification\", and follow the three steps until your backup codes are saved.",
+				"s5": "In \"Devices & active sessions\", click \"Sign out\" on any device you do not recognize.",
+				"s6": "Set your notifications in \"Notification preferences\", then click \"Save preferences\"."
+			},
+			"tips": {
+				"dot": "A warning dot on a menu means something needs your attention, such as 2-step verification being off or a request that needs documents.",
+				"approval": "Changes that need approval only apply once approved; a new email only applies after the verification link is opened.",
+				"security_notif": "Security notifications by email are always on and cannot be turned off.",
+				"not_me": "If you see a suspicious sign-in in your history, change your password and turn on 2-step verification right away."
+			}
+		},
+		"approvals_school": {
+			"purpose": "This page is the approvals inbox for name, identity number, and account deletion requests at your school. School admins review requests from teachers, students, parents, and the principal, while the principal reviews requests from school admins.",
+			"features": {
+				"queue": "See requests in the \"Pending\", \"Documents needed\", and \"Done\" tabs, with the remaining deadline.",
+				"filter": "Filter requests by type (\"Full name\", \"Identity number\", \"Delete account\") and search by requester name.",
+				"review": "Open request details: current data, requested change, the requester's reason, attachments, and history.",
+				"decide": "Approve, decline with a reason, or ask the requester for additional documents.",
+				"bulk": "Approve several requests at once from the \"Pending\" tab."
+			},
+			"steps": {
+				"s1": "Open the \"Pending\" tab and handle requests that are close to or past the deadline first.",
+				"s2": "Click the requester's name to open the details, then check the requested change and attachments.",
+				"s3": "Choose a decision: \"Approve\", \"Decline\", or \"Request documents\".",
+				"s4": "To decline, choose a reason; to request documents, choose the documents needed and add a message if necessary.",
+				"s5": "Click the button to submit your decision, then confirm if asked.",
+				"s6": "To approve many requests at once, tick them in the \"Pending\" tab and click \"Approve selected\"."
+			},
+			"tips": {
+				"sla": "The review deadline is 3 working days after the request is submitted.",
+				"docs": "Requesting documents pauses the deadline until the requester uploads them.",
+				"self": "You cannot decide on your own request; it is processed by another reviewer.",
+				"other_reason": "If you choose the \"Other\" reason, an explanation of at least 10 characters is required."
+			}
+		},
+		"approvals_platform": {
+			"purpose": "This page is the super admin approvals inbox for name, employee ID, and account deletion requests from platform console users.",
+			"features": {
+				"queue": "See requests in the \"Pending\", \"Documents needed\", and \"Done\" tabs, with the remaining deadline.",
+				"filter": "Filter requests by type and search by requester name.",
+				"review": "Open request details: current data, requested change, the requester's reason, attachments, and history.",
+				"decide": "Approve, decline with a reason, or ask the requester for additional documents.",
+				"bulk": "Approve several requests at once from the \"Pending\" tab."
+			},
+			"steps": {
+				"s1": "Open the \"Pending\" tab and handle requests that are close to or past the deadline first.",
+				"s2": "Click the requester's name to open the details, then check the requested change and attachments.",
+				"s3": "Choose a decision: \"Approve\", \"Decline\", or \"Request documents\".",
+				"s4": "To decline, choose a reason; to request documents, choose the documents needed and add a message if necessary.",
+				"s5": "Click the button to submit your decision, then confirm if asked.",
+				"s6": "To approve many requests at once, tick them in the \"Pending\" tab and click \"Approve selected\"."
+			},
+			"tips": {
+				"sla": "The review deadline is 3 working days after the request is submitted.",
+				"docs": "Requesting documents pauses the deadline until the requester uploads them.",
+				"self": "You cannot decide on your own request; it is processed by another reviewer.",
+				"deletion": "Accounts whose deletion is approved are deactivated 30 days after approval."
+			}
+		},
+		"tenant_billing": {
+			"purpose": "This page shows the invoices FLIXARE has issued to your institution. From here you can view the details, pay, and print invoices or receipts.",
+			"features": {
+				"list": "See the list of invoices with their status, amount, and due date.",
+				"detail": "Open invoice details: issue date, due date, period, line items, and total.",
+				"online": "Pay via a Virtual Account at your chosen bank or via QRIS, then check the payment status.",
+				"transfer": "Pay by bank transfer and send the transfer proof for verification by the FLIXARE finance team.",
+				"print": "Print or save the invoice as a PDF, and print a receipt for paid invoices."
+			},
+			"steps": {
+				"s1": "Choose an invoice from the list on the left to open its details.",
+				"s2": "In the \"How to pay\" section, choose \"Virtual Account\", \"QRIS\", or \"Bank transfer\".",
+				"s3": "For a Virtual Account, choose a bank and click \"Create … VA number\"; for QRIS, click \"Show QRIS code\".",
+				"s4": "Pay before the instructions expire, then click \"I have paid, check status\".",
+				"s5": "For a bank transfer, transfer to the account shown, fill in the transfer details, upload the proof, and click \"Send transfer proof\".",
+				"s6": "Click \"Print / PDF\" to print the invoice, or \"Print receipt\" once the invoice is paid."
+			},
+			"tips": {
+				"verification": "Bank transfer payments are only marked as paid after the FLIXARE finance team verifies the proof.",
+				"partial": "The transfer amount may be partial, up to the remaining balance.",
+				"proof": "The transfer proof must be a PDF, PNG, or JPG file of at most 5 MB.",
+				"overdue": "Pay overdue invoices promptly so the service is not restricted."
+			}
+		},
+		"teacher_dashboard": {
+			"purpose": "The Teacher Workspace home summarizes your teaching day as a subject teacher, including the date and active semester. Most sections on this page are still previews labeled \"Sample data\" because their modules are not available yet.",
+			"features": {
+				"overview": "See the greeting, date, and active semester at the top of the page.",
+				"preview": "Explore \"Today's agenda\", \"Grading pile per class\", \"Gradebook\", \"Teaching schedule this week\", \"Material & lesson plan progress per class\", \"Latest question bank\", and \"Item analysis\" as sample data.",
+				"grades": "Open the \"Final grades\" menu in the sidebar to enter and lock report card final grades.",
+				"role": "Switch to the homeroom view with the role toggle at the top of the screen if you are also a homeroom teacher."
+			},
+			"steps": {
+				"s1": "Check the date and active semester at the top of the page.",
+				"s2": "Browse the summary sections to get to know the home page; sections labeled \"Sample data\" do not use your class data yet.",
+				"s3": "To enter report card final grades, click the \"Final grades\" menu in the sidebar.",
+				"s4": "If you are also a homeroom teacher, choose \"Homeroom teacher\" on the role toggle at the top of the screen to open the Homeroom Workspace."
+			},
+			"tips": {
+				"sample": "Figures and actions in sections labeled \"Sample data\", such as \"Grade 1 sheet\", \"Open assessment lobby\", or \"Submit lesson plan\", are simulations only and are not saved.",
+				"disabled": "The \"Create assignment\" and \"Question bank\" buttons are not active yet because their modules are not available."
+			}
+		},
+		"teacher_grade_sheet": {
+			"purpose": "Use this grade sheet to enter the final grade and achievement description for each student in one class and subject you teach. Once locked, the grades are used by the homeroom teacher to compile report cards.",
+			"features": {
+				"fill": "Enter a final grade of 0–100 (decimals allowed) and an achievement description of up to 500 characters for each student.",
+				"summary": "Track the \"Passing grade\", the number of \"Grades entered\", and students \"Below passing grade\" in the summary cards.",
+				"save": "Save grades gradually with the \"Save\" button and continue later.",
+				"lock": "Lock the grades with the \"Lock grades\" button once every student's grade and description are complete.",
+				"view": "View locked grades and the class report status in read-only mode."
+			},
+			"steps": {
+				"s1": "Open the grade sheet from the \"Final grades\" page by clicking \"Enter grades\" on the class and subject you want.",
+				"s2": "Fill in the \"Final grade\" (0–100) for each student; grades below the passing grade are highlighted.",
+				"s3": "Write the \"Achievement description\" for each student who has a grade.",
+				"s4": "Click \"Save\" to store your changes; grades can be saved partially.",
+				"s5": "Once all students are complete, click \"Lock grades\" and confirm with \"Lock grades\" in the dialog.",
+				"s6": "Click \"Back to list\" to check the status of your other grade sheets."
+			},
+			"tips": {
+				"description": "An achievement description is only saved once that student's grade is entered.",
+				"rounding": "Grades are rounded to 2 decimal places.",
+				"autosave": "Unsaved changes are saved automatically first when you lock the grades.",
+				"locked": "Locked grades can no longer be changed; only the principal can reopen them."
+			}
+		},
+		"homeroom_dashboard": {
+			"purpose": "The Homeroom Workspace home summarizes your tasks as a homeroom teacher, including the semester report status of your homeroom class. Other sections labeled \"Sample data\" are still previews because their modules are not available yet.",
+			"features": {
+				"report": "Track the status and completeness of your homeroom class's semester report: locked subjects and the number of homeroom notes written.",
+				"open_report": "Open the class report page with the \"Open class report\" or \"View class report\" button.",
+				"attendance": "Record daily attendance that is actually saved through the \"Class attendance\" menu in the sidebar.",
+				"preview": "Explore daily attendance, \"Parent requests\", \"Liaison book\", \"Grade recap for all subjects\", \"Students needing attention\", the class schedule, and \"Behavior & counseling notes\" as sample data.",
+				"role": "Switch back to the subject teacher view with the role toggle at the top of the screen."
+			},
+			"steps": {
+				"s1": "Check your homeroom class name and the date at the top of the page.",
+				"s2": "Review the semester report card to see which subjects are not locked yet and which notes are incomplete.",
+				"s3": "Click \"Open class report\" to write homeroom notes and submit the report.",
+				"s4": "To record daily attendance that is saved, click the \"Class attendance\" menu in the sidebar.",
+				"s5": "To enter grades for subjects you teach, click the \"Subject final grades\" menu in the sidebar."
+			},
+			"tips": {
+				"sample": "Entries and actions in sections labeled \"Sample data\", such as \"Fill in attendance\", \"Approval inbox\", liaison book replies, or saving behavior notes, are simulations only and are not saved.",
+				"attendance": "Only attendance recorded on the \"Class attendance\" page is saved and used for the report summary.",
+				"report_unavailable": "If the report card shows \"Unavailable\", open the class report page to reload its status."
+			}
+		},
+		"homeroom_attendance": {
+			"purpose": "Homeroom teachers use this page to record daily attendance for their homeroom class. Each student has one record per date, and the summary is used for report cards and monitored by the school admin.",
+			"features": {
+				"status": "Mark each student's status: \"Present\", \"Sick\", \"Excused\", or \"Absent\".",
+				"bulk": "Mark every student at once with the \"Mark all present\" button.",
+				"note": "Add a short note per student (optional, up to 200 characters).",
+				"date": "Move to the previous or next day with the arrow buttons to fill in or correct attendance.",
+				"summary": "See the number of students per status in the summary cards at the top."
+			},
+			"steps": {
+				"s1": "Make sure the displayed date is correct; use the arrow buttons to change days.",
+				"s2": "Click \"Mark all present\" if most students are present.",
+				"s3": "Change the status of absent students to \"Sick\", \"Excused\", or \"Absent\".",
+				"s4": "Fill in \"Note (optional)\" if extra information is needed.",
+				"s5": "Click \"Save attendance\"; the \"Filled\" label appears for that date.",
+				"s6": "To make corrections, change the entries and click \"Update attendance\"."
+			},
+			"tips": {
+				"default": "Students without an entry default to \"Present\", so double-check before saving.",
+				"future": "Attendance cannot be recorded for dates after today or on holidays.",
+				"follow_up": "School admins monitor this summary; students absent for 3 or more days need follow-up."
+			}
+		},
+		"homeroom_report": {
+			"purpose": "Homeroom teachers use this page to prepare the homeroom class report card: write a note for each student, check that subject grades are complete, then submit the report to the principal.",
+			"features": {
+				"notes": "Write a \"Homeroom note\" for each student (up to 1000 characters).",
+				"review": "See each student's average, subject grades, and sick/permit/absent summary.",
+				"checklist": "Check \"Report completeness\" and the lock status of each subject along with its teacher.",
+				"submit": "Submit the report with the \"Submit to principal\" button once all requirements are met.",
+				"history": "Track the \"Submission history\": submitted, approved, and locked."
+			},
+			"steps": {
+				"s1": "Check the \"Report completeness\" panel to see which subjects' grades are not locked yet.",
+				"s2": "Write a progress and attitude note in each student's \"Homeroom note\" field.",
+				"s3": "Click \"Save notes\"; notes can be saved gradually.",
+				"s4": "Once all subject grades are locked and notes are complete, click \"Submit to principal\" and confirm.",
+				"s5": "Track the report status and \"Submission history\" until the report is approved and locked."
+			},
+			"tips": {
+				"subjects": "If a subject is \"Not locked\", ask its subject teacher to lock the final grades first.",
+				"readonly": "While the principal is reviewing, notes cannot be changed unless the report is returned.",
+				"returned": "If the report is returned, read the return note at the top, make corrections, then resubmit.",
+				"attendance": "The attendance summary is calculated automatically from daily attendance, so make sure class attendance has been recorded."
+			}
+		},
+		"guardian_dashboard": {
+			"purpose": "The Guardian Portal home is designed to summarize your child's activities, scores, attendance, and messages from the homeroom teacher. For now, all of its content is sample data because the data service is not connected yet.",
+			"features": {
+				"child": "Switch between children with the child name buttons at the top of the page.",
+				"preview": "Explore the \"Liaison book\", \"Scores this semester\", monthly attendance, and \"Upcoming\" sections as sample data.",
+				"report": "Open the \"Report cards\" menu in the sidebar to see your child's official report cards published by the school."
+			},
+			"steps": {
+				"s1": "Choose a child with the name buttons at the top of the page if you have more than one child.",
+				"s2": "Browse the home sections to get to know the portal; the figures shown do not reflect your child's data yet.",
+				"s3": "To see official grades and report cards, click the \"Report cards\" menu in the sidebar."
+			},
+			"tips": {
+				"sample": "The \"I've reminded them\" button and \"Liaison book\" replies are simulations only and are not sent to the homeroom teacher.",
+				"unavailable": "The \"Details\" link and menus without a page cannot be opened yet."
+			}
+		},
+		"learner_reports_student": {
+			"purpose": "This page shows your report cards published by the school: final grades, competency achievements, absences, and the homeroom teacher's note. You can also follow the progress of the current semester's report card.",
+			"features": {
+				"progress": "Follow the current semester's report stages, from \"Grades & notes prepared\" to \"Report published\".",
+				"summary": "See the \"Average score\", number of subjects, subjects \"Below passing grade\", and total absences.",
+				"subjects": "Read the final grade and achievement description for each subject, along with its passing grade.",
+				"note": "Read the \"Homeroom teacher's note\" and the sick, excused, and unexcused absence summary.",
+				"download": "Download the report document with the \"Download report PDF\" button."
+			},
+			"steps": {
+				"s1": "Check the current semester's report status to see which stage it has reached.",
+				"s2": "If more than one report card is published, choose a semester from the \"Semester … · …\" tabs.",
+				"s3": "Review the summary cards, then read the grades and achievements under \"Final grades & competency achievements\".",
+				"s4": "Read the \"Homeroom teacher's note\" and the \"Absences\" summary.",
+				"s5": "Click \"Download report PDF\" to save the report document."
+			},
+			"tips": {
+				"published": "Report cards appear only after the school approves and publishes them.",
+				"pdf": "If it says \"The report PDF is not available yet\", contact the school administrator.",
+				"linked": "If \"Student record not linked\" appears, ask the school administrator to link your account to your student record."
+			}
+		},
+		"learner_reports_guardian": {
+			"purpose": "This page shows your child's report cards published by the school: final grades, competency achievements, absences, and the homeroom teacher's note. You can also follow the progress of the current semester's report card.",
+			"features": {
+				"child": "Switch between children with the child name tabs if more than one child is linked to your account.",
+				"progress": "Follow the current semester's report stages, from \"Grades & notes prepared\" to \"Report published\".",
+				"summary": "See the \"Average score\", number of subjects, subjects \"Below passing grade\", and total absences.",
+				"subjects": "Read the final grades, achievement descriptions, and \"Homeroom teacher's note\" for each report card.",
+				"download": "Download the report document with the \"Download report PDF\" button."
+			},
+			"steps": {
+				"s1": "If you have more than one child, choose a child from the tabs at the top.",
+				"s2": "Check the current semester's report status to see which stage it has reached.",
+				"s3": "If more than one report card is published, choose a semester from the \"Semester … · …\" tabs.",
+				"s4": "Review the grades, achievements, \"Absences\" summary, and \"Homeroom teacher's note\".",
+				"s5": "Click \"Download report PDF\" to save the report document."
+			},
+			"tips": {
+				"published": "Report cards appear only after the school approves and publishes them.",
+				"pdf": "If it says \"The report PDF is not available yet\", contact the school administrator.",
+				"linked": "If \"No linked children yet\" appears, ask the school administrator to link your child to your account."
+			}
+		},
+		"student_dashboard": {
+			"purpose": "This home page sums up your school day: today's assessments, level and XP, this week's tasks, subject progress, recent scores, remedials, and attendance history.",
+			"features": {
+				"mission": "See the \"TODAY'S MISSION\" card with your next assessment, its time, number of questions, XP reward, and a countdown to the start.",
+				"level": "Track your level, XP toward the next level, and your learning streak for the week.",
+				"quests": "See \"This week's tasks\" with their deadlines and XP.",
+				"subjects": "See progress per subject in \"Subject collection\" and scores in \"Recent scores\".",
+				"improve": "Check \"Needs remedial\" and \"To improve this semester\" to find topics still below target.",
+				"attendance": "See the monthly \"Attendance history\" calendar with the rate and count of each status."
+			},
+			"steps": {
+				"s1": "Read the greeting and the \"TODAY'S MISSION\" card to see whether you have an assessment today and when it starts.",
+				"s2": "Check \"This week's tasks\"; a red deadline means it is urgent.",
+				"s3": "Look at \"Subject collection\" and \"Recent scores\" to track your progress.",
+				"s4": "Open \"Needs remedial\" and click an item in \"To improve this semester\" to read its study tip.",
+				"s5": "Pick a month in \"Attendance history\" to see your attendance calendar."
+			},
+			"tips": {
+				"simulation": "The \"Start assessment\" button, task checkboxes, and \"Start remedial\" are not connected to the exam or task system yet: when enabled, they only show a simulation notice that is not saved.",
+				"target": "The thin line on a score bar marks the mastery target; aim to get past it."
+			}
+		},
+		"student_assessments": {
+			"purpose": "This page shows the schedule of quizzes, summative tests, tryouts, and remedial exams for your class, with duration, number of questions, passing score (KKM), and results.",
+			"features": {
+				"summary": "See a summary of exams: total, active today, upcoming, and needing remedial.",
+				"filter": "Filter exams by subject and status (\"Aktif Hari Ini\", \"Mendatang\", \"Riwayat & Nilai\", \"Remedial\").",
+				"search": "Search exams by title, room code, subject, or teacher name.",
+				"detail": "Open an exam to read its duration, number of questions, KKM, proctor, and rules.",
+				"result": "See the score and the \"Lulus KKM\" or \"Perlu Remedial\" status of finished exams."
+			},
+			"steps": {
+				"s1": "Pick a subject or status tab, or type in the search box to find an exam.",
+				"s2": "Look for cards marked \"● Ujian Dibuka\" for exams that are open today.",
+				"s3": "Click the card button (\"Mulai Ujian Sekarang\", \"Mulai Ujian Remedial\", \"Lihat Jadwal & Petunjuk\", or \"Lihat Pembahasan & Nilai\") to open its details.",
+				"s4": "Read \"Tata Tertib & Petunjuk Ujian\" before clicking \"Konfirmasi & Masuk Ujian\".",
+				"s5": "Click \"Tutup\" or \"Keluar Sesi\" to go back to the list."
+			},
+			"tips": {
+				"simulation": "The exam session on this page is still a visual simulation: there are no questions to answer yet and no answers are saved.",
+				"reset": "If the list is empty, click \"Reset Semua Filter\" to show all exams again."
+			}
+		},
+		"student_attendance": {
+			"purpose": "This page sums up your attendance: attendance rate, late arrivals, leave, sick days, the daily attendance log, and your leave request history.",
+			"features": {
+				"summary": "See your semester attendance rate, learning streak, late arrivals, and leave/sick days.",
+				"month": "Pick a month to see days present, late, on leave, sick, and absent.",
+				"log": "Read the \"Log Presensi Harian\" with check-in time, check-out time, status, and notes.",
+				"history": "See the \"Riwayat Pengajuan Izin & Surat Keterangan Sakit\" and its attachments.",
+				"permit": "Fill in the \"Request Leave / Sick\" form with the type, dates, reason, and an attachment."
+			},
+			"steps": {
+				"s1": "Check the attendance summary at the top of the page.",
+				"s2": "Pick a month from the month buttons to see that month's summary.",
+				"s3": "Scroll to \"Log Presensi Harian\" to see the record for each day.",
+				"s4": "For leave or sick days, click \"Request Leave / Sick\", choose the type, fill in the dates and reason, then attach a letter.",
+				"s5": "Click \"Kirim Permohonan\" to close the form."
+			},
+			"tips": {
+				"not_sent": "The leave/sick form is still a sample view: the request is not actually sent to your homeroom teacher or duty teacher and does not appear in the history. Keep using the school's official channel to report leave.",
+				"empty_log": "The daily log is only available for months that already have details; other months show only the totals."
+			}
+		},
+		"student_materials": {
+			"purpose": "This page holds learning materials from your teachers, such as videos, PDF modules, slides, and article summaries, together with your learning progress.",
+			"features": {
+				"summary": "See the number of materials, how many you have finished, and how many are in progress.",
+				"filter": "Filter materials by subject and format (\"Video\", \"PDF\", \"Slide\").",
+				"search": "Search materials by title, chapter, topic code, description, or subject.",
+				"progress": "See each material's status and progress bar (\"Selesai\", a percentage, or \"Belum dibuka\").",
+				"detail": "Open a material's summary, learning objectives, duration, and teacher."
+			},
+			"steps": {
+				"s1": "Pick a subject or format, or type a keyword in the search box.",
+				"s2": "Check the progress on each card to find unfinished materials.",
+				"s3": "Click \"Buka Materi\" to read its summary and learning objectives.",
+				"s4": "Click \"Tutup\" to go back to the list."
+			},
+			"tips": {
+				"not_ready": "The \"Pelajari Sekarang\" and \"Unduh Berkas\" buttons do not open or download a file yet; for now they only close the detail window.",
+				"reset": "If no materials are shown, click \"Reset Semua Filter\"."
+			}
+		},
+		"student_messages": {
+			"purpose": "This page is your message room with your homeroom teacher, subject teachers, and the class announcement channel.",
+			"features": {
+				"contacts": "See the \"Daftar Guru & Saluran\" list with each last message and unread count.",
+				"filter": "Filter contacts with the \"Semua\", \"Guru\", or \"Pengumuman\" tabs.",
+				"search": "Search teachers by name, role, or last message.",
+				"read": "Read conversation history and school announcements.",
+				"compose": "Write a message in the input field at the bottom of the chat room."
+			},
+			"steps": {
+				"s1": "Pick a tab or search for a teacher in the left panel.",
+				"s2": "Click a contact to open the conversation.",
+				"s3": "Read messages and announcements in the chat room on the right.",
+				"s4": "To reply, type a message in the bottom field, then press Enter or click the send button; remember that the message is not actually sent yet (see the notes)."
+			},
+			"tips": {
+				"not_sent": "Sending messages is not connected to the server yet: what you write is not sent to your teacher and is not saved. For anything important, contact your teacher through the school's official channel.",
+				"not_ready": "The call, video, contact info, and attachment buttons do not work yet."
+			}
+		},
+		"platform_invoices": {
+			"purpose": "This page is for creating, issuing, and tracking tenant invoices, including recording and verifying their payments. Issued invoices are locked and cannot be changed.",
+			"features": {
+				"find": "Search invoices by number or tenant name, and filter by status: \"All\", \"Drafts\", \"Unpaid\", \"Overdue\", or \"Paid\".",
+				"draft": "Prepare a draft invoice: tenant, issue date, \"Terms\", \"Service period\", line items (auto-filled with \"Fill from tenant subscription\"), discount, 11% VAT, and \"Destination account\".",
+				"issue": "Check the layout with \"Preview & print\" (print or save as PDF), then issue an officially numbered invoice and email it to the PIC with \"Issue & send\".",
+				"follow": "Follow up on issued invoices: \"Send reminder\", \"Record payment\" for funds already received, or \"Void invoice\".",
+				"proof": "Review transfer proofs sent by tenants, then choose \"Verify\" or \"Reject\" with a reason.",
+				"settings": "Set the letterhead, signer, default terms, Virtual Account bank, default note, and destination accounts in \"Issuer settings\"."
+			},
+			"steps": {
+				"s1": "Click \"New invoice\", then choose the tenant in the \"Tenant\" field.",
+				"s2": "Set the issue date, \"Terms\", and \"Service period\". Add line items with \"Add row\" or click \"Fill from tenant subscription\".",
+				"s3": "Adjust the discount, VAT, \"Destination account\", and note if needed, then click \"Save draft\".",
+				"s4": "Click \"Preview & print\" to check the invoice before issuing it.",
+				"s5": "Click \"Issue & send\" and confirm. The invoice gets an official number and is emailed to the tenant PIC.",
+				"s6": "Once funds arrive, click \"Record payment\" or verify the tenant's transfer proof. The status becomes \"Paid\" when the payment is sufficient."
+			},
+			"tips": {
+				"locked": "Issued invoices cannot be changed. To correct one, void it (reason of at least 5 characters) and create a new one, for example with \"Duplicate as draft\".",
+				"sample": "If a warning says the letterhead still uses sample data, complete \"Issuer settings\" before issuing invoices.",
+				"reminder": "A reminder can only be sent again 1 hour after the last one.",
+				"delete": "Only drafts can be deleted, using \"Delete draft\". Drafts have no number, so no invoice number gap is left."
+			}
+		},
+		"platform_payments": {
+			"purpose": "This page is for verifying transfer proofs sent by tenants and recording manual payments received outside the system. VA and QRIS payments through the gateway are verified automatically.",
+			"features": {
+				"find": "Search payments by tenant, invoice number, or reference, and filter by tab: \"Verify\", \"All\", \"Verified\", or \"Rejected\".",
+				"compare": "Compare the amount paid with the invoice's remaining balance and see the difference.",
+				"proof": "View the transfer proof and payment details: method, time, sender, reference, invoice, and due date.",
+				"mutation": "Record that a payment has been matched against the bank statement with \"Mark as checked\".",
+				"decide": "Verify a payment so it is recorded to the invoice, or reject it with a reason that is emailed to the tenant PIC.",
+				"manual": "Record a manual payment (\"Bank transfer\", \"Virtual account\", \"QRIS\", or \"Cash / cheque\") with \"Record payment\"."
+			},
+			"steps": {
+				"s1": "Open the \"Verify\" tab, then click the payment you want to review.",
+				"s2": "Check the transfer proof, the payment details, and the difference from the remaining balance.",
+				"s3": "Match it against the bank statement, then click \"Mark as checked\".",
+				"s4": "In the \"Action\" section, choose \"Verify\" or \"Reject\". To reject, pick one of the rejection reasons.",
+				"s5": "Click \"Verify payment\" or \"Reject payment\", then confirm.",
+				"s6": "For payments outside the system, click \"Record payment\", choose the invoice, enter the amount, date, method, and sender details, attach the proof, then click \"Save & verify\"."
+			},
+			"tips": {
+				"partial": "If the amount is less than the remaining balance, it is recorded as a partial payment and the invoice stays unpaid.",
+				"proof": "Proof is required for \"Bank transfer\" unless you tick \"Checked against the bank statement\". Files must be JPG, PNG, or PDF, max 5 MB.",
+				"limits": "The recorded amount cannot exceed the remaining balance, and the date received cannot be in the future.",
+				"manual": "Manual payments are verified immediately once saved."
+			}
+		},
+		"platform_applications": {
+			"purpose": "This page is for reviewing new institution applications from the sign-up page: check and correct the details, complete verification, then approve, request changes, or reject. The tenant database is created automatically after approval.",
+			"features": {
+				"queue": "View the queue by status (\"Waiting\", \"Revision\", \"Approved\", \"Rejected\") and search by name or NPSN. Waiting applications show their age and SLA progress.",
+				"edit": "Correct application details (institution name, level, time zone, seats or participants, address, and PIC contact) and open attached files.",
+				"checks": "Complete \"Verification\": some items are checked automatically, others are ticked manually, including \"Mark as not duplicate\".",
+				"decide": "Decide on the application: \"Approve\" (choose plan, trial, and database cluster), \"Request changes\" (choose sections and write a message), or \"Reject\" (choose a reason).",
+				"reopen": "Reopen a rejected application with \"Reopen\", or return a revised application to the queue with \"Mark as fixed\".",
+				"provisioning": "Track the progress of preparing the tenant database after approval."
+			},
+			"steps": {
+				"s1": "In the \"Waiting\" tab, click an application in the left list.",
+				"s2": "Review the application details and correct them if needed. Open the attachments to check the documents.",
+				"s3": "Complete every item in the \"Verification\" section by ticking the manual checks.",
+				"s4": "In the \"Decision\" section, choose \"Approve\", \"Request changes\", or \"Reject\", then fill in the requested details.",
+				"s5": "Click the decision button at the bottom, for example \"Approve & create database\", then confirm.",
+				"s6": "Follow the result in the \"Approved\", \"Revision\", or \"Rejected\" tab."
+			},
+			"tips": {
+				"checks": "\"Approve\" is only possible after every verification item is met.",
+				"edits": "Corrections are saved when the decision is confirmed. Click \"Discard changes\" to restore the original details.",
+				"paid": "A paid plan without a trial issues the first invoice right away; the database is prepared once the invoice is paid.",
+				"notify": "The change request message (at least 10 characters) and rejection reason are emailed to the applicant's PIC."
+			}
+		},
+		"registration": {
+			"purpose": "This page guides you through registering your institution with FLIXARE, from creating an account, choosing a plan, and paying or starting a trial, to the initial setup before entering the dashboard.",
+			"features": {
+				"type": "Choose the institution type: \"School\", \"Private tutor\", or \"Session organizer\". The steps and requirements follow the selected type.",
+				"account": "Create the account of the person in charge and verify it with a 6-digit code.",
+				"plan": "Fill in the institution details, then choose a plan, number of seats, \"Monthly\" or \"Yearly\" cycle, and a trial when available.",
+				"pay": "Pay the invoice via Virtual Account or QRIS, then check the payment status.",
+				"status": "Follow the approval and database activation status; it refreshes automatically.",
+				"setup": "Complete the initial setup for your institution type, such as profile, academic year, classes, and subjects."
+			},
+			"steps": {
+				"s1": "Choose the institution type, enter the person in charge and password, tick the agreement, then click \"Send verification code\".",
+				"s2": "Enter the 6-digit code you received. Click \"Resend code\" if it has not arrived.",
+				"s3": "Complete the institution details (a school's NPSN is checked automatically), then click \"Continue to plan\".",
+				"s4": "Choose the plan, number of seats, and billing cycle, then continue to the payment step.",
+				"s5": "For a trial, click \"Request trial\". For a paid plan, choose Virtual Account or QRIS, pay the invoice, then click \"I have paid, check status\".",
+				"s6": "Wait for approval and database activation, then click \"Start initial setup\".",
+				"s7": "Fill in each setup step and click \"Save & continue\", then click \"Go to dashboard\" on the last step."
+			},
+			"tips": {
+				"review": "School applications are reviewed by the FLIXARE team (target ≤ 1 business day); for paid plans, the invoice can only be paid after approval. Private tutors and session organizers are approved automatically.",
+				"revision": "If the team requests changes, click \"Fix details\" and update the requested institution details.",
+				"import": "Importing teachers and students from Excel is not available yet. Choose \"Skip for now\" and add them from the dashboard."
+			}
+		},
+		"platform_dashboard": {
+			"purpose": "This page summarizes the state of the FLIXARE platform: key metrics, the application queue, database cluster capacity, the provisioning log, revenue, billing, and churn risk.",
+			"features": {
+				"period": "Switch the summary metrics period: \"7 days\", \"30 days\", or \"90 days\".",
+				"queue": "View the \"Application queue\" with each application's age and SLA usage.",
+				"infra": "Monitor \"DB clusters\" capacity and the tenant database \"Provisioning log\".",
+				"revenue": "View the \"Monthly revenue\" chart and each month's details.",
+				"billing": "View the invoice status breakdown under \"Billing\" and the \"Churn risk\" list.",
+				"plans": "Open subscription plan management with the \"Manage plans\" button."
+			},
+			"steps": {
+				"s1": "Choose a period at the top right to change the range of the summary metrics.",
+				"s2": "Check the metric cards below the title for a quick view of the platform.",
+				"s3": "Review the \"Application queue\". Approve or reject decisions are made on the \"Institution applications\" page.",
+				"s4": "Monitor \"DB clusters\" and the \"Provisioning log\" to make sure capacity and database setup are running normally.",
+				"s5": "Click a bar in \"Monthly revenue\" to see that month's details, then check \"Billing\" and \"Churn risk\"."
+			},
+			"tips": {
+				"data": "The backend data source for this dashboard is not available yet, so the figures shown are still sample data."
+			}
+		},
+		"platform_master_data": {
+			"purpose": "This page is for managing the reference (master) data used by every tenant, such as institutions, education levels, academic years, curriculum, subjects, users, roles, permissions, and notification templates.",
+			"features": {
+				"pick": "Choose a master from the left list, grouped by section, and find it with \"Search masters\".",
+				"find": "Search records by name or code and filter by status: \"All\", \"Active\", \"Inactive\", or \"Archived\".",
+				"edit": "Add new records with the \"Add\" button and edit a record by clicking its row.",
+				"template": "For notification templates, insert variables into the message and see a preview.",
+				"csv": "Export the selected master with \"Export CSV\"."
+			},
+			"steps": {
+				"s1": "Choose the master you want to manage in the left list.",
+				"s2": "Find records with \"Search name or code\" or filter by status.",
+				"s3": "Click the \"Add\" button (followed by the master name) for a new record, or click a row to edit it.",
+				"s4": "Fill in the fields marked * in the panel, choose a status, then click \"Save\".",
+				"s5": "To delete, open the record, click \"Delete data\", and confirm."
+			},
+			"tips": {
+				"in_use": "Records still used by other data cannot be deleted. Change the status to \"Archived\" so they no longer appear in new choices.",
+				"inactive": "\"Inactive\" temporarily hides a record from new choices; existing data keeps using it.",
+				"code": "The code is locked after creation so references from other data stay intact."
+			}
+		},
+		"platform_navigation": {
+			"purpose": "This page is for arranging the sidebar menu of each role (Platform, School admin, Teacher, Student, and Parent): groups, order, routes, icons, and menu visibility.",
+			"features": {
+				"role": "Choose the role whose sidebar you want to arrange. A dot marks roles with unsaved changes.",
+				"tree": "Add groups and menus with \"New group\" and \"New menu\", search menus, reorder them with the arrow buttons, and hide menus with the eye icon.",
+				"editor": "Edit menu or group details: name, status, \"Parent group\", \"Open in\", \"Route\", counter next to the menu, icon, and group behavior.",
+				"preview": "See a live sidebar preview; click a menu in the preview to edit it.",
+				"reset": "Restore a role's sidebar to the \"Default layout\"."
+			},
+			"steps": {
+				"s1": "Choose the role whose sidebar you want to arrange.",
+				"s2": "Click \"New group\" or \"New menu\", or select a group/menu in the list to edit it.",
+				"s3": "Fill in the name, route, icon, and other settings in the editor panel.",
+				"s4": "Reorder with the arrow buttons and set visibility with the eye icon.",
+				"s5": "Check the result in the sidebar preview.",
+				"s6": "Click \"Save … sidebar\" (with the role name) to save, or \"Discard\" to drop your changes."
+			},
+			"tips": {
+				"access": "Hiding a menu does not revoke access; the server still checks permissions.",
+				"per_role": "Changes are saved per role. Save every role you change.",
+				"empty_group": "A group without menus that is not clickable will not appear in the sidebar.",
+				"reset": "\"Default layout\" replaces that role's entire layout with the original one after you confirm."
+			}
+		},
+		"platform_plans": {
+			"purpose": "This page is for managing the subscription plans offered on the sign-up page: price, usage limits, session rules, trial, and features for each institution type.",
+			"features": {
+				"find": "Search plans by code or name and filter by type: \"All\", \"School\", \"Teacher\", or \"Session\".",
+				"identity": "Set the \"Plan identity\": code, name, badge, institution type, status, and description.",
+				"price": "Set the pricing model, price, and tax. Per-session plans also offer \"Volume discount\" and \"Allow session top-up\".",
+				"limits": "Set \"Usage limits\" and \"Free trial\", or \"Session rules\" for per-session plans.",
+				"features": "Enable plan features and check the \"Preview on the sign-up page\"."
+			},
+			"steps": {
+				"s1": "Click \"New plan\", or select a plan in the left list to edit it.",
+				"s2": "Complete the \"Plan identity\" and \"Price\" sections.",
+				"s3": "Set the usage limits or session rules, trial, and \"Features\".",
+				"s4": "Check how the plan looks in \"Preview on the sign-up page\".",
+				"s5": "Click \"Save\" to save your changes, or \"Publish\" and confirm so the plan appears on the sign-up page. For active plans, use \"Apply changes\"."
+			},
+			"tips": {
+				"existing": "Price and feature changes apply to new subscriptions and the next renewal; issued invoices do not change.",
+				"delete": "Plans that already have customers cannot be deleted. Change the status to \"Archived\" if you no longer want to offer them."
+			}
+		}
+	},
+	"audit_log": {
+		"eyebrow": "SECURITY · AUDIT LOG",
+		"title": "Audit log",
+		"desc": "A record of every change in the platform console. It cannot be edited or deleted; kept for 2 years.",
+		"export": "Export CSV ({count})",
+		"filters": "Audit log filters",
+		"search": "Search",
+		"search_ph": "Action, entity, IP, or request ID",
+		"actor_label": "Actor",
+		"actor_all": "All actors",
+		"range_label": "Range",
+		"range": {
+			"today": "Today",
+			"7": "7 days",
+			"30": "30 days",
+			"custom": "Custom"
+		},
+		"from": "From",
+		"to": "To",
+		"module_label": "Module",
+		"severity_label": "Severity",
+		"failed_only": "Failed only",
+		"clear_all": "Clear all filters",
+		"clear": "Clear filters",
+		"list_label": "Audit records",
+		"detail_label": "Record details",
+		"col": {
+			"time": "Time",
+			"actor": "Actor",
+			"action": "Action",
+			"severity": "Severity"
+		},
+		"severity": {
+			"info": "Info",
+			"warn": "Warning",
+			"crit": "Critical"
+		},
+		"result": {
+			"ok": "Succeeded",
+			"fail": "Failed"
+		},
+		"modules": {
+			"applications": "Applications",
+			"tenants": "Tenants",
+			"invoices": "Invoices",
+			"payments": "Payments",
+			"clusters": "Clusters",
+			"plans": "Plans",
+			"auth": "Authentication",
+			"master_data": "Master data",
+			"navigation": "Navigation",
+			"audit": "Audit",
+			"other": "Other"
+		},
+		"actor": {
+			"system": "System",
+			"gateway": "Payment gateway",
+			"unknown": "Unknown user"
+		},
+		"showing": "Showing {shown} of {total} records",
+		"load_more": "Load {count} more",
+		"loading": "Loading…",
+		"empty_title": "No records yet",
+		"empty_desc": "No activity was recorded in this range.",
+		"empty_filtered_title": "No matching records",
+		"empty_filtered_desc": "No records match the filters.",
+		"no_selection": "Select a record to see the change details.",
+		"changes": "Changes",
+		"before": "Before",
+		"after": "After",
+		"meta": {
+			"time": "Time",
+			"time_value": "{date} {time} WIB",
+			"actor": "Actor",
+			"module": "Module",
+			"ip": "IP address",
+			"device": "Device",
+			"request_id": "Request ID"
+		},
+		"device_service": "System service",
+		"chain": {
+			"verified": "Hash chain verified",
+			"pending": "Not in the latest verification (up to AUD-{last})",
+			"broken": "Hash chain broken from AUD-{seq}",
+			"checking": "Checking hash chain…",
+			"unavailable": "Hash chain status unavailable"
+		},
+		"copy_id": "Copy ID",
+		"actor_activity": "This actor's activity",
+		"toast": {
+			"copied": "{ref} copied.",
+			"copy_failed": "Couldn't copy the ID. Please copy it manually.",
+			"export_empty": "There is no data to export.",
+			"exported": "{count} records exported to CSV."
+		},
+		"errors": {
+			"range_invalid": "End date is before start date.",
+			"invalid_date": "Invalid date.",
+			"required": "Fill in both start and end dates.",
+			"invalid": "Invalid filter value.",
+			"too_long": "Search term is too long.",
+			"invalid_filter": "Invalid filter. Please check the filter values.",
+			"export_too_large": "Too many rows to export (max {max}). Narrow the filters."
+		},
+		"load_failed": "Audit log couldn't be loaded",
+		"forbidden_title": "Access denied",
+		"failure": {
+			"unauthenticated": "Your session has ended. Please sign in again.",
+			"forbidden": "You don't have permission to view the audit log (platform.audit.view).",
+			"not_found": "Audit data not found.",
+			"conflict": "A data conflict occurred. Please try again.",
+			"validation": "Invalid filter.",
+			"gone": "Audit data is no longer available.",
+			"too_many": "Too many requests. Please try again shortly.",
+			"unavailable": "The audit service is unreachable. Please try again."
+		},
+		"master_action": {
+			"create": "Created {master} master",
+			"update": "Updated {master} master",
+			"delete": "Deleted {master} master"
+		},
+		"masters": {
+			"cluster_region": "Cluster regions"
+		},
+		"login_reason": {
+			"wrong_password": "Wrong password.",
+			"wrong_two_factor": "Wrong 2FA code.",
+			"locked": "The account is locked.",
+			"suspended": "The account is suspended."
+		},
+		"actions": {
+			"tenant_application": {
+				"submit": "Submitted application",
+				"cancel": "Cancelled application",
+				"edit": "Edited application",
+				"revise": "Requested application revision",
+				"reject": "Rejected application",
+				"reopen": "Reopened application",
+				"approve": "Approved application"
+			},
+			"tenant": {
+				"suspend": "Suspended tenant",
+				"activate": "Activated tenant",
+				"provisioned": "Tenant database provisioned",
+				"provision_failed": "Tenant database provisioning failed"
+			},
+			"invoice": {
+				"draft_create": "Created invoice draft",
+				"draft_update": "Updated invoice draft",
+				"draft_delete": "Deleted invoice draft",
+				"issue": "Issued invoice",
+				"void": "Voided invoice",
+				"remind": "Sent invoice reminder",
+				"paid": "Invoice paid",
+				"transfer_submit": "Submitted transfer proof",
+				"reconstructed": "Invoice reconstructed",
+				"payment_partial": "Recorded partial payment",
+				"payment_record": "Recorded payment",
+				"payment_reject": "Rejected payment",
+				"payment_verify": "Verified payment",
+				"payment_mutation_check": "Checked payment mutation",
+				"overpaid": "Invoice overpaid"
+			},
+			"billing": {
+				"settings_update": "Updated billing settings"
+			},
+			"cluster": {
+				"create": "Added cluster",
+				"update": "Updated cluster",
+				"maintenance_start": "Put cluster into maintenance",
+				"maintenance_end": "Ended cluster maintenance",
+				"capacity_warning": "Capacity crossed threshold"
+			},
+			"backup": {
+				"succeeded": "Cluster backup completed",
+				"failed": "Cluster backup failed"
+			},
+			"plan": {
+				"create": "Created plan",
+				"update": "Updated plan",
+				"delete": "Deleted plan"
+			},
+			"auth": {
+				"login_success": "Signed in",
+				"login_failed": "Sign-in failed",
+				"login_locked": "Account locked after failed sign-ins"
+			},
+			"account": {
+				"email": {
+					"cancel": "Cancelled email change",
+					"resend": "Resent email verification",
+					"verify": "Verified new email"
+				},
+				"export": {
+					"create": "Requested account data export"
+				},
+				"linked": {
+					"connect": "Connected sign-in account",
+					"disconnect": "Disconnected sign-in account"
+				},
+				"login": {
+					"locked": "Account locked"
+				},
+				"notifications": {
+					"test": "Sent test notification",
+					"update": "Updated notification preferences"
+				},
+				"password": {
+					"change": "Changed account password",
+					"otp_sent": "Sent password OTP",
+					"reset_link": "Sent password reset link",
+					"wrong_current": "Wrong current password"
+				},
+				"privacy": {
+					"update": "Updated privacy settings"
+				},
+				"profile": {
+					"update": "Updated profile"
+				},
+				"request": {
+					"approve": "Approved account request",
+					"cancel": "Cancelled account request",
+					"decline": "Declined account request",
+					"document": "Uploaded request document",
+					"request_docs": "Requested additional documents",
+					"submit": "Submitted account request",
+					"apply_deletion": "Applied account deletion"
+				},
+				"security_alerts": {
+					"update": "Updated security alerts"
+				},
+				"session": {
+					"revoke": "Revoked session",
+					"revoke_others": "Revoked other sessions"
+				},
+				"two_factor": {
+					"backup_codes": "Regenerated 2FA backup codes",
+					"disable": "Disabled 2FA",
+					"enable": "Enabled 2FA",
+					"setup": "Started 2FA setup"
+				}
+			},
+			"navigation": {
+				"group": {
+					"create": "Added menu group",
+					"update": "Updated menu group",
+					"delete": "Deleted menu group"
+				},
+				"item": {
+					"create": "Added menu item",
+					"update": "Updated menu item",
+					"delete": "Deleted menu item"
+				},
+				"layout": {
+					"save": "Saved menu layout",
+					"reset": "Reset menu layout",
+					"seed": "Seeded default menu layout"
+				}
+			},
+			"audit": {
+				"export": "Exported audit log",
+				"retention": "Audit log retention ran"
+			}
+		}
+	},
+	"clusters": {
+		"eyebrow": "INFRASTRUCTURE · DB CLUSTER",
+		"title": "Database clusters",
+		"desc": "Every tenant has its own database. Manage the connection, capacity, and backups of the clusters where databases are created.",
+		"new": "New cluster",
+		"cards_label": "Cluster list",
+		"card": {
+			"databases": "{used}/{max} databases"
+		},
+		"empty_title": "No clusters yet",
+		"empty_text": "Add the first cluster with the form below, then test its connection before saving.",
+		"status": {
+			"available": "Accepting tenants",
+			"full": "Full",
+			"draining": "Draining",
+			"maintenance": "Maintenance",
+			"retired": "Retired"
+		},
+		"status_sub": {
+			"available": "New tenant databases can be created here.",
+			"draining": "Not accepting new tenants. Existing tenants keep running.",
+			"maintenance": "Tenant connections are paused. Users see a maintenance page."
+		},
+		"status_title": "Placement status",
+		"identity": {
+			"title": "Identity",
+			"new": "New cluster",
+			"count": "{n} tenant databases"
+		},
+		"connection": {
+			"title": "Connection"
+		},
+		"capacity": {
+			"title": "Capacity",
+			"over": "{pct}% used. Threshold exceeded; the infrastructure team has been alerted.",
+			"under": "{pct}% used. An alert is sent when it reaches {n} DBs."
+		},
+		"backup": {
+			"title": "Backup",
+			"none": "No snapshots yet",
+			"last": "Last snapshot {time} WIB · {size} · {status}"
+		},
+		"backup_status": {
+			"running": "running",
+			"succeeded": "succeeded",
+			"failed": "failed"
+		},
+		"schedule": {
+			"6h": "Every 6 hours",
+			"daily": "Daily",
+			"weekly": "Weekly"
+		},
+		"field": {
+			"code": "Cluster name",
+			"code_ph": "pg-jkt-04",
+			"code_hint_new": "The name cannot be changed after saving.",
+			"code_hint_locked": "Locked · used in tenant configuration",
+			"region": "Region",
+			"region_choose": "Choose a region",
+			"region_inside": "Tenant data stays in Indonesia",
+			"region_outside": "Tenant data is stored outside Indonesia. Check the schools’ PDP policy.",
+			"version": "PostgreSQL version",
+			"version_hint": "Detected from the connection test",
+			"version_unknown": "Not detected yet",
+			"host": "Host",
+			"host_ph": "pg-jkt-04.internal.flixare.id",
+			"port": "Port",
+			"user": "Admin user",
+			"user_ph": "flx_admin",
+			"password": "Password",
+			"password_ph_new": "At least 12 characters",
+			"password_ph_saved": "•••••••••• (stored)",
+			"password_hint_new": "Stored encrypted and never shown again.",
+			"password_hint_keep": "Leave empty to keep the current one.",
+			"password_show": "Show password",
+			"password_hide": "Hide password",
+			"ssl": "SSL mode",
+			"max": "Max. tenant databases",
+			"max_unit": "DB",
+			"max_hint": "{n} database slots left",
+			"pool": "Connection pool per DB",
+			"pool_unit": "connections",
+			"warn": "Warning threshold",
+			"schedule": "Snapshot schedule",
+			"retention": "Retention",
+			"retention_days": "{n} days",
+			"pitr": "Point-in-time recovery",
+			"pitr_sub": "Restore a tenant database to an exact second within the retention period."
+		},
+		"ssl_option": {
+			"verify-full": "verify-full (recommended)",
+			"require": "require",
+			"disable": "disable"
+		},
+		"ssl_hint": {
+			"verify-full": "Encrypted and the certificate is verified.",
+			"require": "Encrypted without certificate verification.",
+			"disable": "Unencrypted connection. Avoid in production."
+		},
+		"test": {
+			"run": "Test connection",
+			"untested": "Not tested yet",
+			"never": "Never connected",
+			"last": "Last connected {when}",
+			"running": "Testing connection…",
+			"running_sub": "TLS handshake · authentication · SELECT version()",
+			"ok": "Connection succeeded",
+			"ok_sub": "PostgreSQL {version} · latency {ms} ms · SSL {ssl}",
+			"ssl_off": "off",
+			"failed": "Connection failed"
+		},
+		"test_error": {
+			"connection_dns": "Host not found (DNS). Check the host name.",
+			"connection_refused": "Connection refused. Check the host, port, and firewall.",
+			"connection_auth": "Authentication failed. Check the admin user and password.",
+			"connection_tls": "SSL connection failed. Check the SSL mode and server certificate.",
+			"connection_timeout": "The server did not respond within 5 seconds.",
+			"connection_failed": "Connection failed. Check the connection settings."
+		},
+		"dbs": {
+			"title": "Largest databases",
+			"total": "{n} total",
+			"empty": "No databases on this cluster yet.",
+			"loading": "Loading databases…"
+		},
+		"bar": {
+			"errors": "{n} fields need fixing",
+			"unsaved": "You have unsaved changes",
+			"saved": "All changes saved"
+		},
+		"reset": "Discard",
+		"save": "Save changes",
+		"save_new": "Add cluster",
+		"saving": "Saving…",
+		"errors": {
+			"code_format": "4–24 characters: lowercase letters, digits, hyphens.",
+			"code_taken": "This name is already used.",
+			"region_required": "Choose a region.",
+			"host_invalid": "Invalid host.",
+			"port_range": "Port 1–65535.",
+			"user_required": "Enter the admin user.",
+			"user_short": "At least 3 characters.",
+			"password_required": "Enter a password of at least 12 characters.",
+			"password_short": "At least 12 characters.",
+			"max_required": "Enter the capacity.",
+			"max_below_used": "Cannot be below the {n} existing DBs.",
+			"pool_range": "Pool 5–100.",
+			"warn_range": "Threshold 50–95%, in steps of 5.",
+			"invalid": "Invalid value.",
+			"test_required": "The connection test must succeed before a new cluster is saved."
+		},
+		"toast": {
+			"saved": "Cluster {name} saved.",
+			"unchanged": "No changes."
+		},
+		"confirm": {
+			"maint_title": "Put {name} into maintenance mode?",
+			"maint_message": "{n} tenants cannot be accessed until maintenance mode is turned off. Running assessments will be paused.",
+			"maint_label": "Yes, start maintenance",
+			"maint_db": "Affected databases",
+			"maint_notify": "Notification",
+			"maint_notify_value": "Tenant admins are notified by email",
+			"busy": "Saving…",
+			"cancel": "Cancel",
+			"key_hint": "ESC to cancel · ENTER to confirm",
+			"discard_title": "Discard changes?",
+			"discard_message": "Changes to {name} have not been saved and will be lost.",
+			"discard_new": "the new cluster",
+			"discard_confirm": "Yes, discard",
+			"discard_cancel": "Keep editing",
+			"discard_busy": "Processing…"
+		},
+		"failure": {
+			"forbidden": "This account is not allowed to manage clusters.",
+			"not_found": "Cluster not found. Reload the page.",
+			"validation_failed": "Check the highlighted fields.",
+			"connection_failed": "The server-side connection re-test failed. Changes were not saved.",
+			"cluster_unreachable": "The cluster cannot be reached. The database list could not be loaded.",
+			"invalid_request": "Invalid request. Reload the page.",
+			"unavailable": "The service is unavailable. Try again shortly.",
+			"generic": "Something went wrong. Try again."
+		},
+		"state": {
+			"forbidden_title": "No access to DB clusters",
+			"forbidden_text": "Your account is not allowed to manage database clusters. Contact a platform admin.",
+			"unavailable_title": "DB clusters could not be loaded",
+			"unavailable_text": "The service is unavailable. Try again shortly.",
+			"retry": "Reload"
+		}
+	},
+	"student_assessments": {
+		"hero": {
+			"eyebrow": "CBT EXAMS & ASSESSMENTS",
+			"title": "Digital Exam & Assessment Room",
+			"desc": "Take daily quizzes, summative tests, AKM tryouts, and remedial exams for class {class} in one secure place.",
+			"stat_total": "Total Exams",
+			"stat_active": "Active Today",
+			"stat_upcoming": "Upcoming Exams",
+			"stat_remedial": "Needs Remedial"
+		}
+	},
+	"student_attendance": {
+		"hero": {
+			"eyebrow": "ATTENDANCE",
+			"title": "Student Attendance Summary",
+			"desc": "{name} · Class {class} · Semester Attendance Rate: {rate}%",
+			"request_permit": "Request Leave / Sick",
+			"stat_rate": "Attendance Rate",
+			"stat_streak": "Learning Streak",
+			"stat_late": "Late",
+			"stat_permit_sick": "Leave / Sick",
+			"value_days": "{count} Days",
+			"value_times": "{count} Times"
+		}
+	},
+	"student_materials": {
+		"hero": {
+			"eyebrow": "MATERIALS & MODULES",
+			"title": "Learning Material Collection",
+			"desc": "Access teaching materials, digital modules, interactive videos, and worksheets for class {class} prepared by your teachers.",
+			"stat_total": "Total Materials",
+			"stat_completed": "Finished",
+			"stat_in_progress": "In Progress"
+		}
+	},
+	"student_messages": {
+		"hero": {
+			"eyebrow": "CLASS COMMUNICATION",
+			"title": "Messages & Liaison Book",
+			"desc": "Learning consultations for class {class} with your homeroom and subject teachers",
+			"academic_year": "Academic Year {year}"
 		}
 	}
 }

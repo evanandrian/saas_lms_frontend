@@ -563,6 +563,7 @@
 		title={t('title')}
 		description={t('description')}
 		actionsPlacement="end"
+		help="help.platform_plans"
 	>
 		{#snippet actions()}
 			{#if plans}

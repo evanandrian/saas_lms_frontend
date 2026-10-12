@@ -19,6 +19,7 @@ Setiap halaman formulir harus dibungkus dengan *container* yang memberikan ruang
         title={t('title')}
         description={t('desc')}
         actionsPlacement="end"
+        help="help.nama_halaman"
     >
         {#snippet actions()}
             <!-- Tombol aksi spesifik hero (opsional), patuhi aturan herobanner-pattern.md -->

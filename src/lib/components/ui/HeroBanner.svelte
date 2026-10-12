@@ -1,6 +1,7 @@
 <script lang="ts">
 	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
 	import type { Snippet } from 'svelte';
+	import PageHelp from './PageHelp.svelte';
 
 	/**
 	 * Posisi watermark persis referensi FLIXARE App.html (FE-05R):
@@ -27,6 +28,11 @@
 		/** Baris tambahan di bawah judul (mis. kartu KPI kaca). */
 		children?: Snippet;
 		watermark?: HeroWatermark;
+		/**
+		 * Prefiks kunci i18n panduan halaman (mis. `help.school_admin_students`). Bila diisi, tombol bantuan
+		 * bulat tampil di pojok kanan atas. Wajib untuk setiap halaman (rule `page-help-pattern.md`).
+		 */
+		help?: string;
 	}
 
 	let {
@@ -39,7 +45,8 @@
 		actionsPlacement = 'below',
 		aside,
 		children,
-		watermark = 'corner'
+		watermark = 'corner',
+		help
 	}: Props = $props();
 
 	const EYEBROW_SEPARATOR = ' · ';
@@ -61,7 +68,8 @@
 <section
 	class={[
 		'lms-hero relative isolate grid items-center gap-6 overflow-hidden rounded-3xl p-5.5 md:p-8',
-		aside && 'lg:grid-cols-2'
+		aside && 'lg:grid-cols-2',
+		help && 'pr-13 md:pr-14'
 	]}
 >
 	<img
@@ -126,6 +134,9 @@
 			</div>
 		{/if}
 	</div>
+	{#if help}
+		<PageHelp topic={help} pageTitle={title} />
+	{/if}
 	{#if aside}
 		<div class="min-w-0">{@render aside()}</div>
 	{/if}

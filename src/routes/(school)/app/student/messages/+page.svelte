@@ -1,20 +1,17 @@
 <script lang="ts">
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Avatar from '$lib/components/ui/Avatar.svelte';
-	import { useI18n } from '$lib/i18n';
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
+	import { useI18n, type TranslationParams } from '$lib/i18n';
 	import CheckCheck from '@lucide/svelte/icons/check-check';
 	import FileText from '@lucide/svelte/icons/file-text';
 	import Info from '@lucide/svelte/icons/info';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
-	import MoreVertical from '@lucide/svelte/icons/more-vertical';
 	import Paperclip from '@lucide/svelte/icons/paperclip';
 	import Phone from '@lucide/svelte/icons/phone';
 	import Search from '@lucide/svelte/icons/search';
 	import Send from '@lucide/svelte/icons/send';
 	import ShieldAlert from '@lucide/svelte/icons/shield-alert';
-	import Smile from '@lucide/svelte/icons/smile';
-	import User from '@lucide/svelte/icons/user';
 	import Video from '@lucide/svelte/icons/video';
 	import X from '@lucide/svelte/icons/x';
 	import type { PageProps } from './$types';
@@ -22,6 +19,10 @@
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
+	const t = (key: string, params?: TranslationParams) =>
+		i18n.t(`student_messages.hero.${key}`, params);
+	/** Label tahun ajaran di hero (masih statis, belum dari data backend). */
+	const ACADEMIC_YEAR_LABEL = '2026/2027';
 
 	// svelte-ignore state_referenced_locally
 	let selectedChannelId = $state<string>(data.messagesData.channels[0]?.id ?? 'ch-homeroom');
@@ -98,26 +99,21 @@
 </svelte:head>
 
 <div class="flex min-w-0 flex-col h-[calc(100vh-7.5rem)] min-h-[600px] gap-2.5 leading-tight">
-	<!-- Compact Top Header Bar -->
-	<div class="flex items-center justify-between shrink-0 px-1">
-		<div class="flex items-center gap-2.5">
-			<span class="bg-lms-interactive-subtle text-lms-interactive flex size-8.5 items-center justify-center rounded-xl">
-				<Icon icon={MessageSquare} size="md" />
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('desc', { class: data.messagesData.className })}
+		actionsPlacement="end"
+		help="help.student_messages"
+	>
+		{#snippet actions()}
+			<span
+				class="bg-lms-on-hero/8 border-lms-on-hero/14 text-lms-on-hero rounded-full border px-3 py-1 text-[11px] font-semibold"
+			>
+				{t('academic_year', { year: ACADEMIC_YEAR_LABEL })}
 			</span>
-			<div class="flex flex-col">
-				<h1 class="text-base font-bold text-lms-foreground">Pesan & Buku Penghubung</h1>
-				<span class="text-lms-muted text-[11px]">
-					Konsultasi belajar kelas {data.messagesData.className} dengan wali kelas & guru mata pelajaran
-				</span>
-			</div>
-		</div>
-
-		<div class="flex items-center gap-2">
-			<span class="bg-lms-surface border border-lms-border text-lms-muted text-[11px] font-semibold px-3 py-1 rounded-full">
-				Tahun Ajaran 2026/2027
-			</span>
-		</div>
-	</div>
+		{/snippet}
+	</HeroBanner>
 
 	<!-- WhatsApp Web Desktop Messenger Full Height -->
 	<div
@@ -126,7 +122,9 @@
 		<!-- ======================================================= -->
 		<!-- PANEL KIRI (SIDEBAR): DAFTAR KONTAK GURU (WHATSAPP STYLE) -->
 		<!-- ======================================================= -->
-		<aside class="w-80 lg:w-96 shrink-0 flex flex-col h-full min-h-0 border-r border-lms-border bg-lms-surface overflow-hidden">
+		<aside
+			class="w-80 lg:w-96 shrink-0 flex flex-col h-full min-h-0 border-r border-lms-border bg-lms-surface overflow-hidden"
+		>
 			<!-- Header Kontak Kiri -->
 			<div class="p-3 border-b border-lms-border flex flex-col gap-2 bg-lms-surface shrink-0">
 				<div class="flex items-center justify-between">
@@ -134,7 +132,9 @@
 						<Icon icon={MessageSquare} size="md" />
 						Daftar Guru & Saluran
 					</h2>
-					<span class="bg-lms-interactive-subtle text-lms-interactive text-[11px] font-bold px-2 py-0.5 rounded-full">
+					<span
+						class="bg-lms-interactive-subtle text-lms-interactive text-[11px] font-bold px-2 py-0.5 rounded-full"
+					>
 						{channels.length} Kontak
 					</span>
 				</div>
@@ -206,7 +206,9 @@
 			<!-- List Kontak Guru (Scrollable) -->
 			<div class="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-lms-border/30">
 				{#if filteredChannels.length === 0}
-					<div class="flex flex-col items-center justify-center p-8 text-center text-lms-muted gap-2">
+					<div
+						class="flex flex-col items-center justify-center p-8 text-center text-lms-muted gap-2"
+					>
 						<Icon icon={Search} size="lg" />
 						<p class="text-xs">Guru tidak ditemukan</p>
 					</div>
@@ -227,15 +229,26 @@
 							}}
 						>
 							<div class="relative flex-none">
-								<Avatar initials={ch.avatarInitials} size="md" tone={isSelected ? 'brand' : 'subtle'} />
+								<Avatar
+									initials={ch.avatarInitials}
+									size="md"
+									tone={isSelected ? 'brand' : 'subtle'}
+								/>
 								{#if ch.isOnline}
-									<span class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface ring-1 ring-success-500/50"></span>
+									<span
+										class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface ring-1 ring-success-500/50"
+									></span>
 								{/if}
 							</div>
 
 							<div class="flex min-w-0 flex-1 flex-col gap-0.5">
 								<div class="flex items-center justify-between gap-1">
-									<span class={['text-xs font-bold truncate', isSelected ? 'text-lms-interactive' : 'text-lms-foreground']}>
+									<span
+										class={[
+											'text-xs font-bold truncate',
+											isSelected ? 'text-lms-interactive' : 'text-lms-foreground'
+										]}
+									>
 										{ch.name}
 									</span>
 									<span class="text-[10px] text-lms-muted flex-none">{ch.lastMessageTime}</span>
@@ -247,7 +260,9 @@
 							</div>
 
 							{#if ch.unreadCount > 0}
-								<span class="bg-lms-interactive text-lms-on-interactive flex size-5 flex-none items-center justify-center rounded-full text-[10px] font-bold shadow-xs">
+								<span
+									class="bg-lms-interactive text-lms-on-interactive flex size-5 flex-none items-center justify-center rounded-full text-[10px] font-bold shadow-xs"
+								>
 									{ch.unreadCount}
 								</span>
 							{/if}
@@ -260,14 +275,20 @@
 		<!-- ========================================== -->
 		<!-- PANEL KANAN: RUANG CHAT / MESSENGER ACTIVE -->
 		<!-- ========================================== -->
-		<main class="flex-1 min-w-0 flex flex-col h-full bg-lms-surface-muted/15 relative overflow-hidden">
+		<main
+			class="flex-1 min-w-0 flex flex-col h-full bg-lms-surface-muted/15 relative overflow-hidden"
+		>
 			<!-- Header Chat Kanan -->
-			<header class="flex items-center justify-between border-b border-lms-border bg-lms-surface px-5 py-3.5 shadow-xs z-10">
+			<header
+				class="flex items-center justify-between border-b border-lms-border bg-lms-surface px-5 py-3.5 shadow-xs z-10"
+			>
 				<div class="flex items-center gap-3.5">
 					<div class="relative">
 						<Avatar initials={activeChannel.avatarInitials} size="md" tone="brand" />
 						{#if activeChannel.isOnline}
-							<span class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface"></span>
+							<span
+								class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface"
+							></span>
 						{/if}
 					</div>
 					<div class="flex flex-col">
@@ -277,7 +298,9 @@
 						<span class="text-lms-muted text-[11px] flex items-center gap-1.5">
 							<span class="font-semibold text-lms-interactive">{activeChannel.roleLabel}</span>
 							<span>·</span>
-							<span class={activeChannel.isOnline ? 'text-success-500 font-medium' : 'text-lms-muted'}>
+							<span
+								class={activeChannel.isOnline ? 'text-success-500 font-medium' : 'text-lms-muted'}
+							>
 								{activeChannel.isOnline ? '● Online' : 'Offline'}
 							</span>
 						</span>
@@ -320,7 +343,9 @@
 			>
 				<!-- Date Separator Badge -->
 				<div class="flex justify-center my-2">
-					<span class="bg-lms-surface border border-lms-border text-lms-muted text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
+					<span
+						class="bg-lms-surface border border-lms-border text-lms-muted text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-xs"
+					>
 						Hari ini
 					</span>
 				</div>
@@ -332,7 +357,9 @@
 					{#if isSystem}
 						<!-- System Broadcast Announcement Bubble -->
 						<div class="flex justify-center my-3">
-							<div class="bg-warning-400/10 border border-warning-400/30 text-warning-500 rounded-2xl p-4 text-xs max-w-lg text-center shadow-xs">
+							<div
+								class="bg-warning-400/10 border border-warning-400/30 text-warning-500 rounded-2xl p-4 text-xs max-w-lg text-center shadow-xs"
+							>
 								<div class="flex items-center justify-center gap-1.5 font-bold mb-1">
 									<Icon icon={ShieldAlert} size="sm" />
 									{msg.senderName}
@@ -363,13 +390,20 @@
 								<p class="leading-relaxed whitespace-pre-wrap text-[13px]">{msg.text}</p>
 
 								{#if msg.attachmentName}
-									<div class="bg-lms-surface-muted/50 border border-lms-border rounded-xl p-2.5 flex items-center gap-2 mt-1">
+									<div
+										class="bg-lms-surface-muted/50 border border-lms-border rounded-xl p-2.5 flex items-center gap-2 mt-1"
+									>
 										<Icon icon={FileText} size="sm" />
 										<span class="font-bold truncate">{msg.attachmentName}</span>
 									</div>
 								{/if}
 
-								<div class={['flex items-center gap-1 text-[10px] mt-1', isMe ? 'text-lms-on-interactive/70 justify-end' : 'text-lms-muted justify-end']}>
+								<div
+									class={[
+										'flex items-center gap-1 text-[10px] mt-1',
+										isMe ? 'text-lms-on-interactive/70 justify-end' : 'text-lms-muted justify-end'
+									]}
+								>
 									<span>{msg.timestamp}</span>
 									{#if isMe}
 										<Icon icon={CheckCheck} size="sm" />

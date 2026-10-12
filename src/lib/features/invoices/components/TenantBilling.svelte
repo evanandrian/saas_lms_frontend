@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { replaceState } from '$app/navigation';
 	import type { BackendFailure } from '$lib/api/backend-call';
 	import Icon from '$lib/components/ui/Icon.svelte';
@@ -61,7 +62,10 @@
 	let items = $state<InvoiceSummary[]>(initialList?.items ?? []);
 	// svelte-ignore state_referenced_locally
 	let detail = $state<InvoiceDetail | null>(selected);
-	let method = $state<Method>('va');
+	// Metode awal dari halaman aktivasi (?pay=transfer|va|qris), default VA.
+	const METHODS: readonly Method[] = ['va', 'qris', 'transfer'];
+	const payParam = page.url.searchParams.get('pay') as Method | null;
+	let method = $state<Method>(payParam && METHODS.includes(payParam) ? payParam : 'va');
 	let bank = $state<(typeof VA_CHANNELS)[number]>('va_bca');
 	let busy = $state(false);
 	let printOpen = $state(false);
@@ -110,7 +114,8 @@
 		'gateway_unavailable',
 		'amount_mismatch',
 		'proof_invalid',
-		'no_context'
+		'no_context',
+		'invoice_partially_paid'
 	];
 
 	async function pick(x: InvoiceSummary) {
@@ -225,6 +230,7 @@
 			eyebrow={t('eyebrow')}
 			title={t('title')}
 			description={t('desc')}
+			help="help.tenant_billing"
 		/>
 
 		{#if !items.length}
@@ -319,6 +325,14 @@
 									<span class="text-lms-muted text-xs italic"
 										>{terbilang(detail.totals.total_idr)}</span
 									>
+									{#if detail.paid_idr > 0 && detail.remaining_idr > 0}
+										<span class="lms-tone-warning mt-1 rounded-lg px-2.5 py-1 text-xs font-semibold"
+											>{t('partial_status', {
+												paid: money(detail.paid_idr),
+												remaining: money(detail.remaining_idr)
+											})}</span
+										>
+									{/if}
 								</span>
 								<button
 									type="button"
@@ -531,7 +545,7 @@
 									{/if}
 									{#if !pending}
 										<TransferForm
-											total={detail.totals.total_idr}
+											remaining={detail.remaining_idr}
 											{banks}
 											proofRequired
 											tried={transferTried}
@@ -563,7 +577,13 @@
 													? i18n.t('invoices.payments.gateway', {
 															channel: (p.channel ?? '').replace('va_', 'VA ').toUpperCase()
 														})
-													: i18n.t('invoices.payments.manual', { bank: p.bank_name || '—' })}</span
+													: p.manual_channel && p.manual_channel !== 'transfer'
+														? i18n.t('invoices.payments.manual_channel', {
+																channel: i18n.t(`payments.channel.${p.manual_channel}`)
+															})
+														: i18n.t('invoices.payments.manual', {
+																bank: p.bank_name || '—'
+															})}</span
 											>
 											<span class="text-lms-muted text-xs"
 												>{longDateTs(p.paid_at ?? p.created_at, i18n.locale)}{#if p.reject_reason}

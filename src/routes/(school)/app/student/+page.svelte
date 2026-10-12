@@ -1,5 +1,5 @@
 <script lang="ts">
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
@@ -206,82 +206,77 @@
 		<p id={reasonId} class="sr-only">{i18n.t('common.state.action_unavailable')}</p>
 
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-			<section
-				id="ujian"
-				class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[14px] p-7 md:col-span-2 scroll-mt-6"
-				aria-labelledby="{reasonId}-mission"
-			>
-				<img
-					src={logogramColor}
-					alt=""
-					aria-hidden="true"
-					draggable="false"
-					class="pointer-events-none absolute -top-7.5 -right-10 -z-10 w-60 max-w-none opacity-10 select-none"
-				/>
-				<div class="flex flex-col items-start gap-2">
-					<span
-						class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-2.75 py-1.25 text-[11px] font-bold tracking-[0.14em]"
-					>
-						{i18n.t('dashboard.student.mission')}
-					</span>
-					<p class="text-lms-on-hero-muted mt-1 text-sm">
-						{i18n.t('dashboard.student.context', {
-							date: formatLongDate(dashboard.date, LOCALE),
-							class: dashboard.className
-						})}
-					</p>
-					<h1 id="{reasonId}-mission" class="text-[1.75rem] leading-9 font-bold">{headline}</h1>
-				</div>
-				{#if exam}
-					<div class="bg-lms-hero-raised flex flex-wrap items-center gap-4.5 rounded-xl p-4.5">
+			<!-- Pembungkus grid agar hero tetap merentang dua kolom dan setinggi kartu level. -->
+			<div id="ujian" class="grid min-w-0 scroll-mt-6 md:col-span-2">
+				<HeroBanner
+					eyebrow={i18n.t('dashboard.student.context', {
+						date: formatLongDate(dashboard.date, LOCALE),
+						class: dashboard.className
+					})}
+					title={headline}
+					actionsPlacement="end"
+					help="help.student_dashboard"
+				>
+					{#snippet actions()}
 						<span
-							class="bg-lms-interactive flex size-13 flex-none items-center justify-center rounded-xl"
-							aria-hidden="true"
+							class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-2.75 py-1.25 text-[11px] font-bold tracking-[0.14em]"
 						>
-							<Icon icon={ClipboardCheck} size="lg" />
+							{i18n.t('dashboard.student.mission')}
 						</span>
-						<span class="flex min-w-50 flex-1 flex-col gap-1.5">
-							<span class="text-lg font-semibold">{exam.title}</span>
-							<span class="text-lms-on-hero-muted text-[0.8125rem]">
-								{i18n.t('dashboard.student.assessment_meta', {
-									subject: exam.subject,
-									time: `${formatHourMinute(exam.startMinutes * 60)}–${formatHourMinute(exam.endMinutes * 60)}`,
-									count: exam.questionCount
-								})}
+					{/snippet}
+					{#if exam}
+						<div class="bg-lms-hero-raised flex flex-wrap items-center gap-4.5 rounded-xl p-4.5">
+							<span
+								class="bg-lms-interactive flex size-13 flex-none items-center justify-center rounded-xl"
+								aria-hidden="true"
+							>
+								<Icon icon={ClipboardCheck} size="lg" />
 							</span>
-							<span class="mt-0.5 flex flex-wrap gap-2">
-								<span
-									class="bg-warning-400 text-lms-brand-deep-neutral flex items-center gap-1 rounded-full px-2.25 py-0.75 text-xs font-bold"
-								>
-									<Icon icon={Zap} size="sm" />{i18n.t('dashboard.student.xp', {
-										xp: exam.xpReward
+							<span class="flex min-w-50 flex-1 flex-col gap-1.5">
+								<span class="text-lg font-semibold">{exam.title}</span>
+								<span class="text-lms-on-hero-muted text-[0.8125rem]">
+									{i18n.t('dashboard.student.assessment_meta', {
+										subject: exam.subject,
+										time: `${formatHourMinute(exam.startMinutes * 60)}–${formatHourMinute(exam.endMinutes * 60)}`,
+										count: exam.questionCount
 									})}
 								</span>
-								<span
-									class="bg-lms-on-hero/12 rounded-full px-2.25 py-0.75 font-mono text-xs font-semibold"
-								>
-									{toExam > 0
-										? i18n.t('dashboard.student.starts_in', { time: formatMinuteSecond(toExam) })
-										: i18n.t('dashboard.student.in_progress')}
+								<span class="mt-0.5 flex flex-wrap gap-2">
+									<span
+										class="bg-warning-400 text-lms-brand-deep-neutral flex items-center gap-1 rounded-full px-2.25 py-0.75 text-xs font-bold"
+									>
+										<Icon icon={Zap} size="sm" />{i18n.t('dashboard.student.xp', {
+											xp: exam.xpReward
+										})}
+									</span>
+									<span
+										class="bg-lms-on-hero/12 rounded-full px-2.25 py-0.75 font-mono text-xs font-semibold"
+									>
+										{toExam > 0
+											? i18n.t('dashboard.student.starts_in', { time: formatMinuteSecond(toExam) })
+											: i18n.t('dashboard.student.in_progress')}
+									</span>
 								</span>
 							</span>
-						</span>
-						<button
-							type="button"
-							class="bg-lms-on-hero text-lms-brand-deep-neutral lms-focus-ring flex h-11 items-center gap-2 rounded-lg px-5 text-[0.9375rem] font-bold transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-							disabled={toExam > 0 && !data.canSimulate}
-							onclick={() => startExam(exam)}
-							aria-describedby={toExam > 0 && !data.canSimulate ? reasonId : undefined}
-						>
-							{i18n.t('dashboard.student.start_exam')}<Icon icon={ArrowRight} size="sm" />
-						</button>
-					</div>
-				{/if}
-			</section>
+							<button
+								type="button"
+								class="bg-lms-on-hero text-lms-brand-deep-neutral lms-focus-ring flex h-11 items-center gap-2 rounded-lg px-5 text-[0.9375rem] font-bold transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+								disabled={toExam > 0 && !data.canSimulate}
+								onclick={() => startExam(exam)}
+								aria-describedby={toExam > 0 && !data.canSimulate ? reasonId : undefined}
+							>
+								{i18n.t('dashboard.student.start_exam')}<Icon icon={ArrowRight} size="sm" />
+							</button>
+						</div>
+					{/if}
+				</HeroBanner>
+			</div>
 
 			<section
 				class="lms-card flex min-w-0 flex-col gap-4.5 rounded-[22px]! p-5.5 shadow-none!"
-				aria-label={i18n.t('dashboard.student.level_label', { level: currentLevel?.number ?? dashboard.level.number })}
+				aria-label={i18n.t('dashboard.student.level_label', {
+					level: currentLevel?.number ?? dashboard.level.number
+				})}
 			>
 				<div class="flex items-center gap-3.5">
 					<span
@@ -297,7 +292,9 @@
 						<span class="text-lms-muted text-[0.8125rem]">
 							{i18n.t('dashboard.student.xp_to_next', {
 								xp: xp.toLocaleString(LOCALE),
-								target: (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp).toLocaleString(LOCALE),
+								target: (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp).toLocaleString(
+									LOCALE
+								),
 								next: (currentLevel?.number ?? dashboard.level.number) + 1
 							})}
 						</span>
@@ -306,7 +303,10 @@
 				<div class="bg-lms-surface-muted h-3.5 overflow-hidden rounded-full" aria-hidden="true">
 					<div
 						class="bg-lms-interactive h-full rounded-full transition-[width] duration-500 ease-[cubic-bezier(.2,.9,.3,1.2)] motion-reduce:transition-none"
-						style:width="{Math.min(100, (xp / (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp)) * 100)}%"
+						style:width="{Math.min(
+							100,
+							(xp / (currentLevel?.nextLevelXp ?? dashboard.level.nextLevelXp)) * 100
+						)}%"
 					></div>
 				</div>
 				<div class="border-lms-input-border flex flex-col gap-2.5 border-t border-dashed pt-3.5">
@@ -389,7 +389,9 @@
 									>
 								</button>
 								<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-									<span class={['text-sm font-semibold', done ? 'text-lms-muted line-through' : '']}>
+									<span
+										class={['text-sm font-semibold', done ? 'text-lms-muted line-through' : '']}
+									>
 										{quest.title}
 									</span>
 									<span class="text-lms-muted text-xs">
@@ -539,7 +541,10 @@
 									</span>
 								</span>
 							</div>
-							<span class="bg-lms-surface-muted relative block h-1.5 rounded-full" aria-hidden="true">
+							<span
+								class="bg-lms-surface-muted relative block h-1.5 rounded-full"
+								aria-hidden="true"
+							>
 								<span
 									class="bg-warning-500 absolute inset-y-0 left-0 rounded-full"
 									style:width="{remedial.score}%"
@@ -620,47 +625,49 @@
 							aria-expanded={open}
 							onclick={() => (openImprovement = open ? null : item.id)}
 						>
-						<span class="flex w-full items-center justify-between gap-2">
-							<span class="flex min-w-0 flex-col">
-								<span class="text-[0.8125rem] font-bold">{item.objective}</span>
-								<span class="text-lms-muted text-[11px]">{item.subjectLabel}</span>
+							<span class="flex w-full items-center justify-between gap-2">
+								<span class="flex min-w-0 flex-col">
+									<span class="text-[0.8125rem] font-bold">{item.objective}</span>
+									<span class="text-lms-muted text-[11px]">{item.subjectLabel}</span>
+								</span>
+								<span class="flex items-center gap-2">
+									<span
+										class={[
+											'text-sm font-bold tabular-nums',
+											low ? 'text-lms-warning-text' : 'text-lms-link'
+										]}
+									>
+										{item.score}
+									</span>
+									<span class={['text-lms-muted transition-transform', open && 'rotate-180']}>
+										<Icon icon={ChevronDown} size="sm" />
+									</span>
+								</span>
 							</span>
-							<span class="flex items-center gap-2">
+							<span
+								class="bg-lms-surface-muted relative block h-2 w-full rounded-full"
+								aria-hidden="true"
+							>
 								<span
 									class={[
-										'text-sm font-bold tabular-nums',
-										low ? 'text-lms-warning-text' : 'text-lms-link'
+										'absolute inset-y-0 left-0 rounded-full',
+										low ? 'bg-warning-500' : 'bg-lms-interactive'
 									]}
-								>
-									{item.score}
-								</span>
-								<span class={['text-lms-muted transition-transform', open && 'rotate-180']}>
-									<Icon icon={ChevronDown} size="sm" />
-								</span>
+									style:width="{item.score}%"
+								></span>
+								<span class="bg-lms-foreground absolute -inset-y-0.75 w-0.5" style:left="{target}%"
+								></span>
 							</span>
-						</span>
-						<span
-							class="bg-lms-surface-muted relative block h-2 w-full rounded-full"
-							aria-hidden="true"
-						>
-							<span
-								class={[
-									'absolute inset-y-0 left-0 rounded-full',
-									low ? 'bg-warning-500' : 'bg-lms-interactive'
-								]}
-								style:width="{item.score}%"
-							></span>
-							<span class="bg-lms-foreground absolute -inset-y-0.75 w-0.5" style:left="{target}%"
-							></span>
-						</span>
-						{#if open}
-							<span class="text-xs leading-[1.125rem] flex gap-2">
-								<span class="text-lms-interactive mt-0.5"><Icon icon={Lightbulb} size="sm" /></span>
-								{item.tip}
-							</span>
-						{/if}
-					</button>
-				{/each}
+							{#if open}
+								<span class="text-xs leading-[1.125rem] flex gap-2">
+									<span class="text-lms-interactive mt-0.5"
+										><Icon icon={Lightbulb} size="sm" /></span
+									>
+									{item.tip}
+								</span>
+							{/if}
+						</button>
+					{/each}
 				{/if}
 			</section>
 

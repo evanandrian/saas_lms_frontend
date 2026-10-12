@@ -37,6 +37,7 @@
 	// Arsitektur informasi area (referensi FE-04). Item tanpa href = halaman belum dibangun.
 	const teacherNav: WorkspaceNavItem[] = $derived([
 		{ label: i18n.t('nav.teacher.home'), icon: House, href: APP_PATHS.TEACHER_HOME },
+		{ label: i18n.t('nav.teacher.grades'), icon: Table, href: APP_PATHS.TEACHER_GRADES },
 		{ label: i18n.t('nav.teacher.classes'), icon: School },
 		{ label: i18n.t('nav.teacher.materials'), icon: BookOpen },
 		{
@@ -59,12 +60,21 @@
 	const section = (hash: string) => ({ href: APP_PATHS.HOMEROOM_HOME, hash });
 	const homeroomNav: WorkspaceNavItem[] = $derived([
 		{ label: i18n.t('nav.homeroom.home'), icon: House, href: APP_PATHS.HOMEROOM_HOME },
-		{ label: i18n.t('nav.homeroom.attendance'), icon: CalendarCheck, ...section('presensi') },
+		{
+			label: i18n.t('nav.homeroom.attendance'),
+			icon: CalendarCheck,
+			href: APP_PATHS.HOMEROOM_ATTENDANCE
+		},
 		{ label: i18n.t('nav.homeroom.approvals'), icon: Inbox, ...section('persetujuan') },
 		{ label: i18n.t('nav.homeroom.liaison'), icon: MessageCircle, ...section('buku-penghubung') },
 		{ label: i18n.t('nav.homeroom.grades'), icon: Table, ...section('rekap-nilai') },
 		{ label: i18n.t('nav.homeroom.students'), icon: Users, ...section('murid') },
-		{ label: i18n.t('nav.homeroom.report_cards'), icon: FileText, ...section('rapor') },
+		{ label: i18n.t('nav.homeroom.report_cards'), icon: FileText, href: APP_PATHS.HOMEROOM_REPORT },
+		{
+			label: i18n.t('nav.homeroom.final_grades'),
+			icon: ClipboardList,
+			href: APP_PATHS.TEACHER_GRADES
+		},
 		{ label: i18n.t('nav.homeroom.schedule'), icon: CalendarDays, ...section('jadwal') },
 		{ label: i18n.t('nav.homeroom.behavior'), icon: NotebookPen, ...section('catatan') },
 		{ label: i18n.t('nav.homeroom.settings'), icon: Settings, href: APP_PATHS.TEACHER_ACCOUNT }

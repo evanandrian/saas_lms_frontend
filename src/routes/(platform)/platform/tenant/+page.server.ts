@@ -1,8 +1,12 @@
-import { fail } from '@sveltejs/kit';
-import { loadTenants, suspendTenant, activateTenant } from '$lib/features/tenant-management/tenant-management.api';
+import { fail, type RequestEvent } from '@sveltejs/kit';
+import {
+	loadTenants,
+	suspendTenant,
+	activateTenant
+} from '$lib/features/tenant-management/tenant-management.api';
 import type { PageServerLoad, Actions } from './$types';
 
-const makeCtx = (e: any) => ({
+const makeCtx = (e: RequestEvent) => ({
 	fetch: e.fetch,
 	cookies: e.cookies,
 	userAgent: e.request.headers.get('user-agent') || '',

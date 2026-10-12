@@ -20,12 +20,17 @@ export type TranslationParams = Readonly<Record<string, string | number>>;
 const MESSAGES: Readonly<Record<Locale, Messages>> = { id, en };
 const PARAM_PATTERN = /\{(\w+)\}/g;
 
-function lookupMessage(messages: Messages, key: string): string | undefined {
+function lookupNode(messages: Messages, key: string): string | Messages | undefined {
 	let node: string | Messages | undefined = messages;
 	for (const part of key.split('.')) {
 		if (node === undefined || typeof node === 'string') return undefined;
 		node = node[part];
 	}
+	return node;
+}
+
+function lookupMessage(messages: Messages, key: string): string | undefined {
+	const node = lookupNode(messages, key);
 	return typeof node === 'string' ? node : undefined;
 }
 
@@ -45,9 +50,24 @@ export function translate(locale: Locale, key: string, params?: TranslationParam
 	);
 }
 
+function lookupGroup(messages: Messages, key: string): readonly string[] | undefined {
+	const node = lookupNode(messages, key);
+	if (node === undefined || typeof node === 'string') return undefined;
+	return Object.values(node).filter((value): value is string => typeof value === 'string');
+}
+
+/**
+ * Daftar teks dari objek `{ "<id>": "teks", ... }` sesuai urutan di JSON (mis. langkah panduan halaman).
+ * Grup hilang di locale aktif jatuh ke `id`, lalu ke daftar kosong (tanpa peringatan: grup boleh opsional).
+ */
+export function translateList(locale: Locale, key: string): readonly string[] {
+	return lookupGroup(MESSAGES[locale], key) ?? lookupGroup(MESSAGES[FALLBACK_LOCALE], key) ?? [];
+}
+
 export interface I18n {
 	readonly locale: Locale;
 	t(key: string, params?: TranslationParams): string;
+	list(key: string): readonly string[];
 }
 
 const I18N_CONTEXT_KEY = Symbol('lms-i18n');
@@ -58,7 +78,8 @@ export function setI18n(getLocale: () => Locale): I18n {
 		get locale() {
 			return getLocale();
 		},
-		t: (key, params) => translate(getLocale(), key, params)
+		t: (key, params) => translate(getLocale(), key, params),
+		list: (key) => translateList(getLocale(), key)
 	};
 	setContext(I18N_CONTEXT_KEY, i18n);
 	return i18n;

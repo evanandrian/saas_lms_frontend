@@ -1,7 +1,7 @@
 <script lang="ts">
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
-	import { useI18n } from '$lib/i18n';
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
+	import { useI18n, type TranslationParams } from '$lib/i18n';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Calculator from '@lucide/svelte/icons/calculator';
 	import CheckCircle2 from '@lucide/svelte/icons/check-circle-2';
@@ -23,6 +23,8 @@
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
+	const t = (key: string, params?: TranslationParams) =>
+		i18n.t(`student_materials.hero.${key}`, params);
 
 	const SUBJECT_ICONS = {
 		math: Calculator,
@@ -91,45 +93,27 @@
 </svelte:head>
 
 <div class="flex min-w-0 flex-col gap-6 leading-tight">
-	<!-- Hero Section -->
-	<section
-		class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[22px] p-7 md:p-8"
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('desc', { class: data.materialsData.className })}
+		help="help.student_materials"
 	>
-		<img
-			src={logogramColor}
-			alt=""
-			aria-hidden="true"
-			draggable="false"
-			class="pointer-events-none absolute -top-8 -right-10 -z-10 w-72 max-w-none opacity-10 select-none"
-		/>
-		<div class="flex flex-col items-start gap-2">
-			<span
-				class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.14em]"
-			>
-				MATERI & MODUL
-			</span>
-			<h1 class="text-[1.75rem] md:text-3xl font-bold">Koleksi Materi Pembelajaran</h1>
-			<p class="text-lms-on-hero-muted text-sm md:text-base max-w-2xl">
-				Akses bahan ajar, modul digital, video interaktif, dan lembar kerja kelas {data.materialsData.className} yang disiapkan oleh para guru.
-			</p>
-		</div>
-
-		<!-- Quick Stats -->
-		<div class="grid grid-cols-3 gap-3 pt-2 max-w-lg">
+		<div class="grid max-w-lg grid-cols-3 gap-3">
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Total Materi</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_total')}</span>
 				<span class="text-2xl font-bold">{allMaterials.length}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Selesai Dibaca</span>
-				<span class="text-2xl font-bold text-success-400">{completedCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_completed')}</span>
+				<span class="text-success-400 text-2xl font-bold">{completedCount}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Sedang Dipelajari</span>
-				<span class="text-2xl font-bold text-warning-400">{inProgressCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_in_progress')}</span>
+				<span class="text-warning-400 text-2xl font-bold">{inProgressCount}</span>
 			</div>
 		</div>
-	</section>
+	</HeroBanner>
 
 	<!-- Filter & Search Controls -->
 	<div class="lms-card flex flex-col gap-4 rounded-[22px]! p-5 shadow-none!">
@@ -247,8 +231,12 @@
 
 	<!-- Materials Grid -->
 	{#if filteredMaterials.length === 0}
-		<div class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!">
-			<div class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full">
+		<div
+			class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!"
+		>
+			<div
+				class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full"
+			>
 				<Icon icon={BookOpen} size="lg" />
 			</div>
 			<div class="flex flex-col gap-1 max-w-sm">
@@ -280,7 +268,9 @@
 					<div class="flex flex-col gap-3">
 						<!-- Card Top: Subject & Type Badge -->
 						<div class="flex items-center justify-between gap-2">
-							<span class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold">
+							<span
+								class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold"
+							>
 								<Icon icon={SUBJECT_ICONS[item.subjectIcon] ?? BookOpen} size="sm" />
 								{item.subjectName}
 							</span>
@@ -296,7 +286,8 @@
 								{item.title}
 							</h3>
 							<p class="text-lms-muted text-xs">
-								{item.chapter} {item.topicCode ? `· ${item.topicCode}` : ''}
+								{item.chapter}
+								{item.topicCode ? `· ${item.topicCode}` : ''}
 							</p>
 						</div>
 
@@ -368,7 +359,9 @@
 			<!-- Modal Header -->
 			<div class="flex items-center justify-between border-b border-lms-border p-5">
 				<div class="flex items-center gap-3">
-					<span class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl">
+					<span
+						class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl"
+					>
 						<Icon icon={TYPE_ICONS[previewMaterial.type]} size="md" />
 					</span>
 					<div class="flex flex-col">
@@ -394,7 +387,8 @@
 			<div class="flex flex-col gap-4 overflow-y-auto p-6 leading-relaxed">
 				<div class="bg-lms-surface-muted flex items-center justify-between rounded-xl p-3 text-xs">
 					<span class="flex items-center gap-2 text-lms-muted">
-						<Icon icon={Clock} size="sm" /> Durasi estimasi: <strong>{previewMaterial.duration}</strong>
+						<Icon icon={Clock} size="sm" /> Durasi estimasi:
+						<strong>{previewMaterial.duration}</strong>
 					</span>
 					<span class="text-lms-muted">
 						Guru Pengampu: <strong>{previewMaterial.teacherName}</strong>
@@ -409,8 +403,12 @@
 				</div>
 
 				<!-- Visual Material Container Placeholder / Player -->
-				<div class="bg-lms-interactive-subtle border-lms-interactive/20 flex min-h-56 flex-col items-center justify-center rounded-2xl border p-8 text-center">
-					<div class="bg-lms-surface flex size-14 items-center justify-center rounded-2xl shadow-sm text-lms-interactive mb-3">
+				<div
+					class="bg-lms-interactive-subtle border-lms-interactive/20 flex min-h-56 flex-col items-center justify-center rounded-2xl border p-8 text-center"
+				>
+					<div
+						class="bg-lms-surface flex size-14 items-center justify-center rounded-2xl shadow-sm text-lms-interactive mb-3"
+					>
 						<Icon icon={TYPE_ICONS[previewMaterial.type]} size="lg" />
 					</div>
 					<h4 class="text-sm font-bold">{previewMaterial.title}</h4>
@@ -439,7 +437,9 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30">
+			<div
+				class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30"
+			>
 				<button
 					type="button"
 					class="lms-action-ghost rounded-xl px-4 py-2 text-xs font-semibold"

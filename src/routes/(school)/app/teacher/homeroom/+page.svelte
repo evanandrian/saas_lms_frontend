@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import Button from '$lib/components/ui/Button.svelte';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
+	import { PREFIX } from '$lib/features/school-admin/school-admin.model';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { formatHourMinute, formatLongDate, greetingPeriod } from '$lib/utils/clock';
+	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { createDashboardClock } from '$lib/utils/dashboard-clock.svelte';
 	import type { LucideIcon } from '@lucide/svelte';
-	import BadgeCheck from '@lucide/svelte/icons/badge-check';
-	import BellRing from '@lucide/svelte/icons/bell-ring';
 	import CalendarCheck from '@lucide/svelte/icons/calendar-check';
 	import CalendarX from '@lucide/svelte/icons/calendar-x';
 	import Check from '@lucide/svelte/icons/check';
@@ -27,7 +28,6 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import Save from '@lucide/svelte/icons/save';
 	import Send from '@lucide/svelte/icons/send';
-	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import {
 		homeroomSample as sample,
 		type AttendanceCode,
@@ -44,8 +44,6 @@
 	/** Batas keputusan pengajuan orang tua: 72 jam (3 hari kerja), sama dengan Kotak Persetujuan. */
 	const SLA_HOURS = 72;
 	const HOURS_PER_DAY = 24;
-	/** Simulasi referensi: guru mapel memfinalkan nilai 3 detik setelah diingatkan. */
-	const REMIND_FINALIZE_MS = 3000;
 	/** Ambang "perlu perhatian" (referensi): rata-rata < 78, ≥ 2 mapel < KKM, atau alpa ≥ 2 hari. */
 	const ATTENTION_AVERAGE = 78;
 	const ATTENTION_LOW_SUBJECTS = 2;
@@ -86,10 +84,6 @@
 	let threadIndex = $state(0);
 	let read = $state<number[]>([...sample.readThreads]);
 	let reply = $state('');
-	let subjectsDone = $state<number[]>([...sample.subjectsDone]);
-	let reminded = $state<number[]>([]);
-	let notesDone = $state(sample.homeroomNotesDone);
-	let reportSubmitted = $state(false);
 	let notes = $state<BehaviorNoteSample[]>([...sample.notes]);
 	let noteFilter = $state<'all' | NoteCategory>('all');
 	let noteStudent = $state('');
@@ -151,15 +145,54 @@
 				row.low >= ATTENTION_LOW_SUBJECTS ||
 				row.absent >= ATTENTION_ABSENT
 		);
-	const reportReady = $derived(
-		subjectsDone.length === sample.subjectsFull.length && notesDone === total
-	);
+	// Kartu rapor: status & progres nyata dari backend (rapor kelas perwalian semester aktif).
+	const report = $derived(data.report);
+	const reportSubjects = $derived(report?.subjects.length ?? 0);
+	const reportLocked = $derived(report?.subjects.filter((s) => s.locked).length ?? 0);
+	const reportStudents = $derived(report?.students.length ?? 0);
+	const reportNotes = $derived(report?.students.filter((s) => s.note.trim() !== '').length ?? 0);
 	const reportPercent = $derived(
-		Math.round(
-			((subjectsDone.length + notesDone / total + 1) / (sample.subjectsFull.length + 2)) * 100
-		)
+		!report
+			? 0
+			: report.status !== 'draft'
+				? 100
+				: Math.round(
+						((reportLocked + (reportStudents ? reportNotes / reportStudents : 0)) /
+							(reportSubjects + 1)) *
+							100
+					)
 	);
-	const reportStatus = $derived(reportSubmitted ? 'pending' : reportReady ? 'ready' : 'drafting');
+	const reportStatusLabel = $derived(
+		!report
+			? i18n.t('homeroom_report.card.status_unavailable')
+			: report.status === 'draft'
+				? i18n.t(`dashboard.homeroom.report_status_${report.can_submit ? 'ready' : 'drafting'}`)
+				: report.status === 'submitted'
+					? i18n.t('dashboard.homeroom.report_status_pending')
+					: i18n.t(`${PREFIX}.reports.status_${report.status}`)
+	);
+	const reportTone = $derived(
+		!report
+			? 'bg-lms-background text-lms-muted'
+			: report.status === 'submitted'
+				? 'lms-tone-warning'
+				: report.status !== 'draft' || report.can_submit
+					? 'lms-tone-success'
+					: 'bg-lms-background text-lms-muted'
+	);
+	const reportMessage = $derived(
+		!report
+			? i18n.t('homeroom_report.card.unavailable')
+			: report.status === 'draft'
+				? report.returned_note
+					? i18n.t('homeroom_report.card.msg_returned')
+					: report.can_submit
+						? i18n.t('dashboard.homeroom.report_msg_ready')
+						: i18n.t('dashboard.homeroom.report_msg_incomplete')
+				: report.status === 'submitted'
+					? i18n.t('dashboard.homeroom.report_msg_pending')
+					: i18n.t(`homeroom_report.card.msg_${report.status}`)
+	);
 	const noteError = $derived(
 		noteTried
 			? !noteStudent
@@ -214,14 +247,15 @@
 			target: 'buku-penghubung'
 		},
 		{
-			done: false,
+			done: Boolean(report && report.status !== 'draft'),
 			label: i18n.t('dashboard.homeroom.task_report'),
-			detail: reportSubmitted
-				? i18n.t('dashboard.homeroom.report_status_pending').toLowerCase()
-				: i18n.t('dashboard.homeroom.task_report_progress', {
-						done: subjectsDone.length,
-						total: sample.subjectsFull.length
-					}),
+			detail:
+				report?.status === 'draft'
+					? i18n.t('dashboard.homeroom.task_report_progress', {
+							done: reportLocked,
+							total: reportSubjects
+						})
+					: reportStatusLabel.toLowerCase(),
 			target: 'rapor'
 		}
 	]);
@@ -265,26 +299,6 @@
 		if (!read.includes(threadIndex)) read = [...read, threadIndex];
 		reply = '';
 		notify(i18n.t('dashboard.homeroom.toast_reply', { name: thread.parent }), Send);
-	}
-
-	function remindSubject(index: number, subject: string, teacher: string) {
-		reminded = [...reminded, index];
-		notify(i18n.t('dashboard.homeroom.toast_remind', { name: teacher }), BellRing);
-		setTimeout(() => {
-			if (!subjectsDone.includes(index)) subjectsDone = [...subjectsDone, index];
-			notify(i18n.t('dashboard.homeroom.toast_finalized', { subject, name: teacher }), CircleCheck);
-		}, REMIND_FINALIZE_MS);
-	}
-
-	function draftNotes() {
-		notesDone = total;
-		notify(i18n.t('dashboard.homeroom.toast_draft', { count: sample.draftNotesFor }), Sparkles);
-	}
-
-	function submitReport() {
-		if (!reportReady || reportSubmitted) return;
-		reportSubmitted = true;
-		notify(i18n.t('dashboard.homeroom.toast_report', { class: className }), Send);
 	}
 
 	function noteFollowUp(name: string) {
@@ -365,6 +379,7 @@
 			'dashboard.homeroom.hero_rest',
 			{ requests: sample.parentRequests.length, unread }
 		)}`}
+		help="help.homeroom_dashboard"
 	>
 		{#snippet actions()}
 			<a
@@ -865,110 +880,89 @@
 			aria-labelledby="{uid}-report"
 		>
 			<div class="flex items-start justify-between gap-2">
-				{@render heading(
-					`${uid}-report`,
-					i18n.t('dashboard.homeroom.report'),
-					i18n.t('dashboard.homeroom.report_hint', { date: sample.reportDeadline })
-				)}
+				<div class="min-w-0">
+					<h2 id="{uid}-report" class="text-base font-bold">
+						{report
+							? i18n.t('homeroom_report.card.title', { term: report.term })
+							: i18n.t('dashboard.homeroom.task_report')}
+					</h2>
+					{#if report}
+						<p class="text-lms-muted text-[0.8125rem]">
+							{i18n.t('homeroom_report.card.hint', { year: report.year, version: report.version })}
+						</p>
+					{/if}
+				</div>
 				<span
 					class={[
 						'rounded-full px-2.5 py-0.75 text-[11px] font-bold whitespace-nowrap uppercase',
-						reportStatus === 'pending'
-							? 'lms-tone-warning'
-							: reportStatus === 'ready'
-								? 'lms-tone-success'
-								: 'bg-lms-background text-lms-muted'
+						reportTone
 					]}
 				>
-					{i18n.t(`dashboard.homeroom.report_status_${reportStatus}`)}
+					{reportStatusLabel}
 				</span>
 			</div>
-			<div class="bg-lms-background h-2 overflow-hidden rounded-full">
-				<div
-					class="bg-lms-interactive h-full rounded-full transition-[width] duration-400"
-					style:width="{reportPercent}%"
-				></div>
-			</div>
-			<ul class="flex flex-col text-[0.8125rem]">
-				{#each sample.subjectsFull as [subject, teacher], index (subject)}
-					{@const done = subjectsDone.includes(index)}
-					{@const wasReminded = reminded.includes(index)}
-					<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
-						<span class={done ? 'text-lms-success-text' : 'text-lms-warning-text'}
-							><Icon icon={done ? CircleCheck : CircleDashed} size="sm" /></span
-						>
-						<span class="min-w-0 flex-1"
-							>{subject} <span class="text-lms-muted">· {teacher}</span></span
-						>
-						{#if !done && !wasReminded}
-							<button
-								type="button"
-								class="border-lms-input-border bg-lms-surface lms-focus-ring h-7 rounded-md border px-2.5 text-xs font-semibold"
-								onclick={() => remindSubject(index, subject, teacher)}
-								>{i18n.t('dashboard.homeroom.remind')}</button
+			{#if report}
+				<div class="bg-lms-background h-2 overflow-hidden rounded-full">
+					<div
+						class="bg-lms-interactive h-full rounded-full transition-[width] duration-400"
+						style:width="{reportPercent}%"
+					></div>
+				</div>
+				<ul class="flex flex-col text-[0.8125rem]">
+					{#each report.subjects as subject (subject.subject_id)}
+						<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
+							<span class={subject.locked ? 'text-lms-success-text' : 'text-lms-warning-text'}
+								><Icon icon={subject.locked ? CircleCheck : CircleDashed} size="sm" /></span
 							>
-						{/if}
-						<span
-							class={[
-								'text-xs font-semibold',
-								done ? 'text-lms-success-text' : 'text-lms-warning-text'
-							]}
+							<span class="min-w-0 flex-1"
+								>{subject.subject}
+								{#if subject.teacher}<span class="text-lms-muted">· {subject.teacher}</span
+									>{/if}</span
+							>
+							<span
+								class={[
+									'text-xs font-semibold',
+									subject.locked ? 'text-lms-success-text' : 'text-lms-warning-text'
+								]}
+							>
+								{subject.locked
+									? i18n.t('homeroom_report.subject_locked')
+									: i18n.t('homeroom_report.subject_open')}
+							</span>
+						</li>
+					{/each}
+					<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
+						<span class={report.notes_complete ? 'text-lms-success-text' : 'text-lms-warning-text'}
+							><Icon icon={report.notes_complete ? CircleCheck : CircleDashed} size="sm" /></span
 						>
-							{done
-								? i18n.t('dashboard.homeroom.subject_done')
-								: wasReminded
-									? i18n.t('dashboard.homeroom.subject_reminded')
-									: i18n.t('dashboard.homeroom.subject_pending')}
-						</span>
+						<span class="flex-1"
+							>{i18n.t('dashboard.homeroom.homeroom_notes', {
+								done: reportNotes,
+								total: reportStudents
+							})}</span
+						>
 					</li>
-				{/each}
-				<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
-					<span class={notesDone === total ? 'text-lms-success-text' : 'text-lms-warning-text'}
-						><Icon icon={notesDone === total ? CircleCheck : CircleDashed} size="sm" /></span
-					>
-					<span class="flex-1"
-						>{i18n.t('dashboard.homeroom.homeroom_notes', { done: notesDone, total })}</span
-					>
-					{#if notesDone < total}
-						<button
-							type="button"
-							class="border-lms-input-border bg-lms-surface lms-focus-ring flex h-7 items-center gap-1.25 rounded-md border px-2.5 text-xs font-semibold"
-							onclick={draftNotes}
-						>
-							<span class="text-lms-interactive"><Icon icon={Sparkles} size="sm" /></span>{i18n.t(
-								'dashboard.homeroom.draft_notes'
-							)}
-						</button>
-					{/if}
-				</li>
-				<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
-					<span class="text-lms-success-text"><Icon icon={CircleCheck} size="sm" /></span>
-					<span class="flex-1">{i18n.t('dashboard.homeroom.attendance_recap_auto')}</span>
-				</li>
-			</ul>
-			<p class="text-lms-muted text-xs leading-4.5">
-				{reportSubmitted
-					? i18n.t('dashboard.homeroom.report_msg_pending')
-					: reportReady
-						? i18n.t('dashboard.homeroom.report_msg_ready')
-						: i18n.t('dashboard.homeroom.report_msg_incomplete')}
-			</p>
-			<button
-				type="button"
+					<li class="border-lms-border flex items-center gap-2.5 border-t py-1.75">
+						<span class="text-lms-success-text"><Icon icon={CircleCheck} size="sm" /></span>
+						<span class="flex-1">{i18n.t('dashboard.homeroom.attendance_recap_auto')}</span>
+					</li>
+				</ul>
+			{/if}
+			<p class="text-lms-muted text-xs leading-4.5">{reportMessage}</p>
+			<a
+				href={resolve(APP_PATHS.HOMEROOM_REPORT)}
 				class={[
 					'lms-focus-ring flex h-10.5 items-center justify-center gap-2 rounded-[10px] text-sm font-bold',
-					reportReady && !reportSubmitted
+					report?.status === 'draft'
 						? 'lms-action-primary'
-						: 'bg-lms-background text-lms-muted cursor-default'
+						: 'border-lms-input-border bg-lms-surface border'
 				]}
-				aria-disabled={!reportReady || reportSubmitted}
-				onclick={submitReport}
 			>
-				<Icon icon={reportSubmitted ? BadgeCheck : Send} size="sm" />
-				{reportSubmitted
-					? i18n.t('dashboard.homeroom.report_submitted')
-					: i18n.t('dashboard.homeroom.report_submit')}
-			</button>
+				<Icon icon={report?.can_submit ? Send : NotebookPen} size="sm" />
+				{report?.status === 'draft'
+					? i18n.t('homeroom_report.card.open')
+					: i18n.t('homeroom_report.card.view')}
+			</a>
 		</section>
 	</div>
 

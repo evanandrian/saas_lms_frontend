@@ -219,9 +219,12 @@
 			title={t('title')}
 			description={t('subtitle')}
 			actionsPlacement="end"
+			help="help.account_settings"
 		>
 			{#snippet actions()}
-				<div class="flex items-center gap-2.5 bg-lms-on-hero/8 border-lms-on-hero/14 rounded-full border p-2 pr-4">
+				<div
+					class="flex items-center gap-2.5 bg-lms-on-hero/8 border-lms-on-hero/14 rounded-full border p-2 pr-4"
+				>
 					<span
 						class="bg-lms-interactive text-lms-on-interactive flex size-10 items-center justify-center overflow-hidden rounded-full bg-cover bg-center text-[13px] font-bold"
 						style:background-image={photoUrl ? `url(${photoUrl})` : undefined}

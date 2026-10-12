@@ -7,7 +7,8 @@ export const load: PageServerLoad = async (event) => {
 	const res = await loadStudent(dashboardsContext(event));
 
 	const className = res.ok && res.data?.class_name ? res.data.class_name : 'XI-A';
-	const userName = res.ok && res.data?.viewer?.full_name ? res.data.viewer.full_name : 'Dimas Surya Pratama';
+	const userName =
+		res.ok && res.data?.viewer?.full_name ? res.data.viewer.full_name : 'Dimas Surya Pratama';
 
 	const channels: ConversationChannel[] = [
 		{

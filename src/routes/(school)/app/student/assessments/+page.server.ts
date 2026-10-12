@@ -12,7 +12,8 @@ export const load: PageServerLoad = async (event) => {
 	const subjects = apiSubjects.map((s) => ({
 		id: s.id,
 		name: s.name,
-		icon: ((s.icon as any) ?? 'math') as 'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
+		icon: (s.icon ?? 'math') as
+			'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
 		assessmentCount: 0
 	}));
 
@@ -45,7 +46,8 @@ export const load: PageServerLoad = async (event) => {
 			passingScore: 75,
 			teacherName: 'Bambang Sudibyo, M.Pd.',
 			roomCode: 'MAT-XI-02',
-			instructions: 'Kerjakan 15 butir soal pilihan ganda interaktif. Pastikan koneksi internet stabil dan jangan berpindah tab browser selama ujian berlangsung.'
+			instructions:
+				'Kerjakan 15 butir soal pilihan ganda interaktif. Pastikan koneksi internet stabil dan jangan berpindah tab browser selama ujian berlangsung.'
 		},
 		{
 			id: 'exam-02',
@@ -64,7 +66,8 @@ export const load: PageServerLoad = async (event) => {
 			passingScore: 75,
 			teacherName: 'Dr. Retno Wulandari',
 			roomCode: 'BIO-STS-XI',
-			instructions: 'Cakupan materi: Struktur Sel, Transpor Membran, Enzim dan Metabolisme Sel. Siapkan perangkat yang sudah terinstal aplikasi ujian.'
+			instructions:
+				'Cakupan materi: Struktur Sel, Transpor Membran, Enzim dan Metabolisme Sel. Siapkan perangkat yang sudah terinstal aplikasi ujian.'
 		},
 		{
 			id: 'exam-03',
@@ -124,12 +127,15 @@ export const load: PageServerLoad = async (event) => {
 			passingScore: 70,
 			teacherName: 'Sarah Jenkins, M.A.',
 			roomCode: 'AKM-ENG-XI',
-			instructions: 'Simulasi ujian literasi bahasa Inggris berbasis komputer dengan model soal stimulus teks dan infografis.'
+			instructions:
+				'Simulasi ujian literasi bahasa Inggris berbasis komputer dengan model soal stimulus teks dan infografis.'
 		}
 	];
 
 	for (const sub of subjects) {
-		sub.assessmentCount = assessments.filter((a) => a.subjectId === sub.id || a.subjectName.toLowerCase().includes(sub.name.toLowerCase())).length;
+		sub.assessmentCount = assessments.filter(
+			(a) => a.subjectId === sub.id || a.subjectName.toLowerCase().includes(sub.name.toLowerCase())
+		).length;
 	}
 
 	const data: StudentAssessmentsPageData = {

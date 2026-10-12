@@ -1,65 +1,41 @@
-import { backendFailure, type BackendContext, type BackendResult } from '$lib/api/backend-call';
-import { backendBaseUrl, backendApiAccess } from '$lib/auth/backend-auth';
-import type { PlatformPaymentList, UnpaidInvoiceList } from './payments.model';
-import type { InvoiceTransferInput } from '$lib/api/generated/lms';
+import {
+	checkInvoicePaymentMutation,
+	getBillingSettings,
+	listPlatformPayments,
+	listUnpaidInvoices,
+	recordInvoicePayment,
+	rejectInvoicePayment,
+	verifyInvoicePayment,
+	type BillingSettings,
+	type InvoiceDetail,
+	type InvoiceTransferInput,
+	type PlatformPaymentList,
+	type UnpaidInvoiceList
+} from '$lib/api/generated/lms';
+import { callBackend, type BackendContext } from '$lib/api/backend-call';
 
-async function fetchApi<T>(ctx: BackendContext, method: string, path: string, body?: any): Promise<BackendResult<T>> {
-	const url = backendBaseUrl() + path;
-	const init = await backendApiAccess(ctx.cookies);
-	if (!init) return { ok: false, reason: 'unauthenticated', code: 'no_token', issues: [], remaining: null, retryAt: null };
-	const res = await ctx.fetch(url, {
-		method,
-		headers: {
-			'Authorization': `Bearer ${init.token}`,
-			'Content-Type': 'application/json',
-			'User-Agent': ctx.userAgent,
-			'X-Forwarded-For': ctx.clientAddress
-		},
-		body: body ? JSON.stringify(body) : undefined
-	});
-	const payload = await res.json().catch(() => null);
-	if (res.ok) {
-		const unwrapped = payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload;
-		return { ok: true, data: unwrapped as T };
-	}
-	return backendFailure(res.status, payload);
-}
+/** Feature API Pembayaran (referensi "04f Pembayaran") — server-only, lewat generated client. */
+export const fetchPayments = (ctx: BackendContext) =>
+	callBackend<PlatformPaymentList>(ctx, (init) => listPlatformPayments({}, init));
 
-export function fetchPlatformPayments(
-	ctx: BackendContext,
-	q: string = '',
-	status: string = ''
-): Promise<BackendResult<PlatformPaymentList>> {
-	return fetchApi(ctx, 'GET', `/api/v1/platform/invoices/payments?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}`);
-}
+export const fetchUnpaid = (ctx: BackendContext) =>
+	callBackend<UnpaidInvoiceList>(ctx, (init) => listUnpaidInvoices(init));
 
-export function fetchUnpaidInvoices(
-	ctx: BackendContext
-): Promise<BackendResult<UnpaidInvoiceList>> {
-	return fetchApi(ctx, 'GET', `/api/v1/platform/invoices/unpaid`);
-}
+export const fetchSettings = (ctx: BackendContext) =>
+	callBackend<BillingSettings>(ctx, (init) => getBillingSettings(init));
 
-export function verifyPayment(
-	ctx: BackendContext,
-	invoiceId: string,
-	paymentId: string
-): Promise<BackendResult<unknown>> {
-	return fetchApi(ctx, 'POST', `/api/v1/platform/invoices/${invoiceId}/payments/${paymentId}/verify`, {});
-}
+export const verify = (ctx: BackendContext, invoiceId: string, paymentId: string) =>
+	callBackend<InvoiceDetail>(ctx, (init) => verifyInvoicePayment(invoiceId, paymentId, init));
 
-export function rejectPayment(
-	ctx: BackendContext,
-	invoiceId: string,
-	paymentId: string,
-	reason: string
-): Promise<BackendResult<unknown>> {
-	return fetchApi(ctx, 'POST', `/api/v1/platform/invoices/${invoiceId}/payments/${paymentId}/reject`, { reason });
-}
+export const reject = (ctx: BackendContext, invoiceId: string, paymentId: string, reason: string) =>
+	callBackend<InvoiceDetail>(ctx, (init) =>
+		rejectInvoicePayment(invoiceId, paymentId, { reason }, init)
+	);
 
-export function recordPayment(
-	ctx: BackendContext,
-	invoiceId: string,
-	payment: InvoiceTransferInput
-): Promise<BackendResult<unknown>> {
-	return fetchApi(ctx, 'POST', `/api/v1/platform/invoices/${invoiceId}/payments`, payment);
-}
+export const record = (ctx: BackendContext, invoiceId: string, body: InvoiceTransferInput) =>
+	callBackend<InvoiceDetail>(ctx, (init) => recordInvoicePayment(invoiceId, body, init));
+
+export const mutationCheck = (ctx: BackendContext, invoiceId: string, paymentId: string) =>
+	callBackend<InvoiceDetail>(ctx, (init) =>
+		checkInvoicePaymentMutation(invoiceId, paymentId, init)
+	);

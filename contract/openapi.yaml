@@ -2845,7 +2845,7 @@ paths:
       operationId: voidInvoice
       tags:
       - invoices
-      summary: Void an issued/overdue invoice (cancels VA and pending proofs, emails tenant)
+      summary: Void an issued/overdue invoice (cancels VA and pending proofs, emails tenant). Invoice with succeeded payments → 409 invoice_partially_paid.
       security:
       - bearerAuth: []
       parameters:
@@ -3333,6 +3333,2604 @@ paths:
           $ref: '#/components/responses/BillingError'
         '409':
           $ref: '#/components/responses/BillingError'
+  /api/v1/school/dashboard:
+    get:
+      operationId: getSchoolDashboard
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolDashboardView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: School admin dashboard (05)
+      tags:
+      - school-admin
+  /api/v1/school/setup:
+    get:
+      operationId: getSchoolSetup
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Setup state 03b
+      tags:
+      - school-admin
+  /api/v1/school/setup/progress:
+    get:
+      operationId: getSchoolSetupProgress
+      tags:
+      - school-admin
+      summary: Status 12 bagian data sekolah
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolProgressView'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+  /api/v1/school/setup/profile:
+    put:
+      operationId: saveSchoolSetupProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolProfileInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 1 profile
+      tags:
+      - school-admin
+  /api/v1/school/setup/logo:
+    put:
+      operationId: saveSchoolSetupLogo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolLogoInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 1 logo
+      tags:
+      - school-admin
+  /api/v1/school/setup/curriculum:
+    put:
+      operationId: saveSchoolSetupCurriculum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolCurriculumInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 2 curriculum
+      tags:
+      - school-admin
+  /api/v1/school/setup/year:
+    put:
+      operationId: saveSchoolSetupYear
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolYearInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 3 academic year
+      tags:
+      - school-admin
+  /api/v1/school/setup/classes:
+    put:
+      operationId: saveSchoolSetupClasses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolClassesInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 4 grades & classes
+      tags:
+      - school-admin
+  /api/v1/school/setup/subjects:
+    put:
+      operationId: saveSchoolSetupSubjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolSubjectsInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSetupState'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Step 5 subjects
+      tags:
+      - school-admin
+  /api/v1/school/logo:
+    get:
+      operationId: getSchoolLogo
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+          description: File
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: School logo image
+      tags:
+      - school-admin
+  /api/v1/school/planning:
+    get:
+      operationId: getSchoolPlanning
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Optional 03b data
+      tags:
+      - school-admin
+  /api/v1/school/planning/homerooms/{id}:
+    put:
+      operationId: setSchoolHomeroom
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolHomeroomInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Set class homeroom
+      tags:
+      - school-admin
+  /api/v1/school/planning/assignments:
+    put:
+      operationId: setSchoolAssignment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAssignmentInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Set teaching assignment cell
+      tags:
+      - school-admin
+  /api/v1/school/planning/objectives:
+    post:
+      operationId: addSchoolObjective
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolObjectiveInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Add learning objective
+      tags:
+      - school-admin
+  /api/v1/school/planning/objectives/{id}:
+    delete:
+      operationId: deleteSchoolObjective
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete learning objective
+      tags:
+      - school-admin
+  /api/v1/school/planning/assessments:
+    put:
+      operationId: saveSchoolAssessments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAssessmentsInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Assessment types & weights
+      tags:
+      - school-admin
+  /api/v1/school/planning/periods:
+    put:
+      operationId: saveSchoolPeriods
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolPeriodsInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Lesson periods
+      tags:
+      - school-admin
+  /api/v1/school/planning/schedule:
+    put:
+      operationId: setSchoolScheduleCell
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolScheduleCellInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Set schedule cell
+      tags:
+      - school-admin
+  /api/v1/school/planning/extras:
+    post:
+      operationId: createSchoolExtra
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolExtraInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create extracurricular
+      tags:
+      - school-admin
+  /api/v1/school/planning/extras/{id}:
+    put:
+      operationId: updateSchoolExtra
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolExtraInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update extracurricular
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolExtra
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete extracurricular
+      tags:
+      - school-admin
+  /api/v1/school/years:
+    get:
+      operationId: listSchoolYears
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolYearsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Academic years (05a)
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolYear
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolYearInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolYearsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create academic year
+      tags:
+      - school-admin
+  /api/v1/school/years/{id}:
+    get:
+      operationId: getSchoolYear
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolYearDetail'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Academic year detail
+      tags:
+      - school-admin
+    put:
+      operationId: updateSchoolYear
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolYearInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolYearsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update academic year
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolYear
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolYearsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete academic year
+      tags:
+      - school-admin
+  /api/v1/school/classes:
+    get:
+      operationId: listSchoolClasses
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassesView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Classes (05b)
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolClass
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolClassInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassesView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create class
+      tags:
+      - school-admin
+  /api/v1/school/classes/{id}:
+    get:
+      operationId: getSchoolClass
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassDetail'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Class detail
+      tags:
+      - school-admin
+    put:
+      operationId: updateSchoolClass
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolClassInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassesView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update class
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolClass
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassesView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete class
+      tags:
+      - school-admin
+  /api/v1/school/teachers:
+    get:
+      operationId: listSchoolTeachers
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolTeachersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Teachers (05c)
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolTeacher
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolTeacherInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolTeachersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create teacher
+      tags:
+      - school-admin
+  /api/v1/school/teachers/{id}:
+    get:
+      operationId: getSchoolTeacher
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolTeacherDetail'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Teacher detail
+      tags:
+      - school-admin
+    put:
+      operationId: updateSchoolTeacher
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolTeacherInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolTeachersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update teacher
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolTeacher
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolTeachersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete teacher
+      tags:
+      - school-admin
+  /api/v1/school/students:
+    get:
+      operationId: listSchoolStudents
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolStudentsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Students (05d)
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolStudent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolStudentInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolStudentsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create student (402 quota_students_exceeded)
+      tags:
+      - school-admin
+  /api/v1/school/students/{id}:
+    put:
+      operationId: updateSchoolStudent
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolStudentInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolStudentsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update student
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolStudent
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolStudentsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete student
+      tags:
+      - school-admin
+  /api/v1/school/guardians:
+    get:
+      operationId: listSchoolGuardians
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGuardiansView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Guardians (05e)
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolGuardian
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolGuardianInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGuardiansView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create guardian
+      tags:
+      - school-admin
+  /api/v1/school/guardians/{id}:
+    put:
+      operationId: updateSchoolGuardian
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolGuardianInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGuardiansView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update guardian
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolGuardian
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGuardiansView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete guardian
+      tags:
+      - school-admin
+  /api/v1/school/guardians/{id}/students/{studentID}:
+    delete:
+      operationId: unlinkSchoolGuardian
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studentID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGuardiansView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Unlink guardian from student
+      tags:
+      - school-admin
+  /api/v1/school/invitations:
+    post:
+      operationId: inviteSchoolAccounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolInviteInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolInviteResult'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Send/resend account invitations
+      tags:
+      - school-admin
+  /api/v1/school/invitations/jobs/latest:
+    get:
+      operationId: getLatestSchoolInviteJob
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    allOf:
+                    - $ref: '#/components/schemas/SchoolInviteJob'
+                    nullable: true
+                required:
+                - data
+                type: object
+          description: Job undangan terakhir tenant (null bila belum ada)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Latest bulk invitation job
+      tags:
+      - school-admin
+  /api/v1/school/invitations/jobs/{id}:
+    get:
+      operationId: getSchoolInviteJob
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolInviteJob'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Bulk invitation job progress (codes visible for 72 hours)
+      tags:
+      - school-admin
+  /api/v1/school/audit:
+    get:
+      operationId: getSchoolAudit
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - person
+          - guardian
+          - account
+          - report
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: before
+        description: Kursor opak next_before dari halaman sebelumnya (seq audit); kirim balik apa adanya.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAuditView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Tenant change history (delete/deactivate people, invitations, report cards)
+      tags:
+      - school-admin
+  /api/v1/school/attendance:
+    get:
+      operationId: getSchoolAttendance
+      parameters:
+      - in: query
+        name: mode
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: date
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAttendanceView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Attendance monitoring (05f)
+      tags:
+      - school-admin
+  /api/v1/school/attendance/remind:
+    post:
+      operationId: remindSchoolAttendance
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAttendanceView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Remind homeroom teachers
+      description: 'Emails homeroom teachers of classes that have not filled today''s attendance, at most once per hour (422 validation_failed date=remind_cooldown). Other 422 codes: holiday, all_filled, no_homeroom_contact (no reachable homeroom teacher). On success data.reminder carries the actual outcome counts.'
+      tags:
+      - school-admin
+  /api/v1/school/homeroom/attendance:
+    get:
+      operationId: getHomeroomAttendance
+      parameters:
+      - in: query
+        name: date
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolHomeroomAttendanceView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Homeroom daily attendance
+      tags:
+      - school-admin
+    put:
+      operationId: saveHomeroomAttendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAttendanceInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolHomeroomAttendanceView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Save homeroom daily attendance
+      tags:
+      - school-admin
+  /api/v1/school/reports:
+    get:
+      operationId: getSchoolReports
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolReportsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Report card monitoring (05g)
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/remind:
+    post:
+      operationId: remindSchoolReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolReportsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Remind homeroom about draft report
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}:
+    get:
+      operationId: getSchoolClassReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Class report card review (admin & principal)
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/approve:
+    post:
+      operationId: approveSchoolClassReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Principal approves submitted class report cards
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/return:
+    post:
+      operationId: returnSchoolClassReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolReasonInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Principal returns submitted report cards to the homeroom teacher
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/lock:
+    post:
+      operationId: lockSchoolClassReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Lock approved report cards and publish PDFs
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/unlock:
+    post:
+      operationId: unlockSchoolClassReport
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolReasonInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Principal reopens locked report cards for correction
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/pdf:
+    get:
+      operationId: downloadSchoolClassReportPdf
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: student
+        description: Satu murid (PDF tersimpan); kosong = seluruh kelas.
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: PDF rapor terkunci
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Download locked report card PDF
+      tags:
+      - school-admin
+  /api/v1/school/teacher/grades:
+    get:
+      operationId: getTeacherGradeAssignments
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGradeAssignmentsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Subject teacher assignments with final grade progress
+      tags:
+      - school-admin
+  /api/v1/school/teacher/grades/{id}:
+    get:
+      operationId: getTeacherGradeSheet
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGradeSheet'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Final grade sheet for one teaching assignment
+      tags:
+      - school-admin
+    put:
+      operationId: saveTeacherGrades
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolGradesInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGradeSheet'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Save final grades (partial allowed)
+      tags:
+      - school-admin
+  /api/v1/school/teacher/grades/{id}/lock:
+    post:
+      operationId: lockTeacherGrades
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolGradeSheet'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Lock final grades (all students need score and description)
+      tags:
+      - school-admin
+  /api/v1/school/homeroom/report:
+    get:
+      operationId: getHomeroomReport
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Homeroom class report card
+      tags:
+      - school-admin
+  /api/v1/school/homeroom/report/notes:
+    put:
+      operationId: saveHomeroomReportNotes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolNotesInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Save homeroom notes (draft only)
+      tags:
+      - school-admin
+  /api/v1/school/homeroom/report/submit:
+    post:
+      operationId: submitHomeroomReport
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolClassReport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Submit class report cards to the principal
+      tags:
+      - school-admin
+  /api/v1/school/learner/reports:
+    get:
+      operationId: getLearnerReports
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LearnerReportsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Published report cards for the signed-in student or the guardian's linked children
+      tags:
+      - school-admin
+  /api/v1/school/learner/reports/{id}/pdf:
+    get:
+      operationId: downloadLearnerReportPdf
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: PDF rapor terbit (milik sendiri / anak tertaut)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Download a published report card PDF
+      tags:
+      - school-admin
+  /api/v1/school/subscription:
+    get:
+      operationId: getSchoolSubscription
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSubscriptionView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Subscription & seats (05h)
+      tags:
+      - school-admin
+  /api/v1/school/subscription/seats:
+    post:
+      operationId: addSchoolSeats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolSeatsInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolSeatsResult'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Add seats (prorata invoice)
+      tags:
+      - school-admin
+  /api/v1/school/imports/{kind}:
+    get:
+      operationId: getSchoolImportSpec
+      parameters:
+      - in: path
+        name: kind
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolImportSpec'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Import spec
+      tags:
+      - school-admin
+  /api/v1/school/imports/{kind}/template:
+    get:
+      operationId: getSchoolImportTemplate
+      parameters:
+      - in: path
+        name: kind
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: format
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: File
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Import template file
+      tags:
+      - school-admin
+  /api/v1/school/imports/{kind}/parse:
+    post:
+      operationId: parseSchoolImport
+      parameters:
+      - in: path
+        name: kind
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolImportFile'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolParsedImport'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Read uploaded xlsx/csv
+      tags:
+      - school-admin
+  /api/v1/school/imports/{kind}/preview:
+    post:
+      operationId: previewSchoolImport
+      parameters:
+      - in: path
+        name: kind
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolImportRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolImportPreview'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Validate rows
+      tags:
+      - school-admin
+  /api/v1/school/imports/{kind}/commit:
+    post:
+      operationId: commitSchoolImport
+      parameters:
+      - in: path
+        name: kind
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolImportRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolImportResult'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Import valid rows
+      tags:
+      - school-admin
+  /api/v1/public/school/invitations:
+    get:
+      operationId: getSchoolInvitation
+      parameters:
+      - in: query
+        name: t
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: token
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolInvitationInfo'
+                required:
+                - data
+                type: object
+          description: OK
+        '429':
+          $ref: '#/components/responses/SchoolRateLimited'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      summary: Invitation info
+      tags:
+      - school-admin
+  /api/v1/public/school/invitations/accept:
+    post:
+      operationId: acceptSchoolInvitation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAcceptInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolInvitationInfo'
+                required:
+                - data
+                type: object
+          description: OK
+        '429':
+          $ref: '#/components/responses/SchoolRateLimited'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      summary: Accept invitation
+      tags:
+      - school-admin
+  /api/v1/public/school/activate:
+    post:
+      operationId: activateSchoolStudent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolActivateInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolInvitationInfo'
+                required:
+                - data
+                type: object
+          description: OK
+        '429':
+          $ref: '#/components/responses/SchoolRateLimited'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      summary: Activate student by code
+      tags:
+      - school-admin
+  /api/v1/platform/invoices/payments:
+    get:
+      operationId: listPlatformPayments
+      tags:
+      - invoices
+      summary: Daftar pembayaran (verifikasi, semua, terverifikasi, ditolak)
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PlatformPaymentList'
+        '403':
+          $ref: '#/components/responses/BillingError'
+  /api/v1/platform/invoices/unpaid:
+    get:
+      operationId: listUnpaidInvoices
+      tags:
+      - invoices
+      summary: Invoice terbit dengan sisa tagihan (catat pembayaran manual)
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UnpaidInvoiceList'
+        '403':
+          $ref: '#/components/responses/BillingError'
+  /api/v1/platform/invoices/{id}/payments/{paymentID}/mutation-check:
+    post:
+      operationId: checkInvoicePaymentMutation
+      tags:
+      - invoices
+      summary: Tandai transfer sudah dicek di mutasi rekening
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/InvoiceId'
+      - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InvoiceDetail'
+        '404':
+          $ref: '#/components/responses/BillingError'
+        '409':
+          $ref: '#/components/responses/BillingError'
+  /api/v1/school/subscription/activation:
+    get:
+      operationId: getSchoolActivation
+      tags:
+      - school-admin
+      summary: Pilihan aktivasi trial → berbayar
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolActivationView'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+    post:
+      operationId: activateSchoolSubscription
+      tags:
+      - school-admin
+      summary: Terbitkan invoice aktivasi tahunan
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolActivationInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolActivationResult'
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+  /api/v1/platform/clusters:
+    get:
+      operationId: listPlatformClusters
+      tags:
+      - clusters
+      summary: Tenant database clusters + active cluster regions (permission platform.cluster.manage)
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClusterList'
+        '403':
+          $ref: '#/components/responses/ClusterError'
+    post:
+      operationId: createPlatformCluster
+      tags:
+      - clusters
+      summary: Create a cluster. The server re-runs a real connection test; failure = 422 connection_failed.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClusterView'
+        '400':
+          $ref: '#/components/responses/ClusterError'
+        '403':
+          $ref: '#/components/responses/ClusterError'
+        '422':
+          $ref: '#/components/responses/ClusterError'
+  /api/v1/platform/clusters/test:
+    post:
+      operationId: testPlatformClusterConnection
+      tags:
+      - clusters
+      summary: Real connection test (pgx, 5 s timeout, SHOW server_version). Connection failure is ok=false, not an HTTP error.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterTestInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClusterTestResult'
+        '400':
+          $ref: '#/components/responses/ClusterError'
+        '403':
+          $ref: '#/components/responses/ClusterError'
+        '404':
+          $ref: '#/components/responses/ClusterError'
+        '422':
+          $ref: '#/components/responses/ClusterError'
+  /api/v1/platform/clusters/{id}:
+    put:
+      operationId: updatePlatformCluster
+      tags:
+      - clusters
+      summary: Update a cluster (code is fixed; empty password = keep). Connection changes require a passing re-test.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ClusterId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClusterView'
+        '404':
+          $ref: '#/components/responses/ClusterError'
+        '422':
+          $ref: '#/components/responses/ClusterError'
+  /api/v1/platform/clusters/{id}/databases:
+    get:
+      operationId: listPlatformClusterDatabases
+      tags:
+      - clusters
+      summary: Tenant databases on the cluster with their size (largest first); connects to the cluster.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ClusterId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClusterDatabaseList'
+        '404':
+          $ref: '#/components/responses/ClusterError'
+        '503':
+          $ref: '#/components/responses/ClusterError'
+  /api/v1/platform/audit:
+    get:
+      operationId: listPlatformAudit
+      tags:
+      - audit
+      summary: Audit log platform (BR-23) dengan filter & cursor seq (permission platform.audit.view)
+      security:
+      - bearerAuth: []
+      parameters:
+      - {name: q, in: query, schema: {type: string, maxLength: 200}, description: 'Cari di action, entity_type, IP, request_id, id, details; `AUD-123`/`123` juga mencocokkan seq'}
+      - {name: actor, in: query, schema: {type: string}, description: 'UUID user | `system` | `gateway`'}
+      - {name: range, in: query, schema: {type: string, enum: [today, '7', '30', custom], default: '7'}, description: Rentang tanggal Asia/Jakarta}
+      - {name: from, in: query, schema: {type: string, format: date}, description: Wajib bila range=custom}
+      - {name: to, in: query, schema: {type: string, format: date}, description: 'Wajib bila range=custom; inklusif; from > to → 400 issue to/range_invalid'}
+      - {name: module, in: query, schema: {type: string}, description: 'Daftar kode modul dipisah koma (applications,tenants,invoices,payments,clusters,plans,auth,master_data,navigation,audit)'}
+      - {name: severity, in: query, schema: {type: string}, description: 'Daftar dipisah koma: info,warn,crit'}
+      - {name: failed, in: query, schema: {type: string, enum: ['true', 'false']}, description: true = hanya yang gagal}
+      - {name: before, in: query, schema: {type: integer, format: int64}, description: Cursor — ambil entri dengan seq < before (next_before halaman sebelumnya)}
+      - {name: limit, in: query, schema: {type: integer, default: 10, minimum: 1, maximum: 100}}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AuditList'
+        '400':
+          $ref: '#/components/responses/AuditError'
+        '403':
+          $ref: '#/components/responses/AuditError'
+  /api/v1/platform/audit/export:
+    get:
+      operationId: exportPlatformAudit
+      tags:
+      - audit
+      summary: Ekspor CSV (UTF-8 BOM) sesuai filter, maks 50.000 baris; mencatat audit.export
+      security:
+      - bearerAuth: []
+      parameters:
+      - {name: q, in: query, schema: {type: string, maxLength: 200}, description: 'Cari di action, entity_type, IP, request_id, id, details; `AUD-123`/`123` juga mencocokkan seq'}
+      - {name: actor, in: query, schema: {type: string}, description: 'UUID user | `system` | `gateway`'}
+      - {name: range, in: query, schema: {type: string, enum: [today, '7', '30', custom], default: '7'}, description: Rentang tanggal Asia/Jakarta}
+      - {name: from, in: query, schema: {type: string, format: date}, description: Wajib bila range=custom}
+      - {name: to, in: query, schema: {type: string, format: date}, description: 'Wajib bila range=custom; inklusif; from > to → 400 issue to/range_invalid'}
+      - {name: module, in: query, schema: {type: string}, description: 'Daftar kode modul dipisah koma (applications,tenants,invoices,payments,clusters,plans,auth,master_data,navigation,audit)'}
+      - {name: severity, in: query, schema: {type: string}, description: 'Daftar dipisah koma: info,warn,crit'}
+      - {name: failed, in: query, schema: {type: string, enum: ['true', 'false']}, description: true = hanya yang gagal}
+      responses:
+        '200':
+          description: 'CSV `id,waktu,pelaku,modul,aksi,entitas,tingkat,hasil,ip,request_id`; Content-Disposition attachment audit-log-YYYY-MM-DD.csv'
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/AuditError'
+        '422':
+          $ref: '#/components/responses/AuditError'
+  /api/v1/platform/audit/verify:
+    get:
+      operationId: verifyPlatformAudit
+      tags:
+      - audit
+      summary: Verifikasi rantai hash audit dari jangkar retensi sampai kepala rantai
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AuditVerify'
+        '403':
+          $ref: '#/components/responses/AuditError'
 components:
   securitySchemes:
     bearerAuth:
@@ -3340,6 +5938,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    ClusterId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        format: uuid
     MasterKind:
       in: path
       name: master
@@ -3396,6 +6001,35 @@ components:
         - school_admin
         - teacher
   responses:
+    AuditError:
+      description: 'Audit error: invalid_filter (400, details [{field, code}] — range_invalid, invalid_date, required, invalid, too_long), export_too_large (422, details {max_rows}), forbidden, internal_error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    ClusterError:
+      description: 'Error envelope. Cluster codes: `validation_failed` (422, details = [{field, code}]; codes required, invalid, too_short, out_of_range, code_taken, not_found (region_code), below_used (max_databases)), `connection_failed` (422, details = {error_code}; error_code = connection_dns | connection_refused | connection_auth | connection_tls | connection_timeout | connection_failed), `cluster_unreachable` (503, details = {error_code}; raw driver text is logged server-side with the request_id, never returned), `not_found` (404), `forbidden`, `invalid_request`, `internal_error`. Update/test: a changed host, port, admin_user or ssl_mode without a new password → `validation_failed` issue {field: password, code: required} (the stored password is only reused for the same endpoint).'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    SchoolAdminError:
+      description: 'Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
+    SchoolRateLimited:
+      description: 'Too many attempts (`rate_limited`). Public credential endpoints are limited per client IP — failed credential attempts only (invalid/expired code or token; default 20 / 15 min, PUBLIC_AUTH_RATE_LIMIT_IP*; successful attempts are not counted and never reset it), optional total requests per IP (PUBLIC_AUTH_RATE_LIMIT_IP_TOTAL, default 0 = off) — and per target — activation username or invitation token (all attempts, default 5 / 15 min, PUBLIC_AUTH_RATE_LIMIT_TARGET*; reset after a successful attempt). Client IP comes from X-Forwarded-For only when the connection is from TRUSTED_PROXIES. details = {retry_after (seconds), retry_at (RFC 3339)}.'
+      headers:
+        Retry-After:
+          description: Seconds until the current window ends.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountErrorResponse'
     RegistrationError:
       description: 'Error envelope. Codes: `validation_failed` (details = [{field, code}]), `email_taken`, `invalid_code`, `too_many_attempts`, `resend_too_soon` (details.retry_at), `no_application`, `not_found`, `application_locked`, `invalid_transition`, `checks_incomplete`, `tenant_not_ready`, `gateway_unavailable`, `forbidden`, `internal_error`.'
       content:
@@ -3569,12 +6203,2764 @@ components:
               data:
                 $ref: '#/components/schemas/NavigationLayout'
     BillingError:
-      description: Billing error (validation_failed, not_found, invalid_transition, no_context, reminder_too_soon, gateway_unavailable)
+      description: Billing error (validation_failed, not_found, invalid_transition, invoice_partially_paid (409, void ditolak karena invoice sudah menerima pembayaran sukses), no_context, reminder_too_soon, gateway_unavailable)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    ClusterStatus:
+      type: string
+      enum:
+      - available
+      - full
+      - draining
+      - maintenance
+      - retired
+      description: full is computed automatically (available and used >= max; back to available when below). maintenance pauses tenant connections (503 tenant_maintenance).
+    ClusterSSLMode:
+      type: string
+      enum:
+      - verify-full
+      - require
+      - disable
+    ClusterBackup:
+      type: object
+      required:
+      - started_at
+      - finished_at
+      - status
+      - databases
+      - size_bytes
+      properties:
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum:
+          - running
+          - succeeded
+          - failed
+        databases:
+          type: integer
+        size_bytes:
+          type: integer
+          format: int64
+    ClusterView:
+      type: object
+      description: The admin password is never returned; has_password tells whether one is stored.
+      required:
+      - id
+      - code
+      - region_code
+      - region_name
+      - region_zone
+      - outside_indonesia
+      - pg_version
+      - host
+      - port
+      - admin_user
+      - has_password
+      - ssl_mode
+      - max_databases
+      - used_databases
+      - pool_size
+      - warn_pct
+      - status
+      - backup_schedule
+      - backup_retention_days
+      - pitr
+      - last_backup
+      - last_connected_at
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        region_code:
+          type: string
+        region_name:
+          type: string
+        region_zone:
+          type: string
+        outside_indonesia:
+          type: boolean
+        pg_version:
+          type: string
+        host:
+          type: string
+        port:
+          type: integer
+        admin_user:
+          type: string
+        has_password:
+          type: boolean
+        ssl_mode:
+          $ref: '#/components/schemas/ClusterSSLMode'
+        max_databases:
+          type: integer
+        used_databases:
+          type: integer
+          description: Live tenant databases (tenants with db_name, not terminated)
+        pool_size:
+          type: integer
+        warn_pct:
+          type: integer
+        status:
+          $ref: '#/components/schemas/ClusterStatus'
+        backup_schedule:
+          type: string
+          enum:
+          - 6h
+          - daily
+          - weekly
+        backup_retention_days:
+          type: integer
+          enum:
+          - 7
+          - 14
+          - 30
+          - 90
+        pitr:
+          type: boolean
+        last_backup:
+          allOf:
+          - $ref: '#/components/schemas/ClusterBackup'
+          nullable: true
+        last_connected_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ClusterRegion:
+      type: object
+      required:
+      - code
+      - name
+      - zone
+      - outside_indonesia
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        zone:
+          type: string
+        outside_indonesia:
+          type: boolean
+    ClusterList:
+      type: object
+      required:
+      - clusters
+      - regions
+      properties:
+        clusters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClusterView'
+        regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClusterRegion'
+    ClusterInput:
+      type: object
+      required:
+      - region_code
+      - host
+      - port
+      - admin_user
+      - ssl_mode
+      - max_databases
+      - pool_size
+      - warn_pct
+      - status
+      - backup_schedule
+      - backup_retention_days
+      - pitr
+      properties:
+        code:
+          type: string
+          pattern: '^[a-z0-9-]{4,24}$'
+          description: Create only (ignored on update); unique (code_taken)
+        region_code:
+          type: string
+        host:
+          type: string
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        admin_user:
+          type: string
+          minLength: 3
+        password:
+          type: string
+          minLength: 12
+          description: Required on create; empty on update = keep the stored password
+        ssl_mode:
+          $ref: '#/components/schemas/ClusterSSLMode'
+        max_databases:
+          type: integer
+          minimum: 1
+          description: Must be >= used_databases on update (below_used)
+        pool_size:
+          type: integer
+          minimum: 5
+          maximum: 100
+        warn_pct:
+          type: integer
+          minimum: 50
+          maximum: 95
+          multipleOf: 5
+        status:
+          type: string
+          enum:
+          - available
+          - draining
+          - maintenance
+          description: Send available for a cluster shown as full; the server recomputes full.
+        backup_schedule:
+          type: string
+          enum:
+          - 6h
+          - daily
+          - weekly
+        backup_retention_days:
+          type: integer
+          enum:
+          - 7
+          - 14
+          - 30
+          - 90
+        pitr:
+          type: boolean
+    ClusterTestInput:
+      type: object
+      required:
+      - host
+      - port
+      - admin_user
+      - ssl_mode
+      properties:
+        cluster_id:
+          type: string
+          format: uuid
+          description: With an empty password the stored password of this cluster is used
+        host:
+          type: string
+        port:
+          type: integer
+        admin_user:
+          type: string
+        password:
+          type: string
+        ssl_mode:
+          $ref: '#/components/schemas/ClusterSSLMode'
+    ClusterTestResult:
+      type: object
+      required:
+      - ok
+      - pg_version
+      - latency_ms
+      - ssl
+      - error_code
+      - error
+      properties:
+        ok:
+          type: boolean
+        pg_version:
+          type: string
+          example: '16.4'
+        latency_ms:
+          type: integer
+          format: int64
+        ssl:
+          type: boolean
+          description: Whether the connection actually used TLS
+        error_code:
+          type: string
+          description: Empty when ok; connection_dns | connection_refused | connection_auth | connection_tls | connection_timeout | connection_failed
+        error:
+          type: string
+          description: Always empty (kept for compatibility). The raw driver message is only written to the server log with the request_id; clients must use error_code.
+    ClusterDatabaseList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required:
+            - db_name
+            - tenant_code
+            - tenant_name
+            - size_bytes
+            properties:
+              db_name:
+                type: string
+              tenant_code:
+                type: string
+              tenant_name:
+                type: string
+              size_bytes:
+                type: integer
+                format: int64
+    SchoolAcceptInput:
+      type: object
+      properties:
+        tenant:
+          type: string
+        token:
+          type: string
+        password:
+          type: string
+    SchoolActivateInput:
+      type: object
+      properties:
+        username:
+          type: string
+        code:
+          type: string
+        password:
+          type: string
+    SchoolActivationCode:
+      type: object
+      required:
+      - name
+      - username
+      - code
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        code:
+          type: string
+    SchoolAssessmentsInput:
+      type: object
+      properties:
+        use_default:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolPlanAssessment'
+          type: array
+    SchoolAssignment:
+      type: object
+      required:
+      - subject
+      - class
+      properties:
+        subject:
+          type: string
+        class:
+          type: string
+    SchoolAssignmentInput:
+      type: object
+      properties:
+        class_id:
+          type: string
+        subject_id:
+          type: string
+        teacher_id:
+          type: string
+    SchoolAttendanceEntry:
+      type: object
+      properties:
+        student_id:
+          type: string
+        status:
+          type: string
+        note:
+          type: string
+    SchoolAttendanceInput:
+      type: object
+      properties:
+        date:
+          type: string
+        entries:
+          items:
+            $ref: '#/components/schemas/SchoolAttendanceEntry'
+          type: array
+    SchoolAttendanceRow:
+      type: object
+      required:
+      - class_id
+      - name
+      - homeroom
+      - students
+      - filled
+      - days
+      - present
+      - sick
+      - permit
+      - absent
+      properties:
+        class_id:
+          type: string
+        name:
+          type: string
+        homeroom:
+          type: string
+        students:
+          type: integer
+        filled:
+          type: boolean
+        days:
+          type: integer
+        present:
+          type: integer
+        sick:
+          type: integer
+        permit:
+          type: integer
+        absent:
+          type: integer
+    SchoolAttendanceView:
+      type: object
+      required:
+      - mode
+      - date
+      - today
+      - holiday
+      - term
+      - term_start
+      - term_until
+      - school_days
+      - absent_risk
+      - reminded_at
+      - rows
+      properties:
+        mode:
+          type: string
+        date:
+          type: string
+        today:
+          type: string
+        holiday:
+          type: boolean
+        term:
+          type: integer
+        term_start:
+          type: string
+        term_until:
+          type: string
+        school_days:
+          type: integer
+        absent_risk:
+          type: integer
+        reminded_at:
+          type: string
+        rows:
+          items:
+            $ref: '#/components/schemas/SchoolAttendanceRow'
+          type: array
+        reminder:
+          $ref: '#/components/schemas/SchoolRemindOutcome'
+    SchoolRemindOutcome:
+      type: object
+      description: Actual outcome of POST /school/attendance/remind (only present in that response). Emails are enqueued in one transaction (all or none).
+      required:
+      - target_classes
+      - notified_teachers
+      - skipped_no_homeroom
+      - skipped_no_contact
+      properties:
+        target_classes:
+          type: integer
+          description: Classes that have not filled today's attendance
+        notified_teachers:
+          type: integer
+          description: Distinct homeroom teachers whose reminder email was enqueued
+        skipped_no_homeroom:
+          type: integer
+          description: Target classes without a homeroom teacher
+        skipped_no_contact:
+          type: integer
+          description: Target classes whose homeroom teacher has no email
+    SchoolChildRef:
+      type: object
+      required:
+      - id
+      - name
+      - class_name
+      - relation
+      - primary
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        class_name:
+          type: string
+        relation:
+          type: string
+        primary:
+          type: boolean
+    SchoolClassDetail:
+      type: object
+      required:
+      - id
+      - name
+      - grade_id
+      - grade
+      - grade_label
+      - phase
+      - capacity
+      - students
+      - homeroom_id
+      - homeroom_name
+      - student_list
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        grade_id:
+          type: string
+        grade:
+          type: integer
+        grade_label:
+          type: string
+        phase:
+          type: string
+        capacity:
+          type: integer
+        students:
+          type: integer
+        homeroom_id:
+          nullable: true
+          type: string
+        homeroom_name:
+          type: string
+        student_list:
+          items:
+            $ref: '#/components/schemas/SchoolClassStudent'
+          type: array
+    SchoolClassInput:
+      type: object
+      properties:
+        grade_id:
+          type: string
+        name:
+          type: string
+        capacity:
+          type: integer
+        homeroom_id:
+          type: string
+    SchoolClassName:
+      type: object
+      required:
+      - name
+      - has_students
+      properties:
+        name:
+          type: string
+        has_students:
+          type: boolean
+    SchoolClassRow:
+      type: object
+      required:
+      - id
+      - name
+      - grade_id
+      - grade
+      - grade_label
+      - phase
+      - capacity
+      - students
+      - homeroom_id
+      - homeroom_name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        grade_id:
+          type: string
+        grade:
+          type: integer
+        grade_label:
+          type: string
+        phase:
+          type: string
+        capacity:
+          type: integer
+        students:
+          type: integer
+        homeroom_id:
+          nullable: true
+          type: string
+        homeroom_name:
+          type: string
+    SchoolClassStudent:
+      type: object
+      required:
+      - id
+      - name
+      - nis
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+    SchoolClassesInput:
+      type: object
+      properties:
+        scheme:
+          type: string
+        grades:
+          items:
+            type: object
+            properties:
+              grade:
+                type: integer
+              count:
+                type: integer
+              capacity:
+                type: integer
+          type: array
+    SchoolClassesView:
+      type: object
+      required:
+      - year
+      - year_id
+      - grades
+      - teachers
+      - items
+      - students
+      - no_homeroom
+      properties:
+        year:
+          type: string
+        year_id:
+          nullable: true
+          type: string
+        grades:
+          items:
+            $ref: '#/components/schemas/SchoolGradeOption'
+          type: array
+        teachers:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolClassRow'
+          type: array
+        students:
+          type: integer
+        no_homeroom:
+          type: integer
+    SchoolCurriculumInput:
+      type: object
+      properties:
+        code:
+          type: string
+    SchoolDashboardAbsent:
+      type: object
+      required:
+      - name
+      - status
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+    SchoolDashboardFloor:
+      type: object
+      required:
+      - grade
+      - label
+      - phase
+      - rooms
+      properties:
+        grade:
+          type: integer
+        label:
+          type: string
+        phase:
+          type: string
+        rooms:
+          items:
+            $ref: '#/components/schemas/SchoolDashboardRoom'
+          type: array
+    SchoolDashboardRoom:
+      type: object
+      required:
+      - class_id
+      - name
+      - homeroom
+      - students
+      - filled
+      - present
+      - pct
+      - absent
+      properties:
+        class_id:
+          type: string
+        name:
+          type: string
+        homeroom:
+          type: string
+        students:
+          type: integer
+        filled:
+          type: boolean
+        present:
+          type: integer
+        pct:
+          nullable: true
+          type: integer
+        absent:
+          items:
+            $ref: '#/components/schemas/SchoolDashboardAbsent'
+          type: array
+    SchoolDashboardTodo:
+      type: object
+      required:
+      - kind
+      - count
+      - ref
+      - extra
+      properties:
+        kind:
+          type: string
+        count:
+          type: integer
+        ref:
+          type: string
+        extra:
+          type: string
+    SchoolDashboardTrial:
+      type: object
+      required:
+      - ends_at
+      - days
+      - day_no
+      properties:
+        ends_at:
+          type: string
+        days:
+          items:
+            type: string
+          type: array
+        day_no:
+          type: integer
+    SchoolDashboardUsage:
+      type: object
+      required:
+      - students_active_7d
+      - students_total
+      - teachers_active_7d
+      - teachers_total
+      - storage_bytes
+      properties:
+        students_active_7d:
+          type: integer
+        students_total:
+          type: integer
+        teachers_active_7d:
+          type: integer
+        teachers_total:
+          type: integer
+        storage_bytes:
+          format: int64
+          type: integer
+    SchoolDashboardView:
+      type: object
+      required:
+      - viewer
+      - school
+      - plan
+      - today
+      - year
+      - term
+      - setup
+      - sections
+      - classes
+      - filled
+      - holiday
+      - reminded_at
+      - floors
+      - reports
+      - seats
+      - subscription_status
+      - trial
+      - usage
+      - todo
+      properties:
+        viewer:
+          type: string
+        school:
+          type: string
+        plan:
+          type: string
+        today:
+          type: string
+        year:
+          type: string
+        term:
+          type: integer
+        setup:
+          $ref: '#/components/schemas/SchoolProgress'
+        sections:
+          items:
+            $ref: '#/components/schemas/SchoolSection'
+          type: array
+        classes:
+          type: integer
+        filled:
+          type: integer
+        holiday:
+          type: boolean
+        reminded_at:
+          type: string
+        floors:
+          items:
+            $ref: '#/components/schemas/SchoolDashboardFloor'
+          type: array
+        reports:
+          $ref: '#/components/schemas/SchoolReportsView'
+        seats:
+          $ref: '#/components/schemas/SchoolSeatUsage'
+        subscription_status:
+          type: string
+        trial:
+          allOf:
+          - $ref: '#/components/schemas/SchoolDashboardTrial'
+          nullable: true
+        usage:
+          $ref: '#/components/schemas/SchoolDashboardUsage'
+        todo:
+          items:
+            $ref: '#/components/schemas/SchoolDashboardTodo'
+          type: array
+    SchoolExtraInput:
+      type: object
+      properties:
+        name:
+          type: string
+        coach_id:
+          type: string
+    SchoolGradeOption:
+      type: object
+      required:
+      - id
+      - grade
+      - label
+      - phase
+      properties:
+        id:
+          type: string
+        grade:
+          type: integer
+        label:
+          type: string
+        phase:
+          type: string
+    SchoolGradeRow:
+      type: object
+      required:
+      - grade
+      - label
+      - phase
+      - count
+      - capacity
+      - names
+      properties:
+        grade:
+          type: integer
+        label:
+          type: string
+        phase:
+          type: string
+        count:
+          type: integer
+        capacity:
+          type: integer
+        names:
+          items:
+            $ref: '#/components/schemas/SchoolClassName'
+          type: array
+    SchoolGuardianInput:
+      type: object
+      properties:
+        name:
+          type: string
+        relation:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        student_id:
+          type: string
+        primary:
+          type: boolean
+    SchoolGuardianRef:
+      type: object
+      required:
+      - id
+      - name
+      - relation
+      - primary
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        relation:
+          type: string
+        primary:
+          type: boolean
+    SchoolGuardianRow:
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - phone
+      - relation
+      - primary
+      - status
+      - children
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        relation:
+          type: string
+        primary:
+          type: boolean
+        status:
+          type: string
+        children:
+          items:
+            $ref: '#/components/schemas/SchoolChildRef'
+          type: array
+    SchoolGuardiansView:
+      type: object
+      required:
+      - students
+      - students_total
+      - students_linked
+      - items
+      properties:
+        students:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        students_total:
+          type: integer
+        students_linked:
+          type: integer
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolGuardianRow'
+          type: array
+    SchoolHomeroomAttendanceView:
+      type: object
+      required:
+      - class_id
+      - class
+      - date
+      - today
+      - min_date
+      - holiday
+      - filled
+      - students
+      properties:
+        class_id:
+          type: string
+        class:
+          type: string
+        date:
+          type: string
+        today:
+          type: string
+        min_date:
+          type: string
+        holiday:
+          type: boolean
+        filled:
+          type: boolean
+        students:
+          items:
+            $ref: '#/components/schemas/SchoolHomeroomStudent'
+          type: array
+    SchoolHomeroomInput:
+      type: object
+      properties:
+        teacher_id:
+          type: string
+    SchoolHomeroomStudent:
+      type: object
+      required:
+      - id
+      - name
+      - nis
+      - status
+      - note
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        status:
+          type: string
+        note:
+          type: string
+    SchoolImportCheck:
+      type: object
+      required:
+      - 'no'
+      - errors
+      - warn
+      - over
+      - skip
+      properties:
+        'no':
+          type: integer
+        errors:
+          additionalProperties:
+            type: string
+          type: object
+        warn:
+          type: string
+        over:
+          type: boolean
+        skip:
+          type: boolean
+    SchoolImportColumn:
+      type: object
+      required:
+      - key
+      - label
+      - required
+      - example
+      - format
+      - field
+      - group
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        required:
+          type: boolean
+        example:
+          type: string
+        format:
+          type: string
+        field:
+          type: string
+        group:
+          type: string
+    SchoolImportFile:
+      type: object
+      properties:
+        file_name:
+          type: string
+        content_base64:
+          type: string
+    SchoolImportPreview:
+      type: object
+      required:
+      - checks
+      - valid
+      - invalid
+      - over
+      - skipped
+      - seats_avail
+      - seats
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/SchoolImportCheck'
+          type: array
+        valid:
+          type: integer
+        invalid:
+          type: integer
+        over:
+          type: integer
+        skipped:
+          type: integer
+        seats_avail:
+          nullable: true
+          type: integer
+        seats:
+          $ref: '#/components/schemas/SchoolSeatUsage'
+    SchoolImportRequest:
+      type: object
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/SchoolImportRow'
+          type: array
+        invite:
+          type: boolean
+    SchoolImportResult:
+      type: object
+      required:
+      - saved
+      - skipped
+      - invite
+      - invited
+      properties:
+        saved:
+          type: integer
+        skipped:
+          items:
+            $ref: '#/components/schemas/SchoolImportCheck'
+          type: array
+        invite:
+          $ref: '#/components/schemas/SchoolInviteResult'
+        invited:
+          type: boolean
+    SchoolImportRow:
+      type: object
+      required:
+      - 'no'
+      - values
+      - skip
+      properties:
+        'no':
+          type: integer
+        values:
+          additionalProperties:
+            type: string
+          type: object
+        skip:
+          type: boolean
+    SchoolImportSpec:
+      type: object
+      required:
+      - kind
+      - title
+      - file
+      - note
+      - invite
+      - seats
+      - columns
+      properties:
+        kind:
+          type: string
+        title:
+          type: string
+        file:
+          type: string
+        note:
+          type: string
+        invite:
+          type: boolean
+        seats:
+          type: boolean
+        columns:
+          items:
+            $ref: '#/components/schemas/SchoolImportColumn'
+          type: array
+    SchoolInfo:
+      type: object
+      required:
+      - name
+      - npsn
+      - level
+      - ownership
+      - city_code
+      - timezone
+      - curriculum
+      - tenant_code
+      properties:
+        name:
+          type: string
+        npsn:
+          type: string
+        level:
+          type: string
+        ownership:
+          type: string
+        city_code:
+          type: string
+        timezone:
+          type: string
+        curriculum:
+          type: string
+        tenant_code:
+          type: string
+    SchoolInvitationInfo:
+      type: object
+      required:
+      - name
+      - email
+      - school
+      - expires_at
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        school:
+          type: string
+        expires_at:
+          type: string
+    SchoolInviteInput:
+      type: object
+      properties:
+        kind:
+          type: string
+        ids:
+          items:
+            type: string
+          type: array
+    SchoolInviteResult:
+      type: object
+      required:
+      - sent
+      - linked
+      - skipped
+      - codes
+      properties:
+        sent:
+          type: integer
+        linked:
+          type: integer
+        skipped:
+          type: integer
+        codes:
+          items:
+            $ref: '#/components/schemas/SchoolActivationCode'
+          type: array
+        queued:
+          type: integer
+          description: Jumlah orang yang diproses worker (undangan massal > 50).
+        job_ids:
+          type: array
+          items:
+            type: string
+    SchoolInviteJob:
+      type: object
+      required:
+      - id
+      - kind
+      - status
+      - done
+      - total
+      - sent
+      - linked
+      - skipped
+      - failed
+      - codes
+      - error
+      - created_at
+      - finished_at
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+        done:
+          type: integer
+        total:
+          type: integer
+        sent:
+          type: integer
+        linked:
+          type: integer
+        skipped:
+          type: integer
+        failed:
+          type: integer
+        codes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolActivationCode'
+        error:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+    SchoolAuditEntry:
+      type: object
+      required:
+      - id
+      - at
+      - actor_name
+      - action
+      - entity_type
+      - subject
+      - details
+      properties:
+        id:
+          type: string
+        at:
+          type: string
+          format: date-time
+        actor_name:
+          type: string
+        action:
+          type: string
+        entity_type:
+          type: string
+        subject:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    SchoolAuditView:
+      type: object
+      required:
+      - items
+      - next_before
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolAuditEntry'
+        next_before:
+          type: string
+          description: Kursor opak halaman berikutnya (seq entri terakhir); kosong bila habis.
+    SchoolGradeAssignment:
+      type: object
+      required:
+      - id
+      - class_id
+      - class
+      - subject
+      - kkm
+      - students
+      - filled
+      - locked
+      properties:
+        id:
+          type: string
+        class_id:
+          type: string
+        class:
+          type: string
+        subject:
+          type: string
+        kkm:
+          type: number
+        students:
+          type: integer
+        filled:
+          type: integer
+        locked:
+          type: boolean
+    SchoolGradeAssignmentsView:
+      type: object
+      required:
+      - term
+      - year
+      - assignments
+      properties:
+        term:
+          type: integer
+        year:
+          type: string
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolGradeAssignment'
+    SchoolGradeSheetRow:
+      type: object
+      required:
+      - student_id
+      - name
+      - nis
+      - score
+      - description
+      properties:
+        student_id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        score:
+          type: number
+          nullable: true
+        description:
+          type: string
+    SchoolGradeSheet:
+      allOf:
+      - $ref: '#/components/schemas/SchoolGradeAssignment'
+      - type: object
+        required:
+        - teacher
+        - rows
+        - report_status
+        properties:
+          teacher:
+            type: string
+          rows:
+            type: array
+            items:
+              $ref: '#/components/schemas/SchoolGradeSheetRow'
+          report_status:
+            type: string
+            enum:
+            - draft
+            - submitted
+            - approved
+            - locked
+    SchoolGradeEntry:
+      type: object
+      required:
+      - student_id
+      - score
+      - description
+      properties:
+        student_id:
+          type: string
+        score:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 100
+        description:
+          type: string
+          maxLength: 500
+    SchoolGradesInput:
+      type: object
+      required:
+      - entries
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolGradeEntry'
+    SchoolReportSubjectProgress:
+      type: object
+      required:
+      - subject_id
+      - subject
+      - teacher
+      - filled
+      - locked
+      properties:
+        subject_id:
+          type: string
+        subject:
+          type: string
+        teacher:
+          type: string
+        filled:
+          type: integer
+        locked:
+          type: boolean
+    SchoolReportScore:
+      type: object
+      required:
+      - subject_id
+      - score
+      - description
+      properties:
+        subject_id:
+          type: string
+        score:
+          type: number
+        description:
+          type: string
+    SchoolReportStudent:
+      type: object
+      required:
+      - student_id
+      - name
+      - nis
+      - note
+      - sick
+      - permit
+      - absent
+      - average
+      - scores
+      - has_pdf
+      properties:
+        student_id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        note:
+          type: string
+        sick:
+          type: integer
+        permit:
+          type: integer
+        absent:
+          type: integer
+        average:
+          type: number
+          nullable: true
+        scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolReportScore'
+        has_pdf:
+          type: boolean
+    SchoolClassReport:
+      type: object
+      required:
+      - class_id
+      - class
+      - homeroom
+      - term
+      - year
+      - status
+      - version
+      - subjects
+      - students
+      - all_locked
+      - notes_complete
+      - can_submit
+      - returned_note
+      - returned_by
+      - submitted_by
+      - submitted_at
+      - approved_by
+      - approved_at
+      - locked_by
+      - locked_at
+      - actions
+      properties:
+        class_id:
+          type: string
+        class:
+          type: string
+        homeroom:
+          type: string
+        term:
+          type: integer
+        year:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - submitted
+          - approved
+          - locked
+        version:
+          type: integer
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolReportSubjectProgress'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolReportStudent'
+        all_locked:
+          type: boolean
+        notes_complete:
+          type: boolean
+        can_submit:
+          type: boolean
+        returned_note:
+          type: string
+        returned_by:
+          type: string
+        submitted_by:
+          type: string
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        approved_by:
+          type: string
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        locked_by:
+          type: string
+        locked_at:
+          type: string
+          format: date-time
+          nullable: true
+        actions:
+          type: array
+          items:
+            type: string
+            enum:
+            - notes
+            - submit
+            - approve
+            - return
+            - lock
+            - unlock
+            - download
+    SchoolNoteEntry:
+      type: object
+      required:
+      - student_id
+      - note
+      properties:
+        student_id:
+          type: string
+        note:
+          type: string
+          maxLength: 1000
+    SchoolNotesInput:
+      type: object
+      required:
+      - entries
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolNoteEntry'
+    SchoolReasonInput:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 10
+          maxLength: 500
+    LearnerSubject:
+      type: object
+      required:
+      - subject_id
+      - subject
+      - kkm
+      - score
+      - description
+      properties:
+        subject_id:
+          type: string
+        subject:
+          type: string
+        kkm:
+          type: number
+        score:
+          type: number
+        description:
+          type: string
+    LearnerReport:
+      type: object
+      required:
+      - id
+      - term
+      - year
+      - class
+      - homeroom
+      - version
+      - issued_at
+      - average
+      - sick
+      - permit
+      - absent
+      - note
+      - subjects
+      - has_pdf
+      properties:
+        id:
+          type: string
+        term:
+          type: integer
+        year:
+          type: string
+        class:
+          type: string
+        homeroom:
+          type: string
+        version:
+          type: integer
+        issued_at:
+          type: string
+          format: date-time
+          nullable: true
+        average:
+          type: number
+          nullable: true
+        sick:
+          type: integer
+        permit:
+          type: integer
+        absent:
+          type: integer
+        note:
+          type: string
+        subjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearnerSubject'
+        has_pdf:
+          type: boolean
+    LearnerCurrent:
+      type: object
+      required:
+      - term
+      - year
+      - status
+      properties:
+        term:
+          type: integer
+        year:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - submitted
+          - approved
+          - locked
+    LearnerChild:
+      type: object
+      required:
+      - student_id
+      - name
+      - nis
+      - nisn
+      - class
+      - current
+      - reports
+      properties:
+        student_id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        nisn:
+          type: string
+        class:
+          type: string
+        current:
+          allOf:
+          - $ref: '#/components/schemas/LearnerCurrent'
+          nullable: true
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearnerReport'
+    LearnerReportsView:
+      type: object
+      required:
+      - role
+      - school
+      - children
+      properties:
+        role:
+          type: string
+          enum:
+          - student
+          - parent
+        school:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearnerChild'
+    SchoolInvoiceBrief:
+      type: object
+      required:
+      - id
+      - number
+      - description
+      - total_idr
+      - status
+      - due_at
+      - paid_at
+      - is_trial
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        description:
+          type: string
+        total_idr:
+          format: int64
+          type: integer
+        status:
+          type: string
+        due_at:
+          type: string
+        paid_at:
+          type: string
+        is_trial:
+          type: boolean
+    SchoolLogoInput:
+      type: object
+      properties:
+        file_name:
+          type: string
+        content_type:
+          type: string
+        data_base64:
+          type: string
+    SchoolObjectiveInput:
+      type: object
+      properties:
+        subject_id:
+          type: string
+        grade_id:
+          type: string
+        description:
+          type: string
+    SchoolOption:
+      type: object
+      required:
+      - value
+      - label
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+    SchoolParsedImport:
+      type: object
+      required:
+      - file_name
+      - rows
+      properties:
+        file_name:
+          type: string
+        rows:
+          items:
+            $ref: '#/components/schemas/SchoolImportRow'
+          type: array
+    SchoolPendingSeats:
+      type: object
+      required:
+      - seats
+      - invoice_id
+      - amount_idr
+      properties:
+        seats:
+          type: integer
+        invoice_id:
+          type: string
+        amount_idr:
+          format: int64
+          type: integer
+    SchoolPeriodsInput:
+      type: object
+      properties:
+        use_default:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolPlanPeriod'
+          type: array
+    SchoolPhaseRow:
+      type: object
+      required:
+      - code
+      - grade_from
+      - grade_to
+      properties:
+        code:
+          type: string
+        grade_from:
+          type: integer
+        grade_to:
+          type: integer
+    SchoolPlanAssessment:
+      type: object
+      required:
+      - code
+      - name
+      - category
+      - is_exam
+      - weight
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        is_exam:
+          type: boolean
+        weight:
+          type: integer
+    SchoolPlanAssignment:
+      type: object
+      required:
+      - class_id
+      - subject_id
+      - teacher_id
+      - teacher_name
+      properties:
+        class_id:
+          type: string
+        subject_id:
+          type: string
+        teacher_id:
+          type: string
+        teacher_name:
+          type: string
+    SchoolPlanCell:
+      type: object
+      required:
+      - class_id
+      - weekday
+      - period_no
+      - subject_id
+      - teacher_id
+      properties:
+        class_id:
+          type: string
+        weekday:
+          type: integer
+        period_no:
+          type: integer
+        subject_id:
+          type: string
+        teacher_id:
+          type: string
+    SchoolPlanClass:
+      type: object
+      required:
+      - id
+      - name
+      - grade_id
+      - homeroom_id
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        grade_id:
+          type: string
+        homeroom_id:
+          nullable: true
+          type: string
+    SchoolPlanExtra:
+      type: object
+      required:
+      - id
+      - name
+      - coach_id
+      - coach_name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coach_id:
+          nullable: true
+          type: string
+        coach_name:
+          type: string
+    SchoolPlanObjective:
+      type: object
+      required:
+      - id
+      - subject_id
+      - grade_id
+      - code
+      - description
+      properties:
+        id:
+          type: string
+        subject_id:
+          type: string
+        grade_id:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+    SchoolPlanPeriod:
+      type: object
+      required:
+      - 'no'
+      - start
+      - end
+      properties:
+        'no':
+          type: integer
+        start:
+          type: string
+        end:
+          type: string
+    SchoolPlanSubject:
+      type: object
+      required:
+      - id
+      - code
+      - name
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+    SchoolPlanningView:
+      type: object
+      required:
+      - year
+      - semester_id
+      - term
+      - grades
+      - classes
+      - teachers
+      - subjects
+      - assignments
+      - objectives
+      - assessments
+      - weight_total
+      - periods
+      - schedule
+      - extras
+      properties:
+        year:
+          type: string
+        semester_id:
+          nullable: true
+          type: string
+        term:
+          type: integer
+        grades:
+          items:
+            $ref: '#/components/schemas/SchoolGradeOption'
+          type: array
+        classes:
+          items:
+            $ref: '#/components/schemas/SchoolPlanClass'
+          type: array
+        teachers:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        subjects:
+          items:
+            $ref: '#/components/schemas/SchoolPlanSubject'
+          type: array
+        assignments:
+          items:
+            $ref: '#/components/schemas/SchoolPlanAssignment'
+          type: array
+        objectives:
+          items:
+            $ref: '#/components/schemas/SchoolPlanObjective'
+          type: array
+        assessments:
+          items:
+            $ref: '#/components/schemas/SchoolPlanAssessment'
+          type: array
+        weight_total:
+          type: integer
+        periods:
+          items:
+            $ref: '#/components/schemas/SchoolPlanPeriod'
+          type: array
+        schedule:
+          items:
+            $ref: '#/components/schemas/SchoolPlanCell'
+          type: array
+        extras:
+          items:
+            $ref: '#/components/schemas/SchoolPlanExtra'
+          type: array
+    SchoolProfileData:
+      type: object
+      required:
+      - address
+      - district_code
+      - accreditation
+      - principal_name
+      - principal_nip
+      - phone
+      - has_logo
+      properties:
+        address:
+          type: string
+        district_code:
+          type: string
+        accreditation:
+          type: string
+        principal_name:
+          type: string
+        principal_nip:
+          type: string
+        phone:
+          type: string
+        has_logo:
+          type: boolean
+    SchoolProfileInput:
+      type: object
+      properties:
+        address:
+          type: string
+        district_code:
+          type: string
+        accreditation:
+          type: string
+        principal_name:
+          type: string
+        principal_nip:
+          type: string
+        phone:
+          type: string
+    SchoolProgressView:
+      type: object
+      required:
+      - progress
+      - sections
+      properties:
+        progress:
+          $ref: '#/components/schemas/SchoolProgress'
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolSection'
+    SchoolProgress:
+      type: object
+      required:
+      - done
+      - total
+      - req_done
+      - req_total
+      - missing
+      properties:
+        done:
+          type: integer
+        total:
+          type: integer
+        req_done:
+          type: integer
+        req_total:
+          type: integer
+        missing:
+          items:
+            type: string
+          type: array
+    SchoolReportRow:
+      type: object
+      required:
+      - class_id
+      - name
+      - homeroom
+      - students
+      - status
+      - locked_subjects
+      - subjects
+      - submitted
+      properties:
+        class_id:
+          type: string
+        name:
+          type: string
+        homeroom:
+          type: string
+        students:
+          type: integer
+        status:
+          type: string
+        locked_subjects:
+          type: integer
+        subjects:
+          type: integer
+        submitted:
+          type: integer
+    SchoolReportsView:
+      type: object
+      required:
+      - term
+      - year
+      - counts
+      - rows
+      - reminded
+      properties:
+        term:
+          type: integer
+        year:
+          type: string
+        counts:
+          additionalProperties:
+            type: integer
+          type: object
+        rows:
+          items:
+            $ref: '#/components/schemas/SchoolReportRow'
+          type: array
+        reminded:
+          additionalProperties:
+            type: string
+          type: object
+    SchoolScheduleCellInput:
+      type: object
+      properties:
+        class_id:
+          type: string
+        weekday:
+          type: integer
+        period_no:
+          type: integer
+        subject_id:
+          type: string
+    SchoolSeatUsage:
+      type: object
+      required:
+      - used
+      - seats
+      properties:
+        used:
+          type: integer
+        seats:
+          type: integer
+    SchoolSeatsInput:
+      type: object
+      properties:
+        seats:
+          type: integer
+    SchoolSeatsResult:
+      type: object
+      required:
+      - subscription
+      - invoice_id
+      - applied
+      properties:
+        subscription:
+          $ref: '#/components/schemas/SchoolSubscriptionView'
+        invoice_id:
+          type: string
+        applied:
+          type: boolean
+    SchoolSection:
+      type: object
+      required:
+      - key
+      - required
+      - done
+      - metrics
+      - label
+      properties:
+        key:
+          type: string
+        required:
+          type: boolean
+        done:
+          type: boolean
+        metrics:
+          additionalProperties:
+            type: integer
+          type: object
+        label:
+          type: string
+    SchoolSemester:
+      type: object
+      required:
+      - term
+      - start
+      - end
+      - active
+      properties:
+        term:
+          type: integer
+        start:
+          type: string
+        end:
+          type: string
+        active:
+          type: boolean
+    SchoolSetupState:
+      type: object
+      required:
+      - school
+      - progress
+      - sections
+      - profile
+      - districts
+      - curricula
+      - phases
+      - year
+      - scheme
+      - grades
+      - subjects
+      - default_kktp
+      properties:
+        school:
+          $ref: '#/components/schemas/SchoolInfo'
+        progress:
+          $ref: '#/components/schemas/SchoolProgress'
+        sections:
+          items:
+            $ref: '#/components/schemas/SchoolSection'
+          type: array
+        profile:
+          $ref: '#/components/schemas/SchoolProfileData'
+        districts:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        curricula:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        phases:
+          items:
+            $ref: '#/components/schemas/SchoolPhaseRow'
+          type: array
+        year:
+          $ref: '#/components/schemas/SchoolYearData'
+        scheme:
+          type: string
+        grades:
+          items:
+            $ref: '#/components/schemas/SchoolGradeRow'
+          type: array
+        subjects:
+          items:
+            $ref: '#/components/schemas/SchoolSubjectItem'
+          type: array
+        default_kktp:
+          type: integer
+    SchoolStudentInput:
+      type: object
+      properties:
+        name:
+          type: string
+        nis:
+          type: string
+        nisn:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+        religion:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        class_id:
+          type: string
+        active:
+          nullable: true
+          type: boolean
+    SchoolStudentRow:
+      type: object
+      required:
+      - id
+      - name
+      - nis
+      - nisn
+      - gender
+      - birth_date
+      - religion
+      - address
+      - email
+      - class_id
+      - class_name
+      - active
+      - status
+      - username
+      - guardians
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        nisn:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+        religion:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        class_id:
+          nullable: true
+          type: string
+        class_name:
+          type: string
+        active:
+          type: boolean
+        status:
+          type: string
+        username:
+          type: string
+        guardians:
+          items:
+            $ref: '#/components/schemas/SchoolGuardianRef'
+          type: array
+    SchoolStudentsView:
+      type: object
+      required:
+      - seats
+      - classes
+      - religions
+      - items
+      properties:
+        seats:
+          $ref: '#/components/schemas/SchoolSeatUsage'
+        classes:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        religions:
+          items:
+            $ref: '#/components/schemas/SchoolOption'
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolStudentRow'
+          type: array
+    SchoolSubjectItem:
+      type: object
+      required:
+      - code
+      - name
+      - kktp
+      - enabled
+      - custom
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        kktp:
+          type: integer
+        enabled:
+          type: boolean
+        custom:
+          type: boolean
+    SchoolSubjectsInput:
+      type: object
+      properties:
+        subjects:
+          items:
+            $ref: '#/components/schemas/SchoolSubjectItem'
+          type: array
+    SchoolSubscriptionView:
+      type: object
+      required:
+      - has_subscription
+      - plan
+      - plan_code
+      - pricing_model
+      - billing_cycle
+      - unit_price_idr
+      - status
+      - trial_ends_at
+      - period_start
+      - period_end
+      - auto_renew
+      - seats
+      - annual_total_idr
+      - can_add_seats
+      - prorata_months
+      - max_seat_add
+      - pending
+      - invoices
+      properties:
+        has_subscription:
+          type: boolean
+        plan:
+          type: string
+        plan_code:
+          type: string
+        pricing_model:
+          type: string
+        billing_cycle:
+          type: string
+        unit_price_idr:
+          format: int64
+          type: integer
+        status:
+          type: string
+        trial_ends_at:
+          type: string
+        period_start:
+          type: string
+        period_end:
+          type: string
+        auto_renew:
+          type: boolean
+        seats:
+          $ref: '#/components/schemas/SchoolSeatUsage'
+        annual_total_idr:
+          format: int64
+          type: integer
+        can_add_seats:
+          type: boolean
+        prorata_months:
+          type: integer
+        max_seat_add:
+          type: integer
+        pending:
+          items:
+            $ref: '#/components/schemas/SchoolPendingSeats'
+          type: array
+        invoices:
+          items:
+            $ref: '#/components/schemas/SchoolInvoiceBrief'
+          type: array
+    SchoolTeacherDetail:
+      type: object
+      required:
+      - id
+      - name
+      - nip
+      - gender
+      - email
+      - phone
+      - active
+      - status
+      - assignments
+      - homeroom_class
+      - assignment_list
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+        gender:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        active:
+          type: boolean
+        status:
+          type: string
+        assignments:
+          type: integer
+        homeroom_class:
+          type: string
+        assignment_list:
+          items:
+            $ref: '#/components/schemas/SchoolAssignment'
+          type: array
+    SchoolTeacherInput:
+      type: object
+      properties:
+        name:
+          type: string
+        nip:
+          type: string
+        gender:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        active:
+          nullable: true
+          type: boolean
+    SchoolTeacherRow:
+      type: object
+      required:
+      - id
+      - name
+      - nip
+      - gender
+      - email
+      - phone
+      - active
+      - status
+      - assignments
+      - homeroom_class
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+        gender:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        active:
+          type: boolean
+        status:
+          type: string
+        assignments:
+          type: integer
+        homeroom_class:
+          type: string
+    SchoolTeachersView:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolTeacherRow'
+          type: array
+    SchoolYearData:
+      type: object
+      required:
+      - id
+      - name
+      - start
+      - end
+      - semesters
+      properties:
+        id:
+          nullable: true
+          type: string
+        name:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+        semesters:
+          items:
+            $ref: '#/components/schemas/SchoolSemester'
+          type: array
+    SchoolYearDetail:
+      type: object
+      required:
+      - id
+      - name
+      - start
+      - end
+      - semesters
+      - active
+      - active_term
+      properties:
+        id:
+          nullable: true
+          type: string
+        name:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+        semesters:
+          items:
+            $ref: '#/components/schemas/SchoolSemester'
+          type: array
+        active:
+          type: boolean
+        active_term:
+          type: integer
+    SchoolYearInput:
+      type: object
+      properties:
+        name:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+        active:
+          type: boolean
+        semesters:
+          items:
+            $ref: '#/components/schemas/SchoolSemester'
+          type: array
+        active_term:
+          type: integer
+        copy_classes:
+          type: boolean
+    SchoolYearRow:
+      type: object
+      required:
+      - id
+      - name
+      - start
+      - end
+      - active
+      - status
+      - class_count
+      - active_term
+      - term_end
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+        active:
+          type: boolean
+        status:
+          type: string
+        class_count:
+          type: integer
+        active_term:
+          type: integer
+        term_end:
+          type: string
+    SchoolYearsView:
+      type: object
+      required:
+      - active_year
+      - active_term
+      - term_start
+      - term_end
+      - classes_count
+      - items
+      properties:
+        active_year:
+          type: string
+        active_term:
+          type: integer
+        term_start:
+          type: string
+        term_end:
+          type: string
+        classes_count:
+          type: integer
+        items:
+          items:
+            $ref: '#/components/schemas/SchoolYearRow'
+          type: array
     RequestDocument:
       type: object
       required:
@@ -5065,7 +10451,8 @@ components:
       - role
       - permission
       - notification_template
-      description: institution = tenants (excluding the platform tenant; created as PENDING without provisioning), tenant_type = tenant_type_g, education_level = education_level_g, academic_year = academic_year_g, curriculum = curriculum_g, subject = subject_catalog_g, grade_level = grade_level_g, user = users + primary tenant membership (record code = email), role = role_g, permission = permissions (code = key), notification_template = notification_template_g (code = key). academic_year and grade_level are platform references; tenant data is not synchronised.
+      - cluster_region
+      description: institution = tenants (excluding the platform tenant; created as PENDING without provisioning), tenant_type = tenant_type_g, education_level = education_level_g, academic_year = academic_year_g, curriculum = curriculum_g, subject = subject_catalog_g, grade_level = grade_level_g, user = users + primary tenant membership (record code = email), role = role_g, permission = permissions (code = key), notification_template = notification_template_g (code = key), cluster_region = cluster_region_g (lowercase code, e.g. jakarta-3a; fields zone, outside_indonesia, sort_order). academic_year and grade_level are platform references; tenant data is not synchronised.
     MasterStatus:
       type: string
       enum:
@@ -5140,7 +10527,8 @@ components:
           - session
           - grant
           - self
-          description: database = institution already provisioned; self = the actor's own account (cannot be deleted).
+          - cluster
+          description: database = institution already provisioned; self = the actor's own account (cannot be deleted); cluster = DB clusters using the region.
         count:
           type: integer
           format: int64
@@ -5278,6 +10666,12 @@ components:
         body:
           type: string
           description: notification_template
+        zone:
+          type: string
+          description: cluster_region
+        outside_indonesia:
+          type: boolean
+          description: cluster_region
         usage:
           type: array
           items:
@@ -5373,7 +10767,14 @@ components:
         body:
           type: string
           maxLength: 2000
-          description: notification_template (required; variables nama_siswa, nama_tugas, tenggat, nama_kelas, nilai, nama_sekolah)
+          description: notification_template (required; variables nama_siswa, nama_tugas, tenggat, nama_kelas, nilai, nama_sekolah, kode_cluster, persen_terpakai, jumlah_db, maks_db, ambang)
+        zone:
+          type: string
+          maxLength: 100
+          description: cluster_region (e.g. ap-southeast-3a)
+        outside_indonesia:
+          type: boolean
+          description: cluster_region (data stored outside Indonesia; UI shows a PDP warning)
         updated_at:
           type: string
           format: date-time
@@ -7262,8 +12663,12 @@ components:
           type: number
         max_units:
           type: number
+          description: Max tenant databases (used_units = live tenant databases)
         status:
           type: string
+        available:
+          type: boolean
+          description: Accepts new tenants (status available and remaining capacity > 0); only these can be chosen on approve
       required:
       - id
       - code
@@ -7271,6 +12676,7 @@ components:
       - used_units
       - max_units
       - status
+      - available
     ReviewList:
       type: object
       properties:
@@ -7633,6 +13039,8 @@ components:
       - verifier_name
       - reject_reason
       - created_at
+      - manual_channel
+      - mutation_checked_at
       properties:
         id:
           type: string
@@ -7688,6 +13096,13 @@ components:
         created_at:
           type: string
           format: date-time
+        manual_channel:
+          type: string
+          description: transfer | va | qris | cash (pembayaran manual); kosong untuk gateway.
+        mutation_checked_at:
+          type: string
+          format: date-time
+          nullable: true
     InvoiceBillTo:
       type: object
       required:
@@ -7819,6 +13234,8 @@ components:
       - last_reminded_at
       - void_reason
       - default_note
+      - paid_idr
+      - remaining_idr
       properties:
         id:
           type: string
@@ -7923,6 +13340,12 @@ components:
           type: string
         default_note:
           type: string
+        paid_idr:
+          type: integer
+          format: int64
+        remaining_idr:
+          type: integer
+          format: int64
     InvoiceLineInput:
       type: object
       required:
@@ -8135,13 +13558,19 @@ components:
       required:
       - amount_idr
       - paid_date
-      - bank_account_id
-      - sender_name
-      - reference
       properties:
+        channel:
+          type: string
+          enum:
+          - transfer
+          - va
+          - qris
+          - cash
+          description: Default transfer; tenant hanya transfer.
         amount_idr:
           type: integer
           format: int64
+          description: Boleh sebagian; tidak boleh melebihi sisa tagihan.
         paid_date:
           type: string
           format: date
@@ -8155,6 +13584,9 @@ components:
           allOf:
           - $ref: '#/components/schemas/PaymentProofInput'
           nullable: true
+        mutation_checked:
+          type: boolean
+          description: Staf saja. Transfer sudah dicek di mutasi rekening; bukti boleh kosong, pemeriksa & waktu disimpan.
     InvoiceReasonInput:
       type: object
       required:
@@ -8176,3 +13608,361 @@ components:
           - va_mandiri
           - va_permata
           - qris
+    PlatformPayment:
+      type: object
+      properties:
+        id:
+          type: string
+        invoice_id:
+          type: string
+        tenant_code:
+          type: string
+        tenant_name:
+          type: string
+        invoice_number:
+          type: string
+        amount_idr:
+          type: integer
+          format: int64
+        method:
+          type: string
+        status:
+          type: string
+        paid_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        bank_account:
+          type: string
+        reference:
+          type: string
+        has_proof:
+          type: boolean
+        proof_name:
+          type: string
+        verifier_name:
+          type: string
+        verified_at:
+          type: string
+          format: date-time
+        reject_reason:
+          type: string
+        manual_channel:
+          type: string
+        channel:
+          type: string
+        sender_name:
+          type: string
+        va_number:
+          type: string
+        invoice_total_idr:
+          type: integer
+          format: int64
+        invoice_paid_idr:
+          type: integer
+          format: int64
+        invoice_status:
+          type: string
+        due_at:
+          type: string
+          format: date-time
+          nullable: true
+        mutation_checked_at:
+          type: string
+          format: date-time
+          nullable: true
+        mutation_checker_name:
+          type: string
+      required:
+      - id
+      - invoice_id
+      - tenant_code
+      - tenant_name
+      - invoice_number
+      - amount_idr
+      - method
+      - status
+      - paid_at
+      - created_at
+      - bank_account
+      - reference
+      - has_proof
+      - proof_name
+      - verifier_name
+      - verified_at
+      - reject_reason
+      - manual_channel
+      - channel
+      - sender_name
+      - va_number
+      - invoice_total_idr
+      - invoice_paid_idr
+      - invoice_status
+      - due_at
+      - mutation_checked_at
+      - mutation_checker_name
+    PlatformPaymentList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformPayment'
+    UnpaidInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+        invoice_number:
+          type: string
+        tenant_name:
+          type: string
+        total_idr:
+          type: integer
+          format: int64
+        paid_amount_idr:
+          type: integer
+          format: int64
+        remaining_idr:
+          type: integer
+          format: int64
+        due_at:
+          type: string
+          format: date-time
+        bank_account_id:
+          type: string
+          nullable: true
+      required:
+      - id
+      - invoice_number
+      - tenant_name
+      - total_idr
+      - paid_amount_idr
+      - remaining_idr
+      - due_at
+      - bank_account_id
+    UnpaidInvoiceList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpaidInvoice'
+    SchoolActivationPlan:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        badge:
+          type: string
+        description:
+          type: string
+        price_idr:
+          type: integer
+          format: int64
+        tax_mode:
+          type: string
+        free_months:
+          type: integer
+        billed_months:
+          type: integer
+        min_seats:
+          type: integer
+        max_seats:
+          type: integer
+        current:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+      required:
+      - code
+      - name
+      - badge
+      - description
+      - price_idr
+      - tax_mode
+      - free_months
+      - billed_months
+      - min_seats
+      - max_seats
+      - current
+      - features
+    SchoolPendingActivation:
+      type: object
+      properties:
+        invoice_id:
+          type: string
+        invoice_number:
+          type: string
+        invoice_status:
+          type: string
+        total_idr:
+          type: integer
+          format: int64
+        plan_code:
+          type: string
+        plan_name:
+          type: string
+        seats:
+          type: integer
+      required:
+      - invoice_id
+      - invoice_number
+      - invoice_status
+      - total_idr
+      - plan_code
+      - plan_name
+      - seats
+    SchoolActivationView:
+      type: object
+      required:
+      - eligible
+      - school
+      - level
+      - status
+      - trial_ends_at
+      - period_start
+      - current_plan
+      - current_seats
+      - active_students
+      - min_seats
+      - max_seats
+      - seat_step
+      - vat_basis_points
+      - gateway_ready
+      - plans
+      - features
+      - pending
+      properties:
+        eligible:
+          type: boolean
+        school:
+          type: string
+        level:
+          type: string
+        status:
+          type: string
+        trial_ends_at:
+          type: string
+        period_start:
+          type: string
+        current_plan:
+          type: string
+        current_seats:
+          type: integer
+        active_students:
+          type: integer
+        min_seats:
+          type: integer
+        max_seats:
+          type: integer
+        seat_step:
+          type: integer
+        vat_basis_points:
+          type: integer
+        gateway_ready:
+          type: boolean
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolActivationPlan'
+        features:
+          type: array
+          items:
+            type: string
+        pending:
+          allOf:
+          - $ref: '#/components/schemas/SchoolPendingActivation'
+          nullable: true
+    SchoolActivationInput:
+      type: object
+      properties:
+        plan_code:
+          type: string
+        seats:
+          type: integer
+    SchoolActivationResult:
+      type: object
+      required:
+      - invoice_id
+      properties:
+        invoice_id:
+          type: string
+    AuditActor:
+      type: object
+      required: [type, id, name, email]
+      properties:
+        type: {type: string, enum: [user, system, gateway]}
+        id: {type: string, format: uuid, nullable: true}
+        name: {type: string, description: Kosong untuk system/gateway (label diterjemahkan FE)}
+        email: {type: string}
+    AuditDiffItem:
+      type: object
+      required: [field, before, after]
+      properties:
+        field: {type: string, description: Nama field; `value` untuk perubahan nilai tunggal}
+        before: {type: string}
+        after: {type: string}
+    AuditEntry:
+      type: object
+      required: [id, ref, seq, request_id, at, actor, module, action, entity_type, entity_id, entity_label, severity, success, ip, device, diff, note]
+      properties:
+        id: {type: string, format: uuid}
+        ref: {type: string, example: AUD-150}
+        seq: {type: integer, format: int64}
+        request_id: {type: string}
+        at: {type: string, format: date-time}
+        actor: {$ref: '#/components/schemas/AuditActor'}
+        module: {type: string, enum: [applications, tenants, invoices, payments, clusters, plans, auth, master_data, navigation, audit, other]}
+        action: {type: string, description: Kode aksi mentah (label via i18n FE)}
+        entity_type: {type: string}
+        entity_id: {type: string, format: uuid, nullable: true}
+        entity_label: {type: string}
+        severity: {type: string, enum: [info, warn, crit]}
+        success: {type: boolean}
+        ip: {type: string}
+        device: {type: string, description: '"Chrome 129 · Windows", "service" untuk system/gateway, kosong bila tidak diketahui'}
+        diff:
+          type: array
+          items: {$ref: '#/components/schemas/AuditDiffItem'}
+        note: {type: string}
+    AuditActorOption:
+      type: object
+      required: [key, name, type]
+      properties:
+        key: {type: string, description: UUID user | system | gateway}
+        name: {type: string}
+        type: {type: string, enum: [user, system, gateway]}
+    AuditList:
+      type: object
+      required: [items, total, next_before, actors, modules]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/AuditEntry'}
+        total: {type: integer, format: int64}
+        next_before: {type: integer, format: int64, nullable: true}
+        actors:
+          type: array
+          items: {$ref: '#/components/schemas/AuditActorOption'}
+        modules:
+          type: array
+          items: {type: string}
+    AuditVerify:
+      type: object
+      required: [ok, checked, last_seq]
+      properties:
+        ok: {type: boolean}
+        checked: {type: integer, format: int64}
+        last_seq: {type: integer, format: int64}
+        broken_seq: {type: integer, format: int64, description: Seq pertama yang rusak/hilang (hanya bila ok=false)}

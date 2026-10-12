@@ -26,7 +26,11 @@
 		{ label: i18n.t('nav.guardian.grades'), icon: Award },
 		{ label: i18n.t('nav.guardian.attendance'), icon: CalendarCheck },
 		{ label: i18n.t('nav.guardian.assignments'), icon: ClipboardList },
-		{ label: i18n.t('nav.guardian.report_cards'), icon: FileText },
+		{
+			label: i18n.t('nav.guardian.report_cards'),
+			icon: FileText,
+			href: APP_PATHS.GUARDIAN_REPORTS
+		},
 		{ label: i18n.t('nav.guardian.announcements'), icon: Megaphone },
 		{
 			label: i18n.t('nav.guardian.messages'),

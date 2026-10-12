@@ -16,7 +16,10 @@
 			"forbidden_title": "Akses ditolak",
 			"forbidden_description": "Anda tidak memiliki izin untuk membuka halaman ini.",
 			"unexpected_title": "Terjadi kesalahan",
-			"unexpected_description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi."
+			"unexpected_description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+			"maintenance_title": "Sedang pemeliharaan",
+			"maintenance_description": "Database sekolah Anda sedang dalam pemeliharaan terjadwal. Data Anda aman; coba lagi beberapa menit lagi.",
+			"maintenance_retry": "Coba lagi"
 		},
 		"workspace": {
 			"open_navigation": "Buka navigasi",
@@ -57,6 +60,15 @@
 			"busy": "Menutup sesi…",
 			"cancel": "Batal",
 			"key_hint": "ESC untuk batal · ENTER untuk keluar"
+		},
+		"page_help": {
+			"open": "Panduan halaman {title}",
+			"eyebrow": "PANDUAN HALAMAN",
+			"close": "Tutup panduan",
+			"purpose": "Fungsi halaman",
+			"features": "Yang bisa dilakukan",
+			"steps": "Cara penggunaan",
+			"tips": "Catatan penting"
 		}
 	},
 	"auth": {
@@ -66,7 +78,7 @@
 			"subtitle": "Masuk dengan akun dari lembaga Anda. Peran Anda dikenali otomatis dari akun.",
 			"google": "Masuk dengan Google",
 			"or_email": "atau dengan email",
-			"email": "Email",
+			"email": "Email atau username",
 			"password": "Kata sandi",
 			"remember": "Ingat saya di perangkat ini",
 			"submit": "Masuk",
@@ -339,7 +351,8 @@
 			"subscription": "Langganan",
 			"settings": "Pengaturan",
 			"search": "Cari kelas, guru, murid…",
-			"approvals": "Persetujuan"
+			"approvals": "Persetujuan",
+			"audit": "Riwayat perubahan"
 		},
 		"teacher": {
 			"area": "Ruang Guru",
@@ -353,7 +366,8 @@
 			"messages": "Pesan",
 			"settings": "Pengaturan",
 			"search": "Cari kelas, murid, materi…",
-			"billing": "Tagihan"
+			"billing": "Tagihan",
+			"grades": "Nilai akhir"
 		},
 		"student": {
 			"area": "Ruang Belajar",
@@ -405,7 +419,8 @@
 			"behavior": "Catatan perilaku",
 			"settings": "Pengaturan",
 			"search": "Cari murid {class}, pesan…",
-			"search_any": "Cari murid, pesan…"
+			"search_any": "Cari murid, pesan…",
+			"final_grades": "Nilai akhir mapel"
 		}
 	},
 	"brand": {
@@ -830,7 +845,13 @@
 			"agenda_announcements": "Agenda & pengumuman",
 			"tab_agenda": "Agenda",
 			"tab_announcements": "Pengumuman",
-			"announcements_by_admin": "Pengumuman dibuat oleh admin sekolah."
+			"announcements_by_admin": "Pengumuman dibuat oleh admin sekolah.",
+			"report_approval_live_hint": "{count} kelas · Semester {term} · {year}",
+			"report_row_detail": "Wali kelas {name} · {count} murid",
+			"report_ready_lock": "Siap dikunci",
+			"report_none": "Tidak ada rapor yang menunggu keputusan Anda.",
+			"report_unavailable": "Data rapor belum bisa dimuat. Coba muat ulang halaman.",
+			"report_unavailable_short": "Data rapor belum tersedia"
 		},
 		"homeroom": {
 			"eyebrow": "Wali kelas {class} · {count} murid",
@@ -920,17 +941,14 @@
 			"subject_reminded": "Diingatkan",
 			"subject_pending": "Belum final",
 			"toast_remind": "Pengingat dikirim ke {name}. Nilai difinalkan dalam 3 detik.",
-			"toast_finalized": "Nilai {subject} sudah difinalkan {name}.",
 			"homeroom_notes": "Catatan wali kelas · {done}/{total}",
 			"draft_notes": "Susun draf",
-			"toast_draft": "Draf catatan wali kelas disusun untuk {count} murid. Silakan sunting bila perlu.",
 			"attendance_recap_auto": "Rekap kehadiran · otomatis dari presensi",
 			"report_msg_pending": "Menunggu keputusan kepala sekolah. Batas 3 hari kerja.",
 			"report_msg_ready": "Semua komponen lengkap. Rapor siap diajukan.",
 			"report_msg_incomplete": "Lengkapi nilai semua mapel dan catatan wali kelas sebelum mengajukan.",
 			"report_submit": "Ajukan ke kepala sekolah",
 			"report_submitted": "Sudah diajukan",
-			"toast_report": "Rapor {class} diajukan ke kepala sekolah.",
 			"schedule": "Jadwal pelajaran {class}",
 			"now": "Sekarang",
 			"behavior": "Catatan perilaku & konseling",
@@ -1205,6 +1223,11 @@
 				"name": "Template notifikasi",
 				"sub": "Pesan sistem",
 				"desc": "Pesan otomatis dengan variabel. Variabel diisi data nyata saat dikirim."
+			},
+			"cluster_region": {
+				"name": "Region cluster DB",
+				"sub": "Lokasi cluster database",
+				"desc": "Dipakai halaman Cluster DB untuk lokasi cluster dan peringatan PDP bila data di luar Indonesia."
 			}
 		},
 		"fields": {
@@ -1304,6 +1327,21 @@
 				"channels": "Kanal",
 				"subject": "Judul",
 				"body": "Isi pesan"
+			},
+			"cluster_region": {
+				"name": "Nama region",
+				"name_ph": "Jakarta",
+				"code": "Kode",
+				"code_ph": "jakarta-3a",
+				"code_help": "Huruf kecil, angka, atau - (2–30).",
+				"zone": "Zona",
+				"zone_ph": "ap-southeast-3a",
+				"zone_help": "Ditampilkan bersama nama, mis. \"Jakarta · ap-southeast-3a\".",
+				"sort_order": "Urutan",
+				"sort_order_help": "Menentukan urutan di pilihan region Cluster DB.",
+				"outside_indonesia": "Lokasi data",
+				"outside_indonesia_on": "Data disimpan di luar Indonesia",
+				"outside_indonesia_help": "Cluster di region ini menampilkan peringatan kebijakan PDP sekolah."
 			}
 		},
 		"status": {
@@ -1340,7 +1378,8 @@
 			"database": "database tenant aktif",
 			"session": "{count} sesi login",
 			"grant": "{count} pemberian izin",
-			"self": "akun Anda sendiri"
+			"self": "akun Anda sendiri",
+			"cluster": "{count} cluster DB"
 		},
 		"errors": {
 			"required": "Wajib diisi.",
@@ -1357,7 +1396,8 @@
 			"year_name": "Gunakan dua tahun berurutan, mis. 2026/2027.",
 			"end_date": "Harus setelah tanggal mulai.",
 			"current_active": "Periode berjalan harus berstatus Aktif.",
-			"unknown_vars": "Variabel tidak dikenal: {other}"
+			"unknown_vars": "Variabel tidak dikenal: {other}",
+			"code_region": "Huruf kecil, angka, atau - (2–30). Contoh: jakarta-3a"
 		},
 		"panel": {
 			"new_eyebrow": "DATA BARU",
@@ -3377,7 +3417,9 @@
 			"discount": "Diskon",
 			"vat": "PPN 11%",
 			"no_vat": "Tidak dikenakan",
-			"total": "Total"
+			"total": "Total",
+			"paid": "Sudah dibayar",
+			"remaining": "Sisa tagihan"
 		},
 		"err": {
 			"tenant": "Pilih tenant yang ditagih.",
@@ -3435,7 +3477,8 @@
 			"status_succeeded": "Berhasil",
 			"status_failed": "Ditolak",
 			"status_expired": "Kedaluwarsa",
-			"status_refunded": "Dikembalikan"
+			"status_refunded": "Dikembalikan",
+			"manual_channel": "Dicatat manual · {channel}"
 		},
 		"toast": {
 			"saved": "Draf tersimpan.",
@@ -3459,7 +3502,8 @@
 			"min_length": "Alasan minimal 5 karakter.",
 			"forbidden": "Anda tidak memiliki izin untuk aksi ini.",
 			"no_context": "Akun Anda tidak memiliki akses tagihan lembaga.",
-			"generic": "Permintaan belum berhasil diproses. Coba lagi."
+			"generic": "Permintaan belum berhasil diproses. Coba lagi.",
+			"invoice_partially_paid": "Invoice sudah menerima pembayaran sehingga tidak bisa dibatalkan."
 		},
 		"paper": {
 			"label": "Invoice {number}",
@@ -3511,7 +3555,15 @@
 			"pick": "Pilih berkas bukti",
 			"file_hint": "PDF, PNG, atau JPG maks. 5 MB",
 			"file_invalid": "Berkas harus PDF, PNG, atau JPG maks. 5 MB.",
-			"proof_required": "Unggah bukti transfer."
+			"proof_required": "Unggah bukti transfer.",
+			"pay_full": "Bayar penuh",
+			"amount_invalid": "Isi nominal 1 s.d. sisa tagihan {remaining}.",
+			"amount_full": "Lunas setelah pembayaran ini diterima.",
+			"amount_partial": "Pembayaran sebagian · sisa setelah ini {left}.",
+			"sender_required": "Isi bank & nama pengirim (min. 3 karakter).",
+			"reference_required": "Isi nomor referensi (min. 4 karakter).",
+			"mutation_checked": "Sudah dicek di mutasi rekening",
+			"mutation_checked_hint": "Bukti transfer boleh dikosongkan; nama Anda dan waktunya dicatat."
 		},
 		"settings": {
 			"title": "Pengaturan penerbit invoice",
@@ -3584,7 +3636,3015 @@
 				"paid": "Pembayaran diterima. Terima kasih!",
 				"not_yet": "Pembayaran belum diterima. Coba lagi setelah membayar.",
 				"sent": "Bukti transfer terkirim dan menunggu verifikasi."
+			},
+			"partial_status": "Dibayar {paid} · sisa {remaining}"
+		}
+	},
+	"school_admin": {
+		"common": {
+			"all": "Semua",
+			"search": "Cari",
+			"filter": "Filter",
+			"import": "Impor Excel/CSV",
+			"import_from": "Impor dari Excel/CSV",
+			"save": "Simpan",
+			"cancel": "Batal",
+			"close": "Tutup",
+			"delete": "Hapus",
+			"deleting": "Menghapus…",
+			"edit": "UBAH",
+			"new": "BARU",
+			"added": "Data ditambahkan",
+			"saved": "Perubahan disimpan",
+			"deleted": "Data dihapus",
+			"imported": "{count} baris diimpor",
+			"required_hint": "Tanda * wajib diisi.",
+			"check_fields": "Periksa isian yang ditandai.",
+			"no_match": "Tidak ada data yang cocok dengan filter.",
+			"empty_import": "Belum ada data. Impor dari Excel/CSV agar lebih cepat.",
+			"shown": "{count} data ditampilkan",
+			"load_failed": "Data belum bisa dimuat",
+			"not_set": "Belum ditetapkan",
+			"not_set_option": "— Belum ditetapkan —",
+			"class_of": "Kelas {class}",
+			"active": "Aktif",
+			"inactive": "Nonaktif",
+			"yes": "Ya",
+			"no": "Tidak",
+			"delete_message": "Data hanya bisa dihapus bila belum punya riwayat. Bila sudah dipakai, nonaktifkan saja agar riwayat tetap utuh."
+		},
+		"failure": {
+			"unauthenticated": "Sesi berakhir. Silakan masuk kembali.",
+			"forbidden": "Akun ini tidak memiliki akses admin sekolah.",
+			"not_found": "Data tidak ditemukan.",
+			"conflict": "Data sedang tidak bisa diproses. Muat ulang halaman.",
+			"validation": "Permintaan tidak valid.",
+			"gone": "Tautan sudah tidak berlaku.",
+			"too_many": "Terlalu banyak permintaan. Coba lagi sebentar.",
+			"unavailable": "Layanan sedang tidak tersedia. Coba lagi beberapa saat.",
+			"null": "Layanan sedang tidak tersedia. Coba lagi beberapa saat."
+		},
+		"errors": {
+			"generic": "Data belum bisa disimpan. Periksa isian lalu coba lagi.",
+			"required": "Wajib diisi.",
+			"invalid": "Nilai tidak valid.",
+			"invalid_request": "Permintaan tidak valid.",
+			"too_long": "Terlalu panjang.",
+			"number": "Harus berupa angka.",
+			"email_format": "Format email salah.",
+			"email_taken": "Email sudah terdaftar.",
+			"email_locked": "Email akun yang sudah diundang/aktif tidak bisa diubah di sini.",
+			"nip_format": "NIP 18 digit atau NUPTK 16 digit.",
+			"nip_taken": "NIP/NUPTK sudah dipakai.",
+			"principal_nip": "NIP kepala sekolah 18 digit.",
+			"phone_format": "Format nomor salah.",
+			"nis_format": "NIS hanya angka 4–20 digit.",
+			"nis_taken": "NIS sudah terdaftar.",
+			"nis_not_found": "NIS tidak ditemukan.",
+			"nisn_format": "NISN 10 digit.",
+			"nisn_taken": "NISN sudah terdaftar.",
+			"nik_format": "NIK 16 digit.",
+			"gender": "Isi L atau P.",
+			"date_invalid": "Tanggal tidak valid.",
+			"date_format": "Format YYYY-MM-DD.",
+			"religion_unknown": "Kode agama tidak dikenal.",
+			"address_short": "Alamat minimal 8 karakter.",
+			"address_min": "Alamat minimal 8 karakter.",
+			"year_format": "Format TTTT/TTTT.",
+			"year_exists": "Tahun ajaran sudah ada.",
+			"year_required": "Atur tahun ajaran aktif terlebih dahulu.",
+			"end_after_start": "Harus setelah tanggal mulai.",
+			"semester_order": "Tanggal semester harus berurutan.",
+			"keep_one_active": "Harus ada satu tahun ajaran aktif. Aktifkan tahun lain terlebih dahulu.",
+			"semester_required": "Belum ada semester aktif.",
+			"class_exists": "Nama kelas sudah dipakai.",
+			"class_not_found": "Kelas tidak ada.",
+			"capacity_range": "Harus 1–60.",
+			"homeroom_taken": "Guru ini sudah menjadi wali kelas lain.",
+			"grade_not_in_level": "Tingkat tidak ada di jenjang sekolah.",
+			"rombel_required": "Buat minimal satu kelas.",
+			"subjects_required": "Pilih minimal satu mapel.",
+			"code_format": "Hanya huruf/angka 2–20.",
+			"code_invalid": "Kode tidak valid.",
+			"code_taken": "Kode sudah dipakai.",
+			"kktp_range": "Harus 0–100.",
+			"teacher_invalid": "Guru tidak valid atau nonaktif.",
+			"assignment_required": "Kelas ini belum punya penugasan untuk mapel tersebut.",
+			"schedule_clash": "Bentrok: guru mengajar {value} di jam ini.",
+			"period_invalid": "Hari/jam tidak valid.",
+			"period_order": "Jam harus berurutan dan tidak tumpang tindih.",
+			"too_many": "Jumlah melebihi batas.",
+			"objective_length": "Tulis deskripsi TP 10–500 karakter.",
+			"objective_exists": "Tujuan pembelajaran sudah ada.",
+			"weight_range": "Bobot 0–100; formatif 0%.",
+			"weight_total_100": "Total bobot harus 100%.",
+			"assessment_in_use": "Jenis asesmen sudah dipakai nilai dan tidak bisa dihapus.",
+			"extra_exists": "Kegiatan sudah ada.",
+			"not_in_class": "Murid bukan anggota kelas ini.",
+			"all_students_required": "Isi presensi seluruh murid kelas.",
+			"date_out_of_semester": "Tanggal harus dalam semester aktif dan tidak di masa depan.",
+			"holiday": "Hari libur (Minggu).",
+			"remind_cooldown": "Pengingat baru saja dikirim. Coba lagi dalam satu jam.",
+			"all_filled": "Semua kelas sudah mengisi presensi.",
+			"no_homeroom_contact": "Wali kelas belum ditetapkan atau belum punya email.",
+			"seats_range": "Jumlah kursi 1–2.000.",
+			"password_weak": "Kata sandi minimal 8 karakter tanpa spasi di awal/akhir.",
+			"logo_invalid": "Logo PNG/JPG maks. 1 MB.",
+			"file_empty": "File kosong.",
+			"file_too_large": "Ukuran file melebihi 5 MB. Pecah menjadi beberapa file.",
+			"file_format": "Format tidak didukung. Gunakan .xlsx atau .csv.",
+			"file_unreadable": "File tidak bisa dibaca. Pastikan formatnya .xlsx atau .csv.",
+			"file_no_rows": "Tidak ada baris data di bawah nama kolom.",
+			"too_many_rows": "Maksimal 2.000 baris per file.",
+			"missing_columns": "Kolom wajib tidak ditemukan: {value}. Pakai template terbaru.",
+			"dup_in_file": "Ganda di file.",
+			"over_seats": "Melebihi kursi.",
+			"guardian_name_required": "Nama wajib bila kontak diisi.",
+			"primary_invalid": "Isi AYAH, IBU, atau WALI.",
+			"primary_empty": "Data kontak utama kosong.",
+			"relation_invalid": "Isi AYAH, IBU, atau WALI.",
+			"yes_no": "Isi YA atau TIDAK.",
+			"quota_students_exceeded": "Kursi murid penuh. Tambah kursi di menu Langganan.",
+			"validation_failed": "Ada isian yang belum valid. Periksa kembali data yang ditandai.",
+			"not_found": "Data tidak ditemukan.",
+			"in_use": "Data masih dipakai (riwayat/akun) sehingga tidak bisa dihapus. Nonaktifkan saja.",
+			"invalid_transition": "Aksi tidak bisa dilakukan pada status saat ini.",
+			"invitation_invalid": "Tautan atau kode sudah tidak berlaku.",
+			"forbidden": "Akun ini tidak memiliki akses.",
+			"not_ready": "Ruang kerja sekolah belum siap.",
+			"internal_error": "Terjadi kesalahan pada server. Coba lagi.",
+			"unavailable": "Layanan sedang tidak tersedia.",
+			"seats_below_min": "Kursi minimal {value} (sesuai murid aktif/batas paket).",
+			"reason_length": "Alasan harus 10–500 karakter.",
+			"tenant_maintenance": "Database sekolah sedang dalam pemeliharaan. Coba lagi beberapa menit lagi.",
+			"tenant_read_only": "Sekolah dalam mode baca saja sampai langganan dibayar. Data masih bisa dilihat, tetapi belum bisa diubah.",
+			"tenant_terminated": "Langganan sekolah sudah dihentikan. Hubungi tim FLIXARE untuk mengaktifkan kembali.",
+			"invoice_partially_paid": "Invoice aktivasi sebelumnya sudah menerima pembayaran sehingga tidak bisa diganti. Selesaikan invoice tersebut atau hubungi tim FLIXARE.",
+			"duplicate_no": "Nomor baris impor ganda. Unggah ulang berkas lalu coba lagi.",
+			"rate_limited": "Terlalu banyak percobaan. Coba lagi dalam {minutes} menit.",
+			"rate_limited_later": "Terlalu banyak percobaan. Coba lagi beberapa saat lagi."
+		},
+		"gap": {
+			"title": "{section} belum lengkap.",
+			"action": "Lengkapi"
+		},
+		"account": {
+			"active": "Aktif",
+			"invited": "Diundang",
+			"not_invited": "Belum diundang",
+			"inactive": "Nonaktif",
+			"status_label": "Status akun: {status}",
+			"note_active": "Sudah masuk ke FLIXARE.",
+			"note_invited": "Tautan berlaku 72 jam dan sekali pakai. Kirim ulang bila kedaluwarsa.",
+			"note_inactive": "Data nonaktif; akses akun ditutup.",
+			"note_code": "Tanpa email: dibuat username + kode aktivasi.",
+			"note_no_email": "Tanpa email: tidak bisa diundang ke portal.",
+			"note_not_invited": "Undangan belum dikirim.",
+			"send": "Kirim undangan",
+			"resend": "Kirim ulang",
+			"reset": "Reset akses"
+		},
+		"invite": {
+			"result": "Undangan diproses: {sent} terkirim, {linked} tertaut ke akun yang ada, {skipped} dilewati."
+		},
+		"codes": {
+			"title": "{count} kode aktivasi murid",
+			"note": "Hanya tampil sekali. Bagikan ke murid; aktivasi di halaman {path} dengan username dan kode (berlaku 72 jam).",
+			"copy": "Salin semua",
+			"copied": "Tersalin",
+			"copy_header": "Aktivasi akun FLIXARE di {url} (nama · username · kode):",
+			"name": "NAMA",
+			"username": "USERNAME",
+			"code": "KODE"
+		},
+		"fields": {
+			"full_name": "Nama lengkap",
+			"nip": "NIP / NUPTK",
+			"gender": "Jenis kelamin",
+			"email": "Email",
+			"phone": "No. HP",
+			"encrypted": "Disimpan terenkripsi.",
+			"status": "Status",
+			"grade": "Tingkat",
+			"class_name": "Nama kelas",
+			"capacity": "Kapasitas",
+			"homeroom": "Wali kelas",
+			"year_name": "Nama tahun ajaran",
+			"start": "Mulai",
+			"end": "Selesai",
+			"birth_date": "Tanggal lahir",
+			"class": "Kelas",
+			"religion": "Agama",
+			"student_email": "Email murid",
+			"address": "Alamat",
+			"relation": "Hubungan",
+			"child": "Anak",
+			"nis": "NIS",
+			"nisn": "NISN"
+		},
+		"gender": {
+			"L": "Laki-laki",
+			"P": "Perempuan"
+		},
+		"relation": {
+			"father": "Ayah",
+			"mother": "Ibu",
+			"guardian": "Wali"
+		},
+		"weekday": {
+			"1": "SEN",
+			"2": "SEL",
+			"3": "RAB",
+			"4": "KAM",
+			"5": "JUM",
+			"6": "SAB"
+		},
+		"attendance_status": {
+			"present": "Hadir",
+			"sick": "Sakit",
+			"permit": "Izin",
+			"absent": "Alpa"
+		},
+		"teachers": {
+			"eyebrow": "ORANG · TEACHER_M",
+			"title": "Guru",
+			"desc": "Data guru, akun, dan penugasan mengajar. Guru baru bisa masuk setelah menerima undangan.",
+			"add": "Tambah guru",
+			"search": "Cari nama, email, atau NIP",
+			"stat_total": "Guru",
+			"stat_active": "Akun aktif",
+			"stat_invited": "Diundang",
+			"stat_not_invited": "Belum diundang",
+			"head_teacher": "GURU",
+			"head_email": "EMAIL",
+			"head_teaching": "MENGAJAR",
+			"head_account": "AKUN",
+			"no_nip": "NIP belum diisi",
+			"assignments": "{count} penugasan",
+			"no_assignments": "Belum ada penugasan",
+			"homeroom_of": "Wali {class}",
+			"bulk_text": "{count} guru belum menerima undangan akun.",
+			"bulk_action": "Undang {count} guru",
+			"name_ph": "Beserta gelar",
+			"nip_ph": "18 atau 16 digit",
+			"email_ph": "nama@sekolah.sch.id",
+			"email_note": "Dipakai untuk undangan dan login.",
+			"inactive_note": "Guru nonaktif tidak bisa masuk; riwayat mengajar tetap tersimpan.",
+			"assignment_list": "PENUGASAN MENGAJAR · {count}",
+			"delete_title": "Hapus guru?"
+		},
+		"classes": {
+			"eyebrow": "AKADEMIK · CLASS_M",
+			"title": "Kelas",
+			"desc": "Rombongan belajar tahun ajaran {year} dan wali kelasnya.",
+			"add": "Tambah kelas",
+			"search": "Cari nama kelas",
+			"stat_classes": "Kelas",
+			"grades_count": "{count} tingkat",
+			"stat_no_homeroom": "Tanpa wali kelas",
+			"stat_students": "Murid terdaftar",
+			"grade_tab": "Kelas {grade}",
+			"tab_no_homeroom": "Tanpa wali",
+			"code": "Tingkat {grade} · Fase {phase}",
+			"status_no_homeroom": "Tanpa wali",
+			"status_full": "Penuh",
+			"status_complete": "Lengkap",
+			"head_class": "KELAS",
+			"head_homeroom": "WALI KELAS",
+			"head_capacity": "MURID / KAPASITAS",
+			"head_status": "STATUS",
+			"gap_why": "Setiap kelas perlu wali kelas untuk presensi dan rapor.",
+			"no_year_title": "Belum ada tahun ajaran aktif",
+			"no_year_desc": "Kelas dibuat pada tahun ajaran aktif. Atur tahun ajaran terlebih dahulu.",
+			"go_years": "Atur tahun ajaran",
+			"grade_option": "Kelas {grade} · Fase {phase}",
+			"homeroom_note": "Satu guru hanya wali satu kelas per tahun ajaran.",
+			"students_count": "{count} murid",
+			"student_list": "MURID DI KELAS INI · {count}",
+			"no_students": "Belum ada murid.",
+			"delete_title": "Hapus kelas?",
+			"delete_message": "Kelas hanya bisa dihapus bila belum ada murid, presensi, atau rapor."
+		},
+		"years": {
+			"eyebrow": "AKADEMIK · ACADEMIC_YEAR_M",
+			"title": "Tahun ajaran",
+			"desc": "Hanya satu tahun ajaran dan satu semester aktif. Kelas, nilai, presensi, dan rapor terikat ke tahun aktif.",
+			"add": "Tambah tahun ajaran",
+			"search": "Cari tahun ajaran",
+			"stat_active": "Tahun ajaran aktif",
+			"stat_term": "Semester aktif",
+			"stat_classes": "Kelas tahun ini",
+			"term_odd": "Ganjil",
+			"term_even": "Genap",
+			"classes_count": "{count} kelas",
+			"term_until": "{term} · s.d. {date}",
+			"status_active": "Aktif",
+			"status_archived": "Arsip",
+			"status_upcoming": "Mendatang",
+			"head_year": "TAHUN AJARAN",
+			"head_period": "PERIODE",
+			"head_term": "SEMESTER AKTIF",
+			"head_status": "STATUS",
+			"empty": "Belum ada tahun ajaran.",
+			"foot": "Tahun ajaran aktif tidak bisa dihapus.",
+			"active_note": "Mengaktifkan tahun ini menonaktifkan tahun lain.",
+			"s1_start": "Semester ganjil mulai",
+			"s1_end": "Semester ganjil selesai",
+			"s2_start": "Semester genap mulai",
+			"s2_end": "Semester genap selesai",
+			"active_term": "Semester aktif",
+			"copy": "Salin kelas dari tahun ajaran aktif",
+			"copy_yes": "Ya, salin nama & tingkat",
+			"copy_no": "Tidak",
+			"copy_note": "Murid tidak ikut tersalin; kenaikan kelas dilakukan terpisah.",
+			"delete_title": "Hapus tahun ajaran?",
+			"delete_message": "Hanya tahun ajaran tidak aktif tanpa kelas yang bisa dihapus."
+		},
+		"students": {
+			"eyebrow": "ORANG · STUDENT_M",
+			"title": "Murid",
+			"desc": "Murid aktif dihitung terhadap kursi langganan. Data orang tua bisa ikut diimpor dalam file yang sama.",
+			"add": "Tambah murid",
+			"search": "Cari nama, NIS, atau NISN",
+			"stat_seats": "Kursi terpakai",
+			"no_seat_limit": "Belum ada batas kursi",
+			"stat_no_guardian": "Tanpa orang tua",
+			"stat_active": "Akun aktif",
+			"stat_not_invited": "Belum diundang",
+			"tab_no_guardian": "Tanpa orang tua",
+			"head_student": "MURID",
+			"head_class": "KELAS",
+			"head_guardian": "ORANG TUA",
+			"head_account": "AKUN",
+			"no_class": "Belum masuk kelas",
+			"no_guardian": "Belum terhubung",
+			"bulk_text": "{count} murid belum menerima undangan. Murid tanpa email mendapat username + kode aktivasi.",
+			"bulk_action": "Undang {count} murid",
+			"limit_note": "(maks. {limit}, persempit dengan filter)",
+			"class_filter": "Filter kelas",
+			"all_classes": "Semua kelas",
+			"seat_full": "Kursi penuh ({seats}). Murid baru ditolak sampai kursi ditambah.",
+			"add_seats": "Tambah kursi",
+			"nisn_ph": "10 digit",
+			"email_note": "Opsional. Kosongkan → akun dibuat dengan username + kode aktivasi.",
+			"inactive_note": "Murid nonaktif tidak dihitung sebagai kursi dan tidak bisa masuk.",
+			"guardian_list": "ORANG TUA TERHUBUNG",
+			"no_guardian_hint": "Belum ada orang tua.",
+			"add_guardian": "Tambah orang tua",
+			"username": "Username: {username}",
+			"seats_applied": "{count} kursi ditambahkan",
+			"seats_invoiced": "Invoice prorata terbit. Kursi aktif setelah lunas.",
+			"delete_title": "Hapus murid?",
+			"delete_message": "Murid hanya bisa dihapus bila belum punya presensi, nilai, atau rapor. Bila sudah, nonaktifkan saja.",
+			"code_nis": "NIS {nis}",
+			"code_nis_nisn": "NIS {nis} · NISN {nisn}"
+		},
+		"guardians": {
+			"eyebrow": "ORANG · GUARDIAN_M",
+			"title": "Orang tua",
+			"desc": "Orang tua/wali yang terhubung ke murid. Akses portal hanya ke anak yang terhubung.",
+			"add": "Tambah orang tua",
+			"search": "Cari nama, email, atau nama anak",
+			"stat_total": "Orang tua/wali",
+			"stat_linked": "Murid terhubung",
+			"stat_no_email": "Tanpa email",
+			"no_email_sub": "Tidak bisa diundang ke portal",
+			"tab_primary": "Kontak utama",
+			"tab_no_email": "Tanpa email",
+			"head_guardian": "ORANG TUA",
+			"head_children": "ANAK",
+			"head_contact": "KONTAK",
+			"head_account": "AKUN",
+			"primary": "kontak utama",
+			"no_contact": "Tanpa kontak",
+			"bulk_text": "{count} orang tua punya email tetapi belum diundang ke portal.",
+			"bulk_action": "Undang {count} orang tua",
+			"email_note": "Untuk undangan portal orang tua.",
+			"link_child": "Tautkan ke anak",
+			"link_note": "Menyimpan dengan anak lain menambah tautan baru.",
+			"linked": "tertaut",
+			"primary_label": "Kontak utama",
+			"primary_note": "Satu kontak utama per murid.",
+			"children_list": "ANAK TERHUBUNG",
+			"unlink": "Lepas tautan {name}",
+			"unlinked": "Tautan dilepas",
+			"delete_title": "Hapus orang tua?"
+		},
+		"attendance": {
+			"eyebrow": "PRESENSI · ATTENDANCE_T",
+			"title": "Presensi",
+			"desc": "Pantau kelas yang sudah dan belum mengisi presensi, serta rekap per semester.",
+			"holiday": "Hari libur",
+			"sunday": "Minggu",
+			"stat_filled": "Kelas sudah mengisi",
+			"stat_presence": "Kehadiran",
+			"stat_sick_permit": "Sakit · Izin",
+			"stat_absent": "Alpa",
+			"stat_term": "Semester",
+			"term_range": "{from} – hari ini · {days} hari efektif",
+			"stat_avg": "Rata-rata kehadiran",
+			"stat_risk": "Murid alpa ≥ {days} hari",
+			"risk_sub": "Perlu tindak lanjut wali kelas",
+			"mode": "Mode presensi",
+			"tab_day": "Harian",
+			"tab_semester": "Rekap semester",
+			"prev_day": "Hari sebelumnya",
+			"next_day": "Hari berikutnya",
+			"today": "Hari ini",
+			"monitor_only": "Hanya pantau · diisi wali kelas",
+			"unfilled": "{count} kelas belum mengisi presensi:",
+			"remind": "Ingatkan wali kelas",
+			"reminded_label": "Pengingat terkirim",
+			"reminded": "Pengingat dikirim ke {count} wali kelas.",
+			"reminded_no_homeroom": "{count} kelas belum punya wali kelas.",
+			"reminded_no_contact": "{count} wali kelas belum punya email.",
+			"head_class": "KELAS",
+			"head_present": "HADIR",
+			"head_days": "HARI ISI",
+			"head_sick": "SAKIT",
+			"head_permit": "IZIN",
+			"head_absent": "ALPA",
+			"head_presence": "KEHADIRAN",
+			"head_avg": "RATA-RATA HADIR",
+			"no_homeroom": "Wali kelas belum ditetapkan",
+			"not_filled": "Belum",
+			"no_classes": "Belum ada kelas pada tahun ajaran aktif.",
+			"foot": "Satu catatan per murid per kelas per tanggal (zona waktu sekolah). Rekap semester dipakai rapor."
+		},
+		"reports": {
+			"eyebrow": "RAPOR · REPORT_CARD_T",
+			"title": "Rapor",
+			"desc": "Pantau progres rapor per kelas dari draf hingga terkunci, dan unduh PDF yang sudah terbit.",
+			"status_draft": "Draf",
+			"status_submitted": "Diajukan",
+			"status_approved": "Disetujui",
+			"status_locked": "Terkunci · PDF",
+			"flow_note": "Disusun wali kelas · disetujui kepala sekolah",
+			"head_class": "KELAS",
+			"head_homeroom": "WALI KELAS",
+			"head_locked": "NILAI MAPEL TERKUNCI",
+			"head_status": "STATUS",
+			"students": "{count} murid",
+			"no_homeroom": "Wali kelas belum ditetapkan",
+			"remind": "Ingatkan",
+			"reminded_label": "Diingatkan",
+			"reminded": "Pengingat dikirim ke {name}",
+			"homeroom_fallback": "wali kelas",
+			"download": "Unduh PDF",
+			"view": "Lihat",
+			"empty": "Belum ada kelas pada tahun ajaran aktif.",
+			"empty_status": "Tidak ada kelas pada status ini.",
+			"foot": "Rapor tidak bisa diajukan bila ada mapel tanpa nilai akhir terkunci. Koreksi setelah terkunci dibuka kepala sekolah dan tercatat di audit log.",
+			"review": {
+				"back": "Kembali ke daftar rapor",
+				"eyebrow": "RAPOR KELAS · TINJAUAN",
+				"title": "Rapor {class}",
+				"desc": "Semester {term} · Tahun ajaran {year} · Wali kelas {homeroom}",
+				"version": "Versi {version}",
+				"stat_status": "Status rapor",
+				"stat_subjects": "Mapel terkunci",
+				"stat_students": "Jumlah murid",
+				"stat_version": "Versi rapor",
+				"status_hint_draft": "Menunggu wali kelas melengkapi dan mengajukan rapor.",
+				"status_hint_submitted": "Diajukan wali kelas, menunggu keputusan kepala sekolah.",
+				"status_hint_approved": "Disetujui kepala sekolah, siap dikunci untuk menerbitkan PDF.",
+				"status_hint_locked": "Rapor sudah final dan PDF siap diunduh.",
+				"timeline_title": "Riwayat status",
+				"step_submitted": "Diajukan wali kelas",
+				"step_approved": "Disetujui kepala sekolah",
+				"step_locked": "Dikunci & PDF diterbitkan",
+				"step_by": "{name} · {date}",
+				"step_pending": "Belum dilakukan",
+				"someone": "Pengguna",
+				"returned_title": "Rapor dikembalikan untuk diperbaiki",
+				"returned_by": "Dikembalikan oleh {name}",
+				"subjects_title": "Progres nilai mapel",
+				"subjects_desc": "{locked} dari {total} mapel sudah mengunci nilai akhir",
+				"subject_locked": "Terkunci",
+				"subject_open": "Belum terkunci",
+				"subject_filled": "{count} nilai terisi",
+				"no_teacher": "Guru belum ditetapkan",
+				"no_subjects": "Belum ada mapel pada kelas ini.",
+				"students_title": "Nilai & catatan murid",
+				"attendance_legend": "S = sakit · I = izin · A = alpa (hari)",
+				"head_student": "MURID",
+				"head_average": "RATA-RATA",
+				"head_sick": "S",
+				"head_permit": "I",
+				"head_absent": "A",
+				"head_note": "CATATAN WALI KELAS",
+				"head_pdf": "PDF rapor",
+				"sick": "Sakit",
+				"permit": "Izin",
+				"absent": "Alpa",
+				"no_students": "Belum ada murid di kelas ini.",
+				"no_note": "Belum ada catatan",
+				"note_more": "Selengkapnya",
+				"note_less": "Ringkas",
+				"pdf_student": "PDF",
+				"pdf_student_label": "Unduh PDF rapor {name}",
+				"download_class": "Unduh PDF kelas",
+				"approve": "Setujui",
+				"approve_title": "Setujui rapor {class}?",
+				"approve_message": "Rapor akan berstatus disetujui dan siap dikunci. Setelah disetujui, rapor tidak bisa dikembalikan; koreksi dilakukan dengan membuka kunci setelah terbit.",
+				"approving": "Menyetujui…",
+				"approved_toast": "Rapor {class} disetujui",
+				"return": "Kembalikan",
+				"return_title": "Kembalikan rapor {class} ke wali kelas?",
+				"return_message": "Rapor kembali ke draf agar wali kelas dapat memperbaikinya. Tuliskan alasan yang jelas.",
+				"returning": "Mengembalikan…",
+				"returned_toast": "Rapor {class} dikembalikan ke wali kelas",
+				"lock": "Kunci & terbitkan PDF",
+				"lock_confirm": "Kunci rapor",
+				"lock_title": "Kunci rapor {class}?",
+				"lock_message": "PDF rapor untuk {count} murid akan diterbitkan dan nilai menjadi final. Koreksi setelahnya hanya bisa dilakukan bila kepala sekolah membuka kunci.",
+				"locking": "Mengunci…",
+				"locked_toast": "Rapor {class} dikunci dan PDF diterbitkan",
+				"unlock": "Buka kunci",
+				"unlock_title": "Buka kunci rapor {class}?",
+				"unlock_message": "Rapor kembali ke draf untuk dikoreksi dan versinya naik. Tindakan ini tercatat di audit log.",
+				"unlocking": "Membuka kunci…",
+				"unlocked_toast": "Kunci rapor {class} dibuka (versi {version})",
+				"reason_label": "Alasan",
+				"reason_placeholder": "Contoh: Deskripsi capaian Matematika belum sesuai dengan nilai akhir.",
+				"reason_hint": "{count}/{max} karakter · minimal {min}",
+				"reason_error": "Alasan harus {min}–{max} karakter."
 			}
+		},
+		"subscription": {
+			"eyebrow": "LANGGANAN · SUBSCRIPTION_T",
+			"title": "Langganan",
+			"desc": "Paket, kursi murid, dan tagihan sekolah.",
+			"none_title": "Belum ada langganan",
+			"none_desc": "Langganan dibuat saat pendaftaran sekolah disetujui.",
+			"plan_eyebrow": "PAKET",
+			"plan": "Paket {name}",
+			"price": "{price} per murid per bulan · ditagih tahunan",
+			"status_active": "Aktif",
+			"status_trial": "Trial",
+			"status_past_due": "Lewat jatuh tempo",
+			"status_cancelled": "Dibatalkan",
+			"status_expired": "Berakhir",
+			"seats_used": "Kursi murid terpakai",
+			"seats_note": "Murid nonaktif tidak dihitung. Murid ke-{next} ditolak sampai kursi ditambah.",
+			"pending_seats": "{count} kursi menunggu pembayaran invoice prorata.",
+			"trial_ends": "Trial berakhir",
+			"trial_limit": "Batas murid trial",
+			"seats_value": "{count} murid",
+			"after_activation": "Setelah aktivasi",
+			"period_until": "Periode s.d. {date}",
+			"period": "Periode",
+			"auto_renew": "Perpanjang otomatis",
+			"annual_total": "Total tahunan",
+			"activate": "Bayar & aktifkan langganan",
+			"add_title": "Tambah kursi",
+			"add_desc": "Dibayar prorata: kursi × harga per murid per bulan × sisa bulan penuh.",
+			"decrease": "Kurangi",
+			"increase": "Tambah",
+			"seat_count": "Jumlah kursi",
+			"seats_suffix": "kursi",
+			"formula": "{seats} kursi × {price} × {months} bulan",
+			"invoice_note": "Invoice prorata terbit setelah konfirmasi dan bisa dibayar lewat gateway. Kursi aktif setelah lunas.",
+			"cannot_add": "Penambahan kursi tidak tersedia untuk status/periode langganan ini.",
+			"trial_add_note": "Selama trial, kursi tambahan langsung aktif dan ditagihkan saat aktivasi.",
+			"buy": "Tambah {count} kursi · {amount}",
+			"buy_trial": "Tambah {count} kursi",
+			"invoices": "Tagihan",
+			"all_invoices": "Buka halaman tagihan",
+			"no_invoices": "Belum ada tagihan."
+		},
+		"import": {
+			"eyebrow": "IMPOR EXCEL/CSV",
+			"title": "Impor {title}",
+			"loading": "Memuat format impor…",
+			"step_prep": "Siapkan file",
+			"step_preview": "Periksa & perbaiki",
+			"step_done": "Selesai",
+			"format_title": "Format kolom",
+			"col_column": "KOLOM",
+			"col_label": "LABEL · FORMAT",
+			"col_example": "CONTOH",
+			"col_field": "FIELD DATABASE",
+			"template_title": "Unduh template",
+			"template_xlsx": "Template .xlsx",
+			"template_csv": "Template .csv",
+			"drop": "Tarik file ke sini atau pilih file",
+			"drop_hint": ".xlsx atau .csv · maks. 5 MB · 2.000 baris",
+			"reading": "Membaca file…",
+			"file_too_large": "Ukuran file melebihi 5 MB. Pecah menjadi beberapa file.",
+			"file_format": "Format tidak didukung. Gunakan .xlsx atau .csv.",
+			"tabs_label": "Filter baris",
+			"tab_all": "Semua",
+			"tab_err": "Perlu diperbaiki",
+			"tab_ok": "Valid",
+			"seat_text": "Sisa {avail} dari {seats} kursi, sementara {valid} baris valid. {over} baris terakhir tidak akan diimpor kecuali kursi ditambah.",
+			"seat_trial": "Selama trial, kursi tambahan ditagihkan saat aktivasi.",
+			"seat_prorata": "Prorata {months} bulan: {amount}.",
+			"seat_buy": "Tambah {count} kursi",
+			"seat_buy_amount": "Tambah {count} kursi · {amount}",
+			"col_row": "BARIS",
+			"col_status": "STATUS",
+			"col_action": "Aksi",
+			"row_skipped": "Dikecualikan",
+			"row_over": "Melebihi kursi",
+			"row_errors": "{count} error",
+			"row_valid": "Valid",
+			"warn_no_guardian": "Tanpa data orang tua",
+			"include": "Sertakan lagi",
+			"exclude": "Kecualikan baris ini",
+			"no_rows": "Tidak ada baris pada filter ini.",
+			"foot_errors": "{count} baris tidak ikut diimpor. Perbaiki di tabel atau unduh laporan error.",
+			"foot_ready": "Semua baris siap diimpor.",
+			"invite_label": "Undangan akun",
+			"invite_now": "Kirim sekarang",
+			"invite_later": "Nanti saja",
+			"reupload": "Unggah ulang",
+			"error_report": "Laporan error",
+			"commit": "Impor {count} baris valid",
+			"done_title": "{count} baris berhasil diimpor",
+			"done_invited": "Undangan akun dikirim bertahap. Status akun bisa dipantau di menu terkait.",
+			"done_not_invited": "Undangan belum dikirim. Kirim kapan saja dari menu terkait.",
+			"done_saved": "Data sudah tersimpan dan langsung bisa dipakai.",
+			"stat_saved": "Tersimpan",
+			"stat_skipped": "Dilewati",
+			"stat_invited": "Undangan diproses",
+			"finish": "Selesai",
+			"csv_col_row": "baris",
+			"csv_col_error": "keterangan_error",
+			"csv_file_name": "{file}-laporan-error.csv"
+		},
+		"dashboard": {
+			"setup_label": "Lengkapi data sekolah",
+			"setup_title_required": "Data wajib sekolah belum lengkap",
+			"setup_title_optional": "Lengkapi data sekolah",
+			"setup_pill": "{done} dari {total} bagian",
+			"setup_sub_required": "Guru dan murid belum bisa memakai FLIXARE sampai profil, kurikulum, tahun ajaran, kelas, dan mapel diisi.",
+			"setup_sub_optional": "Fitur berikut belum optimal sampai datanya diisi: {list}.",
+			"setup_btn_required": "Lanjutkan data wajib",
+			"setup_btn_optional": "Lanjutkan pengisian",
+			"term_odd": "Semester Ganjil",
+			"term_even": "Semester Genap",
+			"hero_sub": "{school} · Paket {plan}. {classes} kelas aktif, {filled} sudah mengisi presensi hari ini.",
+			"trial_ends": "Berakhir {date}. {used} dari {limit} murid trial terpakai.",
+			"holiday": "Hari ini hari libur.",
+			"holiday_tile": "Libur",
+			"no_classes": "Belum ada kelas.",
+			"no_homeroom": "Wali kelas belum ditetapkan",
+			"remind_all": "Ingatkan wali kelas",
+			"reminded_toast": "Pengingat presensi terkirim ke wali kelas.",
+			"report_title": "Alur rapor {term}",
+			"report_meta": "{classes} kelas · dihitung dari status rapor semester aktif",
+			"step_locked_subjects": "Nilai semua mapel terkunci",
+			"step_submitted": "Diajukan wali kelas",
+			"step_approved": "Disetujui kepala sekolah",
+			"step_published": "Terkunci · PDF terbit",
+			"open_reports": "Buka rapor",
+			"no_seat_limit": "belum ada batas kursi",
+			"todo_empty": "Tidak ada yang perlu ditindaklanjuti.",
+			"todo_attendance_title": "Presensi {ref} belum diisi",
+			"todo_attendance_sub": "{count} kelas belum mengisi hari ini · wali kelas: {extra}",
+			"todo_attendance_action": "Ingatkan",
+			"todo_homeroom_title": "{count} kelas tanpa wali kelas",
+			"todo_homeroom_sub": "Wali kelas dibutuhkan untuk presensi dan rapor",
+			"todo_homeroom_action": "Atur wali",
+			"todo_teachers_invite_title": "{count} guru belum diundang",
+			"todo_teachers_invite_sub": "Guru belum bisa masuk FLIXARE",
+			"todo_teachers_invite_action": "Kirim undangan",
+			"todo_guardians_invite_title": "{count} orang tua belum diundang",
+			"todo_guardians_invite_sub": "Punya email tetapi belum menerima undangan portal",
+			"todo_guardians_invite_action": "Kirim undangan",
+			"todo_report_draft_title": "{count} kelas rapornya masih draf",
+			"todo_report_draft_sub": "Status dari rapor semester aktif",
+			"todo_report_draft_action": "Lihat kelas",
+			"todo_invoice_title": "Tagihan {ref} belum dibayar",
+			"todo_invoice_sub": "Status: {extra}",
+			"todo_invoice_action": "Bayar"
+		},
+		"homeroom": {
+			"eyebrow": "WALI KELAS · ATTENDANCE_T",
+			"title": "Presensi kelas",
+			"title_class": "Presensi kelas {class}",
+			"desc": "Catat kehadiran harian murid. Satu catatan per murid per tanggal; tanggal mengikuti zona waktu sekolah.",
+			"prev_day": "Hari sebelumnya",
+			"next_day": "Hari berikutnya",
+			"today": "Hari ini",
+			"filled": "Sudah diisi",
+			"all_present": "Tandai semua hadir",
+			"holiday": "Hari libur — presensi tidak diisi.",
+			"status_of": "Status {name}",
+			"note_of": "Catatan {name}",
+			"note_ph": "Catatan (opsional)",
+			"no_students": "Belum ada murid aktif di kelas ini.",
+			"foot": "Admin sekolah memantau rekap presensi ini; alpa ≥ 3 hari perlu tindak lanjut.",
+			"save": "Simpan presensi",
+			"update": "Perbarui presensi",
+			"saved": "Presensi tersimpan",
+			"not_homeroom_title": "Anda belum menjadi wali kelas",
+			"not_homeroom_desc": "Presensi harian diisi wali kelas pada tahun ajaran aktif. Hubungi admin sekolah bila seharusnya Anda wali kelas."
+		},
+		"planning": {
+			"tabs": "Bagian",
+			"tab_homeroom": "Wali kelas",
+			"tab_teaching": "Penugasan mengajar",
+			"tab_periods": "Jam pelajaran",
+			"tab_grid": "Jadwal per kelas",
+			"people_teachers": "Guru",
+			"people_students": "Murid",
+			"people_linked": "Terhubung orang tua",
+			"people_seats": "Kursi",
+			"people_import_teachers": "Impor guru dari Excel/CSV",
+			"people_import_teachers_sub": "Template berisi NIP, nama, email, dan No. HP",
+			"people_import_students": "Impor murid & orang tua",
+			"people_import_students_sub": "Satu baris = satu murid, kolom orang tua opsional",
+			"people_manual_teachers": "Tambah guru manual",
+			"people_manual_students": "Tambah murid manual",
+			"people_manual_sub": "Kelola data dan undangan akun di halaman modul",
+			"recent": "TERAKHIR DITAMBAHKAN",
+			"homeroom_note": "Satu wali kelas per kelas per tahun ajaran (class_homeroom_m).",
+			"homeroom_of": "Wali kelas {class}",
+			"no_classes": "Belum ada kelas.",
+			"pick_class": "Pilih kelas",
+			"teaching_note": "Semester {term} · {filled}/{total} mapel terisi",
+			"no_semester": "Belum ada semester aktif.",
+			"teacher_of": "Guru {subject}",
+			"pick_subject": "Pilih mapel",
+			"pick_grade": "Tingkat",
+			"grade": "Kelas {grade}",
+			"objectives_empty": "Belum ada tujuan pembelajaran untuk mapel & tingkat ini.",
+			"objective_add": "Tambah TP",
+			"objective_ph": "Peserta didik mampu …",
+			"objective_short": "Tulis deskripsi TP minimal 10 karakter",
+			"delete": "Hapus",
+			"assess_note": "Bobot dipakai saat guru menghitung nilai akhir. Formatif boleh 0% bila hanya untuk umpan balik.",
+			"assess_default": "Pakai default",
+			"assess_empty": "Belum ada jenis asesmen. Pakai default untuk memulai.",
+			"formative": "Formatif",
+			"summative": "Sumatif",
+			"exam": "ujian",
+			"weight_of": "Bobot {name}",
+			"weight_total": "Total bobot",
+			"save_weights": "Simpan bobot",
+			"periods_note": "Master jam pelajaran (lesson_period_m) dipakai semua kelas.",
+			"periods_default": "Pakai default 8 jam",
+			"periods_empty": "Belum ada jam pelajaran.",
+			"period": "Jam {no}",
+			"period_start": "Mulai jam {no}",
+			"period_end": "Selesai jam {no}",
+			"period_add": "Tambah jam",
+			"save_periods": "Simpan jam",
+			"grid_no_periods": "Atur jam pelajaran dulu.",
+			"grid_no_assignments": "Kelas ini belum punya penugasan mengajar.",
+			"grid_note": "Pilihan diambil dari penugasan mengajar kelas ini.",
+			"grid_period": "JAM",
+			"grid_cell": "{day} jam {no}",
+			"coach": "Pembina: {name}",
+			"coach_label": "Pembina",
+			"coach_none": "— Tanpa pembina —",
+			"extras_empty": "Belum ada kegiatan ekstrakurikuler.",
+			"extra_ph": "Nama kegiatan, mis. Pramuka",
+			"extra_add": "Tambah",
+			"extra_name_required": "Isi nama kegiatan",
+			"saved": "Tersimpan",
+			"autosaved": "Perubahan tersimpan otomatis",
+			"done": "Selesai"
+		},
+		"setup": {
+			"title": "Lengkapi data sekolah",
+			"progress": "{done}/{total} bagian",
+			"save_later": "Simpan & lanjut nanti",
+			"to_home": "Ke Beranda",
+			"required_eyebrow": "DATA WAJIB · {step} DARI 5",
+			"required_desc": "Lima bagian ini dibutuhkan sebelum guru dan murid bisa memakai FLIXARE. Progres tersimpan otomatis.",
+			"steps_label": "Langkah data wajib",
+			"step_current": "Sedang diisi",
+			"step_locked": "Belum dibuka",
+			"step_open": "Belum selesai",
+			"later_title": "Data menyusul",
+			"later_sub": "7 bagian · guru, murid, jadwal, dll.",
+			"step_desc_profile": "Identitas resmi untuk kop rapor dan dokumen sekolah.",
+			"step_desc_curriculum": "Menentukan fase capaian, template mapel, dan format rapor.",
+			"step_desc_year": "Semua kelas, nilai, presensi, dan rapor terikat ke tahun ajaran dan semester aktif.",
+			"step_desc_classes": "Atur jumlah rombongan belajar per tingkat. Nama kelas dibuat otomatis dan bisa diimpor.",
+			"step_desc_subjects": "Mulai dari template nasional, lalu sesuaikan dengan sekolah.",
+			"step_table_profile": "school_profile_m",
+			"step_table_curriculum": "curriculum_g → institution",
+			"step_table_year": "academic_year_m · semester_m",
+			"step_table_classes": "grade_level_m · class_m",
+			"step_table_subjects": "subject_catalog_g → subject_m",
+			"step_table_teachers": "teacher_m",
+			"step_table_students": "student_m · guardian_m · student_guardian_m",
+			"step_table_assign": "teaching_assignment_m · class_homeroom_m",
+			"step_table_objectives": "learning_objective_m",
+			"step_table_assess": "assessment_type_m · grading_policy_m",
+			"step_table_schedule": "lesson_period_m · lesson_schedule_m",
+			"step_table_extras": "extracurricular_m",
+			"locked_name": "Nama sekolah",
+			"locked_npsn": "NPSN",
+			"locked_level": "Jenjang",
+			"locked_timezone": "Zona waktu",
+			"locked_note": "Diambil dari pendaftaran tenant. Perubahan diajukan ke platform lewat Pengaturan.",
+			"address": "Alamat sekolah",
+			"address_ph": "Jalan, nomor, kelurahan",
+			"district": "Kecamatan",
+			"district_empty": "Daftar kecamatan mengikuti kota pada pendaftaran.",
+			"accreditation": "Akreditasi",
+			"accreditation_none": "Belum",
+			"principal": "Nama kepala sekolah",
+			"principal_ph": "Beserta gelar",
+			"principal_nip": "NIP kepala sekolah",
+			"principal_nip_ph": "18 digit",
+			"principal_nip_note": "Opsional · tampil di tanda tangan rapor",
+			"logo": "Logo sekolah",
+			"logo_note": "Tampil di kop rapor. PNG/JPG persegi, maks. 1 MB. Bisa menyusul.",
+			"logo_pick": "Pilih file",
+			"logo_invalid": "Logo harus PNG/JPG maks. 1 MB.",
+			"logo_saved": "Logo tersimpan",
+			"curriculum_desc_KM": "Capaian per fase, asesmen formatif & sumatif, rapor dengan deskripsi capaian. Disarankan sesuai Panduan Pembelajaran dan Asesmen.",
+			"curriculum_desc_K13": "Kurikulum 2013 dengan kompetensi inti dan dasar.",
+			"phases_title": "Fase capaian untuk jenjang {level}",
+			"phase": "Fase {code}",
+			"grade_single": "Kelas {grade}",
+			"grade_range": "Kelas {from}–{to}",
+			"year_name": "Nama tahun ajaran",
+			"start": "Mulai",
+			"end": "Selesai",
+			"term_odd": "Semester ganjil",
+			"term_even": "Semester genap",
+			"term_active": "Aktif",
+			"term_make_active": "Jadikan aktif",
+			"term_note": "Hanya satu semester aktif. Tanggal presensi dan tenggat tugas dihitung dalam zona waktu sekolah ({tz}).",
+			"pattern": "Pola nama",
+			"import_classes": "Impor kelas",
+			"grade_label": "Kelas {grade}",
+			"grade_sub": "Fase {phase} · {count} rombel",
+			"capacity": "Kapasitas",
+			"group_dec": "Kurangi rombel",
+			"group_inc": "Tambah rombel",
+			"grade_none": "Tidak ada kelas di tingkat ini.",
+			"classes_note": "{count} kelas akan dibuat untuk tahun ajaran {year}. Kapasitas dipakai sebagai peringatan, bukan batas keras.",
+			"classes_required": "Buat minimal satu kelas.",
+			"subjects_intro": "Template {curriculum} · {level}. Centang yang diajarkan, atur KKTP default bila perlu.",
+			"subjects_all": "Pilih semua",
+			"subjects_none": "Kosongkan semua",
+			"import_subjects": "Impor mapel",
+			"col_code": "KODE",
+			"col_subject": "MATA PELAJARAN",
+			"custom_badge": "SEKOLAH",
+			"custom_code": "Kode",
+			"custom_name": "Mapel khas sekolah, mis. Bahasa Mandarin",
+			"custom_add": "Tambah",
+			"custom_invalid": "Isi kode (huruf/angka 2–20) dan nama mapel.",
+			"subjects_note": "{count} mapel dipilih. KKTP bisa diubah per tujuan pembelajaran nanti.",
+			"subjects_required": "Pilih minimal satu mapel.",
+			"back": "Kembali",
+			"autosave": "Progres tersimpan otomatis",
+			"saved_status": "Tersimpan · lanjutkan kapan saja",
+			"save": "Simpan",
+			"save_next": "Simpan & lanjut",
+			"finish_required": "Selesaikan data wajib",
+			"required_complete": "Data wajib lengkap. Sekolah siap dipakai.",
+			"checklist_title": "Data wajib lengkap. Sekolah siap dipakai.",
+			"checklist_sub": "Lanjutkan bagian di bawah sekarang atau kapan saja dari Beranda. Mulai dari guru dan murid agar akun bisa segera diundang.",
+			"all_done_title": "Semua data sekolah lengkap",
+			"all_done_sub": "Guru, murid, dan orang tua sudah bisa memakai seluruh fitur.",
+			"go_home": "Masuk ke Beranda",
+			"later_heading": "Bisa menyusul",
+			"later_count": "{done} dari {total} selesai · urutan disarankan",
+			"proposal": "USULAN TAMBAHAN SAD",
+			"st_done": "Selesai",
+			"st_locked": "Terkunci",
+			"st_todo": "Belum",
+			"needs_teachers": "Butuh data Guru terlebih dahulu",
+			"import": "Impor",
+			"manage": "Kelola",
+			"required_heading": "Data wajib",
+			"edit": "Ubah"
+		},
+		"invite_page": {
+			"heading": "Aktifkan akun FLIXARE",
+			"welcome": "Halo, {name}",
+			"intro": "Anda diundang ke {school} dengan email {email}. Buat kata sandi untuk mengaktifkan akun.",
+			"password": "Kata sandi baru",
+			"password_hint": "Minimal 8 karakter.",
+			"password_short": "Minimal 8 karakter.",
+			"confirm": "Ulangi kata sandi",
+			"mismatch": "Kata sandi tidak sama.",
+			"submit": "Aktifkan akun",
+			"expires": "Tautan berlaku sampai {date} dan hanya bisa dipakai sekali.",
+			"done_title": "Akun aktif",
+			"done_text": "Masuk dengan email {email} dan kata sandi baru Anda.",
+			"login": "Masuk",
+			"invalid_title": "Tautan undangan tidak berlaku",
+			"invalid_text": "Tautan sudah dipakai, kedaluwarsa (72 jam), atau tidak lengkap. Minta admin sekolah mengirim ulang undangan.",
+			"rate_limited_title": "Terlalu banyak percobaan"
+		},
+		"activate_page": {
+			"heading": "Aktivasi akun murid",
+			"intro": "Masukkan username dan kode aktivasi dari sekolah, lalu buat kata sandi.",
+			"username": "Username",
+			"code": "Kode aktivasi",
+			"code_hint": "8 karakter, berlaku 72 jam.",
+			"password": "Kata sandi baru",
+			"password_short": "Minimal 8 karakter.",
+			"confirm": "Ulangi kata sandi",
+			"mismatch": "Kata sandi tidak sama.",
+			"submit": "Aktifkan akun",
+			"done_title": "Akun aktif",
+			"done_text": "Masuk dengan username {username} dan kata sandi baru.",
+			"login": "Masuk",
+			"username_ph": "sekolah.242601"
+		},
+		"sections": {
+			"profile": {
+				"title": "Profil sekolah",
+				"why": "Kop dan identitas rapor.",
+				"count": "{label}",
+				"count_done": "Lengkap",
+				"count_todo": "Belum diisi"
+			},
+			"curriculum": {
+				"title": "Kurikulum",
+				"why": "Menentukan fase capaian dan template mapel.",
+				"count": "{label}",
+				"name_KM": "Kurikulum Merdeka",
+				"name_K13": "Kurikulum 2013",
+				"count_todo": "Belum dipilih"
+			},
+			"year": {
+				"title": "Tahun ajaran & semester",
+				"why": "Konteks kelas, nilai, presensi, dan rapor.",
+				"count": "{label}",
+				"count_todo": "Belum diisi"
+			},
+			"classes": {
+				"title": "Tingkat & kelas",
+				"why": "Rombongan belajar untuk murid dan jadwal.",
+				"count": "{classes} kelas · {grades} tingkat"
+			},
+			"subjects": {
+				"title": "Mata pelajaran",
+				"why": "Dasar penugasan mengajar, bank soal, dan rapor.",
+				"count": "{subjects} mapel"
+			},
+			"teachers": {
+				"title": "Guru",
+				"why": "Guru perlu akun sebelum mengajar dan mengisi presensi.",
+				"count": "{teachers} guru"
+			},
+			"students": {
+				"title": "Murid & orang tua",
+				"why": "Murid masuk kelas; orang tua memantau nilai dan presensi.",
+				"count": "{students} murid · {linked} terhubung orang tua"
+			},
+			"assign": {
+				"title": "Penugasan mengajar & wali kelas",
+				"why": "Dasar hak akses guru ke kelas dan rapor.",
+				"count": "{assignments} penugasan · {homerooms}/{classes} wali kelas"
+			},
+			"objectives": {
+				"title": "Tujuan pembelajaran",
+				"why": "Dipakai deskripsi capaian di rapor.",
+				"count": "{objectives} TP · {with}/{subjects} mapel"
+			},
+			"assess": {
+				"title": "Jenis asesmen & bobot",
+				"why": "Rumus nilai akhir.",
+				"count": "{types} jenis · bobot {weight}%"
+			},
+			"schedule": {
+				"title": "Jadwal pelajaran",
+				"why": "Jadwal harian guru dan murid.",
+				"count": "{periods} jam · {scheduled}/{classes} kelas terjadwal"
+			},
+			"extras": {
+				"title": "Ekstrakurikuler",
+				"why": "Muncul di rapor bagian ekstrakurikuler.",
+				"count": "{extras} kegiatan"
+			}
+		},
+		"activation": {
+			"title": "Aktifkan langganan",
+			"steps": "Langkah aktivasi",
+			"step_institution": "Data lembaga",
+			"step_plan": "Paket & kursi",
+			"step_payment": "Pembayaran",
+			"step_activation": "Aktivasi",
+			"heading": "Pilih paket untuk {school}",
+			"subheading": "Harga per murid per bulan, ditagih tahunan. Data selama trial tetap dipakai setelah aktif.",
+			"pending": "Invoice aktivasi {number} ({plan}, {seats} kursi, {total}) sudah terbit dan belum dibayar.",
+			"pending_pay": "Lanjutkan pembayaran",
+			"features": "Fitur",
+			"per_student_month": "/murid/bulan",
+			"included": "termasuk",
+			"not_included": "tidak termasuk",
+			"no_features": "Fitur paket belum diatur di Master Paket.",
+			"seats_title": "Kursi murid",
+			"seats_desc": "Menjadi batas murid aktif. Tambah kursi di tengah tahun ditagih prorata.",
+			"decrease": "Kurangi",
+			"increase": "Tambah",
+			"seats_value": "{seats} kursi",
+			"cell_hint": "1 kotak = {seats} kursi",
+			"groups_hint": "Cukup untuk ±{groups} rombel berisi {per} murid",
+			"seats_min": "Minimal {min} kursi · saat ini {students} murid aktif.",
+			"pay_title": "Metode pembayaran",
+			"pay_transfer": "Transfer bank",
+			"pay_transfer_desc": "Unggah bukti, diverifikasi tim keuangan. Cocok untuk pembayaran via bendahara.",
+			"pay_gateway": "Virtual account / QRIS",
+			"pay_gateway_desc": "Terverifikasi otomatis melalui payment gateway.",
+			"pay_gateway_off": "Payment gateway belum dikonfigurasi platform.",
+			"receipt_title": "RINCIAN LANGGANAN",
+			"r_plan": "Paket",
+			"r_price": "Harga/murid",
+			"r_seats": "Kursi",
+			"r_months": "Bulan",
+			"r_monthly": "Per bulan",
+			"r_subtotal": "Subtotal",
+			"r_tax": "PPN 11%",
+			"r_tax_incl": "PPN (termasuk)",
+			"r_total": "TOTAL/TAHUN",
+			"free_months": "Termasuk gratis {months} bulan.",
+			"trial_label": "TRIAL",
+			"trial_until": "berakhir {date}",
+			"period_note": "Masa langganan 12 bulan dihitung sejak invoice lunas. Sisa hari trial tidak dipindahkan.",
+			"submit": "Bayar & aktifkan",
+			"submit_replace": "Ganti pilihan & terbitkan ulang",
+			"submit_note": "Invoice aktivasi terbit dan langsung bisa dibayar. Status sekolah menjadi aktif setelah lunas.",
+			"replace_note": "Invoice aktivasi sebelumnya akan dibatalkan dan diganti invoice baru.",
+			"not_eligible_title": "Langganan sudah aktif",
+			"not_eligible_desc": "Aktivasi hanya untuk sekolah yang masih trial atau trial berakhir. Kelola kursi di menu Langganan.",
+			"to_subscription": "Ke Langganan"
+		},
+		"invite_job": {
+			"title": "Mengirim undangan massal",
+			"title_done": "Undangan massal selesai diproses",
+			"note": "Proses berjalan di latar belakang dan progres diperbarui otomatis. Anda boleh tetap bekerja di halaman ini.",
+			"note_done": "Daftar akun sudah diperbarui sesuai hasil undangan.",
+			"queued_toast": "{count} akun masuk antrean undangan. Progres tampil di halaman ini.",
+			"stat_queued": "Undangan dalam antrean",
+			"progress_label": "Progres undangan {kind}",
+			"progress": "{done} dari {total} akun",
+			"count_sent": "{count} terkirim",
+			"count_linked": "{count} tertaut",
+			"count_skipped": "{count} dilewati",
+			"count_failed": "{count} gagal",
+			"failed_note": "Proses undangan berhenti sebelum selesai. Kirim ulang undangan dari daftar untuk akun yang belum diundang.",
+			"poll_error": "Progres belum bisa dimuat ({message}). Mencoba lagi otomatis…",
+			"codes_note": "Kode aktivasi dari proses ini masih dapat dilihat selama 72 jam.",
+			"kind": {
+				"teachers": "Guru",
+				"students": "Murid",
+				"guardians": "Wali murid",
+				"generic": "Akun"
+			},
+			"status": {
+				"queued": "Menunggu antrean",
+				"running": "Sedang diproses",
+				"succeeded": "Selesai",
+				"failed": "Gagal"
+			},
+			"poll_stopped": "Progres belum bisa dimuat ({message}). Muat ulang halaman untuk melihat status terbaru."
+		},
+		"audit": {
+			"eyebrow": "ADMIN SEKOLAH",
+			"title": "Riwayat perubahan",
+			"desc": "Jejak perubahan penting di sekolah: penghapusan dan penonaktifan data, undangan akun, serta alur rapor.",
+			"category_label": "Kategori riwayat",
+			"category": {
+				"all": "Semua",
+				"person": "Data guru & murid",
+				"guardian": "Wali murid",
+				"account": "Undangan akun",
+				"report": "Rapor"
+			},
+			"from": "Dari tanggal",
+			"to": "Sampai tanggal",
+			"reset": "Atur ulang filter",
+			"range_invalid": "Tanggal awal tidak boleh setelah tanggal akhir.",
+			"today": "Hari ini",
+			"yesterday": "Kemarin",
+			"by": "Oleh {actor} · {time}",
+			"system": "Sistem",
+			"load_more": "Muat lebih banyak",
+			"loading": "Memuat…",
+			"end": "Semua riwayat sudah ditampilkan.",
+			"empty_title": "Belum ada riwayat perubahan",
+			"empty_desc": "Perubahan penting seperti penghapusan data, undangan akun, dan proses rapor akan tercatat di sini.",
+			"empty_filtered_title": "Tidak ada riwayat yang cocok",
+			"empty_filtered_desc": "Ubah kategori atau rentang tanggal untuk melihat riwayat lainnya.",
+			"entity": {
+				"teacher": "guru",
+				"student": "murid",
+				"guardian": "wali murid",
+				"teachers": "guru",
+				"students": "murid",
+				"guardians": "wali murid",
+				"class": "kelas",
+				"generic": "data"
+			},
+			"action": {
+				"person": {
+					"delete": "Menghapus data {entity} {subject}",
+					"deactivate": "Menonaktifkan {entity} {subject}",
+					"reactivate": "Mengaktifkan kembali {entity} {subject}"
+				},
+				"guardian": {
+					"unlink": "Melepas tautan wali murid {subject} dari {student}"
+				},
+				"account": {
+					"invite": "Mengirim undangan akun {entity}"
+				},
+				"report": {
+					"grades_lock": "Mengunci nilai {subject_name} kelas {subject}",
+					"submit": "Mengajukan rapor kelas {subject}",
+					"approve": "Menyetujui rapor kelas {subject}",
+					"return": "Mengembalikan rapor kelas {subject} untuk diperbaiki",
+					"lock": "Mengunci rapor kelas {subject}",
+					"unlock": "Membuka kunci rapor kelas {subject}",
+					"notify_failed": "Notifikasi rapor kelas {subject} gagal terkirim"
+				},
+				"generic": "Aktivitas {action} pada {subject}"
+			},
+			"detail": {
+				"nip": "NIP {value}",
+				"nis": "NIS {value}",
+				"version": "Versi {value}",
+				"students": "{value} murid",
+				"reason": "Alasan: {value}",
+				"sent": "{count} terkirim",
+				"linked": "{count} tertaut",
+				"codes": "{count} kode aktivasi",
+				"skipped": "{count} dilewati",
+				"failed": "{count} gagal"
+			}
+		}
+	},
+	"payments": {
+		"eyebrow": "KEUANGAN · PEMBAYARAN",
+		"title": "Pembayaran",
+		"desc": "Verifikasi bukti transfer dan catat pembayaran manual. VA dan QRIS terverifikasi otomatis.",
+		"new": "Catat pembayaran",
+		"load_failed": "Data pembayaran belum bisa dimuat",
+		"search": "Cari tenant, invoice, referensi",
+		"tabs": "Filter status",
+		"tab": {
+			"pending": "Verifikasi · {count}",
+			"all": "Semua · {count}",
+			"succeeded": "Terverifikasi · {count}",
+			"failed": "Ditolak · {count}"
+		},
+		"status": {
+			"pending": "PERLU VERIFIKASI",
+			"succeeded": "TERVERIFIKASI",
+			"failed": "DITOLAK",
+			"refunded": "DIKEMBALIKAN",
+			"expired": "KEDALUWARSA"
+		},
+		"channel": {
+			"transfer": "Transfer bank",
+			"va": "Virtual account",
+			"qris": "QRIS",
+			"cash": "Tunai / cek",
+			"va_bank": "VA {bank}"
+		},
+		"empty": "Tidak ada pembayaran di sini.",
+		"no_selection_title": "Pilih pembayaran",
+		"no_selection_desc": "Belum ada pembayaran untuk ditinjau.",
+		"auto_gateway": "Otomatis · payment gateway",
+		"compare": {
+			"remaining": "Sisa tagihan",
+			"paid": "Dibayar",
+			"diff": "Selisih"
+		},
+		"diff": {
+			"exact": "Jumlah pas dengan sisa tagihan. Invoice menjadi lunas setelah diverifikasi.",
+			"short": "Kurang {amount}. Bila diverifikasi, dicatat sebagai pembayaran sebagian dan invoice tetap terbuka.",
+			"over": "Lebih {amount} dari sisa tagihan. Kelebihan bayar tidak dapat dicatat — tolak dan minta tenant mengirim nominal yang sesuai.",
+			"verified_by": "Diverifikasi oleh {by} · {at}.",
+			"rejected": "Ditolak: {reason} · {by}."
+		},
+		"proof": {
+			"title": "Bukti pembayaran",
+			"gateway": "Pembayaran {method} tidak memerlukan bukti; dikonfirmasi oleh payment gateway.",
+			"none": "Pembayaran ini tidak memiliki bukti terlampir."
+		},
+		"detail": {
+			"title": "Detail transfer",
+			"method": "Metode",
+			"time": "Waktu",
+			"sender": "Pengirim",
+			"reference": "Referensi",
+			"invoice": "Invoice",
+			"due": "Jatuh tempo"
+		},
+		"mutation": {
+			"unchecked": "Belum dicek di mutasi rekening",
+			"checked": "Sudah dicek di mutasi rekening · {by} · {at}",
+			"mark": "Tandai sudah dicek"
+		},
+		"action": {
+			"title": "Tindakan",
+			"verify": "Verifikasi",
+			"verify_sub": "Catat ke invoice",
+			"reject": "Tolak",
+			"reject_sub": "Minta tenant kirim ulang",
+			"verify_ready": "Mutasi sudah dicek. Aman untuk diverifikasi.",
+			"verify_hint": "Disarankan cek mutasi rekening dulu sebelum memverifikasi.",
+			"go_verify": "Verifikasi pembayaran",
+			"go_reject": "Tolak pembayaran"
+		},
+		"reject": {
+			"title": "Alasan penolakan",
+			"unreadable": "Bukti tidak terbaca",
+			"amount_mismatch": "Jumlah tidak sesuai",
+			"not_in_statement": "Tidak ada di mutasi",
+			"wrong_account": "Rekening tujuan salah",
+			"required": "Pilih alasan penolakan",
+			"hint": "Alasan dikirim ke email PIC tenant."
+		},
+		"bar": {
+			"paid": "Invoice akan berstatus Lunas",
+			"partial": "Dicatat sebagai pembayaran sebagian",
+			"reject": "Tenant diminta mengirim bukti baru"
+		},
+		"confirm": {
+			"verify_title": "Verifikasi {amount}?",
+			"verify_paid": "{invoice} akan ditandai lunas dan kuitansi dikirim ke tenant.",
+			"verify_partial": "Dicatat sebagai pembayaran sebagian. Sisa {left} tetap ditagihkan.",
+			"reject_title": "Tolak pembayaran ini?",
+			"reject_message": "Tenant menerima email untuk mengirim ulang bukti. Invoice tetap belum dibayar.",
+			"tenant": "Tenant",
+			"invoice": "Invoice",
+			"reason": "Alasan",
+			"verify_label": "Ya, verifikasi",
+			"reject_label": "Ya, tolak",
+			"busy": "Memproses…"
+		},
+		"toast": {
+			"verified_paid": "Pembayaran diverifikasi. {invoice} lunas.",
+			"verified_partial": "Pembayaran diverifikasi. Sisa tagihan {left}.",
+			"rejected": "Pembayaran ditolak. Email dikirim ke tenant.",
+			"mutation": "Ditandai sudah dicek di mutasi rekening.",
+			"recorded": "Pembayaran {amount} dicatat untuk {invoice}."
+		},
+		"form": {
+			"title": "Catat pembayaran manual",
+			"sub": "Untuk transfer yang dikonfirmasi di luar sistem",
+			"invoice": "Invoice yang dibayar",
+			"no_invoices": "Tidak ada invoice yang belum dibayar.",
+			"left_of": "sisa dari {total}",
+			"unpaid": "belum dibayar",
+			"amount": "Jumlah diterima",
+			"full": "Bayar penuh",
+			"amount_hint": "Sesuai nominal di bukti transfer",
+			"amount_full": "Lunas setelah disimpan",
+			"amount_left": "Sisa setelah pembayaran {left}",
+			"date": "Tanggal diterima",
+			"method": "Metode",
+			"bank_account": "Rekening tujuan",
+			"sender": "Bank pengirim",
+			"sender_ph": "mis. BRI a.n. Yayasan Bina Ilmu",
+			"ref": "No. referensi",
+			"ref_ph": "Nomor transaksi di bukti",
+			"proof": "Bukti",
+			"proof_hint": "(JPG, PNG, PDF · maks. 5 MB)",
+			"file_ph": "Seret berkas ke sini atau pilih dari perangkat",
+			"pick": "Pilih berkas",
+			"bar_info": "Pembayaran manual langsung berstatus terverifikasi",
+			"bar_errors": "{count} isian perlu diperbaiki",
+			"cancel": "Batal",
+			"save": "Simpan & verifikasi",
+			"err_inv": "Pilih invoice yang dibayar.",
+			"err_amount": "Isi jumlah yang diterima.",
+			"err_amount_over": "Melebihi sisa tagihan {left}.",
+			"err_date": "Isi tanggal.",
+			"err_date_future": "Tanggal tidak boleh di masa depan.",
+			"err_bank_account": "Pilih rekening tujuan.",
+			"err_sender": "Isi bank dan nama pengirim.",
+			"err_ref": "Isi nomor referensi.",
+			"err_file": "Lampirkan bukti transfer.",
+			"err_file_invalid": "Berkas harus PDF, PNG, atau JPG maks. 5 MB.",
+			"checked": "Sudah dicek di mutasi rekening",
+			"checked_hint": "Bukti boleh dikosongkan; nama Anda dan waktunya dicatat sebagai pemeriksa.",
+			"optional": "opsional"
+		},
+		"failure": {
+			"unauthenticated": "Sesi berakhir. Silakan masuk kembali.",
+			"forbidden": "Akun ini tidak memiliki akses keuangan.",
+			"not_found": "Data tidak ditemukan.",
+			"conflict": "Data berubah. Muat ulang halaman.",
+			"validation": "Permintaan tidak valid.",
+			"gone": "Data sudah tidak tersedia.",
+			"too_many": "Terlalu banyak permintaan.",
+			"unavailable": "Layanan sedang tidak tersedia."
+		},
+		"errors": {
+			"generic": "Aksi belum berhasil. Coba lagi.",
+			"amount_exceeds_remaining": "Nominal melebihi sisa tagihan.",
+			"amount_invalid": "Nominal tidak valid.",
+			"required": "Isian wajib belum lengkap.",
+			"proof_invalid": "Berkas bukti tidak valid.",
+			"invalid": "Isian tidak valid.",
+			"invalid_transition": "Status pembayaran sudah berubah. Muat ulang halaman.",
+			"not_found": "Data tidak ditemukan.",
+			"min_length": "Alasan terlalu pendek.",
+			"invalid_request": "Permintaan tidak valid.",
+			"internal_error": "Terjadi kesalahan pada server.",
+			"unavailable": "Layanan sedang tidak tersedia.",
+			"invoice_partially_paid": "Invoice sudah menerima pembayaran sehingga tidak bisa dibatalkan."
+		}
+	},
+	"grades": {
+		"kkm": "KKM {value}",
+		"filled_of": "{filled}/{total}",
+		"list": {
+			"eyebrow": "GURU MAPEL · NILAI AKHIR",
+			"eyebrow_term": "NILAI AKHIR · SEMESTER {term} · {year}",
+			"title": "Nilai akhir rapor",
+			"desc": "Isi nilai akhir dan deskripsi capaian setiap murid per kelas dan mapel yang Anda ampu, lalu kunci nilai agar bisa dipakai wali kelas untuk rapor.",
+			"locked_summary": "{locked}/{total} terkunci",
+			"no_semester_title": "Belum ada semester aktif",
+			"no_semester_desc": "Nilai akhir bisa diisi setelah admin sekolah mengaktifkan tahun ajaran dan semester.",
+			"empty_title": "Belum ada penugasan mengajar",
+			"empty_desc": "Anda belum ditugaskan mengajar kelas dan mapel pada semester ini. Hubungi admin sekolah bila seharusnya sudah ada.",
+			"progress_locked": "Terkunci",
+			"progress_ready": "Siap dikunci",
+			"progress_partial": "Sebagian",
+			"progress_empty": "Belum diisi",
+			"filled_label": "Progres nilai {subject} kelas {class}",
+			"open": "Isi nilai",
+			"view": "Lihat nilai"
+		},
+		"sheet": {
+			"title": "Lembar nilai",
+			"page_title": "Nilai {subject} · {class}",
+			"back": "Kembali ke daftar",
+			"not_found_title": "Lembar nilai tidak ditemukan",
+			"not_found_desc": "Penugasan ini tidak ada atau bukan milik Anda pada semester aktif.",
+			"eyebrow": "NILAI AKHIR · KELAS {class}",
+			"desc": "Isi nilai 0–100 (boleh desimal) dan deskripsi capaian maksimal {max} karakter. Nilai bisa disimpan sebagian, lalu dikunci setelah semua murid lengkap.",
+			"desc_locked": "Nilai sudah dikunci dan hanya dapat dilihat.",
+			"stat_kkm": "KKM",
+			"stat_filled": "Nilai terisi",
+			"stat_below": "Di bawah KKM",
+			"locked_title": "Nilai terkunci.",
+			"locked_desc": "Perubahan hanya bisa dilakukan setelah kepala sekolah membuka kunci.",
+			"report_status": "Rapor kelas: {status}",
+			"students_title": "Daftar murid ({count})",
+			"hint": "Nilai dibulatkan ke 2 angka desimal.",
+			"no_students": "Belum ada murid aktif di kelas ini.",
+			"col_student": "Murid",
+			"col_score": "Nilai akhir",
+			"col_description": "Deskripsi capaian",
+			"nis": "NIS {nis}",
+			"score_ph": "0–100",
+			"score_of": "Nilai akhir {name}",
+			"below_kkm": "Di bawah KKM ({kkm})",
+			"description_ph": "Tuliskan capaian kompetensi murid…",
+			"description_of": "Deskripsi capaian {name}",
+			"description_needs_score": "Deskripsi ikut tersimpan setelah nilai diisi.",
+			"char_count": "{count}/{max}",
+			"progress": "{filled}/{total} murid sudah dinilai",
+			"below_count": "{count} di bawah KKM",
+			"unsaved": "Ada perubahan yang belum disimpan.",
+			"all_saved": "Semua perubahan sudah tersimpan.",
+			"save": "Simpan",
+			"lock": "Kunci nilai",
+			"locking": "Mengunci…",
+			"lock_title": "Kunci nilai akhir?",
+			"lock_message": "Nilai {subject} kelas {class} akan dikunci dan dipakai untuk rapor. Setelah dikunci, Anda tidak bisa mengubahnya lagi; hanya kepala sekolah yang dapat membuka kunci.",
+			"lock_detail_students": "Murid lengkap",
+			"fix_errors": "Perbaiki isian yang ditandai sebelum menyimpan.",
+			"nothing_to_save": "Belum ada nilai yang diisi untuk disimpan.",
+			"saved": "Nilai {count} murid tersimpan",
+			"lock_incomplete": "Lengkapi nilai dan deskripsi {count} murid sebelum mengunci.",
+			"locked_toast": "Nilai {subject} kelas {class} terkunci"
+		},
+		"issue": {
+			"score_score_range": "Nilai harus 0–100.",
+			"score_required": "Nilai wajib diisi.",
+			"description_max_length": "Maksimal {max} karakter.",
+			"description_required": "Deskripsi wajib diisi.",
+			"generic": "Isian tidak valid."
+		},
+		"errors": {
+			"score_range": "Ada nilai di luar rentang 0–100.",
+			"max_length": "Ada deskripsi yang melebihi 500 karakter.",
+			"required": "Lengkapi nilai dan deskripsi seluruh murid sebelum mengunci.",
+			"no_students": "Belum ada murid aktif di kelas ini, nilai tidak bisa dikunci.",
+			"invalid_transition": "Nilai sudah terkunci dan tidak bisa diubah. Hubungi kepala sekolah untuk membuka kunci.",
+			"semester_required": "Belum ada semester aktif."
+		}
+	},
+	"homeroom_report": {
+		"eyebrow": "WALI KELAS · RAPOR · SEMESTER {term} · {year}",
+		"eyebrow_plain": "WALI KELAS · RAPOR",
+		"title": "Rapor kelas {class}",
+		"title_plain": "Rapor kelas",
+		"desc_draft": "Tulis catatan wali kelas untuk setiap murid. Rapor bisa diajukan ke kepala sekolah setelah semua nilai mapel terkunci dan catatan lengkap.",
+		"desc_submitted": "Rapor sudah diajukan dan menunggu keputusan kepala sekolah.",
+		"desc_approved": "Rapor sudah disetujui kepala sekolah.",
+		"desc_locked": "Rapor sudah terkunci dan diterbitkan.",
+		"version": "v{version}",
+		"returned_title": "Rapor dikembalikan kepala sekolah",
+		"returned_by": "Dikembalikan oleh {name}",
+		"banner_submitted": "Rapor sedang ditinjau kepala sekolah. Catatan tidak bisa diubah kecuali rapor dikembalikan.",
+		"banner_approved": "Rapor sudah disetujui. Catatan dan nilai tidak bisa diubah lagi.",
+		"banner_locked": "Rapor sudah terkunci. Koreksi hanya bisa dilakukan setelah kepala sekolah membuka kunci.",
+		"checklist_title": "Kelengkapan rapor",
+		"check_subjects": "Nilai semua mapel terkunci",
+		"check_subjects_detail": "{locked}/{total} mapel terkunci",
+		"check_notes": "Catatan wali kelas lengkap",
+		"check_notes_detail": "{filled}/{total} murid sudah diberi catatan",
+		"check_attendance": "Rekap kehadiran",
+		"check_attendance_detail": "Dihitung otomatis dari presensi harian.",
+		"subjects_title": "Nilai mapel ({locked}/{total} terkunci)",
+		"no_teacher": "Guru belum ditetapkan",
+		"subject_locked": "Terkunci",
+		"subject_open": "Belum dikunci",
+		"no_subjects": "Belum ada mapel pada kelas ini.",
+		"timeline_title": "Riwayat pengajuan",
+		"timeline_submitted": "Diajukan",
+		"timeline_approved": "Disetujui",
+		"timeline_locked": "Terkunci",
+		"timeline_by": "{name} · {date}",
+		"timeline_waiting": "Menunggu",
+		"students_title": "Murid ({count})",
+		"attendance_legend": "S = sakit · I = izin · A = alpa",
+		"average": "Rata-rata {value}",
+		"attendance_title": "Sakit · izin · alpa (hari)",
+		"attendance_short": "S {sick} · I {permit} · A {absent}",
+		"scores_of": "Nilai mapel {name}",
+		"note_label": "Catatan wali kelas",
+		"note_ph": "Tuliskan catatan perkembangan dan sikap murid…",
+		"no_students": "Belum ada murid aktif di kelas ini.",
+		"notes_progress": "{filled}/{total} catatan terisi",
+		"hint_unsaved": "Simpan catatan untuk memperbarui kelengkapan rapor.",
+		"hint_subjects": "Rapor bisa diajukan setelah nilai semua mapel terkunci.",
+		"hint_notes": "Lengkapi catatan semua murid sebelum mengajukan.",
+		"hint_ready": "Semua komponen lengkap. Rapor siap diajukan.",
+		"save_notes": "Simpan catatan",
+		"submit": "Ajukan ke kepala sekolah",
+		"submitting": "Mengajukan…",
+		"submit_title": "Ajukan rapor ke kepala sekolah?",
+		"submit_message": "Rapor kelas {class} akan dikirim untuk ditinjau. Selama ditinjau, catatan tidak bisa diubah kecuali kepala sekolah mengembalikannya.",
+		"submit_detail_students": "Jumlah murid",
+		"submit_detail_subjects": "Mapel terkunci",
+		"fix_errors": "Perbaiki catatan yang ditandai sebelum menyimpan.",
+		"notes_saved": "Catatan wali kelas tersimpan",
+		"submitted_toast": "Rapor kelas {class} diajukan ke kepala sekolah",
+		"not_homeroom_title": "Anda belum menjadi wali kelas",
+		"not_homeroom_desc": "Rapor kelas disusun wali kelas pada tahun ajaran aktif. Hubungi admin sekolah bila seharusnya Anda wali kelas.",
+		"issue": {
+			"note_max_length": "Maksimal {max} karakter.",
+			"generic": "Isian tidak valid."
+		},
+		"errors": {
+			"max_length": "Ada catatan yang melebihi 1000 karakter.",
+			"subjects_not_locked": "Masih ada mapel yang nilainya belum dikunci.",
+			"notes_incomplete": "Catatan wali kelas belum lengkap untuk semua murid.",
+			"invalid_transition": "Rapor sudah diajukan sehingga tidak bisa diubah. Muat ulang halaman untuk melihat status terbaru.",
+			"semester_required": "Belum ada semester aktif."
+		},
+		"card": {
+			"title": "Rapor semester {term}",
+			"hint": "Tahun ajaran {year} · versi {version} · diajukan ke kepala sekolah",
+			"status_unavailable": "Belum tersedia",
+			"unavailable": "Status rapor belum bisa dimuat. Buka halaman rapor kelas untuk mencoba lagi.",
+			"msg_returned": "Rapor dikembalikan kepala sekolah. Periksa catatan pengembalian lalu ajukan ulang.",
+			"msg_approved": "Rapor sudah disetujui kepala sekolah.",
+			"msg_locked": "Rapor sudah terkunci dan diterbitkan.",
+			"open": "Buka rapor kelas",
+			"view": "Lihat rapor kelas"
+		}
+	},
+	"learner_reports": {
+		"eyebrow": "NILAI & RAPOR · {school}",
+		"title_student": "Rapor saya",
+		"title_parent": "Rapor anak",
+		"desc_student": "Lihat nilai akhir, capaian kompetensi, kehadiran, dan catatan wali kelas dari rapor yang sudah diterbitkan sekolah.",
+		"desc_parent": "Pantau rapor anak yang sudah diterbitkan sekolah: nilai akhir, capaian kompetensi, kehadiran, dan catatan wali kelas.",
+		"download": "Unduh PDF rapor",
+		"child_picker": "Pilih anak",
+		"semester_picker": "Pilih semester",
+		"semester_tab": "Semester {term} · {year}",
+		"identity": "NIS {nis}",
+		"identity_nisn": "NIS {nis} · NISN {nisn}",
+		"class_of": "Kelas {class}",
+		"current": {
+			"title": "Rapor semester {term} · {year}",
+			"desc_draft": "Guru mapel sedang melengkapi dan mengunci nilai akhir; wali kelas menyusun catatan.",
+			"desc_submitted": "Rapor sudah diajukan wali kelas dan sedang ditinjau kepala sekolah.",
+			"desc_approved": "Rapor sudah disetujui kepala sekolah dan segera diterbitkan.",
+			"desc_locked": "Rapor semester ini sudah terbit dan dapat dilihat di bawah."
+		},
+		"status": {
+			"draft": "Disusun",
+			"submitted": "Ditinjau",
+			"approved": "Disetujui",
+			"locked": "Terbit"
+		},
+		"step": {
+			"draft": "Nilai & catatan disusun",
+			"submitted": "Diajukan wali kelas",
+			"approved": "Disetujui kepala sekolah",
+			"locked": "Rapor terbit"
+		},
+		"stat": {
+			"average": "Rata-rata nilai",
+			"subjects": "Mata pelajaran",
+			"below_kkm": "Di bawah KKM",
+			"absent": "Ketidakhadiran"
+		},
+		"days": "{count} hari",
+		"subjects_title": "Nilai akhir & capaian kompetensi",
+		"score_aria": "Nilai {score}",
+		"kkm": "KKM {kkm}",
+		"below_kkm": "Di bawah KKM {kkm}",
+		"no_description": "Deskripsi capaian belum diisi.",
+		"no_subjects": "Rapor ini belum memuat nilai mata pelajaran.",
+		"attendance_title": "Ketidakhadiran",
+		"attendance": {
+			"sick": "Sakit",
+			"permit": "Izin",
+			"absent": "Tanpa keterangan"
+		},
+		"note_title": "Catatan wali kelas",
+		"no_note": "Tidak ada catatan.",
+		"note_by": "Wali kelas {name}",
+		"document_title": "Dokumen rapor",
+		"doc": {
+			"class": "Kelas",
+			"issued": "Diterbitkan",
+			"version": "Versi"
+		},
+		"version": "Versi {version}",
+		"pdf_missing": "PDF rapor belum tersedia. Hubungi admin sekolah.",
+		"no_report_title": "Belum ada rapor terbit",
+		"no_report_desc": "Rapor akan muncul di sini setelah disetujui dan diterbitkan sekolah.",
+		"empty_student_title": "Data murid belum tertaut",
+		"empty_student_desc": "Akun ini belum terhubung dengan data murid. Hubungi admin sekolah.",
+		"empty_children_title": "Belum ada anak yang tertaut",
+		"empty_children_desc": "Minta admin sekolah menautkan data anak ke akun orang tua Anda.",
+		"load_failed": "Rapor belum bisa dimuat",
+		"failure": {
+			"unauthenticated": "Sesi berakhir. Silakan masuk kembali.",
+			"forbidden": "Akun ini tidak memiliki akses ke rapor murid.",
+			"not_found": "Data rapor tidak ditemukan.",
+			"conflict": "Data sekolah belum siap. Coba lagi nanti.",
+			"validation": "Permintaan tidak valid.",
+			"gone": "Data sudah tidak tersedia.",
+			"too_many": "Terlalu banyak permintaan. Coba lagi sebentar.",
+			"unavailable": "Layanan sedang tidak tersedia."
+		}
+	},
+	"student_tasks": {
+		"hero": {
+			"eyebrow": "TUGAS & PENUGASAN",
+			"title": "Daftar Tugas & Proyek Kelas",
+			"desc": "Pantau jadwal tenggat waktu tugas, kumpulkan hasil pekerjaan rumah, dan lihat catatan koreksi serta nilai langsung dari guru kelasmu.",
+			"stat_total": "Total Tugas",
+			"stat_pending": "Perlu Dikerjakan",
+			"stat_submitted": "Menunggu Nilai",
+			"stat_graded": "Sudah Dinilai"
+		}
+	},
+	"help": {
+		"platform_tenant": {
+			"purpose": "Halaman ini menampilkan seluruh lembaga (tenant) yang sudah terdaftar di FLIXARE beserta status, identitas, langganan, dan pengaturan aksesnya, sehingga tim platform bisa memantau dan mengendalikan akses setiap sekolah.",
+			"features": {
+				"summary": "Melihat ringkasan jumlah tenant (total, aktif, perlu tindakan) di bagian atas halaman.",
+				"filter": "Menyaring daftar berdasarkan status: Semua, Aktif, Trial, atau Ditolak/Suspend.",
+				"search": "Mencari tenant berdasarkan nama atau kode tenant.",
+				"detail": "Melihat detail tenant: identitas lembaga, kontak PIC, langganan (paket, kursi, siklus tagihan), serta akses & domain.",
+				"access": "Menangguhkan tenant atau mengaktifkannya kembali."
+			},
+			"steps": {
+				"s1": "Pilih tab status atau ketik nama/kode tenant di kolom pencarian untuk menemukan lembaga.",
+				"s2": "Klik nama tenant di daftar kiri untuk membuka detailnya di panel kanan.",
+				"s3": "Periksa identitas, kontak PIC, dan data langganan tenant tersebut.",
+				"s4": "Untuk menghentikan akses, klik \"Tangguhkan...\" lalu konfirmasi. Untuk membuka kembali, klik \"Aktifkan...\" lalu konfirmasi."
+			},
+			"tips": {
+				"suspend": "Tenant yang ditangguhkan memblokir akses seluruh pengguna sekolah tersebut sampai diaktifkan kembali.",
+				"subdomain": "Subdomain terkunci setelah tenant aktif dan tidak bisa diubah dari halaman ini."
+			}
+		},
+		"school_admin_students": {
+			"purpose": "Halaman ini untuk mengelola data murid sekolah: identitas, kelas, orang tua yang terhubung, dan akun login murid. Jumlah murid aktif dihitung terhadap kursi langganan sekolah.",
+			"features": {
+				"add": "Menambah murid satu per satu atau mengimpor banyak murid sekaligus dari file Excel/CSV (data orang tua bisa ikut diimpor).",
+				"find": "Mencari murid berdasarkan nama, NIS, atau NISN, dan menyaring per kelas atau murid tanpa orang tua.",
+				"edit": "Mengubah data murid, memindahkan kelas, menghubungkan orang tua, serta menonaktifkan atau menghapus murid.",
+				"invite": "Mengundang murid agar memiliki akun: murid ber-email mendapat undangan email, murid tanpa email mendapat username dan kode aktivasi.",
+				"seats": "Memantau pemakaian kursi langganan dan menambah kursi bila penuh."
+			},
+			"steps": {
+				"s1": "Pastikan kelas sudah dibuat terlebih dahulu; tombol \"Tambah murid\" baru aktif bila sudah ada kelas.",
+				"s2": "Klik \"Tambah murid\" untuk input satu per satu, atau \"Impor Excel/CSV\" lalu unduh template, isi, dan unggah file.",
+				"s3": "Lengkapi isian bertanda * lalu klik \"Simpan\".",
+				"s4": "Buka data murid untuk menghubungkan orang tua bila belum terhubung.",
+				"s5": "Klik tombol undang untuk mengirim undangan akun ke murid yang belum diundang.",
+				"s6": "Bila muncul kode aktivasi, salin dan bagikan ke murid; kode hanya tampil sekali."
+			},
+			"tips": {
+				"seat_full": "Bila kursi penuh, murid baru ditolak sampai kursi ditambah lewat halaman langganan.",
+				"delete": "Murid hanya bisa dihapus bila belum punya presensi, nilai, atau rapor. Bila sudah, nonaktifkan saja.",
+				"inactive": "Murid nonaktif tidak dihitung sebagai kursi dan tidak bisa masuk.",
+				"code_expiry": "Kode aktivasi berlaku 72 jam."
+			}
+		},
+		"teacher_grades": {
+			"purpose": "Halaman ini menampilkan semua kelas dan mata pelajaran yang Anda ampu pada semester aktif, beserta progres pengisian nilai akhir rapor. Nilai yang sudah dikunci dipakai wali kelas untuk menyusun rapor.",
+			"features": {
+				"overview": "Melihat daftar penugasan mengajar (kelas × mapel) pada semester aktif.",
+				"progress": "Memantau progres tiap lembar nilai: Belum diisi, Sebagian, Siap dikunci, atau Terkunci.",
+				"fill": "Membuka lembar nilai untuk mengisi nilai akhir dan deskripsi capaian setiap murid.",
+				"lock": "Mengunci nilai setelah semua murid lengkap agar bisa dipakai untuk rapor."
+			},
+			"steps": {
+				"s1": "Pilih kelas dan mapel di daftar, lalu klik \"Isi nilai\".",
+				"s2": "Isi nilai akhir 0–100 (boleh desimal) dan deskripsi capaian untuk setiap murid.",
+				"s3": "Simpan perubahan; nilai boleh disimpan sebagian dan dilanjutkan nanti.",
+				"s4": "Setelah semua murid lengkap, kunci nilai.",
+				"s5": "Kembali ke daftar untuk memastikan status lembar nilai sudah \"Terkunci\"."
+			},
+			"tips": {
+				"semester": "Nilai baru bisa diisi setelah admin sekolah mengaktifkan tahun ajaran dan semester.",
+				"locked": "Nilai yang sudah dikunci tidak bisa diubah kecuali kepala sekolah membuka kuncinya.",
+				"assignment": "Bila daftar kosong, Anda belum ditugaskan mengajar pada semester ini. Hubungi admin sekolah."
+			}
+		},
+		"student_tasks": {
+			"purpose": "Halaman ini menampilkan semua tugas dan proyek dari guru-gurumu, lengkap dengan tenggat waktu, status pengumpulan, serta nilai dan catatan koreksi.",
+			"features": {
+				"summary": "Melihat ringkasan jumlah tugas: total, perlu dikerjakan, menunggu nilai, dan sudah dinilai.",
+				"filter": "Menyaring tugas berdasarkan mata pelajaran dan status.",
+				"search": "Mencari tugas berdasarkan judul, instruksi, mapel, atau nama guru.",
+				"detail": "Membuka detail tugas untuk membaca instruksi dan mengumpulkan jawaban.",
+				"feedback": "Melihat nilai dan catatan koreksi dari guru untuk tugas yang sudah dinilai."
+			},
+			"steps": {
+				"s1": "Gunakan filter mapel atau status \"Perlu Dikerjakan\" untuk melihat tugas yang belum selesai.",
+				"s2": "Klik kartu tugas untuk membuka detail dan membaca instruksinya.",
+				"s3": "Lampirkan file jawaban dan tambahkan catatan bila perlu.",
+				"s4": "Kirim tugas sebelum tenggat waktu; statusnya berubah menjadi \"Dikumpulkan\".",
+				"s5": "Cek kembali tab \"Selesai Dinilai\" untuk melihat nilai dan catatan guru."
+			},
+			"tips": {
+				"deadline": "Perhatikan tanggal tenggat di setiap kartu tugas agar tidak terlambat mengumpulkan."
+			}
+		},
+		"platform_audit_log": {
+			"purpose": "Halaman ini menampilkan catatan setiap perubahan di konsol platform (pengajuan, tenant, invoice, pembayaran, cluster, paket, autentikasi, master data, dan navigasi) agar tim platform bisa menelusuri siapa melakukan apa dan kapan. Catatan tidak bisa diubah atau dihapus.",
+			"features": {
+				"filter": "Menyaring catatan berdasarkan kata kunci, pelaku, rentang tanggal, modul, tingkat, atau hanya yang gagal.",
+				"detail": "Melihat detail catatan: perubahan sebelum/sesudah, catatan, waktu WIB, alamat IP, perangkat, dan ID permintaan.",
+				"chain": "Memeriksa status rantai hash yang memastikan catatan tidak diubah.",
+				"export": "Mengekspor catatan sesuai filter ke CSV."
+			},
+			"steps": {
+				"s1": "Atur filter di kartu atas; daftar langsung diperbarui dan filter tersimpan di alamat halaman.",
+				"s2": "Klik baris catatan untuk membuka detailnya di panel kanan.",
+				"s3": "Klik \"Muat 10 lagi\" untuk melihat catatan yang lebih lama.",
+				"s4": "Klik \"Aktivitas pelaku ini\" untuk melihat aktivitas pelaku yang sama selama 30 hari terakhir.",
+				"s5": "Klik \"Ekspor CSV\" untuk mengunduh catatan sesuai filter."
+			},
+			"tips": {
+				"retention": "Catatan disimpan 2 tahun, lalu dihapus otomatis oleh proses retensi.",
+				"export": "Ekspor juga tercatat di audit log."
+			}
+		},
+		"platform_clusters": {
+			"purpose": "Halaman ini untuk tim infrastruktur platform mengelola cluster PostgreSQL tempat database setiap tenant dibuat: koneksi, kapasitas, status penerimaan, dan kebijakan backup.",
+			"features": {
+				"cards": "Memantau kapasitas setiap cluster (database terpakai dari maksimum) lewat kartu di bagian atas.",
+				"test": "Menguji koneksi nyata ke cluster dan melihat versi PostgreSQL, latensi, serta penggunaan SSL.",
+				"capacity": "Mengatur maksimum database tenant, pool koneksi per database, dan ambang peringatan kapasitas.",
+				"status": "Mengatur status penerimaan: \"Menerima tenant\", \"Drain\", atau \"Pemeliharaan\".",
+				"backup": "Mengatur jadwal snapshot, retensi, dan point-in-time recovery, serta melihat snapshot terakhir.",
+				"dbs": "Melihat database tenant terbesar di cluster terpilih."
+			},
+			"steps": {
+				"s1": "Klik kartu cluster untuk membuka pengaturannya, atau klik \"Cluster baru\" untuk menambah cluster.",
+				"s2": "Isi host, port, user admin, kata sandi, dan mode SSL, lalu klik \"Uji koneksi\".",
+				"s3": "Atur kapasitas, backup, dan status penerimaan sesuai kebutuhan.",
+				"s4": "Klik \"Simpan perubahan\" (atau \"Tambahkan cluster\") pada bar bawah; klik \"Batalkan\" untuk mengembalikan isian."
+			},
+			"tips": {
+				"test": "Cluster baru hanya bisa disimpan setelah uji koneksi berhasil; server juga menguji ulang saat koneksi diubah.",
+				"maintenance": "Status \"Pemeliharaan\" langsung memutus akses semua tenant di cluster tersebut dan admin tenant diberi tahu via email.",
+				"full": "Status \"Penuh\" dihitung otomatis saat database terpakai mencapai maksimum.",
+				"password": "Kata sandi admin disimpan terenkripsi dan tidak pernah ditampilkan; kosongkan bila tidak diganti."
+			}
+		},
+		"school_admin_dashboard": {
+			"purpose": "Halaman ini adalah ringkasan harian admin sekolah: kelengkapan data sekolah, presensi hari ini, alur rapor, kursi langganan, dan daftar hal yang perlu ditindaklanjuti. Seluruh angka diambil dari data sekolah Anda.",
+			"features": {
+				"setup": "Memantau kelengkapan data sekolah dan melanjutkan pengisian bagian yang belum lengkap.",
+				"attendance": "Melihat denah presensi hari ini per kelas, lalu memilih kelas untuk melihat murid yang sakit, izin, atau alpa.",
+				"remind": "Mengingatkan wali kelas yang belum mengisi presensi hari ini.",
+				"reports": "Memantau alur rapor semester aktif, dari nilai terkunci hingga PDF terbit.",
+				"seats": "Memantau pemakaian kursi murid, murid dan guru aktif 7 hari, serta penyimpanan.",
+				"follow_up": "Membuka langsung halaman terkait dari daftar \"Perlu ditindaklanjuti\"."
+			},
+			"steps": {
+				"s1": "Bila muncul kartu kelengkapan data, klik \"Lanjutkan data wajib\" atau \"Lanjutkan pengisian\", atau klik nama bagian yang belum diisi.",
+				"s2": "Gunakan \"Impor murid\" atau \"Undang guru\" di banner untuk menambah data dengan cepat.",
+				"s3": "Pada \"Denah presensi · hari ini\", klik kotak kelas untuk melihat rincian kehadiran kelas tersebut.",
+				"s4": "Bila presensi kelas belum diisi, klik \"Ingatkan wali kelas\" untuk mengirim pengingat.",
+				"s5": "Klik \"Buka presensi kelas\", \"Buka rapor\", atau \"Tambah kursi\" untuk masuk ke halaman detailnya.",
+				"s6": "Tinjau \"Perlu ditindaklanjuti\" dan klik tautan aksi di setiap baris untuk menyelesaikannya."
+			},
+			"tips": {
+				"required": "Guru dan murid belum bisa memakai FLIXARE sampai profil, kurikulum, tahun ajaran, kelas, dan mapel diisi.",
+				"remind": "Tombol \"Ingatkan wali kelas\" tidak aktif bila kelas belum punya wali kelas atau pengingat sudah terkirim.",
+				"trial": "Selama masa trial, gunakan \"Bayar & aktifkan\" atau \"Lihat tagihan\" agar sekolah tetap aktif setelah trial berakhir."
+			}
+		},
+		"school_admin_attendance": {
+			"purpose": "Halaman ini untuk memantau kelas mana yang sudah dan belum mengisi presensi, serta melihat rekap kehadiran per semester. Presensi diisi oleh wali kelas; admin hanya memantau.",
+			"features": {
+				"daily": "Melihat presensi harian per kelas: jumlah hadir, sakit, izin, alpa, dan persentase kehadiran.",
+				"navigate": "Berpindah ke hari sebelumnya untuk melihat presensi tanggal lampau.",
+				"unfilled": "Melihat daftar kelas yang belum mengisi presensi hari ini.",
+				"remind": "Mengirim pengingat ke wali kelas yang belum mengisi presensi hari ini.",
+				"semester": "Melihat rekap semester: rata-rata kehadiran per kelas dan jumlah murid yang alpa 3 hari atau lebih."
+			},
+			"steps": {
+				"s1": "Pilih tab \"Harian\" untuk presensi per tanggal atau \"Rekap semester\" untuk ringkasan semester.",
+				"s2": "Pada tab \"Harian\", gunakan tombol panah untuk berpindah tanggal.",
+				"s3": "Periksa kolom \"KEHADIRAN\"; kelas yang belum mengisi ditandai \"Belum\".",
+				"s4": "Bila ada kelas yang belum mengisi hari ini, klik \"Ingatkan wali kelas\".",
+				"s5": "Pada \"Rekap semester\", periksa \"Murid alpa ≥ 3 hari\" untuk ditindaklanjuti bersama wali kelas."
+			},
+			"tips": {
+				"monitor": "Admin tidak bisa mengubah isi presensi di halaman ini; pengisian dilakukan wali kelas.",
+				"remind_today": "Tombol \"Ingatkan wali kelas\" hanya tersedia untuk presensi hari ini dan menjadi \"Pengingat terkirim\" setelah dikirim.",
+				"homeroom": "Kelas tanpa wali kelas ditandai \"Wali kelas belum ditetapkan\"; atur wali kelas di halaman Kelas.",
+				"report": "Rekap semester dipakai sebagai data kehadiran di rapor."
+			}
+		},
+		"school_admin_audit": {
+			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, seperti penghapusan dan penonaktifan data, undangan akun, serta alur rapor. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
+			"features": {
+				"timeline": "Melihat riwayat perubahan terbaru lebih dulu, dikelompokkan per hari, lengkap dengan pelaku dan jamnya.",
+				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, undangan akun, atau rapor.",
+				"range": "Menyaring riwayat berdasarkan rentang tanggal.",
+				"detail": "Melihat detail tambahan seperti NIS/NIP, alasan, dan jumlah undangan terkirim atau gagal.",
+				"more": "Memuat riwayat yang lebih lama secara bertahap."
+			},
+			"steps": {
+				"s1": "Pilih kategori pada tab, misalnya \"Undangan akun\" atau \"Rapor\".",
+				"s2": "Isi \"Dari tanggal\" dan \"Sampai tanggal\" untuk membatasi rentang waktu.",
+				"s3": "Baca setiap entri beserta pelaku dan jamnya pada baris \"Oleh …\".",
+				"s4": "Klik \"Muat lebih banyak\" untuk melihat riwayat yang lebih lama.",
+				"s5": "Klik \"Atur ulang filter\" untuk kembali menampilkan semua riwayat."
+			},
+			"tips": {
+				"read_only": "Halaman ini hanya untuk dibaca; riwayat tidak bisa diubah atau dihapus.",
+				"range": "Tanggal awal tidak boleh setelah tanggal akhir.",
+				"system": "Entri dengan pelaku \"Sistem\" berasal dari proses otomatis, bukan dari pengguna."
+			}
+		},
+		"school_admin_classes": {
+			"purpose": "Halaman ini untuk mengelola rombongan belajar (kelas) pada tahun ajaran aktif beserta wali kelasnya. Wali kelas diperlukan untuk presensi dan rapor.",
+			"features": {
+				"add": "Menambah kelas satu per satu atau mengimpor banyak kelas sekaligus dari file Excel/CSV.",
+				"homeroom": "Menetapkan atau mengganti wali kelas untuk setiap kelas.",
+				"find": "Mencari kelas berdasarkan nama dan menyaring per tingkat atau kelas tanpa wali.",
+				"capacity": "Memantau jumlah murid terhadap kapasitas kelas dan melihat daftar murid di setiap kelas.",
+				"edit": "Mengubah tingkat, nama, dan kapasitas kelas, atau menghapus kelas."
+			},
+			"steps": {
+				"s1": "Pastikan tahun ajaran aktif sudah diatur; bila belum, klik \"Atur tahun ajaran\".",
+				"s2": "Klik \"Tambah kelas\" untuk input satu per satu, atau \"Impor Excel/CSV\" lalu unduh template, isi, dan unggah file.",
+				"s3": "Pilih \"Tingkat\", isi \"Nama kelas\", dan bila perlu \"Kapasitas\" serta \"Wali kelas\".",
+				"s4": "Klik \"Simpan\".",
+				"s5": "Gunakan tab \"Tanpa wali\" untuk menemukan kelas yang belum punya wali kelas, lalu klik barisnya untuk menetapkan wali."
+			},
+			"tips": {
+				"capacity": "Kapasitas kelas harus 1–60 murid.",
+				"homeroom": "Satu guru hanya bisa menjadi wali satu kelas per tahun ajaran.",
+				"delete": "Kelas hanya bisa dihapus bila belum ada murid, presensi, atau rapor."
+			}
+		},
+		"school_admin_guardians": {
+			"purpose": "Halaman ini untuk mengelola data orang tua/wali yang terhubung ke murid dan mengundang mereka ke portal orang tua. Orang tua hanya bisa melihat data anak yang terhubung.",
+			"features": {
+				"add": "Menambah orang tua satu per satu atau mengimpor banyak data sekaligus dari file Excel/CSV.",
+				"link": "Menautkan orang tua ke satu atau lebih anak, menetapkan kontak utama, dan melepas tautan.",
+				"find": "Mencari berdasarkan nama, email, atau nama anak, dan menyaring kontak utama, belum diundang, atau tanpa email.",
+				"invite": "Mengirim undangan portal ke orang tua yang punya email, satu per satu atau sekaligus.",
+				"edit": "Mengubah data orang tua atau menghapusnya."
+			},
+			"steps": {
+				"s1": "Pastikan data murid sudah ada; tombol \"Tambah orang tua\" baru aktif bila sudah ada murid.",
+				"s2": "Klik \"Tambah orang tua\" untuk input satu per satu, atau \"Impor Excel/CSV\" lalu unduh template, isi, dan unggah file.",
+				"s3": "Isi \"Nama lengkap\", pilih \"Hubungan\" dan \"Anak\", lengkapi \"Email\" untuk undangan portal, lalu klik \"Simpan\".",
+				"s4": "Untuk menautkan ke anak lain, buka data orang tua, pilih anak di \"Tautkan ke anak\", lalu klik \"Simpan\".",
+				"s5": "Klik \"Undang … orang tua\" pada daftar untuk mengundang sekaligus, atau \"Kirim undangan\" di dalam data orang tua."
+			},
+			"tips": {
+				"no_email": "Orang tua tanpa email tidak bisa diundang ke portal.",
+				"primary": "Setiap murid hanya punya satu kontak utama.",
+				"invite_expiry": "Tautan undangan berlaku 72 jam dan sekali pakai; gunakan \"Kirim ulang\" bila kedaluwarsa.",
+				"delete": "Data hanya bisa dihapus bila belum punya riwayat."
+			}
+		},
+		"principal_dashboard": {
+			"purpose": "Halaman ini adalah dashboard kepala sekolah untuk memantau sekolah dan menindaklanjuti hal yang perlu keputusan Anda. Data sekolah diubah oleh admin sekolah dan guru; di sini Anda dalam mode lihat.",
+			"features": {
+				"decide": "Melihat jumlah hal yang perlu keputusan Anda, seperti rapor kelas yang diajukan wali kelas dan perubahan data admin sekolah.",
+				"approvals": "Membuka kotak persetujuan untuk meninjau pengajuan perubahan data.",
+				"reports": "Memantau status rapor semester aktif per tahap dan membuka rapor kelas yang menunggu persetujuan atau siap dikunci.",
+				"subscription": "Melihat paket, status langganan, dan pemakaian kuota kursi murid."
+			},
+			"steps": {
+				"s1": "Periksa \"Perlu keputusan Anda\" di banner dan klik baris yang ingin ditindaklanjuti.",
+				"s2": "Klik \"Buka kotak persetujuan\" untuk meninjau pengajuan perubahan data.",
+				"s3": "Pada \"Persetujuan rapor\", klik kelas berstatus \"Menunggu\" atau \"Siap dikunci\" untuk membuka rapornya.",
+				"s4": "Klik \"Tinjau\" untuk melihat seluruh rapor kelas.",
+				"s5": "Pantau \"Langganan & kuota kursi\"; penambahan kursi dilakukan oleh admin sekolah."
+			},
+			"tips": {
+				"sample": "Bagian berlabel \"Data contoh\" belum terhubung ke data sekolah; angkanya hanya contoh dan aksinya tidak disimpan.",
+				"report_error": "Bila muncul pesan data rapor belum bisa dimuat, muat ulang halaman."
+			}
+		},
+		"school_admin_reports": {
+			"purpose": "Halaman ini untuk memantau progres rapor setiap kelas pada tahun ajaran aktif, dari draf hingga terkunci. Rapor disusun wali kelas dan disetujui kepala sekolah; dari sini Anda memantau, mengingatkan, dan mengunduh PDF rapor.",
+			"features": {
+				"monitor": "Melihat status rapor per kelas: \"Draf\", \"Diajukan\", \"Disetujui\", atau \"Terkunci · PDF\", beserta jumlah mapel yang nilai akhirnya sudah terkunci.",
+				"filter": "Menyaring daftar kelas per status lewat tab di atas tabel.",
+				"remind": "Mengirim pengingat ke wali kelas untuk rapor yang masih berstatus draf.",
+				"review": "Membuka tinjauan rapor kelas yang sudah diajukan untuk melihat detail dan menindaklanjutinya.",
+				"download": "Mengunduh PDF rapor satu kelas yang sudah terkunci."
+			},
+			"steps": {
+				"s1": "Periksa ringkasan jumlah rapor per status di bagian atas halaman.",
+				"s2": "Pilih tab status untuk menampilkan kelas yang ingin Anda pantau.",
+				"s3": "Untuk kelas berstatus \"Draf\", klik \"Ingatkan\" agar wali kelas segera melengkapi dan mengajukan rapor.",
+				"s4": "Untuk kelas yang sudah diajukan atau disetujui, klik \"Lihat\" untuk membuka tinjauan rapor kelas.",
+				"s5": "Setelah rapor berstatus \"Terkunci · PDF\", klik \"Unduh PDF\" untuk mengunduh rapor kelas tersebut."
+			},
+			"tips": {
+				"homeroom": "Tombol \"Ingatkan\" tidak aktif bila wali kelas belum ditetapkan. Tetapkan wali kelas terlebih dahulu pada data kelas.",
+				"locked_subjects": "Rapor tidak bisa diajukan selama masih ada mapel yang nilai akhirnya belum dikunci guru.",
+				"correction": "Koreksi rapor yang sudah terkunci hanya bisa dilakukan setelah kepala sekolah membuka kuncinya, dan tercatat di audit log."
+			}
+		},
+		"school_admin_report_class": {
+			"purpose": "Halaman ini menampilkan tinjauan rapor satu kelas: riwayat status, progres nilai mapel, serta nilai dan catatan setiap murid. Dari sini rapor diproses sesuai peran dan statusnya, mulai dari disetujui hingga dikunci dan PDF diterbitkan.",
+			"features": {
+				"timeline": "Melihat \"Riwayat status\" rapor: kapan diajukan wali kelas, disetujui kepala sekolah, dan dikunci, beserta pelakunya.",
+				"subjects": "Memantau \"Progres nilai mapel\" untuk memastikan semua mapel sudah mengunci nilai akhir.",
+				"students": "Memeriksa \"Nilai & catatan murid\": nilai per mapel, rata-rata, rekap kehadiran (sakit, izin, alpa), dan catatan wali kelas.",
+				"decide": "Menyetujui, mengembalikan ke wali kelas, mengunci, atau membuka kunci rapor. Tombol yang tampil menyesuaikan peran Anda dan status rapor.",
+				"pdf": "Mengunduh PDF rapor satu kelas atau per murid setelah rapor terkunci."
+			},
+			"steps": {
+				"s1": "Baca status dan keterangan di kartu \"Riwayat status\" untuk mengetahui tahap rapor saat ini.",
+				"s2": "Periksa \"Progres nilai mapel\" dan tabel \"Nilai & catatan murid\"; klik \"Selengkapnya\" untuk membaca catatan wali kelas yang panjang.",
+				"s3": "Bila ada yang perlu diperbaiki, klik \"Kembalikan\", tulis alasannya, lalu konfirmasi agar rapor kembali ke draf.",
+				"s4": "Bila rapor sudah sesuai, klik \"Setujui\" lalu konfirmasi.",
+				"s5": "Untuk rapor yang sudah disetujui, klik \"Kunci & terbitkan PDF\" lalu konfirmasi \"Kunci rapor\" agar nilai menjadi final dan PDF diterbitkan.",
+				"s6": "Setelah terkunci, klik \"Unduh PDF kelas\" atau tombol \"PDF\" pada baris murid untuk mengunduh rapor."
+			},
+			"tips": {
+				"reason": "Alasan pengembalian dan pembukaan kunci wajib diisi 10–500 karakter dan dikirim ke wali kelas.",
+				"approve_final": "Rapor yang sudah disetujui tidak bisa dikembalikan lagi. Koreksi dilakukan dengan membuka kunci setelah rapor terbit.",
+				"unlock": "\"Buka kunci\" mengembalikan rapor ke draf, menaikkan versinya, dan tercatat di audit log.",
+				"role": "Bila tidak ada tombol aksi, berarti tahap rapor saat ini bukan wewenang peran Anda atau masih menunggu wali kelas."
+			}
+		},
+		"school_admin_subscription": {
+			"purpose": "Halaman ini menampilkan paket langganan sekolah, pemakaian kursi murid, dan tagihan terbaru. Gunakan halaman ini untuk menambah kursi bila jumlah murid aktif mendekati batas langganan.",
+			"features": {
+				"plan": "Melihat paket, harga per murid, status langganan, serta periode atau masa trial.",
+				"seats": "Memantau \"Kursi murid terpakai\" dibandingkan jumlah kursi yang tersedia, termasuk kursi yang masih menunggu pembayaran.",
+				"add_seats": "Menambah kursi dengan biaya prorata sesuai sisa bulan penuh pada periode berjalan.",
+				"activate": "Membuka halaman aktivasi lewat \"Bayar & aktifkan langganan\" selama masa trial.",
+				"invoices": "Melihat daftar tagihan terbaru dan membuka detailnya di halaman tagihan."
+			},
+			"steps": {
+				"s1": "Periksa status langganan dan pemakaian kursi pada kartu paket.",
+				"s2": "Bila masih trial, klik \"Bayar & aktifkan langganan\" untuk mengaktifkan langganan penuh.",
+				"s3": "Untuk menambah kursi, tentukan jumlahnya pada bagian \"Tambah kursi\" dengan tombol \"Kurangi\"/\"Tambah\" atau ketik langsung.",
+				"s4": "Periksa rincian biaya prorata, lalu klik tombol tambah kursi di bawahnya.",
+				"s5": "Bila invoice prorata terbit, buka \"Buka halaman tagihan\" atau klik tagihan di daftar untuk membayarnya."
+			},
+			"tips": {
+				"no_confirm": "Tombol tambah kursi langsung memproses penambahan tanpa dialog konfirmasi. Pastikan jumlah kursi sudah benar sebelum mengeklik.",
+				"paid_first": "Di luar masa trial, kursi tambahan baru aktif setelah invoice prorata lunas.",
+				"trial": "Selama trial, kursi tambahan langsung aktif dan ditagihkan saat aktivasi.",
+				"inactive": "Murid nonaktif tidak dihitung sebagai kursi. Murid baru ditolak bila kursi sudah penuh."
+			}
+		},
+		"school_admin_teachers": {
+			"purpose": "Halaman ini untuk mengelola data guru sekolah beserta akun login mereka. Guru baru bisa masuk ke FLIXARE setelah menerima dan membuka undangan.",
+			"features": {
+				"add": "Menambah guru satu per satu atau mengimpor banyak guru sekaligus dari file Excel/CSV.",
+				"find": "Mencari guru berdasarkan nama, email, atau NIP, dan menyaring berdasarkan status akun.",
+				"edit": "Mengubah data guru, menonaktifkan, atau menghapus guru yang belum punya riwayat.",
+				"assignments": "Melihat jumlah penugasan mengajar dan kelas perwalian setiap guru.",
+				"invite": "Mengirim undangan akun ke satu guru atau sekaligus ke semua guru yang belum diundang."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah guru\" untuk input satu per satu, atau \"Impor Excel/CSV\" untuk mengimpor banyak guru sekaligus.",
+				"s2": "Lengkapi isian bertanda * (nama lengkap, jenis kelamin, dan email), lalu klik \"Simpan\".",
+				"s3": "Gunakan kolom pencarian dan tab \"Semua\", \"Aktif\", \"Diundang\", atau \"Belum diundang\" untuk menemukan guru.",
+				"s4": "Klik baris guru untuk membuka detailnya, mengubah data, atau melihat daftar penugasan mengajar.",
+				"s5": "Klik \"Undang … guru\" pada bilah atas daftar untuk mengundang semua guru yang belum diundang sekaligus, atau gunakan \"Kirim undangan\" di detail guru.",
+				"s6": "Bila undangan kedaluwarsa, buka detail guru lalu klik \"Kirim ulang\"."
+			},
+			"tips": {
+				"email": "Email dipakai untuk undangan dan login, dan tidak bisa diubah setelah guru diundang atau akunnya aktif.",
+				"expiry": "Tautan undangan berlaku 72 jam dan hanya bisa dipakai sekali.",
+				"delete": "Guru hanya bisa dihapus bila belum punya riwayat. Bila sudah, nonaktifkan saja agar riwayat mengajar tetap tersimpan.",
+				"bulk": "Undangan untuk lebih dari 50 akun diproses bertahap; progresnya tampil di halaman ini."
+			}
+		},
+		"school_admin_years": {
+			"purpose": "Halaman ini untuk mengatur tahun ajaran dan semester sekolah. Hanya satu tahun ajaran dan satu semester yang aktif; kelas, nilai, presensi, dan rapor terikat ke tahun ajaran aktif.",
+			"features": {
+				"overview": "Melihat tahun ajaran aktif, semester aktif beserta periodenya, dan jumlah kelas tahun ini.",
+				"add": "Menambah tahun ajaran baru lengkap dengan tanggal semester ganjil dan genap.",
+				"activate": "Menentukan tahun ajaran dan semester yang aktif.",
+				"copy": "Menyalin nama dan tingkat kelas dari tahun ajaran aktif saat membuat tahun ajaran baru.",
+				"edit": "Mengubah periode tahun ajaran atau menghapus tahun ajaran yang tidak aktif dan belum punya kelas."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah tahun ajaran\"; isian akan terisi usulan tahun berikutnya secara otomatis.",
+				"s2": "Periksa \"Nama tahun ajaran\" (format TTTT/TTTT), tanggal \"Mulai\" dan \"Selesai\", serta tanggal mulai dan selesai semester ganjil dan genap.",
+				"s3": "Pilih \"Semester aktif\" (\"Ganjil\" atau \"Genap\") dan atur \"Status\" menjadi \"Aktif\" bila tahun ini akan langsung dipakai.",
+				"s4": "Untuk tahun ajaran baru, tentukan apakah kelas perlu disalin dari tahun ajaran aktif.",
+				"s5": "Klik \"Simpan\", lalu klik baris tahun ajaran bila perlu mengubahnya kembali."
+			},
+			"tips": {
+				"one_active": "Mengaktifkan satu tahun ajaran akan menonaktifkan tahun lainnya. Tahun ajaran aktif tidak bisa dinonaktifkan sebelum tahun lain diaktifkan.",
+				"dates": "Tanggal semester harus berurutan: semester ganjil selesai sebelum semester genap dimulai.",
+				"copy": "Murid tidak ikut tersalin; kenaikan kelas dilakukan terpisah.",
+				"delete": "Tahun ajaran aktif atau yang sudah punya kelas tidak bisa dihapus."
+			}
+		},
+		"account_settings": {
+			"purpose": "Halaman ini untuk mengelola data dan keamanan akun yang Anda pakai untuk masuk ke FLIXARE, mulai dari profil, kata sandi, perangkat, notifikasi, hingga privasi data.",
+			"features": {
+				"profile": "Memperbarui foto profil dan data diri di \"Profil saya\". Sebagian data dikelola lembaga atau perlu persetujuan sebelum berlaku.",
+				"password": "Mengganti kata sandi dengan verifikasi kode OTP di \"Kelola kata sandi\", atau meminta tautan reset bila lupa kata sandi saat ini.",
+				"security": "Mengaktifkan verifikasi 2 langkah dan menyimpan kode cadangan di \"Keamanan & 2 langkah\".",
+				"sessions": "Memantau perangkat yang sedang masuk dan riwayat login 30 hari, serta mengeluarkan perangkat yang tidak dikenal.",
+				"notif": "Mengatur saluran notifikasi per peristiwa dan jam tenang di \"Preferensi notifikasi\".",
+				"privacy": "Menghubungkan akun lain untuk masuk, mengatur visibilitas data, mengunduh salinan data, atau mengajukan penghapusan akun."
+			},
+			"steps": {
+				"s1": "Pilih menu di sisi kiri (atau geser daftar menu di layar kecil) sesuai bagian yang ingin Anda ubah.",
+				"s2": "Di \"Profil saya\", perbarui data yang bisa diubah lalu klik \"Simpan profil\".",
+				"s3": "Untuk mengganti kata sandi, buka \"Kelola kata sandi\", isi kata sandi saat ini dan kata sandi baru, lalu klik \"Lanjut ke verifikasi OTP\" dan masukkan kodenya.",
+				"s4": "Buka \"Keamanan & 2 langkah\", klik \"Aktifkan verifikasi 2 langkah\", lalu ikuti tiga langkahnya hingga kode cadangan tersimpan.",
+				"s5": "Di \"Perangkat & sesi aktif\", klik \"Keluarkan\" pada perangkat yang tidak Anda kenali.",
+				"s6": "Atur notifikasi di \"Preferensi notifikasi\", lalu klik \"Simpan preferensi\"."
+			},
+			"tips": {
+				"dot": "Titik peringatan pada menu menandakan ada hal yang perlu Anda tindak lanjuti, misalnya verifikasi 2 langkah belum aktif atau ada pengajuan yang memerlukan dokumen.",
+				"approval": "Perubahan data yang memerlukan persetujuan baru berlaku setelah disetujui; email baru baru berlaku setelah tautan verifikasi dibuka.",
+				"security_notif": "Notifikasi keamanan lewat email selalu aktif dan tidak bisa dimatikan.",
+				"not_me": "Bila ada login mencurigakan di riwayat, segera ganti kata sandi dan aktifkan verifikasi 2 langkah."
+			}
+		},
+		"approvals_school": {
+			"purpose": "Halaman ini adalah kotak persetujuan untuk pengajuan perubahan nama, nomor identitas, dan penghapusan akun di sekolah Anda. Admin sekolah meninjau pengajuan guru, murid, orang tua, dan kepala sekolah, sedangkan kepala sekolah meninjau pengajuan admin sekolah.",
+			"features": {
+				"queue": "Melihat pengajuan per tab \"Menunggu\", \"Perlu dokumen\", dan \"Selesai\", lengkap dengan sisa batas waktu.",
+				"filter": "Menyaring pengajuan berdasarkan jenis (\"Nama lengkap\", \"Nomor identitas\", \"Hapus akun\") dan mencari nama pemohon.",
+				"review": "Membuka rincian pengajuan: data saat ini, perubahan yang diajukan, alasan pemohon, lampiran, dan riwayat.",
+				"decide": "Menyetujui, menolak dengan alasan, atau meminta dokumen tambahan kepada pemohon.",
+				"bulk": "Menyetujui beberapa pengajuan sekaligus dari tab \"Menunggu\"."
+			},
+			"steps": {
+				"s1": "Buka tab \"Menunggu\" dan dahulukan pengajuan yang mendekati atau melewati batas waktu.",
+				"s2": "Klik nama pemohon untuk membuka rincian, lalu periksa perubahan yang diajukan dan lampirannya.",
+				"s3": "Pilih keputusan \"Setujui\", \"Tolak\", atau \"Minta dokumen\".",
+				"s4": "Untuk penolakan, pilih alasan penolakan; untuk permintaan dokumen, pilih dokumen yang diminta dan tambahkan pesan bila perlu.",
+				"s5": "Klik tombol kirim keputusan, lalu konfirmasi bila diminta.",
+				"s6": "Untuk menyetujui banyak pengajuan sekaligus, centang pengajuan di tab \"Menunggu\" lalu klik \"Setujui terpilih\"."
+			},
+			"tips": {
+				"sla": "Batas waktu peninjauan adalah 3 hari kerja sejak pengajuan dikirim.",
+				"docs": "Meminta dokumen menghentikan batas waktu sampai pemohon mengunggah dokumen.",
+				"self": "Pengajuan Anda sendiri tidak bisa Anda putuskan dan akan diproses oleh peninjau lain.",
+				"other_reason": "Bila memilih alasan \"Lainnya\", penjelasan wajib diisi minimal 10 karakter."
+			}
+		},
+		"approvals_platform": {
+			"purpose": "Halaman ini adalah kotak persetujuan super admin untuk pengajuan perubahan nama, ID karyawan, dan penghapusan akun dari pengguna konsol platform.",
+			"features": {
+				"queue": "Melihat pengajuan per tab \"Menunggu\", \"Perlu dokumen\", dan \"Selesai\", lengkap dengan sisa batas waktu.",
+				"filter": "Menyaring pengajuan berdasarkan jenis dan mencari nama pemohon.",
+				"review": "Membuka rincian pengajuan: data saat ini, perubahan yang diajukan, alasan pemohon, lampiran, dan riwayat.",
+				"decide": "Menyetujui, menolak dengan alasan, atau meminta dokumen tambahan kepada pemohon.",
+				"bulk": "Menyetujui beberapa pengajuan sekaligus dari tab \"Menunggu\"."
+			},
+			"steps": {
+				"s1": "Buka tab \"Menunggu\" dan dahulukan pengajuan yang mendekati atau melewati batas waktu.",
+				"s2": "Klik nama pemohon untuk membuka rincian, lalu periksa perubahan yang diajukan dan lampirannya.",
+				"s3": "Pilih keputusan \"Setujui\", \"Tolak\", atau \"Minta dokumen\".",
+				"s4": "Untuk penolakan, pilih alasan penolakan; untuk permintaan dokumen, pilih dokumen yang diminta dan tambahkan pesan bila perlu.",
+				"s5": "Klik tombol kirim keputusan, lalu konfirmasi bila diminta.",
+				"s6": "Untuk menyetujui banyak pengajuan sekaligus, centang pengajuan di tab \"Menunggu\" lalu klik \"Setujui terpilih\"."
+			},
+			"tips": {
+				"sla": "Batas waktu peninjauan adalah 3 hari kerja sejak pengajuan dikirim.",
+				"docs": "Meminta dokumen menghentikan batas waktu sampai pemohon mengunggah dokumen.",
+				"self": "Pengajuan Anda sendiri tidak bisa Anda putuskan dan akan diproses oleh peninjau lain.",
+				"deletion": "Akun yang penghapusannya disetujui dinonaktifkan 30 hari setelah persetujuan."
+			}
+		},
+		"tenant_billing": {
+			"purpose": "Halaman ini menampilkan invoice yang diterbitkan FLIXARE untuk lembaga Anda. Dari sini Anda dapat melihat rincian, membayar, dan mencetak invoice atau kuitansi.",
+			"features": {
+				"list": "Melihat daftar invoice beserta status, nominal, dan jatuh temponya.",
+				"detail": "Membuka rincian invoice: tanggal terbit, jatuh tempo, periode, item tagihan, dan total.",
+				"online": "Membayar lewat Virtual Account bank pilihan atau QRIS, lalu mengecek status pembayaran.",
+				"transfer": "Membayar lewat transfer bank dan mengirim bukti transfer untuk diverifikasi tim keuangan FLIXARE.",
+				"print": "Mencetak atau menyimpan invoice sebagai PDF, serta mencetak kuitansi untuk invoice yang sudah lunas."
+			},
+			"steps": {
+				"s1": "Pilih invoice di daftar sebelah kiri untuk membuka rinciannya.",
+				"s2": "Pada bagian \"Cara pembayaran\", pilih \"Virtual Account\", \"QRIS\", atau \"Transfer bank\".",
+				"s3": "Untuk Virtual Account, pilih bank lalu klik \"Buat nomor VA …\"; untuk QRIS, klik \"Tampilkan kode QRIS\".",
+				"s4": "Lakukan pembayaran sebelum batas berlaku, lalu klik \"Saya sudah bayar, cek status\".",
+				"s5": "Untuk transfer bank, transfer ke rekening yang tertera, isi data transfer, unggah bukti, lalu klik \"Kirim bukti transfer\".",
+				"s6": "Klik \"Cetak / PDF\" untuk mencetak invoice, atau \"Cetak kuitansi\" setelah invoice lunas."
+			},
+			"tips": {
+				"verification": "Pembayaran lewat transfer bank baru tercatat lunas setelah bukti diverifikasi tim keuangan FLIXARE.",
+				"partial": "Nominal transfer boleh sebagian, maksimal sebesar sisa tagihan.",
+				"proof": "Bukti transfer wajib diunggah dalam format PDF, PNG, atau JPG dengan ukuran maksimal 5 MB.",
+				"overdue": "Segera bayar invoice yang lewat jatuh tempo agar layanan tidak dibatasi."
+			}
+		},
+		"teacher_dashboard": {
+			"purpose": "Beranda Ruang Guru merangkum hari mengajar Anda sebagai guru mapel, lengkap dengan tanggal dan semester aktif. Sebagian besar bagian di halaman ini masih berupa pratinjau berlabel \"Data contoh\" karena modulnya belum tersedia.",
+			"features": {
+				"overview": "Melihat sapaan, tanggal, dan semester aktif di bagian atas halaman.",
+				"preview": "Mengenal tampilan \"Agenda hari ini\", \"Tumpukan koreksi per kelas\", \"Buku nilai\", \"Jadwal mengajar minggu ini\", \"Progres materi & RPP per kelas\", \"Bank soal terbaru\", dan \"Analisis butir soal\" dalam bentuk data contoh.",
+				"grades": "Membuka menu \"Nilai akhir\" di sidebar untuk mengisi dan mengunci nilai akhir rapor.",
+				"role": "Beralih ke tampilan wali kelas melalui tombol peran di bagian atas layar, bila Anda juga ditugaskan sebagai wali kelas."
+			},
+			"steps": {
+				"s1": "Periksa tanggal dan semester aktif di bagian atas halaman.",
+				"s2": "Telusuri bagian ringkasan untuk mengenal tampilan beranda; bagian berlabel \"Data contoh\" belum memakai data kelas Anda.",
+				"s3": "Untuk mengisi nilai akhir rapor, klik menu \"Nilai akhir\" di sidebar.",
+				"s4": "Bila Anda juga wali kelas, pilih \"Wali kelas\" pada tombol peran di bagian atas layar untuk membuka Ruang Wali Kelas."
+			},
+			"tips": {
+				"sample": "Angka dan aksi pada bagian berlabel \"Data contoh\", misalnya \"Nilai 1 lembar\", \"Buka lobi ujian\", atau \"Ajukan RPP\", hanya simulasi dan tidak disimpan.",
+				"disabled": "Tombol \"Buat tugas\" dan \"Bank soal\" belum aktif karena modulnya belum tersedia."
+			}
+		},
+		"teacher_grade_sheet": {
+			"purpose": "Lembar nilai ini dipakai untuk mengisi nilai akhir dan deskripsi capaian setiap murid pada satu kelas dan mata pelajaran yang Anda ampu. Setelah dikunci, nilai dipakai wali kelas untuk menyusun rapor.",
+			"features": {
+				"fill": "Mengisi nilai akhir 0–100 (boleh desimal) dan deskripsi capaian maksimal 500 karakter untuk setiap murid.",
+				"summary": "Memantau \"KKM\", jumlah \"Nilai terisi\", dan jumlah murid \"Di bawah KKM\" di kartu ringkasan.",
+				"save": "Menyimpan nilai secara bertahap dengan tombol \"Simpan\" lalu melanjutkannya nanti.",
+				"lock": "Mengunci nilai dengan tombol \"Kunci nilai\" setelah nilai dan deskripsi semua murid lengkap.",
+				"view": "Melihat nilai yang sudah terkunci beserta status rapor kelas dalam mode hanya-lihat."
+			},
+			"steps": {
+				"s1": "Buka lembar nilai dari halaman \"Nilai akhir\" dengan klik \"Isi nilai\" pada kelas dan mapel yang dituju.",
+				"s2": "Isi kolom \"Nilai akhir\" (0–100) untuk setiap murid; nilai di bawah KKM akan ditandai.",
+				"s3": "Tulis \"Deskripsi capaian\" untuk setiap murid yang sudah diberi nilai.",
+				"s4": "Klik \"Simpan\" untuk menyimpan perubahan; nilai boleh disimpan sebagian.",
+				"s5": "Setelah semua murid lengkap, klik \"Kunci nilai\" lalu konfirmasi dengan \"Kunci nilai\" pada dialog.",
+				"s6": "Klik \"Kembali ke daftar\" untuk memeriksa status lembar nilai lainnya."
+			},
+			"tips": {
+				"description": "Deskripsi capaian baru ikut tersimpan setelah nilai murid tersebut diisi.",
+				"rounding": "Nilai dibulatkan ke 2 angka desimal.",
+				"autosave": "Perubahan yang belum disimpan akan otomatis disimpan lebih dulu saat Anda mengunci nilai.",
+				"locked": "Nilai yang sudah dikunci tidak bisa diubah lagi; hanya kepala sekolah yang dapat membuka kuncinya."
+			}
+		},
+		"homeroom_dashboard": {
+			"purpose": "Beranda Ruang Wali Kelas merangkum tugas Anda sebagai wali kelas, termasuk status rapor semester kelas perwalian. Bagian lain yang berlabel \"Data contoh\" masih berupa pratinjau karena modulnya belum tersedia.",
+			"features": {
+				"report": "Memantau status dan kelengkapan rapor semester kelas perwalian: mapel yang sudah terkunci dan jumlah catatan wali kelas yang terisi.",
+				"open_report": "Membuka halaman rapor kelas melalui tombol \"Buka rapor kelas\" atau \"Lihat rapor kelas\".",
+				"attendance": "Mengisi presensi harian murid yang tersimpan melalui menu \"Presensi kelas\" di sidebar.",
+				"preview": "Mengenal tampilan presensi harian, \"Pengajuan orang tua\", \"Buku penghubung\", \"Rekap nilai semua mapel\", \"Murid perlu perhatian\", jadwal kelas, dan \"Catatan perilaku & konseling\" dalam bentuk data contoh.",
+				"role": "Beralih kembali ke tampilan guru mapel melalui tombol peran di bagian atas layar."
+			},
+			"steps": {
+				"s1": "Periksa nama kelas perwalian dan tanggal di bagian atas halaman.",
+				"s2": "Lihat kartu rapor semester untuk mengetahui mapel yang belum dikunci dan catatan yang belum lengkap.",
+				"s3": "Klik \"Buka rapor kelas\" untuk menulis catatan wali kelas dan mengajukan rapor.",
+				"s4": "Untuk mencatat kehadiran harian yang tersimpan, klik menu \"Presensi kelas\" di sidebar.",
+				"s5": "Untuk mengisi nilai mapel yang Anda ampu, klik menu \"Nilai akhir mapel\" di sidebar."
+			},
+			"tips": {
+				"sample": "Isian dan aksi pada bagian berlabel \"Data contoh\", misalnya \"Isi presensi\", \"Kotak persetujuan\", balasan buku penghubung, atau \"Simpan catatan\" perilaku, hanya simulasi dan tidak disimpan.",
+				"attendance": "Presensi yang tersimpan dan dipakai untuk rekap rapor hanya yang diisi di halaman \"Presensi kelas\".",
+				"report_unavailable": "Bila kartu rapor menampilkan \"Belum tersedia\", buka halaman rapor kelas untuk memuat ulang statusnya."
+			}
+		},
+		"homeroom_attendance": {
+			"purpose": "Halaman ini dipakai wali kelas untuk mencatat kehadiran harian murid di kelas perwalian. Setiap murid memiliki satu catatan per tanggal, dan rekapnya dipakai untuk rapor serta dipantau admin sekolah.",
+			"features": {
+				"status": "Menandai status setiap murid: \"Hadir\", \"Sakit\", \"Izin\", atau \"Alpa\".",
+				"bulk": "Menandai seluruh murid sekaligus dengan tombol \"Tandai semua hadir\".",
+				"note": "Menambahkan catatan singkat per murid (opsional, maksimal 200 karakter).",
+				"date": "Berpindah ke hari sebelumnya atau berikutnya dengan tombol panah untuk mengisi atau memperbaiki presensi.",
+				"summary": "Melihat jumlah murid per status di kartu ringkasan bagian atas."
+			},
+			"steps": {
+				"s1": "Pastikan tanggal yang tampil sudah benar; gunakan tombol panah untuk berpindah hari.",
+				"s2": "Klik \"Tandai semua hadir\" bila sebagian besar murid hadir.",
+				"s3": "Ubah status murid yang tidak hadir menjadi \"Sakit\", \"Izin\", atau \"Alpa\".",
+				"s4": "Isi kolom \"Catatan (opsional)\" bila perlu keterangan tambahan.",
+				"s5": "Klik \"Simpan presensi\"; label \"Sudah diisi\" akan muncul pada tanggal tersebut.",
+				"s6": "Untuk mengoreksi, ubah isian lalu klik \"Perbarui presensi\"."
+			},
+			"tips": {
+				"default": "Murid yang belum diisi otomatis bernilai \"Hadir\", jadi periksa kembali sebelum menyimpan.",
+				"future": "Presensi tidak bisa diisi untuk tanggal setelah hari ini maupun pada hari libur.",
+				"follow_up": "Admin sekolah memantau rekap ini; murid dengan alpa 3 hari atau lebih perlu ditindaklanjuti."
+			}
+		},
+		"homeroom_report": {
+			"purpose": "Halaman ini dipakai wali kelas untuk menyusun rapor kelas perwalian: menulis catatan untuk setiap murid, memeriksa kelengkapan nilai mapel, lalu mengajukan rapor ke kepala sekolah.",
+			"features": {
+				"notes": "Menulis \"Catatan wali kelas\" untuk setiap murid (maksimal 1000 karakter).",
+				"review": "Melihat rata-rata nilai, nilai per mapel, dan rekap sakit/izin/alpa setiap murid.",
+				"checklist": "Memeriksa \"Kelengkapan rapor\" dan status kunci nilai setiap mapel beserta guru pengampunya.",
+				"submit": "Mengajukan rapor dengan tombol \"Ajukan ke kepala sekolah\" setelah semua syarat terpenuhi.",
+				"history": "Memantau \"Riwayat pengajuan\": diajukan, disetujui, dan terkunci."
+			},
+			"steps": {
+				"s1": "Periksa panel \"Kelengkapan rapor\" untuk melihat mapel yang nilainya belum dikunci.",
+				"s2": "Tulis catatan perkembangan dan sikap pada kolom \"Catatan wali kelas\" setiap murid.",
+				"s3": "Klik \"Simpan catatan\"; catatan boleh disimpan bertahap.",
+				"s4": "Setelah semua nilai mapel terkunci dan catatan lengkap, klik \"Ajukan ke kepala sekolah\" lalu konfirmasi.",
+				"s5": "Pantau status rapor dan \"Riwayat pengajuan\" hingga rapor disetujui dan terkunci."
+			},
+			"tips": {
+				"subjects": "Bila ada mapel yang \"Belum dikunci\", minta guru mapel terkait mengunci nilai akhirnya terlebih dahulu.",
+				"readonly": "Selama ditinjau kepala sekolah, catatan tidak bisa diubah kecuali rapor dikembalikan.",
+				"returned": "Bila rapor dikembalikan, baca catatan pengembalian di bagian atas, perbaiki, lalu ajukan ulang.",
+				"attendance": "Rekap kehadiran dihitung otomatis dari presensi harian, jadi pastikan presensi kelas sudah diisi."
+			}
+		},
+		"guardian_dashboard": {
+			"purpose": "Beranda Portal Orang Tua dirancang untuk merangkum kegiatan, nilai, kehadiran, dan pesan wali kelas untuk anak Anda. Saat ini seluruh isinya masih berupa data contoh karena layanan datanya belum terhubung.",
+			"features": {
+				"child": "Berpindah antaranak melalui tombol nama anak di bagian atas halaman.",
+				"preview": "Mengenal tampilan \"Buku penghubung\", \"Nilai semester ini\", kehadiran bulanan, dan \"Agenda mendatang\" dalam bentuk data contoh.",
+				"report": "Membuka menu \"Rapor\" di sidebar untuk melihat rapor resmi anak yang sudah diterbitkan sekolah."
+			},
+			"steps": {
+				"s1": "Pilih anak melalui tombol nama di bagian atas halaman bila Anda memiliki lebih dari satu anak.",
+				"s2": "Telusuri bagian beranda untuk mengenal tampilan portal; angka yang tampil belum menggambarkan data anak Anda.",
+				"s3": "Untuk melihat nilai dan rapor resmi, klik menu \"Rapor\" di sidebar."
+			},
+			"tips": {
+				"sample": "Tombol \"Sudah saya ingatkan\" dan balasan \"Buku penghubung\" hanya simulasi dan tidak dikirim ke wali kelas.",
+				"unavailable": "Tautan \"Detail\" dan menu yang belum memiliki halaman belum dapat dibuka."
+			}
+		},
+		"learner_reports_student": {
+			"purpose": "Halaman ini menampilkan rapor kamu yang sudah diterbitkan sekolah: nilai akhir, capaian kompetensi, ketidakhadiran, dan catatan wali kelas. Kamu juga bisa memantau tahap penyusunan rapor semester berjalan.",
+			"features": {
+				"progress": "Memantau tahap rapor semester berjalan, mulai dari \"Nilai & catatan disusun\" hingga \"Rapor terbit\".",
+				"summary": "Melihat \"Rata-rata nilai\", jumlah mata pelajaran, mapel \"Di bawah KKM\", dan total ketidakhadiran.",
+				"subjects": "Membaca nilai akhir dan deskripsi capaian setiap mata pelajaran beserta KKM-nya.",
+				"note": "Membaca \"Catatan wali kelas\" dan rekap sakit, izin, serta tanpa keterangan.",
+				"download": "Mengunduh dokumen rapor dengan tombol \"Unduh PDF rapor\"."
+			},
+			"steps": {
+				"s1": "Lihat bagian status rapor semester berjalan untuk mengetahui sampai tahap mana rapor disusun.",
+				"s2": "Bila ada lebih dari satu rapor terbit, pilih semester pada tab \"Semester … · …\".",
+				"s3": "Periksa kartu ringkasan, lalu baca nilai dan capaian di bagian \"Nilai akhir & capaian kompetensi\".",
+				"s4": "Baca \"Catatan wali kelas\" dan rekap \"Ketidakhadiran\".",
+				"s5": "Klik \"Unduh PDF rapor\" untuk menyimpan dokumen rapor."
+			},
+			"tips": {
+				"published": "Rapor baru muncul setelah disetujui dan diterbitkan sekolah.",
+				"pdf": "Bila tertulis \"PDF rapor belum tersedia\", hubungi admin sekolah.",
+				"linked": "Bila muncul \"Data murid belum tertaut\", minta admin sekolah menautkan akunmu dengan data murid."
+			}
+		},
+		"learner_reports_guardian": {
+			"purpose": "Halaman ini menampilkan rapor anak Anda yang sudah diterbitkan sekolah: nilai akhir, capaian kompetensi, ketidakhadiran, dan catatan wali kelas. Anda juga bisa memantau tahap penyusunan rapor semester berjalan.",
+			"features": {
+				"child": "Berpindah antaranak melalui tab nama anak bila lebih dari satu anak tertaut ke akun Anda.",
+				"progress": "Memantau tahap rapor semester berjalan, mulai dari \"Nilai & catatan disusun\" hingga \"Rapor terbit\".",
+				"summary": "Melihat \"Rata-rata nilai\", jumlah mata pelajaran, mapel \"Di bawah KKM\", dan total ketidakhadiran.",
+				"subjects": "Membaca nilai akhir, deskripsi capaian, dan \"Catatan wali kelas\" untuk setiap rapor.",
+				"download": "Mengunduh dokumen rapor dengan tombol \"Unduh PDF rapor\"."
+			},
+			"steps": {
+				"s1": "Bila Anda memiliki lebih dari satu anak, pilih nama anak pada tab di bagian atas.",
+				"s2": "Lihat bagian status rapor semester berjalan untuk mengetahui sampai tahap mana rapor disusun.",
+				"s3": "Bila ada lebih dari satu rapor terbit, pilih semester pada tab \"Semester … · …\".",
+				"s4": "Periksa nilai, capaian, rekap \"Ketidakhadiran\", dan \"Catatan wali kelas\".",
+				"s5": "Klik \"Unduh PDF rapor\" untuk menyimpan dokumen rapor."
+			},
+			"tips": {
+				"published": "Rapor baru muncul setelah disetujui dan diterbitkan sekolah.",
+				"pdf": "Bila tertulis \"PDF rapor belum tersedia\", hubungi admin sekolah.",
+				"linked": "Bila muncul \"Belum ada anak yang tertaut\", minta admin sekolah menautkan data anak ke akun Anda."
+			}
+		},
+		"student_dashboard": {
+			"purpose": "Halaman beranda ini merangkum hari belajarmu: ujian hari ini, level dan XP, tugas minggu ini, capaian mapel, nilai terbaru, remedial, serta riwayat kehadiran.",
+			"features": {
+				"mission": "Melihat kartu \"MISI HARI INI\" berisi ujian terdekat, jamnya, jumlah soal, hadiah XP, dan hitung mundur waktu mulai.",
+				"level": "Memantau level, XP menuju level berikutnya, dan hari belajar beruntun dalam seminggu.",
+				"quests": "Melihat daftar \"Tugas minggu ini\" beserta tenggat dan XP-nya.",
+				"subjects": "Melihat capaian tiap mapel di \"Koleksi mapel\" dan nilai di \"Nilai terbaru\".",
+				"improve": "Mengecek \"Perlu remedial\" dan \"Perlu ditingkatkan semester ini\" untuk tahu materi yang masih di bawah target.",
+				"attendance": "Melihat kalender \"Riwayat kehadiran\" per bulan beserta persentase dan jumlah tiap status."
+			},
+			"steps": {
+				"s1": "Baca judul sapaan dan kartu \"MISI HARI INI\" untuk tahu ada tidaknya ujian hari ini dan kapan dimulai.",
+				"s2": "Cek \"Tugas minggu ini\"; tenggat berwarna merah berarti sudah mendesak.",
+				"s3": "Lihat \"Koleksi mapel\" dan \"Nilai terbaru\" untuk memantau capaianmu.",
+				"s4": "Buka \"Perlu remedial\" dan klik poin di \"Perlu ditingkatkan semester ini\" untuk membaca tips belajarnya.",
+				"s5": "Pilih bulan di \"Riwayat kehadiran\" untuk melihat kalender kehadiranmu."
+			},
+			"tips": {
+				"simulation": "Tombol \"Mulai ujian\", centang tugas, dan \"Mulai remedial\" belum terhubung ke sistem ujian atau tugas: bila aktif, tombol hanya menampilkan notifikasi simulasi yang tidak disimpan.",
+				"target": "Garis tipis pada bar nilai menandai target ketuntasan; usahakan nilaimu melewati garis itu."
+			}
+		},
+		"student_assessments": {
+			"purpose": "Halaman ini menampilkan jadwal kuis, ulangan sumatif, tryout, dan ujian remedial kelasmu, lengkap dengan durasi, jumlah soal, KKM, dan hasil nilai.",
+			"features": {
+				"summary": "Melihat ringkasan jumlah ujian: total, aktif hari ini, mendatang, dan perlu remedial.",
+				"filter": "Menyaring ujian berdasarkan mata pelajaran dan status (\"Aktif Hari Ini\", \"Mendatang\", \"Riwayat & Nilai\", \"Remedial\").",
+				"search": "Mencari ujian berdasarkan judul, kode ruang, mapel, atau nama guru.",
+				"detail": "Membuka detail ujian untuk membaca durasi, jumlah soal, KKM, pengawas, serta tata tertibnya.",
+				"result": "Melihat nilai dan status \"Lulus KKM\" atau \"Perlu Remedial\" pada ujian yang sudah selesai."
+			},
+			"steps": {
+				"s1": "Pilih mapel atau tab status, atau ketik di kolom pencarian untuk menemukan ujian.",
+				"s2": "Perhatikan kartu bertanda \"● Ujian Dibuka\" untuk ujian yang aktif hari ini.",
+				"s3": "Klik tombol di kartu (\"Mulai Ujian Sekarang\", \"Mulai Ujian Remedial\", \"Lihat Jadwal & Petunjuk\", atau \"Lihat Pembahasan & Nilai\") untuk membuka detailnya.",
+				"s4": "Baca \"Tata Tertib & Petunjuk Ujian\" sebelum klik \"Konfirmasi & Masuk Ujian\".",
+				"s5": "Klik \"Tutup\" atau \"Keluar Sesi\" untuk kembali ke daftar."
+			},
+			"tips": {
+				"simulation": "Sesi ujian di halaman ini masih simulasi tampilan: belum ada soal yang bisa dikerjakan dan belum ada jawaban yang disimpan.",
+				"reset": "Jika daftar kosong, klik \"Reset Semua Filter\" untuk menampilkan semua ujian lagi."
+			}
+		},
+		"student_attendance": {
+			"purpose": "Halaman ini merangkum kehadiranmu: persentase hadir, keterlambatan, izin, sakit, log presensi harian, dan riwayat surat izin.",
+			"features": {
+				"summary": "Melihat ringkasan persentase hadir semester, streak belajar, keterlambatan, serta izin/sakit.",
+				"month": "Memilih bulan untuk melihat jumlah hari hadir, terlambat, izin, sakit, dan alpa.",
+				"log": "Membaca \"Log Presensi Harian\" berisi jam masuk, jam pulang, status, dan catatan.",
+				"history": "Melihat \"Riwayat Pengajuan Izin & Surat Keterangan Sakit\" beserta lampirannya.",
+				"permit": "Mengisi form \"Ajukan Izin / Sakit\" dengan jenis, tanggal, alasan, dan lampiran."
+			},
+			"steps": {
+				"s1": "Cek ringkasan kehadiran di bagian atas halaman.",
+				"s2": "Pilih bulan pada deretan tombol bulan untuk melihat rekap bulan tersebut.",
+				"s3": "Gulir ke \"Log Presensi Harian\" untuk melihat catatan per hari.",
+				"s4": "Untuk izin atau sakit, klik \"Ajukan Izin / Sakit\", pilih jenisnya, isi tanggal dan alasan, lalu lampirkan surat.",
+				"s5": "Klik \"Kirim Permohonan\" untuk menutup form."
+			},
+			"tips": {
+				"not_sent": "Form izin/sakit masih tampilan contoh: permohonan belum benar-benar dikirim ke wali kelas atau guru piket dan tidak muncul di riwayat. Tetap sampaikan izin lewat jalur resmi sekolah.",
+				"empty_log": "Log harian hanya tersedia untuk bulan yang sudah punya rincian; bulan lain menampilkan rekap jumlahnya saja."
+			}
+		},
+		"student_materials": {
+			"purpose": "Halaman ini berisi koleksi materi belajar dari guru-gurumu, seperti video, modul PDF, slide, dan rangkuman artikel, beserta progres belajarmu.",
+			"features": {
+				"summary": "Melihat jumlah materi, yang sudah selesai dibaca, dan yang sedang dipelajari.",
+				"filter": "Menyaring materi berdasarkan mata pelajaran dan format (\"Video\", \"PDF\", \"Slide\").",
+				"search": "Mencari materi berdasarkan judul, bab, kode topik, deskripsi, atau mapel.",
+				"progress": "Melihat status dan bar progres tiap materi (\"Selesai\", persentase, atau \"Belum dibuka\").",
+				"detail": "Membuka ringkasan, tujuan pembelajaran, durasi, dan guru pengampu sebuah materi."
+			},
+			"steps": {
+				"s1": "Pilih mapel atau format, atau ketik kata kunci di kolom pencarian.",
+				"s2": "Cek progres di kartu untuk tahu materi yang belum selesai.",
+				"s3": "Klik \"Buka Materi\" untuk membaca ringkasan dan tujuan pembelajarannya.",
+				"s4": "Klik \"Tutup\" untuk kembali ke daftar materi."
+			},
+			"tips": {
+				"not_ready": "Tombol \"Pelajari Sekarang\" dan \"Unduh Berkas\" belum membuka atau mengunduh berkas; saat ini keduanya hanya menutup jendela detail.",
+				"reset": "Jika tidak ada materi yang tampil, klik \"Reset Semua Filter\"."
+			}
+		},
+		"student_messages": {
+			"purpose": "Halaman ini adalah ruang pesan dengan wali kelas, guru mata pelajaran, dan saluran pengumuman kelasmu.",
+			"features": {
+				"contacts": "Melihat \"Daftar Guru & Saluran\" beserta pesan terakhir dan jumlah pesan belum dibaca.",
+				"filter": "Menyaring kontak dengan tab \"Semua\", \"Guru\", atau \"Pengumuman\".",
+				"search": "Mencari guru berdasarkan nama, peran, atau isi pesan terakhir.",
+				"read": "Membaca riwayat percakapan dan pengumuman sekolah.",
+				"compose": "Menulis pesan di kolom ketik bagian bawah ruang chat."
+			},
+			"steps": {
+				"s1": "Pilih tab atau cari nama guru di panel kiri.",
+				"s2": "Klik kontak untuk membuka percakapannya.",
+				"s3": "Baca pesan dan pengumuman di ruang chat sebelah kanan.",
+				"s4": "Untuk membalas, ketik pesan di kolom bawah lalu tekan Enter atau klik tombol kirim; ingat, pesan belum benar-benar terkirim (lihat catatan)."
+			},
+			"tips": {
+				"not_sent": "Fitur kirim pesan belum terhubung ke server: pesan yang kamu tulis tidak terkirim ke guru dan tidak tersimpan. Untuk hal penting, hubungi guru lewat jalur resmi sekolah.",
+				"not_ready": "Tombol telepon, video, info kontak, dan lampiran belum berfungsi."
+			}
+		},
+		"platform_invoices": {
+			"purpose": "Halaman ini untuk membuat, menerbitkan, dan memantau invoice tagihan tenant, termasuk mencatat dan memverifikasi pembayarannya. Invoice yang sudah terbit terkunci dan tidak bisa diubah.",
+			"features": {
+				"find": "Mencari invoice berdasarkan nomor atau nama tenant, dan menyaring per status: \"Semua\", \"Draf\", \"Belum bayar\", \"Overdue\", atau \"Lunas\".",
+				"draft": "Menyusun draf invoice: tenant, tanggal terbit, \"Termin\", \"Periode layanan\", baris rincian (bisa diisi otomatis lewat \"Isi dari langganan tenant\"), diskon, PPN 11%, dan \"Rekening tujuan\".",
+				"issue": "Memeriksa tampilan lewat \"Pratinjau & cetak\" (cetak atau simpan PDF), lalu menerbitkan invoice bernomor resmi dan mengirimkannya ke email PIC lewat \"Terbitkan & kirim\".",
+				"follow": "Menindaklanjuti invoice yang sudah terbit: \"Kirim pengingat\", \"Catat pembayaran\" untuk dana yang sudah masuk, atau \"Batalkan invoice\".",
+				"proof": "Memeriksa bukti transfer yang dikirim tenant, lalu memilih \"Verifikasi\" atau \"Tolak\" disertai alasan.",
+				"settings": "Mengatur kop invoice, penandatangan, termin bawaan, bank Virtual Account, catatan bawaan, dan rekening tujuan lewat \"Pengaturan penerbit\"."
+			},
+			"steps": {
+				"s1": "Klik \"Invoice baru\", lalu pilih tenant pada kolom \"Tenant\".",
+				"s2": "Atur tanggal terbit, \"Termin\", dan \"Periode layanan\". Isi rincian dengan \"Tambah baris\" atau klik \"Isi dari langganan tenant\".",
+				"s3": "Sesuaikan diskon, PPN, \"Rekening tujuan\", dan catatan bila perlu, lalu klik \"Simpan draf\".",
+				"s4": "Klik \"Pratinjau & cetak\" untuk memeriksa tampilan invoice sebelum diterbitkan.",
+				"s5": "Klik \"Terbitkan & kirim\" lalu konfirmasi. Invoice mendapat nomor resmi dan dikirim ke email PIC tenant.",
+				"s6": "Setelah dana masuk, klik \"Catat pembayaran\" atau verifikasi bukti transfer dari tenant. Status menjadi \"Lunas\" bila pembayaran sudah mencukupi."
+			},
+			"tips": {
+				"locked": "Invoice yang sudah terbit tidak bisa diubah. Untuk koreksi, batalkan invoice (alasan minimal 5 karakter) lalu buat ulang, misalnya lewat \"Duplikat jadi draf\".",
+				"sample": "Bila muncul peringatan bahwa kop invoice masih memakai data contoh, lengkapi \"Pengaturan penerbit\" sebelum menerbitkan invoice.",
+				"reminder": "Pengingat yang baru dikirim hanya bisa dikirim ulang setelah 1 jam.",
+				"delete": "Hanya draf yang bisa dihapus lewat \"Hapus draf\". Draf belum bernomor sehingga tidak meninggalkan celah nomor invoice."
+			}
+		},
+		"platform_payments": {
+			"purpose": "Halaman ini untuk memverifikasi bukti transfer yang dikirim tenant dan mencatat pembayaran manual yang diterima di luar sistem. Pembayaran VA dan QRIS lewat gateway terverifikasi otomatis.",
+			"features": {
+				"find": "Mencari pembayaran berdasarkan tenant, nomor invoice, atau referensi, dan menyaring per tab: \"Verifikasi\", \"Semua\", \"Terverifikasi\", atau \"Ditolak\".",
+				"compare": "Membandingkan jumlah yang dibayar dengan sisa tagihan invoice beserta selisihnya.",
+				"proof": "Melihat bukti transfer dan detail pembayaran: metode, waktu, pengirim, referensi, invoice, dan jatuh tempo.",
+				"mutation": "Mencatat bahwa pembayaran sudah dicocokkan dengan mutasi rekening lewat \"Tandai sudah dicek\".",
+				"decide": "Memverifikasi pembayaran agar tercatat ke invoice, atau menolaknya dengan alasan yang dikirim ke email PIC tenant.",
+				"manual": "Mencatat pembayaran manual (\"Transfer bank\", \"Virtual account\", \"QRIS\", atau \"Tunai / cek\") lewat \"Catat pembayaran\"."
+			},
+			"steps": {
+				"s1": "Buka tab \"Verifikasi\", lalu klik pembayaran yang ingin diperiksa.",
+				"s2": "Periksa bukti transfer, detail pembayaran, dan selisihnya terhadap sisa tagihan.",
+				"s3": "Cocokkan dengan mutasi rekening, lalu klik \"Tandai sudah dicek\".",
+				"s4": "Pada bagian \"Tindakan\", pilih \"Verifikasi\" atau \"Tolak\". Untuk menolak, pilih salah satu alasan penolakan.",
+				"s5": "Klik \"Verifikasi pembayaran\" atau \"Tolak pembayaran\", lalu konfirmasi.",
+				"s6": "Untuk pembayaran di luar sistem, klik \"Catat pembayaran\", pilih invoice, isi jumlah, tanggal, metode, dan data pengirim, lampirkan bukti, lalu klik \"Simpan & verifikasi\"."
+			},
+			"tips": {
+				"partial": "Bila jumlah lebih kecil dari sisa tagihan, pembayaran dicatat sebagai pembayaran sebagian dan invoice belum lunas.",
+				"proof": "Bukti wajib untuk metode \"Transfer bank\", kecuali Anda mencentang \"Sudah dicek di mutasi rekening\". Format berkas JPG, PNG, atau PDF, maksimal 5 MB.",
+				"limits": "Jumlah yang dicatat tidak boleh melebihi sisa tagihan, dan tanggal diterima tidak boleh di masa depan.",
+				"manual": "Pembayaran manual langsung berstatus terverifikasi setelah disimpan."
+			}
+		},
+		"platform_applications": {
+			"purpose": "Halaman ini untuk meninjau pengajuan lembaga baru dari halaman pendaftaran: memeriksa dan mengoreksi data, melengkapi verifikasi, lalu memutuskan setujui, minta revisi, atau tolak. Database tenant dibuat otomatis setelah pengajuan disetujui.",
+			"features": {
+				"queue": "Melihat antrean per status (\"Menunggu\", \"Revisi\", \"Disetujui\", \"Ditolak\") dan mencari berdasarkan nama atau NPSN. Pengajuan yang menunggu menampilkan umur dan progres SLA.",
+				"edit": "Mengoreksi data pengajuan (nama lembaga, jenjang, zona waktu, kursi atau peserta, alamat, dan kontak PIC) serta membuka berkas lampiran.",
+				"checks": "Melengkapi \"Verifikasi\": sebagian poin dicek otomatis, sebagian dicentang manual, termasuk \"Tandai bukan duplikat\".",
+				"decide": "Memutuskan pengajuan: \"Setujui\" (pilih paket, trial, dan cluster database), \"Minta revisi\" (pilih bagian dan tulis pesan), atau \"Tolak\" (pilih alasan).",
+				"reopen": "Membuka kembali pengajuan yang ditolak lewat \"Buka kembali\", atau mengembalikan pengajuan revisi ke antrean lewat \"Tandai sudah diperbaiki\".",
+				"provisioning": "Memantau progres penyiapan database tenant setelah pengajuan disetujui."
+			},
+			"steps": {
+				"s1": "Pada tab \"Menunggu\", klik pengajuan di daftar kiri.",
+				"s2": "Periksa data pengajuan dan koreksi bila perlu. Buka lampiran untuk memeriksa dokumen.",
+				"s3": "Lengkapi semua poin di bagian \"Verifikasi\" dengan mencentang pemeriksaan manual.",
+				"s4": "Pada bagian \"Keputusan\", pilih \"Setujui\", \"Minta revisi\", atau \"Tolak\", lalu isi rincian yang diminta.",
+				"s5": "Klik tombol keputusan di bagian bawah, misalnya \"Setujui & buat database\", lalu konfirmasi.",
+				"s6": "Pantau hasilnya di tab \"Disetujui\", \"Revisi\", atau \"Ditolak\"."
+			},
+			"tips": {
+				"checks": "\"Setujui\" baru bisa dilakukan setelah semua poin verifikasi terpenuhi.",
+				"edits": "Koreksi data ikut tersimpan saat keputusan dikonfirmasi. Klik \"Batalkan perubahan\" untuk mengembalikan data semula.",
+				"paid": "Paket berbayar tanpa trial langsung menerbitkan invoice pertama; database disiapkan setelah tagihan lunas.",
+				"notify": "Pesan revisi (minimal 10 karakter) dan alasan penolakan dikirim ke email PIC pemohon."
+			}
+		},
+		"registration": {
+			"purpose": "Halaman ini memandu Anda mendaftarkan lembaga ke FLIXARE, mulai dari membuat akun, memilih paket, pembayaran atau trial, hingga setup awal sebelum masuk ke dashboard.",
+			"features": {
+				"type": "Memilih jenis lembaga: \"Sekolah\", \"Guru pribadi\", atau \"Penyelenggara sesi\". Langkah dan syaratnya menyesuaikan jenis yang dipilih.",
+				"account": "Membuat akun penanggung jawab dan memverifikasinya dengan kode 6 digit.",
+				"plan": "Mengisi data lembaga, lalu memilih paket, jumlah kursi, siklus \"Bulanan\" atau \"Tahunan\", dan trial bila tersedia.",
+				"pay": "Membayar tagihan lewat Virtual Account atau QRIS, lalu mengecek status pembayaran.",
+				"status": "Memantau status persetujuan dan aktivasi database; status diperbarui otomatis secara berkala.",
+				"setup": "Melengkapi setup awal sesuai jenis lembaga, seperti profil, tahun ajaran, kelas, dan mata pelajaran."
+			},
+			"steps": {
+				"s1": "Pilih jenis lembaga, isi data penanggung jawab dan kata sandi, centang persetujuan, lalu klik \"Kirim kode verifikasi\".",
+				"s2": "Masukkan kode 6 digit yang Anda terima. Klik \"Kirim ulang kode\" bila kode belum masuk.",
+				"s3": "Lengkapi data lembaga (NPSN sekolah dicek otomatis), lalu klik \"Lanjut ke paket\".",
+				"s4": "Pilih paket, jumlah kursi, dan siklus tagihan, lalu lanjutkan ke langkah pembayaran.",
+				"s5": "Bila memakai trial, klik \"Ajukan trial\". Bila berbayar, pilih Virtual Account atau QRIS, bayar tagihan, lalu klik \"Saya sudah bayar, cek status\".",
+				"s6": "Tunggu persetujuan dan aktivasi database, lalu klik \"Mulai setup awal\".",
+				"s7": "Isi setiap langkah setup dan klik \"Simpan & lanjut\", lalu klik \"Masuk ke dashboard\" di langkah terakhir."
+			},
+			"tips": {
+				"review": "Pengajuan sekolah ditinjau tim FLIXARE (target ≤ 1×24 jam kerja); untuk paket berbayar, tagihan baru bisa dibayar setelah disetujui. Guru pribadi dan penyelenggara sesi disetujui otomatis.",
+				"revision": "Bila tim meminta perbaikan, klik \"Perbaiki data\" lalu perbarui data lembaga yang diminta.",
+				"import": "Impor data guru dan murid dari Excel belum tersedia. Pilih \"Lewati dulu\", lalu tambahkan datanya dari dashboard."
+			}
+		},
+		"platform_dashboard": {
+			"purpose": "Halaman ini memberi ringkasan kondisi platform FLIXARE: metrik utama, antrean pengajuan, kapasitas cluster database, log provisioning, pendapatan, penagihan, dan risiko churn.",
+			"features": {
+				"period": "Mengganti periode metrik ringkasan: \"7 hari\", \"30 hari\", atau \"90 hari\".",
+				"queue": "Melihat \"Antrian pengajuan\" beserta umur pengajuan dan pemakaian SLA.",
+				"infra": "Memantau kapasitas \"Cluster DB\" dan \"Log provisioning\" database tenant.",
+				"revenue": "Melihat grafik \"Pendapatan bulanan\" dan rincian per bulan.",
+				"billing": "Melihat komposisi status invoice di bagian \"Penagihan\" dan daftar \"Risiko churn\".",
+				"plans": "Membuka pengelolaan paket langganan lewat tombol \"Kelola paket\"."
+			},
+			"steps": {
+				"s1": "Pilih periode di kanan atas untuk mengganti rentang metrik ringkasan.",
+				"s2": "Periksa kartu metrik di bawah judul untuk melihat kondisi platform secara cepat.",
+				"s3": "Tinjau \"Antrian pengajuan\". Keputusan setujui atau tolak dilakukan di halaman \"Pengajuan lembaga\".",
+				"s4": "Pantau \"Cluster DB\" dan \"Log provisioning\" untuk memastikan kapasitas dan penyiapan database berjalan normal.",
+				"s5": "Klik batang pada \"Pendapatan bulanan\" untuk melihat rincian bulan, lalu periksa \"Penagihan\" dan \"Risiko churn\"."
+			},
+			"tips": {
+				"data": "Sumber data backend untuk dashboard ini belum tersedia, sehingga angka yang tampil masih berupa data contoh."
+			}
+		},
+		"platform_master_data": {
+			"purpose": "Halaman ini untuk mengelola data acuan (master data) yang dipakai seluruh tenant, seperti institusi, jenjang pendidikan, tahun akademik, kurikulum, mata pelajaran, pengguna, peran, permission, dan template notifikasi.",
+			"features": {
+				"pick": "Memilih master di daftar kiri yang dikelompokkan per bagian, serta mencarinya lewat kolom \"Cari master\".",
+				"find": "Mencari data berdasarkan nama atau kode dan menyaring status: \"Semua\", \"Aktif\", \"Nonaktif\", atau \"Arsip\".",
+				"edit": "Menambah data baru lewat tombol \"Tambah\" dan mengubah data dengan mengklik barisnya.",
+				"template": "Pada template notifikasi, menyisipkan variabel ke isi pesan dan melihat pratinjaunya.",
+				"csv": "Mengekspor data master yang sedang dipilih lewat \"Ekspor CSV\"."
+			},
+			"steps": {
+				"s1": "Pilih master yang ingin dikelola di daftar kiri.",
+				"s2": "Cari data lewat kolom \"Cari nama atau kode\" atau saring berdasarkan status.",
+				"s3": "Klik tombol \"Tambah\" (diikuti nama master) untuk data baru, atau klik baris data untuk mengubahnya.",
+				"s4": "Lengkapi isian bertanda * pada panel, pilih status, lalu klik \"Simpan\".",
+				"s5": "Untuk menghapus, buka data lalu klik \"Hapus data\" dan konfirmasi."
+			},
+			"tips": {
+				"in_use": "Data yang masih dipakai data lain tidak bisa dihapus. Ubah statusnya menjadi \"Arsip\" agar tidak muncul di pilihan baru.",
+				"inactive": "Status \"Nonaktif\" menyembunyikan data sementara dari pilihan baru; data lama tetap memakainya.",
+				"code": "Kode terkunci setelah data dibuat agar rujukan data lain tetap utuh."
+			}
+		},
+		"platform_navigation": {
+			"purpose": "Halaman ini untuk menyusun menu sidebar setiap peran (Platform, Admin sekolah, Guru, Murid, dan Orang tua): grup, urutan, rute, ikon, dan visibilitas menu.",
+			"features": {
+				"role": "Memilih peran yang sidebarnya ingin diatur. Titik penanda muncul pada peran yang perubahannya belum disimpan.",
+				"tree": "Menambah grup dan menu lewat \"Grup baru\" dan \"Menu baru\", mencari menu, mengubah urutan dengan tombol panah, dan menyembunyikan menu dengan ikon mata.",
+				"editor": "Mengubah detail menu atau grup: nama, status, \"Grup induk\", \"Buka di\", \"Rute\", angka di samping menu, ikon, dan perilaku grup.",
+				"preview": "Melihat pratinjau sidebar secara langsung; klik menu di pratinjau untuk mengubahnya.",
+				"reset": "Mengembalikan sidebar sebuah peran ke \"Susunan bawaan\"."
+			},
+			"steps": {
+				"s1": "Pilih peran yang sidebarnya ingin diatur.",
+				"s2": "Klik \"Grup baru\" atau \"Menu baru\", atau pilih grup/menu di daftar untuk mengubahnya.",
+				"s3": "Isi nama, rute, ikon, dan pengaturan lain di panel editor.",
+				"s4": "Atur urutan dengan tombol panah dan visibilitas dengan ikon mata.",
+				"s5": "Periksa hasilnya di pratinjau sidebar.",
+				"s6": "Klik \"Simpan sidebar\" (diikuti nama peran) untuk menyimpan, atau \"Batalkan\" untuk membuang perubahan."
+			},
+			"tips": {
+				"access": "Menyembunyikan menu tidak mencabut hak akses; server tetap memeriksa izin.",
+				"per_role": "Perubahan disimpan per peran. Simpan setiap peran yang Anda ubah.",
+				"empty_group": "Grup tanpa menu yang tidak bisa diklik tidak akan tampil di sidebar.",
+				"reset": "\"Susunan bawaan\" mengganti seluruh susunan peran tersebut dengan susunan awal setelah Anda konfirmasi."
+			}
+		},
+		"platform_plans": {
+			"purpose": "Halaman ini untuk mengelola paket langganan yang ditawarkan di halaman pendaftaran: harga, batas pemakaian, aturan sesi, trial, dan fitur untuk setiap jenis lembaga.",
+			"features": {
+				"find": "Mencari paket berdasarkan kode atau nama dan menyaring per jenis: \"Semua\", \"Sekolah\", \"Guru\", atau \"Sesi\".",
+				"identity": "Mengatur \"Identitas paket\": kode, nama, lencana, jenis lembaga, status, dan deskripsi.",
+				"price": "Menentukan model harga, harga, dan pajak. Paket per sesi dilengkapi \"Diskon bertingkat\" dan \"Izinkan top-up sesi\".",
+				"limits": "Mengatur \"Batas pemakaian\" dan \"Trial gratis\", atau \"Aturan sesi\" untuk paket per sesi.",
+				"features": "Mengaktifkan fitur paket dan melihat \"Pratinjau di halaman pendaftaran\"."
+			},
+			"steps": {
+				"s1": "Klik \"Paket baru\", atau pilih paket di daftar kiri untuk mengubahnya.",
+				"s2": "Lengkapi \"Identitas paket\" dan \"Harga\".",
+				"s3": "Atur batas pemakaian atau aturan sesi, trial, dan \"Fitur\".",
+				"s4": "Periksa tampilan paket di \"Pratinjau di halaman pendaftaran\".",
+				"s5": "Klik \"Simpan\" untuk menyimpan perubahan, atau \"Publikasikan\" lalu konfirmasi agar paket tampil di halaman pendaftaran. Untuk paket aktif, gunakan \"Terapkan perubahan\"."
+			},
+			"tips": {
+				"existing": "Perubahan harga dan fitur berlaku untuk langganan baru dan perpanjangan berikutnya; tagihan yang sudah terbit tidak berubah.",
+				"delete": "Paket yang sudah punya pelanggan tidak bisa dihapus. Ubah statusnya menjadi \"Arsip\" bila tidak ingin ditawarkan lagi."
+			}
+		}
+	},
+	"audit_log": {
+		"eyebrow": "KEAMANAN · AUDIT LOG",
+		"title": "Audit log",
+		"desc": "Catatan setiap perubahan di konsol platform. Tidak bisa diubah atau dihapus; disimpan 2 tahun.",
+		"export": "Ekspor CSV ({count})",
+		"filters": "Filter audit log",
+		"search": "Cari",
+		"search_ph": "Aksi, entitas, IP, atau ID permintaan",
+		"actor_label": "Pelaku",
+		"actor_all": "Semua pelaku",
+		"range_label": "Rentang",
+		"range": {
+			"today": "Hari ini",
+			"7": "7 hari",
+			"30": "30 hari",
+			"custom": "Atur"
+		},
+		"from": "Dari",
+		"to": "Sampai",
+		"module_label": "Modul",
+		"severity_label": "Tingkat",
+		"failed_only": "Hanya yang gagal",
+		"clear_all": "Hapus semua filter",
+		"clear": "Hapus filter",
+		"list_label": "Daftar catatan audit",
+		"detail_label": "Detail catatan",
+		"col": {
+			"time": "Waktu",
+			"actor": "Pelaku",
+			"action": "Aksi",
+			"severity": "Tingkat"
+		},
+		"severity": {
+			"info": "Info",
+			"warn": "Peringatan",
+			"crit": "Kritis"
+		},
+		"result": {
+			"ok": "Berhasil",
+			"fail": "Gagal"
+		},
+		"modules": {
+			"applications": "Pengajuan",
+			"tenants": "Tenant",
+			"invoices": "Invoice",
+			"payments": "Pembayaran",
+			"clusters": "Cluster",
+			"plans": "Paket",
+			"auth": "Autentikasi",
+			"master_data": "Master data",
+			"navigation": "Navigasi",
+			"audit": "Audit",
+			"other": "Lainnya"
+		},
+		"actor": {
+			"system": "Sistem",
+			"gateway": "Payment gateway",
+			"unknown": "Pengguna tidak dikenal"
+		},
+		"showing": "Menampilkan {shown} dari {total} catatan",
+		"load_more": "Muat {count} lagi",
+		"loading": "Memuat…",
+		"empty_title": "Belum ada catatan",
+		"empty_desc": "Belum ada aktivitas tercatat pada rentang ini.",
+		"empty_filtered_title": "Tidak ada catatan yang cocok",
+		"empty_filtered_desc": "Tidak ada catatan yang cocok dengan filter.",
+		"no_selection": "Pilih catatan untuk melihat detail perubahan.",
+		"changes": "Perubahan",
+		"before": "Sebelum",
+		"after": "Sesudah",
+		"meta": {
+			"time": "Waktu",
+			"time_value": "{date} {time} WIB",
+			"actor": "Pelaku",
+			"module": "Modul",
+			"ip": "Alamat IP",
+			"device": "Perangkat",
+			"request_id": "ID permintaan"
+		},
+		"device_service": "Layanan sistem",
+		"chain": {
+			"verified": "Rantai hash terverifikasi",
+			"pending": "Belum termasuk verifikasi terakhir (hingga AUD-{last})",
+			"broken": "Rantai hash rusak mulai AUD-{seq}",
+			"checking": "Memeriksa rantai hash…",
+			"unavailable": "Status rantai hash tidak tersedia"
+		},
+		"copy_id": "Salin ID",
+		"actor_activity": "Aktivitas pelaku ini",
+		"toast": {
+			"copied": "{ref} disalin.",
+			"copy_failed": "Gagal menyalin ID. Salin secara manual.",
+			"export_empty": "Tidak ada data untuk diekspor.",
+			"exported": "{count} catatan diekspor ke CSV."
+		},
+		"errors": {
+			"range_invalid": "Tanggal akhir sebelum tanggal awal.",
+			"invalid_date": "Tanggal tidak valid.",
+			"required": "Isi tanggal awal dan akhir.",
+			"invalid": "Nilai filter tidak valid.",
+			"too_long": "Kata kunci terlalu panjang.",
+			"invalid_filter": "Filter tidak valid. Periksa kembali isian filter.",
+			"export_too_large": "Hasil terlalu banyak untuk diekspor (maks. {max} baris). Persempit filter."
+		},
+		"load_failed": "Audit log tidak dapat dimuat",
+		"forbidden_title": "Akses ditolak",
+		"failure": {
+			"unauthenticated": "Sesi Anda berakhir. Silakan masuk kembali.",
+			"forbidden": "Anda tidak memiliki izin melihat audit log (platform.audit.view).",
+			"not_found": "Data audit tidak ditemukan.",
+			"conflict": "Terjadi konflik data. Coba lagi.",
+			"validation": "Filter tidak valid.",
+			"gone": "Data audit sudah tidak tersedia.",
+			"too_many": "Terlalu banyak permintaan. Coba lagi sebentar lagi.",
+			"unavailable": "Layanan audit sedang tidak dapat dihubungi. Coba lagi."
+		},
+		"master_action": {
+			"create": "Menambahkan master {master}",
+			"update": "Mengubah master {master}",
+			"delete": "Menghapus master {master}"
+		},
+		"masters": {
+			"cluster_region": "Region cluster"
+		},
+		"login_reason": {
+			"wrong_password": "Kata sandi salah.",
+			"wrong_two_factor": "Kode 2FA salah.",
+			"locked": "Akun sedang dikunci.",
+			"suspended": "Akun ditangguhkan."
+		},
+		"actions": {
+			"tenant_application": {
+				"submit": "Mengirim pengajuan",
+				"cancel": "Membatalkan pengajuan",
+				"edit": "Mengubah pengajuan",
+				"revise": "Meminta revisi pengajuan",
+				"reject": "Menolak pengajuan",
+				"reopen": "Membuka kembali pengajuan",
+				"approve": "Menyetujui pengajuan"
+			},
+			"tenant": {
+				"suspend": "Menangguhkan tenant",
+				"activate": "Mengaktifkan tenant",
+				"provisioned": "Database tenant dibuat",
+				"provision_failed": "Pembuatan database tenant gagal"
+			},
+			"invoice": {
+				"draft_create": "Membuat draf invoice",
+				"draft_update": "Mengubah draf invoice",
+				"draft_delete": "Menghapus draf invoice",
+				"issue": "Menerbitkan invoice",
+				"void": "Membatalkan invoice",
+				"remind": "Mengirim pengingat invoice",
+				"paid": "Invoice lunas",
+				"transfer_submit": "Mengirim bukti transfer",
+				"reconstructed": "Invoice dibangun ulang",
+				"payment_partial": "Mencatat pembayaran sebagian",
+				"payment_record": "Mencatat pembayaran",
+				"payment_reject": "Menolak pembayaran",
+				"payment_verify": "Memverifikasi pembayaran",
+				"payment_mutation_check": "Memeriksa mutasi pembayaran",
+				"overpaid": "Invoice kelebihan bayar"
+			},
+			"billing": {
+				"settings_update": "Mengubah pengaturan tagihan"
+			},
+			"cluster": {
+				"create": "Menambahkan cluster",
+				"update": "Mengubah cluster",
+				"maintenance_start": "Memasukkan cluster ke pemeliharaan",
+				"maintenance_end": "Mengakhiri pemeliharaan cluster",
+				"capacity_warning": "Kapasitas melewati ambang"
+			},
+			"backup": {
+				"succeeded": "Backup cluster selesai",
+				"failed": "Backup cluster gagal"
+			},
+			"plan": {
+				"create": "Membuat paket",
+				"update": "Mengubah paket",
+				"delete": "Menghapus paket"
+			},
+			"auth": {
+				"login_success": "Berhasil masuk",
+				"login_failed": "Gagal masuk",
+				"login_locked": "Akun dikunci setelah gagal masuk"
+			},
+			"account": {
+				"email": {
+					"cancel": "Membatalkan perubahan email",
+					"resend": "Mengirim ulang verifikasi email",
+					"verify": "Memverifikasi email baru"
+				},
+				"export": {
+					"create": "Meminta unduhan data akun"
+				},
+				"linked": {
+					"connect": "Menautkan akun masuk",
+					"disconnect": "Melepas tautan akun masuk"
+				},
+				"login": {
+					"locked": "Akun dikunci"
+				},
+				"notifications": {
+					"test": "Mengirim notifikasi uji",
+					"update": "Mengubah preferensi notifikasi"
+				},
+				"password": {
+					"change": "Mengganti kata sandi akun",
+					"otp_sent": "Mengirim kode OTP kata sandi",
+					"reset_link": "Mengirim tautan atur ulang kata sandi",
+					"wrong_current": "Kata sandi saat ini salah"
+				},
+				"privacy": {
+					"update": "Mengubah pengaturan privasi"
+				},
+				"profile": {
+					"update": "Mengubah profil"
+				},
+				"request": {
+					"approve": "Menyetujui permintaan akun",
+					"cancel": "Membatalkan permintaan akun",
+					"decline": "Menolak permintaan akun",
+					"document": "Mengunggah dokumen permintaan",
+					"request_docs": "Meminta dokumen tambahan",
+					"submit": "Mengajukan permintaan akun",
+					"apply_deletion": "Menjalankan penghapusan akun"
+				},
+				"security_alerts": {
+					"update": "Mengubah peringatan keamanan"
+				},
+				"session": {
+					"revoke": "Mengakhiri sesi",
+					"revoke_others": "Mengakhiri sesi lain"
+				},
+				"two_factor": {
+					"backup_codes": "Membuat ulang kode cadangan 2FA",
+					"disable": "Menonaktifkan 2FA",
+					"enable": "Mengaktifkan 2FA",
+					"setup": "Memulai penyiapan 2FA"
+				}
+			},
+			"navigation": {
+				"group": {
+					"create": "Menambahkan grup menu",
+					"update": "Mengubah grup menu",
+					"delete": "Menghapus grup menu"
+				},
+				"item": {
+					"create": "Menambahkan item menu",
+					"update": "Mengubah item menu",
+					"delete": "Menghapus item menu"
+				},
+				"layout": {
+					"save": "Menyimpan susunan menu",
+					"reset": "Mengatur ulang susunan menu",
+					"seed": "Mengisi susunan menu bawaan"
+				}
+			},
+			"audit": {
+				"export": "Mengekspor audit log",
+				"retention": "Retensi audit log dijalankan"
+			}
+		}
+	},
+	"clusters": {
+		"eyebrow": "INFRASTRUKTUR · CLUSTER DB",
+		"title": "Cluster database",
+		"desc": "Setiap tenant punya database sendiri. Atur koneksi, kapasitas, dan backup cluster tempat database dibuat.",
+		"new": "Cluster baru",
+		"cards_label": "Daftar cluster",
+		"card": {
+			"databases": "{used}/{max} database"
+		},
+		"empty_title": "Belum ada cluster",
+		"empty_text": "Tambahkan cluster pertama lewat form di bawah, lalu uji koneksinya sebelum disimpan.",
+		"status": {
+			"available": "Menerima tenant",
+			"full": "Penuh",
+			"draining": "Drain",
+			"maintenance": "Pemeliharaan",
+			"retired": "Pensiun"
+		},
+		"status_sub": {
+			"available": "Database tenant baru bisa dibuat di sini.",
+			"draining": "Tidak menerima tenant baru. Tenant lama tetap berjalan.",
+			"maintenance": "Koneksi tenant dijeda. Pengguna melihat halaman pemeliharaan."
+		},
+		"status_title": "Status penerimaan",
+		"identity": {
+			"title": "Identitas",
+			"new": "Cluster baru",
+			"count": "{n} database tenant"
+		},
+		"connection": {
+			"title": "Koneksi"
+		},
+		"capacity": {
+			"title": "Kapasitas",
+			"over": "Terpakai {pct}%. Sudah melewati ambang; tim infrastruktur mendapat peringatan.",
+			"under": "Terpakai {pct}%. Peringatan dikirim saat mencapai {n} DB."
+		},
+		"backup": {
+			"title": "Backup",
+			"none": "Belum ada snapshot",
+			"last": "Snapshot terakhir {time} WIB · {size} · {status}"
+		},
+		"backup_status": {
+			"running": "berjalan",
+			"succeeded": "berhasil",
+			"failed": "gagal"
+		},
+		"schedule": {
+			"6h": "Tiap 6 jam",
+			"daily": "Harian",
+			"weekly": "Mingguan"
+		},
+		"field": {
+			"code": "Nama cluster",
+			"code_ph": "pg-jkt-04",
+			"code_hint_new": "Nama tidak bisa diubah setelah disimpan.",
+			"code_hint_locked": "Terkunci · dipakai di konfigurasi tenant",
+			"region": "Region",
+			"region_choose": "Pilih region",
+			"region_inside": "Data tenant tetap di Indonesia",
+			"region_outside": "Data tenant disimpan di luar Indonesia. Periksa kebijakan PDP sekolah.",
+			"version": "Versi PostgreSQL",
+			"version_hint": "Terdeteksi dari uji koneksi",
+			"version_unknown": "Belum terdeteksi",
+			"host": "Host",
+			"host_ph": "pg-jkt-04.internal.flixare.id",
+			"port": "Port",
+			"user": "User admin",
+			"user_ph": "flx_admin",
+			"password": "Kata sandi",
+			"password_ph_new": "Minimal 12 karakter",
+			"password_ph_saved": "•••••••••• (tersimpan)",
+			"password_hint_new": "Disimpan terenkripsi, tidak pernah ditampilkan lagi.",
+			"password_hint_keep": "Kosongkan bila tidak diganti.",
+			"password_show": "Tampilkan kata sandi",
+			"password_hide": "Sembunyikan kata sandi",
+			"ssl": "Mode SSL",
+			"max": "Maks. database tenant",
+			"max_unit": "DB",
+			"max_hint": "Sisa {n} slot database",
+			"pool": "Pool koneksi per DB",
+			"pool_unit": "koneksi",
+			"warn": "Ambang peringatan",
+			"schedule": "Jadwal snapshot",
+			"retention": "Retensi",
+			"retention_days": "{n} hari",
+			"pitr": "Point-in-time recovery",
+			"pitr_sub": "Pulihkan database tenant ke detik tertentu dalam masa retensi."
+		},
+		"ssl_option": {
+			"verify-full": "verify-full (disarankan)",
+			"require": "require",
+			"disable": "disable"
+		},
+		"ssl_hint": {
+			"verify-full": "Terenkripsi dan sertifikat diverifikasi.",
+			"require": "Terenkripsi tanpa verifikasi sertifikat.",
+			"disable": "Koneksi tidak terenkripsi. Hindari untuk produksi."
+		},
+		"test": {
+			"run": "Uji koneksi",
+			"untested": "Belum diuji",
+			"never": "Belum pernah terhubung",
+			"last": "Terhubung terakhir {when}",
+			"running": "Menguji koneksi…",
+			"running_sub": "TLS handshake · autentikasi · SELECT version()",
+			"ok": "Koneksi berhasil",
+			"ok_sub": "PostgreSQL {version} · latensi {ms} ms · SSL {ssl}",
+			"ssl_off": "nonaktif",
+			"failed": "Koneksi gagal"
+		},
+		"test_error": {
+			"connection_dns": "Host tidak ditemukan (DNS). Periksa nama host.",
+			"connection_refused": "Koneksi ditolak. Periksa host, port, dan firewall.",
+			"connection_auth": "Autentikasi gagal. Periksa user admin dan kata sandi.",
+			"connection_tls": "Koneksi SSL gagal. Periksa mode SSL dan sertifikat server.",
+			"connection_timeout": "Server tidak merespons dalam 5 detik.",
+			"connection_failed": "Koneksi gagal. Periksa pengaturan koneksi."
+		},
+		"dbs": {
+			"title": "Database terbesar",
+			"total": "{n} total",
+			"empty": "Belum ada database di cluster ini.",
+			"loading": "Memuat database…"
+		},
+		"bar": {
+			"errors": "{n} isian perlu diperbaiki",
+			"unsaved": "Ada perubahan yang belum disimpan",
+			"saved": "Semua perubahan tersimpan"
+		},
+		"reset": "Batalkan",
+		"save": "Simpan perubahan",
+		"save_new": "Tambahkan cluster",
+		"saving": "Menyimpan…",
+		"errors": {
+			"code_format": "4–24 karakter: huruf kecil, angka, tanda hubung.",
+			"code_taken": "Nama sudah dipakai.",
+			"region_required": "Pilih region.",
+			"host_invalid": "Host tidak valid.",
+			"port_range": "Port 1–65535.",
+			"user_required": "Isi user admin.",
+			"user_short": "Minimal 3 karakter.",
+			"password_required": "Isi kata sandi, minimal 12 karakter.",
+			"password_short": "Minimal 12 karakter.",
+			"max_required": "Isi kapasitas.",
+			"max_below_used": "Tidak boleh di bawah {n} DB yang sudah ada.",
+			"pool_range": "Pool 5–100.",
+			"warn_range": "Ambang 50–95%, kelipatan 5.",
+			"invalid": "Isian tidak valid.",
+			"test_required": "Uji koneksi harus berhasil sebelum cluster baru disimpan."
+		},
+		"toast": {
+			"saved": "Cluster {name} tersimpan.",
+			"unchanged": "Tidak ada perubahan."
+		},
+		"confirm": {
+			"maint_title": "Masukkan {name} ke mode pemeliharaan?",
+			"maint_message": "{n} tenant tidak bisa diakses sampai mode pemeliharaan dimatikan. Ujian yang sedang berjalan akan dijeda.",
+			"maint_label": "Ya, mulai pemeliharaan",
+			"maint_db": "Database terdampak",
+			"maint_notify": "Notifikasi",
+			"maint_notify_value": "Admin tenant diberi tahu via email",
+			"busy": "Menyimpan…",
+			"cancel": "Batal",
+			"key_hint": "ESC untuk batal · ENTER untuk konfirmasi",
+			"discard_title": "Buang perubahan?",
+			"discard_message": "Perubahan pada {name} belum disimpan dan akan hilang.",
+			"discard_new": "cluster baru",
+			"discard_confirm": "Ya, buang",
+			"discard_cancel": "Lanjut mengisi",
+			"discard_busy": "Memproses…"
+		},
+		"failure": {
+			"forbidden": "Akun ini tidak memiliki izin mengelola cluster.",
+			"not_found": "Cluster tidak ditemukan. Muat ulang halaman.",
+			"validation_failed": "Periksa kembali isian yang ditandai.",
+			"connection_failed": "Uji koneksi ulang di server gagal. Perubahan belum disimpan.",
+			"cluster_unreachable": "Cluster tidak dapat dihubungi. Daftar database belum bisa dimuat.",
+			"invalid_request": "Permintaan tidak valid. Muat ulang halaman.",
+			"unavailable": "Layanan sedang tidak tersedia. Coba lagi beberapa saat.",
+			"generic": "Terjadi kesalahan. Coba lagi."
+		},
+		"state": {
+			"forbidden_title": "Tidak ada akses Cluster DB",
+			"forbidden_text": "Akun Anda belum memiliki izin mengelola cluster database. Hubungi admin platform.",
+			"unavailable_title": "Cluster DB belum bisa dimuat",
+			"unavailable_text": "Layanan sedang tidak tersedia. Coba lagi beberapa saat.",
+			"retry": "Muat ulang"
+		}
+	},
+	"student_assessments": {
+		"hero": {
+			"eyebrow": "UJIAN & ASESMEN CBT",
+			"title": "Ruang Ujian & Asesmen Digital",
+			"desc": "Ikuti kuis harian, ulangan sumatif, tryout AKM, dan ujian remedial kelas {class} secara terintegrasi dan aman.",
+			"stat_total": "Total Ujian",
+			"stat_active": "Aktif Hari Ini",
+			"stat_upcoming": "Ujian Mendatang",
+			"stat_remedial": "Perlu Remedial"
+		}
+	},
+	"student_attendance": {
+		"hero": {
+			"eyebrow": "PRESENSI & KEHADIRAN",
+			"title": "Rekap Presensi Siswa",
+			"desc": "{name} · Kelas {class} · Tingkat Kehadiran Semester: {rate}%",
+			"request_permit": "Ajukan Izin / Sakit",
+			"stat_rate": "Persentase Hadir",
+			"stat_streak": "Streak Belajar",
+			"stat_late": "Terlambat",
+			"stat_permit_sick": "Izin / Sakit",
+			"value_days": "{count} Hari",
+			"value_times": "{count} Kali"
+		}
+	},
+	"student_materials": {
+		"hero": {
+			"eyebrow": "MATERI & MODUL",
+			"title": "Koleksi Materi Pembelajaran",
+			"desc": "Akses bahan ajar, modul digital, video interaktif, dan lembar kerja kelas {class} yang disiapkan oleh para guru.",
+			"stat_total": "Total Materi",
+			"stat_completed": "Selesai Dibaca",
+			"stat_in_progress": "Sedang Dipelajari"
+		}
+	},
+	"student_messages": {
+		"hero": {
+			"eyebrow": "KOMUNIKASI KELAS",
+			"title": "Pesan & Buku Penghubung",
+			"desc": "Konsultasi belajar kelas {class} dengan wali kelas & guru mata pelajaran",
+			"academic_year": "Tahun Ajaran {year}"
 		}
 	}
 }

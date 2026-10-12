@@ -1,9 +1,7 @@
 <script lang="ts">
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
-	import { useI18n } from '$lib/i18n';
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
-	import AlertCircle from '@lucide/svelte/icons/alert-circle';
-	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { useI18n, type TranslationParams } from '$lib/i18n';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Calculator from '@lucide/svelte/icons/calculator';
 	import Calendar from '@lucide/svelte/icons/calendar';
@@ -17,7 +15,6 @@
 	import Play from '@lucide/svelte/icons/play';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Search from '@lucide/svelte/icons/search';
-	import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import Timer from '@lucide/svelte/icons/timer';
 	import User from '@lucide/svelte/icons/user';
@@ -28,6 +25,8 @@
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
+	const t = (key: string, params?: TranslationParams) =>
+		i18n.t(`student_assessments.hero.${key}`, params);
 
 	const SUBJECT_ICONS = {
 		math: Calculator,
@@ -58,7 +57,9 @@
 	const activeCount = $derived(allAssessments.filter((a) => a.status === 'active').length);
 	const upcomingCount = $derived(allAssessments.filter((a) => a.status === 'upcoming').length);
 	const completedCount = $derived(allAssessments.filter((a) => a.status === 'completed').length);
-	const remedialCount = $derived(allAssessments.filter((a) => a.isRemedial || a.type === 'remedial').length);
+	const remedialCount = $derived(
+		allAssessments.filter((a) => a.isRemedial || a.type === 'remedial').length
+	);
 
 	const filteredAssessments = $derived(
 		allAssessments.filter((a) => {
@@ -107,49 +108,31 @@
 </svelte:head>
 
 <div class="flex min-w-0 flex-col gap-6 leading-tight">
-	<!-- Hero Section -->
-	<section
-		class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[22px] p-7 md:p-8"
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('desc', { class: data.assessmentsData.className })}
+		help="help.student_assessments"
 	>
-		<img
-			src={logogramColor}
-			alt=""
-			aria-hidden="true"
-			draggable="false"
-			class="pointer-events-none absolute -top-8 -right-10 -z-10 w-72 max-w-none opacity-10 select-none"
-		/>
-		<div class="flex flex-col items-start gap-2">
-			<span
-				class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.14em]"
-			>
-				UJIAN & ASESMEN CBT
-			</span>
-			<h1 class="text-[1.75rem] md:text-3xl font-bold">Ruang Ujian & Asesmen Digital</h1>
-			<p class="text-lms-on-hero-muted text-sm md:text-base max-w-2xl">
-				Ikuti kuis harian, ulangan sumatif, tryout AKM, dan ujian remedial kelas {data.assessmentsData.className} secara terintegrasi dan aman.
-			</p>
-		</div>
-
-		<!-- Quick Stats -->
-		<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl">
+		<div class="grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Total Ujian</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_total')}</span>
 				<span class="text-2xl font-bold">{allAssessments.length}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Aktif Hari Ini</span>
-				<span class="text-2xl font-bold text-warning-400">{activeCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_active')}</span>
+				<span class="text-warning-400 text-2xl font-bold">{activeCount}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Ujian Mendatang</span>
-				<span class="text-2xl font-bold text-lms-link">{upcomingCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_upcoming')}</span>
+				<span class="text-lms-link text-2xl font-bold">{upcomingCount}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Perlu Remedial</span>
-				<span class="text-2xl font-bold text-error-400">{remedialCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_remedial')}</span>
+				<span class="text-error-400 text-2xl font-bold">{remedialCount}</span>
 			</div>
 		</div>
-	</section>
+	</HeroBanner>
 
 	<!-- Filter & Search Controls -->
 	<div class="lms-card flex flex-col gap-4 rounded-[22px]! p-5 shadow-none!">
@@ -279,8 +262,12 @@
 
 	<!-- Assessments Grid -->
 	{#if filteredAssessments.length === 0}
-		<div class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!">
-			<div class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full">
+		<div
+			class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!"
+		>
+			<div
+				class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full"
+			>
 				<Icon icon={Timer} size="lg" />
 			</div>
 			<div class="flex flex-col gap-1 max-w-sm">
@@ -306,7 +293,8 @@
 	{:else}
 		<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 			{#each filteredAssessments as item (item.id)}
-				{@const isRemedialNeeded = item.isRemedial || (item.score !== undefined && item.score < item.passingScore)}
+				{@const isRemedialNeeded =
+					item.isRemedial || (item.score !== undefined && item.score < item.passingScore)}
 				<article
 					class={[
 						'lms-card hover:border-lms-interactive/40 relative flex flex-col justify-between rounded-[22px]! p-5 transition-all duration-200 shadow-none!',
@@ -316,11 +304,18 @@
 					<div class="flex flex-col gap-3">
 						<!-- Card Top: Subject & Type Badge -->
 						<div class="flex items-center justify-between gap-2">
-							<span class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold">
+							<span
+								class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold"
+							>
 								<Icon icon={SUBJECT_ICONS[item.subjectIcon] ?? BookOpen} size="sm" />
 								{item.subjectName}
 							</span>
-							<span class={['rounded-full px-2.5 py-0.75 text-xs font-bold', TYPE_LABELS[item.type].tone]}>
+							<span
+								class={[
+									'rounded-full px-2.5 py-0.75 text-xs font-bold',
+									TYPE_LABELS[item.type].tone
+								]}
+							>
 								{TYPE_LABELS[item.type].label}
 							</span>
 						</div>
@@ -339,13 +334,21 @@
 
 						<!-- Details Chips -->
 						<div class="flex flex-wrap gap-2 pt-1 text-xs">
-							<span class="bg-lms-surface-muted text-lms-muted flex items-center gap-1 rounded-lg px-2.5 py-1">
-								<Icon icon={Clock} size="sm" /> {item.durationMinutes} Menit
+							<span
+								class="bg-lms-surface-muted text-lms-muted flex items-center gap-1 rounded-lg px-2.5 py-1"
+							>
+								<Icon icon={Clock} size="sm" />
+								{item.durationMinutes} Menit
 							</span>
-							<span class="bg-lms-surface-muted text-lms-muted flex items-center gap-1 rounded-lg px-2.5 py-1">
-								<Icon icon={HelpCircle} size="sm" /> {item.questionCount} Soal
+							<span
+								class="bg-lms-surface-muted text-lms-muted flex items-center gap-1 rounded-lg px-2.5 py-1"
+							>
+								<Icon icon={HelpCircle} size="sm" />
+								{item.questionCount} Soal
 							</span>
-							<span class="bg-warning-400/10 text-warning-500 font-bold flex items-center gap-1 rounded-lg px-2.5 py-1">
+							<span
+								class="bg-warning-400/10 text-warning-500 font-bold flex items-center gap-1 rounded-lg px-2.5 py-1"
+							>
 								<Icon icon={Zap} size="sm" /> +{item.xpReward} XP
 							</span>
 						</div>
@@ -449,7 +452,9 @@
 			<!-- Modal Header -->
 			<div class="flex items-center justify-between border-b border-lms-border p-5">
 				<div class="flex items-center gap-3">
-					<span class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl">
+					<span
+						class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl"
+					>
 						<Icon icon={SUBJECT_ICONS[selectedExam.subjectIcon] ?? BookOpen} size="md" />
 					</span>
 					<div class="flex flex-col">
@@ -475,25 +480,35 @@
 			<div class="flex flex-col gap-4 overflow-y-auto p-6 leading-relaxed">
 				{#if isExamInProgress}
 					<!-- Live CBT Simulation Active State -->
-					<div class="bg-lms-hero text-lms-on-hero flex flex-col items-center justify-center gap-3 rounded-2xl p-8 text-center">
-						<div class="bg-warning-400 text-lms-brand-deep-neutral flex size-16 items-center justify-center rounded-2xl shadow-lg">
+					<div
+						class="bg-lms-hero text-lms-on-hero flex flex-col items-center justify-center gap-3 rounded-2xl p-8 text-center"
+					>
+						<div
+							class="bg-warning-400 text-lms-brand-deep-neutral flex size-16 items-center justify-center rounded-2xl shadow-lg"
+						>
 							<Icon icon={Timer} size="lg" />
 						</div>
 						<div class="flex flex-col gap-1">
-							<span class="text-xs font-bold uppercase tracking-widest text-warning-400">Sesi Ujian Berlangsung</span>
+							<span class="text-xs font-bold uppercase tracking-widest text-warning-400"
+								>Sesi Ujian Berlangsung</span
+							>
 							<h3 class="text-2xl font-bold font-mono">00:29:45</h3>
 							<p class="text-lms-on-hero-muted text-xs">
 								Soal 1 dari {selectedExam.questionCount} butir · Navigasi soal aktif
 							</p>
 						</div>
-						<div class="bg-lms-hero-raised mt-2 flex items-center gap-2 rounded-full px-4 py-1.5 text-xs">
+						<div
+							class="bg-lms-hero-raised mt-2 flex items-center gap-2 rounded-full px-4 py-1.5 text-xs"
+						>
 							<span class="size-2 rounded-full bg-success-400 animate-pulse"></span>
 							<span>Sistem CBT Tersambung Aman</span>
 						</div>
 					</div>
 				{:else}
 					<!-- Pre-Exam Information & Rules -->
-					<div class="bg-lms-surface-muted grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl p-3.5 text-xs">
+					<div
+						class="bg-lms-surface-muted grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl p-3.5 text-xs"
+					>
 						<div class="flex items-center gap-2">
 							<Icon icon={Clock} size="sm" />
 							<span>Durasi: <strong>{selectedExam.durationMinutes} Menit</strong></span>
@@ -504,7 +519,10 @@
 						</div>
 						<div class="flex items-center gap-2">
 							<Icon icon={Zap} size="sm" />
-							<span>Hadiah XP: <strong class="text-warning-500">+{selectedExam.xpReward} XP</strong></span>
+							<span
+								>Hadiah XP: <strong class="text-warning-500">+{selectedExam.xpReward} XP</strong
+								></span
+							>
 						</div>
 						<div class="flex items-center gap-2">
 							<Icon icon={CheckCircle2} size="sm" />
@@ -519,7 +537,9 @@
 					<!-- Instructions -->
 					<div class="flex flex-col gap-2">
 						<h4 class="text-sm font-bold">Tata Tertib & Petunjuk Ujian</h4>
-						<div class="bg-lms-surface border border-lms-border flex flex-col gap-2 rounded-xl p-4 text-xs text-lms-muted leading-relaxed">
+						<div
+							class="bg-lms-surface border border-lms-border flex flex-col gap-2 rounded-xl p-4 text-xs text-lms-muted leading-relaxed"
+						>
 							<p>{selectedExam.instructions}</p>
 							<ul class="flex flex-col gap-1 list-disc list-inside mt-1">
 								<li>Gunakan koneksi internet stabil dan perangkat baterai mencukupi.</li>
@@ -532,7 +552,9 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30">
+			<div
+				class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30"
+			>
 				<button
 					type="button"
 					class="lms-action-ghost rounded-xl px-4 py-2 text-xs font-semibold"

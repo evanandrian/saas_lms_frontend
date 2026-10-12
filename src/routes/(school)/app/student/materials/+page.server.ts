@@ -13,7 +13,8 @@ export const load: PageServerLoad = async (event) => {
 	const subjects = apiSubjects.map((s) => ({
 		id: s.id,
 		name: s.name,
-		icon: ((s.icon as any) ?? 'math') as 'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
+		icon: (s.icon ?? 'math') as
+			'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
 		materialCount: 0
 	}));
 
@@ -41,7 +42,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 4',
 			type: 'video',
 			duration: '15 menit',
-			description: 'Penjelasan konsep titik puncak grafik parabola, rumus determinan, dan solusi persamaan kuadrat dengan metode faktorisasi.',
+			description:
+				'Penjelasan konsep titik puncak grafik parabola, rumus determinan, dan solusi persamaan kuadrat dengan metode faktorisasi.',
 			teacherName: 'Bambang Sudibyo, M.Pd.',
 			progress: 100,
 			status: 'completed',
@@ -57,7 +59,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 5',
 			type: 'pdf',
 			duration: '20 menit baca',
-			description: 'Modul lengkap membaca grafik, sumbu simetri, dan sifat definit positif/negatif pada kurva kuadrat.',
+			description:
+				'Modul lengkap membaca grafik, sumbu simetri, dan sifat definit positif/negatif pada kurva kuadrat.',
 			teacherName: 'Bambang Sudibyo, M.Pd.',
 			progress: 60,
 			status: 'in_progress',
@@ -73,7 +76,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 1',
 			type: 'slide',
 			duration: '25 slide',
-			description: 'Presentasi visual anatomi sel hewan dan tumbuhan, mitokondria, nukleus, serta fungsi membran sel.',
+			description:
+				'Presentasi visual anatomi sel hewan dan tumbuhan, mitokondria, nukleus, serta fungsi membran sel.',
 			teacherName: 'Dr. Retno Wulandari',
 			progress: 100,
 			status: 'completed',
@@ -89,7 +93,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 3',
 			type: 'pdf',
 			duration: '10 menit baca',
-			description: 'Langkah kerja pembuatan preparat sel gabus dan sel epitel pipi serta panduan format penulisan laporan praktikum.',
+			description:
+				'Langkah kerja pembuatan preparat sel gabus dan sel epitel pipi serta panduan format penulisan laporan praktikum.',
 			teacherName: 'Dr. Retno Wulandari',
 			progress: 0,
 			status: 'not_started',
@@ -105,7 +110,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 2',
 			type: 'article',
 			duration: '12 menit baca',
-			description: 'Studi prasasti Yupa Kutai, Tarumanagara, dan catatan musafir Tiongkok I-Tsing mengenai Sriwijaya.',
+			description:
+				'Studi prasasti Yupa Kutai, Tarumanagara, dan catatan musafir Tiongkok I-Tsing mengenai Sriwijaya.',
 			teacherName: 'Dra. Siti Rahmah',
 			progress: 30,
 			status: 'in_progress',
@@ -121,7 +127,8 @@ export const load: PageServerLoad = async (event) => {
 			topicCode: 'TP 1',
 			type: 'pdf',
 			duration: '18 menit baca',
-			description: 'Kiat menyusun tesis yang kuat, argumentasi berbasis data faktual, dan teknik perangkai kalimat konjungsi kausalitas.',
+			description:
+				'Kiat menyusun tesis yang kuat, argumentasi berbasis data faktual, dan teknik perangkai kalimat konjungsi kausalitas.',
 			teacherName: 'Hendra Gunawan, S.Pd.',
 			progress: 0,
 			status: 'not_started',
@@ -131,7 +138,9 @@ export const load: PageServerLoad = async (event) => {
 
 	// Hitung jumlah materi per subject
 	for (const sub of subjects) {
-		sub.materialCount = materials.filter((m) => m.subjectId === sub.id || m.subjectName.toLowerCase().includes(sub.name.toLowerCase())).length;
+		sub.materialCount = materials.filter(
+			(m) => m.subjectId === sub.id || m.subjectName.toLowerCase().includes(sub.name.toLowerCase())
+		).length;
 	}
 
 	const data: StudentMaterialsPageData = {

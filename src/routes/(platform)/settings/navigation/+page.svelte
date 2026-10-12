@@ -357,6 +357,7 @@
 		title={t('title')}
 		description={t('description')}
 		actionsPlacement="end"
+		help="help.platform_navigation"
 	>
 		{#snippet actions()}
 			{#if editor}

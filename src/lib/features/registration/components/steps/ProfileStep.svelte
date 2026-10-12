@@ -113,7 +113,9 @@
 						}}
 						class="accent-lms-interactive mt-0.5 size-5 flex-none"
 					/>
-					<span class="text-[0.9375rem] leading-6">Saya juga menjabat sebagai Kepala Sekolah pada lembaga ini</span>
+					<span class="text-[0.9375rem] leading-6"
+						>Saya juga menjabat sebagai Kepala Sekolah pada lembaga ini</span
+					>
 				</label>
 			</div>
 		{/if}

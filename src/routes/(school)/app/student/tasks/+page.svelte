@@ -1,8 +1,7 @@
 <script lang="ts">
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { useI18n } from '$lib/i18n';
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
-	import AlertCircle from '@lucide/svelte/icons/alert-circle';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Calculator from '@lucide/svelte/icons/calculator';
 	import Calendar from '@lucide/svelte/icons/calendar';
@@ -22,10 +21,11 @@
 	import X from '@lucide/svelte/icons/x';
 	import Zap from '@lucide/svelte/icons/zap';
 	import type { PageProps } from './$types';
-	import type { StudentTaskItem, TaskStatus, TaskType } from './tasks.types';
+	import type { StudentTaskItem, TaskType } from './tasks.types';
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
+	const t = (key: string) => i18n.t(`student_tasks.hero.${key}`);
 
 	const SUBJECT_ICONS = {
 		math: Calculator,
@@ -115,49 +115,31 @@
 </svelte:head>
 
 <div class="flex min-w-0 flex-col gap-6 leading-tight">
-	<!-- Hero Section -->
-	<section
-		class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[22px] p-7 md:p-8"
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('desc')}
+		help="help.student_tasks"
 	>
-		<img
-			src={logogramColor}
-			alt=""
-			aria-hidden="true"
-			draggable="false"
-			class="pointer-events-none absolute -top-8 -right-10 -z-10 w-72 max-w-none opacity-10 select-none"
-		/>
-		<div class="flex flex-col items-start gap-2">
-			<span
-				class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.14em]"
-			>
-				TUGAS & PENUGASAN
-			</span>
-			<h1 class="text-[1.75rem] md:text-3xl font-bold">Daftar Tugas & Proyek Kelas</h1>
-			<p class="text-lms-on-hero-muted text-sm md:text-base max-w-2xl">
-				Pantau jadwal tenggat waktu tugas, kumpulkan hasil pekerjaan rumah, dan lihat catatan koreksi serta nilai langsung dari guru kelasmu.
-			</p>
-		</div>
-
-		<!-- Quick Stats -->
-		<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl">
+		<div class="grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Total Tugas</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_total')}</span>
 				<span class="text-2xl font-bold">{allTasks.length}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Perlu Dikerjakan</span>
-				<span class="text-2xl font-bold text-warning-400">{pendingCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_pending')}</span>
+				<span class="text-warning-400 text-2xl font-bold">{pendingCount}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Menunggu Nilai</span>
-				<span class="text-2xl font-bold text-lms-link">{submittedCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_submitted')}</span>
+				<span class="text-lms-link text-2xl font-bold">{submittedCount}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Sudah Dinilai</span>
-				<span class="text-2xl font-bold text-success-400">{gradedCount}</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_graded')}</span>
+				<span class="text-success-400 text-2xl font-bold">{gradedCount}</span>
 			</div>
 		</div>
-	</section>
+	</HeroBanner>
 
 	<!-- Filter & Search Controls -->
 	<div class="lms-card flex flex-col gap-4 rounded-[22px]! p-5 shadow-none!">
@@ -275,8 +257,12 @@
 
 	<!-- Tasks Grid -->
 	{#if filteredTasks.length === 0}
-		<div class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!">
-			<div class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full">
+		<div
+			class="lms-card flex flex-col items-center justify-center gap-3 rounded-[22px]! p-12 text-center shadow-none!"
+		>
+			<div
+				class="bg-lms-interactive-subtle text-lms-interactive flex size-14 items-center justify-center rounded-full"
+			>
 				<Icon icon={CheckCircle2} size="lg" />
 			</div>
 			<div class="flex flex-col gap-1 max-w-sm">
@@ -308,7 +294,9 @@
 					<div class="flex flex-col gap-3">
 						<!-- Card Top: Subject & Type Badge -->
 						<div class="flex items-center justify-between gap-2">
-							<span class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold">
+							<span
+								class="bg-lms-interactive-subtle text-lms-interactive flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold"
+							>
 								<Icon icon={SUBJECT_ICONS[item.subjectIcon] ?? BookOpen} size="sm" />
 								{item.subjectName}
 							</span>
@@ -341,7 +329,9 @@
 
 						<!-- Score & Feedback if Graded -->
 						{#if item.status === 'graded' && item.score !== undefined}
-							<div class="bg-success-400/10 border border-success-400/30 rounded-xl p-3 flex flex-col gap-1.5">
+							<div
+								class="bg-success-400/10 border border-success-400/30 rounded-xl p-3 flex flex-col gap-1.5"
+							>
 								<div class="flex items-center justify-between">
 									<span class="text-xs font-bold text-success-500 flex items-center gap-1">
 										<Icon icon={CheckCircle2} size="sm" /> Nilai Akhir
@@ -417,7 +407,9 @@
 			<!-- Modal Header -->
 			<div class="flex items-center justify-between border-b border-lms-border p-5">
 				<div class="flex items-center gap-3">
-					<span class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl">
+					<span
+						class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl"
+					>
 						<Icon icon={SUBJECT_ICONS[selectedTask.subjectIcon] ?? BookOpen} size="md" />
 					</span>
 					<div class="flex flex-col">
@@ -442,7 +434,9 @@
 			<!-- Modal Body -->
 			<div class="flex flex-col gap-4 overflow-y-auto p-6 leading-relaxed">
 				{#if uploadSuccessMessage}
-					<div class="bg-success-400/10 border border-success-400 text-success-500 rounded-xl p-4 flex items-center gap-3 text-sm font-bold">
+					<div
+						class="bg-success-400/10 border border-success-400 text-success-500 rounded-xl p-4 flex items-center gap-3 text-sm font-bold"
+					>
 						<Icon icon={CheckCircle2} size="md" />
 						{uploadSuccessMessage}
 					</div>
@@ -471,14 +465,18 @@
 				<!-- Instructions -->
 				<div class="flex flex-col gap-2">
 					<h4 class="text-sm font-bold">Instruksi & Petunjuk Pengerjaan</h4>
-					<p class="text-lms-muted text-xs leading-relaxed bg-lms-surface border border-lms-border p-3.5 rounded-xl">
+					<p
+						class="text-lms-muted text-xs leading-relaxed bg-lms-surface border border-lms-border p-3.5 rounded-xl"
+					>
 						{selectedTask.instructions}
 					</p>
 				</div>
 
 				{#if selectedTask.status === 'graded'}
 					<!-- Graded Feedback Box -->
-					<div class="bg-success-400/10 border border-success-400/30 rounded-xl p-4 flex flex-col gap-2">
+					<div
+						class="bg-success-400/10 border border-success-400/30 rounded-xl p-4 flex flex-col gap-2"
+					>
 						<div class="flex items-center justify-between">
 							<span class="text-xs font-bold text-success-500">Nilai dari Guru</span>
 							<span class="text-xl font-bold text-success-500 tabular-nums">
@@ -487,7 +485,8 @@
 						</div>
 						{#if selectedTask.feedback}
 							<p class="text-xs text-lms-muted">
-								<strong>Catatan Guru:</strong> {selectedTask.feedback}
+								<strong>Catatan Guru:</strong>
+								{selectedTask.feedback}
 							</p>
 						{/if}
 						{#if selectedTask.submittedFileName}
@@ -498,13 +497,16 @@
 					</div>
 				{:else if selectedTask.status === 'submitted'}
 					<!-- Submitted Status Box -->
-					<div class="bg-lms-interactive-subtle border border-lms-interactive/30 rounded-xl p-4 flex flex-col gap-2">
+					<div
+						class="bg-lms-interactive-subtle border border-lms-interactive/30 rounded-xl p-4 flex flex-col gap-2"
+					>
 						<div class="flex items-center gap-2 text-lms-interactive text-xs font-bold">
 							<Icon icon={CheckCircle2} size="sm" /> Tugas telah dikirim pada {selectedTask.submissionDate}
 						</div>
 						{#if selectedTask.submittedFileName}
 							<p class="text-xs text-lms-muted flex items-center gap-1.5">
-								<Icon icon={Paperclip} size="sm" /> {selectedTask.submittedFileName}
+								<Icon icon={Paperclip} size="sm" />
+								{selectedTask.submittedFileName}
 							</p>
 						{/if}
 						<p class="text-[11px] text-lms-muted">
@@ -515,16 +517,20 @@
 					<!-- Upload Submission Form -->
 					<div class="flex flex-col gap-3 border-t border-lms-border pt-4">
 						<h4 class="text-sm font-bold">Unggah Jawaban Tugas</h4>
-						
+
 						<!-- File Upload Dropzone -->
 						<label
 							class="border-lms-border hover:border-lms-interactive bg-lms-surface hover:bg-lms-interactive-subtle/40 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-6 cursor-pointer transition-all text-center"
 						>
-							<div class="bg-lms-interactive-subtle text-lms-interactive flex size-12 items-center justify-center rounded-xl">
+							<div
+								class="bg-lms-interactive-subtle text-lms-interactive flex size-12 items-center justify-center rounded-xl"
+							>
 								<Icon icon={UploadCloud} size="md" />
 							</div>
 							<span class="text-xs font-bold">
-								{selectedFileName ? selectedFileName : 'Klik atau seret file PDF / Dokumen jawaban ke sini'}
+								{selectedFileName
+									? selectedFileName
+									: 'Klik atau seret file PDF / Dokumen jawaban ke sini'}
 							</span>
 							<span class="text-lms-muted text-[11px]">
 								Format yang didukung: PDF, DOCX, ZIP, PNG, JPG (Maks. 25MB)
@@ -555,7 +561,9 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30">
+			<div
+				class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30"
+			>
 				<button
 					type="button"
 					class="lms-action-ghost rounded-xl px-4 py-2 text-xs font-semibold"

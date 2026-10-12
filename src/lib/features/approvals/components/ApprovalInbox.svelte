@@ -359,11 +359,14 @@
 			title={t('title')}
 			description={t(`desc.${role}`, { tenant: inbox.tenant_name })}
 			actionsPlacement="end"
+			help={role === 'platform' ? 'help.approvals_platform' : 'help.approvals_school'}
 		>
 			{#snippet actions()}
 				<dl class="flex flex-wrap gap-5">
 					{#each [['pending', pending.filter((x) => !x.self).length], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
-						<div class="flex flex-col gap-0.5 border-lms-on-hero/14 bg-lms-on-hero/8 rounded-lg p-3 border">
+						<div
+							class="flex flex-col gap-0.5 border-lms-on-hero/14 bg-lms-on-hero/8 rounded-lg p-3 border"
+						>
 							<dt class="text-lms-on-hero-muted font-mono text-[11px] tracking-[0.08em]">
 								{t(`stat.${key}`)}
 							</dt>

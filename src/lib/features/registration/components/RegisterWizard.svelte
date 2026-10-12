@@ -606,6 +606,7 @@
 				eyebrow={head.kicker}
 				title={head.title}
 				description={head.desc}
+				help="help.registration"
 			/>
 
 			{#if wizard.step === 'akun'}

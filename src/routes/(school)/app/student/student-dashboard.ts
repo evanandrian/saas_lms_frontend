@@ -226,13 +226,13 @@ export function buildDynamicStreak(
 		const dayOfWeek = d.getUTCDay(); // 0: Min, 6: Sab
 		const att = attendanceHistory ? attendanceHistory[dateStr] : undefined;
 
-		let status: StreakStatus = 'rest';
+		let status: StreakStatus;
 		if (i === 0) {
 			status = att === 'present' ? 'done' : 'today';
 		} else if (dayOfWeek === 0 || dayOfWeek === 6) {
 			status = 'rest';
 		} else {
-			status = att === 'present' ? 'done' : (att ? 'rest' : 'done');
+			status = att === 'present' ? 'done' : att ? 'rest' : 'done';
 		}
 		week.push({ date: dateStr, status });
 	}
@@ -302,4 +302,3 @@ export function getLevelForXp(xp: number): {
 	}
 	return { number: 1, name: 'Pemula', xp, nextLevelXp: 100 };
 }
-

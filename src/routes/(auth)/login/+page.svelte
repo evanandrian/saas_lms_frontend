@@ -317,7 +317,7 @@
 							<TextField
 								label={i18n.t('auth.login.email')}
 								name="email"
-								type="email"
+								type="text"
 								autocomplete="username"
 								placeholder={i18n.t('auth.login.email_placeholder')}
 								size="lg"

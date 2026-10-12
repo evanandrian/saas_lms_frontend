@@ -6,6 +6,7 @@
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
 	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
+	import { REPORT_STATUSES } from '$lib/features/school-admin/school-admin.model';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
@@ -58,6 +59,8 @@
 	const GROUP_FLOOR = 80;
 	const GROUP_SCALE = 5;
 	const SEAT_SEGMENTS = 40;
+	/** Urutan tahap rapor (report_card_t): draf → diajukan → disetujui → terkunci. */
+	const REPORT_PIPELINE = REPORT_STATUSES;
 	/** Status aktivitas guru (referensi): tidak login ≥ 5 hari = tidak aktif; ≥ 15 lembar = perhatian. */
 	const INACTIVE_DAYS = 5;
 	const PENDING_ALERT = 15;
@@ -122,34 +125,41 @@
 	);
 	// Pengajuan perubahan data (nama/NIP) admin sekolah: live dari Kotak Persetujuan.
 	const dataChanges = $derived(live ? live.pending_approvals : sample.pendingDataChanges);
-	const pendingTotal = $derived(
-		dataChanges + sample.pendingReportCards + sample.pendingTeacherLeave
+	// Rapor kelas: live dari status report_card_t semester aktif (null = gagal dimuat, tanpa data contoh).
+	const reports = $derived(data.reports);
+	const reportsSubmitted = $derived(reports?.rows.filter((r) => r.status === 'submitted') ?? []);
+	const reportsAwaitingLock = $derived(reports?.rows.filter((r) => r.status === 'approved') ?? []);
+	const reportsApproved = $derived(
+		reports ? (reports.counts.approved ?? 0) + (reports.counts.locked ?? 0) : 0
 	);
+	const reportQueue = $derived([...reportsSubmitted, ...reportsAwaitingLock]);
+	const pendingTotal = $derived(dataChanges + reportsSubmitted.length + sample.pendingTeacherLeave);
 	const decisions = $derived([
 		{
 			icon: FileText,
 			label: i18n.t('dashboard.principal.decide_reports'),
 			detail: i18n.t('dashboard.principal.decide_reports_detail'),
-			count: sample.pendingReportCards,
-			sample: true
+			count: reportsSubmitted.length,
+			sample: false,
+			path: APP_PATHS.SCHOOL_ADMIN_REPORTS
 		},
 		{
 			icon: Plane,
 			label: i18n.t('dashboard.principal.decide_leave'),
 			detail: i18n.t('dashboard.principal.decide_leave_detail'),
 			count: sample.pendingTeacherLeave,
-			sample: true
+			sample: true,
+			path: APP_PATHS.SCHOOL_ADMIN_APPROVALS
 		},
 		{
 			icon: UserPen,
 			label: i18n.t('dashboard.principal.decide_data'),
 			detail: i18n.t('dashboard.principal.decide_data_detail'),
 			count: dataChanges,
-			sample: !live
+			sample: !live,
+			path: APP_PATHS.SCHOOL_ADMIN_APPROVALS
 		}
 	]);
-
-	const reportsApproved = sample.reportsApproved;
 	const kpis = $derived([
 		...sample.kpis[period].map((kpi) => ({
 			icon: KPI_ICONS[kpi.key],
@@ -161,9 +171,11 @@
 		{
 			icon: FileCheck,
 			label: i18n.t('dashboard.principal.kpi_reports'),
-			value: `${reportsApproved}/${sample.reportClassTotal}`,
-			note: i18n.t('dashboard.principal.kpi_reports_note', { count: sample.reportRequests.length }),
-			tone: 'muted' as NoteTone
+			value: reports ? `${reportsApproved}/${reports.rows.length}` : '—',
+			note: reports
+				? i18n.t('dashboard.principal.kpi_reports_note', { count: reportsSubmitted.length })
+				: i18n.t('dashboard.principal.report_unavailable_short'),
+			tone: (reports && reportsSubmitted.length ? 'warning' : 'muted') as NoteTone
 		}
 	]);
 
@@ -374,6 +386,7 @@
 				? i18n.t('dashboard.principal.hero_pending', { count: pendingTotal })
 				: i18n.t('dashboard.principal.hero_no_pending')
 		}`}
+		help="help.principal_dashboard"
 	>
 		{#snippet actions()}
 			<p
@@ -408,7 +421,7 @@
 				</h2>
 				{#each decisions as decision (decision.label)}
 					<a
-						href={resolve(APP_PATHS.SCHOOL_ADMIN_APPROVALS)}
+						href={resolve(decision.path)}
 						class="border-lms-on-hero/12 text-lms-on-hero lms-focus-ring flex items-center gap-3 border-t py-2.5"
 					>
 						<span
@@ -824,53 +837,87 @@
 			<div class="flex items-start justify-between gap-3">
 				{@render sectionHead(
 					i18n.t('dashboard.principal.report_approval'),
-					i18n.t('dashboard.principal.report_approval_hint', {
-						count: sample.reportClassTotal,
-						date: sample.reportDeadline
-					})
+					reports
+						? i18n.t('dashboard.principal.report_approval_live_hint', {
+								count: reports.rows.length,
+								term: reports.term,
+								year: reports.year
+							})
+						: '',
+					false
 				)}
 				<a
-					href={resolve(APP_PATHS.SCHOOL_ADMIN_APPROVALS)}
+					href={resolve(APP_PATHS.SCHOOL_ADMIN_REPORTS)}
 					class="btn border-lms-input-border bg-lms-surface lms-focus-ring h-8.5 rounded-lg border px-3 text-xs font-semibold whitespace-nowrap"
 					>{i18n.t('dashboard.principal.review')}</a
 				>
 			</div>
-			<ol class="grid grid-cols-4 gap-1.5">
-				{#each [{ key: 'published', count: sample.reportPipeline.published }, { key: 'edited', count: sample.reportPipeline.edited }, { key: 'submitted', count: sample.reportPipeline.submittedBeforeInbox + sample.reportRequests.length }, { key: 'approved', count: reportsApproved }] as step, index (step.key)}
-					<li
-						class={[
-							'flex flex-col gap-1.5 rounded-lg p-2.5',
-							index === 3
-								? 'bg-lms-success-subtle'
-								: index === 2
-									? 'bg-lms-interactive-subtle'
-									: 'bg-lms-background'
-						]}
-					>
-						<span class="text-[1.375rem] font-bold tabular-nums">{step.count}</span>
-						<span class="text-[11px] leading-3.75"
-							>{i18n.t(`dashboard.principal.pipeline_${step.key}`)}</span
+			{#if !reports}
+				<p
+					role="status"
+					class="lms-tone-warning flex items-center gap-2 rounded-lg px-3 py-2.5 text-[0.8125rem]"
+				>
+					<Icon icon={TriangleAlert} size="sm" />{i18n.t('dashboard.principal.report_unavailable')}
+				</p>
+			{:else}
+				<ol class="grid grid-cols-4 gap-1.5">
+					{#each REPORT_PIPELINE as key, index (key)}
+						<li
+							class={[
+								'flex flex-col gap-1.5 rounded-lg p-2.5',
+								index === 3
+									? 'bg-lms-success-subtle'
+									: index === 1
+										? 'bg-lms-interactive-subtle'
+										: 'bg-lms-background'
+							]}
 						>
-					</li>
-				{/each}
-			</ol>
-			<ul>
-				{#each sample.reportRequests as request (request.className)}
-					<li class="border-lms-border flex items-center gap-3 border-t py-2.5">
-						<span class="text-lms-interactive"><Icon icon={FileText} /></span>
-						<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span class="text-sm font-semibold"
-								>{i18n.t('dashboard.principal.class_name', { name: request.className })}</span
+							<span class="text-[1.375rem] font-bold tabular-nums">{reports.counts[key] ?? 0}</span>
+							<span class="text-[11px] leading-3.75"
+								>{i18n.t(`school_admin.reports.status_${key}`)}</span
 							>
-							<span class="text-lms-muted text-xs">{request.requester} · {request.detail}</span>
-						</span>
-						<span
-							class="lms-tone-warning rounded-full px-2.5 py-0.75 text-[11px] font-bold whitespace-nowrap uppercase"
-							>{i18n.t('dashboard.principal.report_pending')}</span
-						>
-					</li>
-				{/each}
-			</ul>
+						</li>
+					{/each}
+				</ol>
+				<ul>
+					{#each reportQueue as row (row.class_id)}
+						{@const submitted = row.status === 'submitted'}
+						<li class="border-lms-border border-t">
+							<a
+								href={resolve('/(school)/app/admin/reports/[classId]', { classId: row.class_id })}
+								class="hover:bg-lms-surface-muted lms-focus-ring flex items-center gap-3 rounded-lg py-2.5"
+							>
+								<span class="text-lms-interactive"><Icon icon={submitted ? FileText : Lock} /></span
+								>
+								<span class="flex min-w-0 flex-1 flex-col gap-0.5">
+									<span class="text-sm font-semibold"
+										>{i18n.t('dashboard.principal.class_name', { name: row.name })}</span
+									>
+									<span class="text-lms-muted truncate text-xs"
+										>{i18n.t('dashboard.principal.report_row_detail', {
+											name: row.homeroom || i18n.t('school_admin.reports.no_homeroom'),
+											count: row.students
+										})}</span
+									>
+								</span>
+								<span
+									class={[
+										'rounded-full px-2.5 py-0.75 text-[11px] font-bold whitespace-nowrap uppercase',
+										submitted ? 'lms-tone-warning' : 'lms-tone-success'
+									]}
+									>{submitted
+										? i18n.t('dashboard.principal.report_pending')
+										: i18n.t('dashboard.principal.report_ready_lock')}</span
+								>
+							</a>
+						</li>
+					{:else}
+						<li class="border-lms-border text-lms-muted border-t py-4 text-center text-[0.8125rem]">
+							{i18n.t('dashboard.principal.report_none')}
+						</li>
+					{/each}
+				</ul>
+			{/if}
 		</section>
 		<section class="lms-card flex flex-col gap-3.5 rounded-xl! p-5 shadow-none!">
 			<div class="flex items-start justify-between gap-3">

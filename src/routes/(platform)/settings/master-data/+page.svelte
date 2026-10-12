@@ -524,6 +524,7 @@
 		eyebrow={t('eyebrow')}
 		title={t('title')}
 		description={t('description')}
+		help="help.platform_master_data"
 	/>
 
 	{#if simulate}
@@ -862,24 +863,25 @@
 									{/each}
 								</div>
 							{:else if field.type === 'toggle'}
+								{@const on = draft[field.key] === true}
 								<button
 									{id}
 									type="button"
 									role="switch"
-									aria-checked={draft.is_current}
+									aria-checked={on}
 									class="lms-focus-ring flex items-center gap-3 rounded-lg py-1.5 text-start"
-									onclick={() => setField(field.key, !draft.is_current)}
+									onclick={() => setField(field.key, !on)}
 								>
 									<span
 										class={[
 											'relative h-[22px] w-10 shrink-0 rounded-full transition-colors',
-											draft.is_current ? 'bg-lms-interactive' : 'bg-lms-input-border'
+											on ? 'bg-lms-interactive' : 'bg-lms-input-border'
 										]}
 									>
 										<span
 											class={[
 												'absolute top-[3px] left-[3px] size-4 rounded-full bg-white transition-transform',
-												draft.is_current && 'translate-x-[18px]'
+												on && 'translate-x-[18px]'
 											]}
 										></span>
 									</span>

@@ -27,4 +27,3 @@ export const studentDashboardFixture: StudentDashboardData = {
 	attendanceMonths: [],
 	defaultAttendanceMonth: 0
 };
-

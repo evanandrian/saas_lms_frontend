@@ -217,7 +217,8 @@
 		'amount_mismatch',
 		'proof_invalid',
 		'min_length',
-		'forbidden'
+		'forbidden',
+		'invoice_partially_paid'
 	];
 
 	async function pick(x: InvoiceSummary) {
@@ -565,6 +566,7 @@
 			title={t('title')}
 			description={t('desc')}
 			actionsPlacement="end"
+			help="help.platform_invoices"
 		>
 			{#snippet actions()}
 				<div class="flex flex-wrap gap-2">
@@ -1076,6 +1078,20 @@
 							<span class="text-lms-muted text-xs leading-[18px] italic"
 								>{terbilang(totals?.total ?? 0)}</span
 							>
+							{#if detail && detail.paid_idr > 0 && detail.remaining_idr > 0}
+								<div class="border-lms-border flex flex-col gap-1 border-t pt-2 text-sm">
+									<div class="text-lms-muted flex justify-between gap-3">
+										<span>{t('sum.paid')}</span><span class="text-lms-success-text tabular-nums"
+											>{money(detail.paid_idr)}</span
+										>
+									</div>
+									<div class="flex justify-between gap-3 font-bold">
+										<span>{t('sum.remaining')}</span><span
+											class="text-lms-warning-text tabular-nums">{money(detail.remaining_idr)}</span
+										>
+									</div>
+								</div>
+							{/if}
 						</div>
 					</div>
 				</section>
@@ -1095,7 +1111,11 @@
 											? t('payments.gateway', {
 													channel: (p.channel ?? '').replace('va_', 'VA ').toUpperCase()
 												})
-											: t('payments.manual', { bank: p.bank_name || '—' })}
+											: p.manual_channel && p.manual_channel !== 'transfer'
+												? t('payments.manual_channel', {
+														channel: i18n.t(`payments.channel.${p.manual_channel}`)
+													})
+												: t('payments.manual', { bank: p.bank_name || '—' })}
 										{#if p.va_number}<span class="text-lms-muted font-mono font-normal">
 												· {p.va_number}</span
 											>{/if}
@@ -1190,9 +1210,10 @@
 		>
 			<p class="text-lms-muted mb-3 text-[13px]">{t('payment_modal.hint')}</p>
 			{#if paymentOpen}<TransferForm
-					total={detail.totals.total_idr}
+					remaining={detail.remaining_idr}
 					{banks}
-					proofRequired={false}
+					proofRequired
+					strict
 					tried={paymentTried}
 					onchange={(v) => (payment = v)}
 				/>{/if}

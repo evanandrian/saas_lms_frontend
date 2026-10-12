@@ -1,5 +1,6 @@
 import { redirect, type Cookies, type RequestEvent } from '@sveltejs/kit';
 import type { BackendContext } from '$lib/api/backend-call';
+import { throwIfTenantMaintenance } from '$lib/api/tenant-maintenance';
 import { clientMeta } from '$lib/auth/finish-login';
 import { DASHBOARD_VIEW_PARAM } from '$lib/utils/app-paths';
 import { loadContext } from './dashboards.api';
@@ -21,6 +22,7 @@ export function dashboardsContext(event: RequestEvent): BackendContext {
 /** Konteks peran untuk layout area; `null` bila backend/sesi belum tersedia (toggle tidak tampil). */
 export async function loadDashboardContext(event: RequestEvent, area: DashboardArea) {
 	const result = await loadContext(dashboardsContext(event), area);
+	throwIfTenantMaintenance(result);
 	return result.ok ? result.data : null;
 }
 

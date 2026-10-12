@@ -1,0 +1,317 @@
+import type {
+	SchoolPlanningView,
+	SchoolStudentsView,
+	SchoolTeachersView
+} from '$lib/api/generated/lms';
+import { runPageAction } from '$lib/utils/page-action';
+import { PREFIX, failureMessage } from './school-admin.model';
+
+type Translate = (key: string, params?: Readonly<Record<string, string | number>>) => string;
+
+export type DrawerKey =
+	'teachers' | 'students' | 'assign' | 'objectives' | 'assess' | 'schedule' | 'extras';
+
+export interface PlanningDrawerDeps {
+	/** Getter props agar state mengikuti tampilan perencanaan terbaru dari halaman. */
+	planning: () => SchoolPlanningView;
+	key: () => DrawerKey;
+	/** `i18n.t` (kunci penuh). */
+	t: Translate;
+	onplanning: (view: SchoolPlanningView) => void;
+	onnotify: (message: string) => void;
+}
+
+const OBJECTIVE_MIN = 10;
+const RECENT_PEOPLE = 5;
+const DEFAULT_PERIOD_START = '07:00';
+
+type Period = { start: string; end: string };
+
+/**
+ * Draf lokal bobot asesmen & jam pelajaran. Dibuat ulang hanya saat tampilan backend berubah
+ * (bukan saat pemilih kelas/mapel diganti), agar suntingan yang belum disimpan tidak terhapus.
+ */
+class PlanningDrafts {
+	weights: Record<string, number>;
+	periods: Period[];
+
+	constructor(planning: SchoolPlanningView) {
+		this.weights = $state(Object.fromEntries(planning.assessments.map((a) => [a.code, a.weight])));
+		this.periods = $state(planning.periods.map((p) => ({ start: p.start, end: p.end })));
+	}
+}
+
+/**
+ * State drawer bagian opsional 03b (guru, murid, penugasan, TP, asesmen, jadwal, ekskul): tab,
+ * pemilih kelas/mapel/fase, draf bobot & jam, ringkasan orang, dan simpan lewat form action.
+ */
+export class PlanningDrawerState {
+	readonly #deps: PlanningDrawerDeps;
+
+	tab = $state(0);
+	busy = $state(false);
+	objDesc = $state('');
+	exName = $state('');
+	exCoach = $state('');
+	people = $state<{ name: string; meta: string }[]>([]);
+	peopleStats = $state<{ label: string; value: string | number }[]>([]);
+	/** Pilihan pengguna; getter jatuh ke opsi pertama bila kosong / tidak lagi tersedia. */
+	#classId = $state('');
+	#objSubject = $state('');
+	#objGrade = $state('');
+
+	#drafts = $derived(new PlanningDrafts(this.#planning));
+
+	classAssignments = $derived(
+		this.#planning.assignments.filter((a) => a.class_id === this.classId)
+	);
+	objectives = $derived(
+		this.#planning.objectives.filter(
+			(o) => o.subject_id === this.objSubject && o.grade_id === this.objGrade
+		)
+	);
+	nextCode = $derived.by(() => {
+		const grade = this.#planning.grades.find((g) => g.id === this.objGrade);
+		return `TP-${grade?.grade ?? ''}.${this.objectives.length + 1}`;
+	});
+	weightSum = $derived(
+		Object.values(this.#drafts.weights).reduce((a, b) => a + (Number(b) || 0), 0)
+	);
+
+	constructor(deps: PlanningDrawerDeps) {
+		this.#deps = deps;
+		const { classes, subjects, grades } = deps.planning();
+		this.#classId = classes[0]?.id ?? '';
+		this.#objSubject = subjects[0]?.id ?? '';
+		this.#objGrade = grades[0]?.id ?? '';
+	}
+
+	get #planning() {
+		return this.#deps.planning();
+	}
+
+	#t(k: string, params?: Record<string, string | number>) {
+		return this.#deps.t(`${PREFIX}.planning.${k}`, params);
+	}
+
+	get weights() {
+		return this.#drafts.weights;
+	}
+
+	get periods() {
+		return this.#drafts.periods;
+	}
+
+	get classId() {
+		const { classes } = this.#planning;
+		return this.#classId && classes.some((c) => c.id === this.#classId)
+			? this.#classId
+			: (classes[0]?.id ?? '');
+	}
+	set classId(id: string) {
+		this.#classId = id;
+	}
+
+	get objSubject() {
+		return this.#objSubject || (this.#planning.subjects[0]?.id ?? '');
+	}
+	set objSubject(id: string) {
+		this.#objSubject = id;
+	}
+
+	get objGrade() {
+		return this.#objGrade || (this.#planning.grades[0]?.id ?? '');
+	}
+	set objGrade(id: string) {
+		this.#objGrade = id;
+	}
+
+	get teacherOptions() {
+		return this.#planning.teachers;
+	}
+
+	homeroomOf(id: string) {
+		return this.#planning.classes.find((c) => c.id === id)?.homeroom_id ?? '';
+	}
+
+	assignmentOf(subjectId: string) {
+		return (
+			this.#planning.assignments.find(
+				(a) => a.class_id === this.classId && a.subject_id === subjectId
+			)?.teacher_id ?? ''
+		);
+	}
+
+	cellOf(day: number, no: number) {
+		return (
+			this.#planning.schedule.find(
+				(c) => c.class_id === this.classId && c.weekday === day && c.period_no === no
+			)?.subject_id ?? ''
+		);
+	}
+
+	subjectName(id: string) {
+		return this.#planning.subjects.find((s) => s.id === id)?.name ?? '';
+	}
+
+	/** Ringkasan guru/murid (drawer `teachers`/`students`). */
+	async loadPeople() {
+		const key = this.#deps.key();
+		const t = this.#deps.t;
+		if (key === 'teachers') {
+			const out = await runPageAction<SchoolTeachersView>('teachers', {});
+			if (!out.ok) return;
+			const items = out.data.items;
+			this.peopleStats = [
+				{ label: this.#t('people_teachers'), value: items.length },
+				{
+					label: t(`${PREFIX}.account.active`),
+					value: items.filter((x) => x.status === 'active').length
+				},
+				{
+					label: t(`${PREFIX}.account.not_invited`),
+					value: items.filter((x) => x.status === 'not_invited').length
+				}
+			];
+			this.people = items
+				.slice(-RECENT_PEOPLE)
+				.reverse()
+				.map((x) => ({ name: x.name, meta: x.email }));
+		} else if (key === 'students') {
+			const out = await runPageAction<SchoolStudentsView>('students', {});
+			if (!out.ok) return;
+			const items = out.data.items;
+			this.peopleStats = [
+				{ label: this.#t('people_students'), value: items.length },
+				{ label: this.#t('people_linked'), value: items.filter((s) => s.guardians.length).length },
+				{
+					label: this.#t('people_seats'),
+					value: out.data.seats.seats
+						? `${out.data.seats.used}/${out.data.seats.seats}`
+						: out.data.seats.used
+				}
+			];
+			this.people = items
+				.slice(-RECENT_PEOPLE)
+				.reverse()
+				.map((s) => ({ name: s.name, meta: s.class_name }));
+		}
+	}
+
+	/** Jalankan form action perencanaan; sukses → tampilan baru diteruskan ke halaman. */
+	async call(name: string, body: unknown, success?: string) {
+		this.busy = true;
+		const out = await runPageAction<SchoolPlanningView>(name, body);
+		this.busy = false;
+		if (!out.ok) {
+			this.#deps.onnotify(failureMessage(this.#deps.t, out));
+			return false;
+		}
+		this.#deps.onplanning(out.data);
+		if (success) this.#deps.onnotify(success);
+		return true;
+	}
+
+	/** Simpan pilihan per baris/sel langsung (wali kelas, guru mapel, sel jadwal). */
+	setHomeroom(classId: string, teacherId: string) {
+		return this.call('homeroom', { id: classId, teacherId });
+	}
+
+	setAssignment(subjectId: string, teacherId: string) {
+		return this.call('assignment', {
+			data: { class_id: this.classId, subject_id: subjectId, teacher_id: teacherId }
+		});
+	}
+
+	setScheduleCell(weekday: number, periodNo: number, subjectId: string) {
+		return this.call('scheduleCell', {
+			data: { class_id: this.classId, weekday, period_no: periodNo, subject_id: subjectId }
+		});
+	}
+
+	useDefaultAssessments() {
+		return this.call('assessments', { data: { use_default: true } }, this.#t('saved'));
+	}
+
+	useDefaultPeriods() {
+		return this.call('periods', { data: { use_default: true } }, this.#t('saved'));
+	}
+
+	removeObjective(id: string) {
+		return this.call('objectiveRemove', { id });
+	}
+
+	removeExtra(id: string) {
+		return this.call('extraRemove', { id });
+	}
+
+	async saveWeights() {
+		await this.call(
+			'assessments',
+			{
+				data: {
+					items: this.#planning.assessments.map((a) => ({
+						code: a.code,
+						name: a.name,
+						category: a.category,
+						is_exam: a.is_exam,
+						weight: Number(this.weights[a.code]) || 0
+					}))
+				}
+			},
+			this.#t('saved')
+		);
+	}
+
+	async savePeriods() {
+		await this.call(
+			'periods',
+			{ data: { items: this.periods.map((p, i) => ({ no: i + 1, ...p })) } },
+			this.#t('saved')
+		);
+	}
+
+	addPeriod() {
+		const drafts = this.#drafts;
+		drafts.periods = [
+			...drafts.periods,
+			{ start: drafts.periods.at(-1)?.end ?? DEFAULT_PERIOD_START, end: '' }
+		];
+	}
+
+	removePeriod(index: number) {
+		const drafts = this.#drafts;
+		drafts.periods = drafts.periods.filter((_, j) => j !== index);
+	}
+
+	async addObjective() {
+		if (this.objDesc.trim().length < OBJECTIVE_MIN) {
+			this.#deps.onnotify(this.#t('objective_short'));
+			return;
+		}
+		if (
+			await this.call('objectiveAdd', {
+				data: {
+					subject_id: this.objSubject,
+					grade_id: this.objGrade,
+					description: this.objDesc.trim()
+				}
+			})
+		)
+			this.objDesc = '';
+	}
+
+	async addExtra() {
+		if (!this.exName.trim()) {
+			this.#deps.onnotify(this.#t('extra_name_required'));
+			return;
+		}
+		if (
+			await this.call('extraSave', {
+				id: '',
+				data: { name: this.exName.trim(), coach_id: this.exCoach }
+			})
+		)
+			this.exName = '';
+	}
+}

@@ -14,6 +14,7 @@ Setiap kali Anda membuat atau memperbarui halaman utama (`+page.svelte` atau kom
 *   **Props Dasar**: Gunakan setidaknya `eyebrow`, `title`, dan `description`. Ambil nilainya secara dinamis dari sistem translasi (`t('...')`) atau data *backend*.
 *   **Actions**: Jika *header* memiliki elemen tambahan (tombol aksi, statistik, *badge*), pindahkan elemen-elemen tersebut ke dalam *snippet* `{#snippet actions()}`.
 *   **Posisi Actions**: Tambahkan atribut `actionsPlacement="end"` pada `HeroBanner` jika Anda menggunakan snippet `actions()` agar tata letaknya selaras dengan struktur aslinya (rata kanan / *end*).
+*   **Panduan Halaman (wajib)**: Isi prop `help="help.<topik>"` agar tombol panduan bulat tampil di pojok kanan atas. Jangan menaruh elemen lain di pojok tersebut. Lihat `page-help-pattern.md`.
 
 ## 2. Pewarnaan Elemen di Dalam HeroBanner (Light & Dark Mode)
 

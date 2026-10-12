@@ -474,12 +474,13 @@
 			title={t('title')}
 			description={t('desc')}
 			actionsPlacement="end"
+			help="help.platform_applications"
 		>
 			{#snippet actions()}
 				<span
 					class="bg-lms-on-hero/8 border-lms-on-hero/14 text-lms-on-hero flex h-9 items-center gap-2 rounded-full border px-3.5 text-[0.8125rem] font-semibold"
 				>
-					<Icon icon={Timer} size="sm" />{t('sla', { n: queue.sla_hours })}
+					<Icon icon={Timer} size="sm" />{t('sla', { n: queue?.sla_hours ?? 0 })}
 				</span>
 			{/snippet}
 		</HeroBanner>

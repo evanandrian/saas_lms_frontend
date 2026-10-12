@@ -31,4 +31,3 @@ export const loadTeacher = (ctx: BackendContext) =>
 
 export const loadStudent = (ctx: BackendContext) =>
 	callBackend<StudentDashboard>(ctx, (init) => getStudentDashboard(init));
-

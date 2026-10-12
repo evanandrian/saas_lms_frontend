@@ -205,6 +205,7 @@
 					})
 				: i18n.t('dashboard.platform.summary_empty', { overdue: overdueCount })}
 			actionsPlacement="end"
+			help="help.platform_dashboard"
 		>
 			{#snippet actions()}
 				<div

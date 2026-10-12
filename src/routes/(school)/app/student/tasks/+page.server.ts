@@ -12,7 +12,8 @@ export const load: PageServerLoad = async (event) => {
 	const subjects = apiSubjects.map((s) => ({
 		id: s.id,
 		name: s.name,
-		icon: ((s.icon as any) ?? 'math') as 'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
+		icon: (s.icon ?? 'math') as
+			'math' | 'biology' | 'indonesian' | 'english' | 'history' | 'physics',
 		taskCount: 0
 	}));
 
@@ -39,7 +40,8 @@ export const load: PageServerLoad = async (event) => {
 			xp: 50,
 			status: 'pending',
 			maxScore: 100,
-			instructions: 'Selesaikan 5 soal cerita mengenai titik maksimum lemparan bola dan penerapannya dalam proyektil. Tuliskan rumus langkah demi langkah di buku latihan atau unggah berkas PDF jawaban.',
+			instructions:
+				'Selesaikan 5 soal cerita mengenai titik maksimum lemparan bola dan penerapannya dalam proyektil. Tuliskan rumus langkah demi langkah di buku latihan atau unggah berkas PDF jawaban.',
 			teacherName: 'Bambang Sudibyo, M.Pd.',
 			attachmentCount: 1
 		},
@@ -54,7 +56,8 @@ export const load: PageServerLoad = async (event) => {
 			xp: 60,
 			status: 'pending',
 			maxScore: 100,
-			instructions: 'Buat esai minimal 500 kata yang membandingkan jalur perdagangan maritim Selat Malaka masa Sriwijaya dengan kondisi modern. Cantumkan minimal 2 sumber rujukan sejarah.',
+			instructions:
+				'Buat esai minimal 500 kata yang membandingkan jalur perdagangan maritim Selat Malaka masa Sriwijaya dengan kondisi modern. Cantumkan minimal 2 sumber rujukan sejarah.',
 			teacherName: 'Dra. Siti Rahmah',
 			attachmentCount: 2
 		},
@@ -70,8 +73,10 @@ export const load: PageServerLoad = async (event) => {
 			status: 'graded',
 			score: 92,
 			maxScore: 100,
-			feedback: 'Laporan tersusun sangat sistematis. Tabel data perubahan massa kentang lengkap dan analisis pembahasan teori osmosis sangat tajam. Kerja bagus!',
-			instructions: 'Kumpulkan laporan lengkap hasil uji osmosis larutan garam pekat dan air murni terhadap silinder kentang sesuai format standar lembar praktikum.',
+			feedback:
+				'Laporan tersusun sangat sistematis. Tabel data perubahan massa kentang lengkap dan analisis pembahasan teori osmosis sangat tajam. Kerja bagus!',
+			instructions:
+				'Kumpulkan laporan lengkap hasil uji osmosis larutan garam pekat dan air murni terhadap silinder kentang sesuai format standar lembar praktikum.',
 			teacherName: 'Dr. Retno Wulandari',
 			submissionDate: '2026-10-04',
 			submittedFileName: 'Laporan_Biologi_Kelompok3_XI-A.pdf',
@@ -88,7 +93,8 @@ export const load: PageServerLoad = async (event) => {
 			xp: 45,
 			status: 'submitted',
 			maxScore: 100,
-			instructions: 'Tulis sebuah teks argumentatif dengan struktur: tesis, rangkaian argumen pendukung, dan penegasan ulang. Perhatikan tanda baca dan konjungsi antarkalimat.',
+			instructions:
+				'Tulis sebuah teks argumentatif dengan struktur: tesis, rangkaian argumen pendukung, dan penegasan ulang. Perhatikan tanda baca dan konjungsi antarkalimat.',
 			teacherName: 'Hendra Gunawan, S.Pd.',
 			submissionDate: '2026-10-06',
 			submittedFileName: 'Teks_Argumentasi_Dimas.pdf'
@@ -104,14 +110,17 @@ export const load: PageServerLoad = async (event) => {
 			xp: 75,
 			status: 'pending',
 			maxScore: 100,
-			instructions: 'Record a 2-3 minute spoken descriptive video presentation about a world heritage landmark of your choice. Ensure clear pronunciation and vocabulary mastery.',
+			instructions:
+				'Record a 2-3 minute spoken descriptive video presentation about a world heritage landmark of your choice. Ensure clear pronunciation and vocabulary mastery.',
 			teacherName: 'Sarah Jenkins, M.A.',
 			attachmentCount: 1
 		}
 	];
 
 	for (const sub of subjects) {
-		sub.taskCount = tasks.filter((t) => t.subjectId === sub.id || t.subjectName.toLowerCase().includes(sub.name.toLowerCase())).length;
+		sub.taskCount = tasks.filter(
+			(t) => t.subjectId === sub.id || t.subjectName.toLowerCase().includes(sub.name.toLowerCase())
+		).length;
 	}
 
 	const data: StudentTasksPageData = {

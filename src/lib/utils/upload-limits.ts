@@ -6,7 +6,11 @@ export const UPLOAD_LIMITS = {
 	/** Foto profil (Pengaturan Akun). */
 	photoBytes: 2 * 1024 * 1024,
 	/** Dokumen pengajuan (Kotak Persetujuan). */
-	documentBytes: 5 * 1024 * 1024
+	documentBytes: 5 * 1024 * 1024,
+	/** Berkas impor Excel/CSV Admin Sekolah (cermin backend `maxImportBytes`). */
+	importBytes: 5 * 1024 * 1024,
+	/** Logo sekolah (cermin backend `maxLogoBytes`). */
+	logoBytes: 1024 * 1024
 } as const;
 
 const BASE64_RATIO = 4 / 3;
@@ -15,8 +19,11 @@ const ENVELOPE_BYTES = 256 * 1024;
 
 /** Body terbesar yang dikirim aplikasi; `BODY_SIZE_LIMIT` adapter-node minimal sebesar ini. */
 export const REQUIRED_BODY_BYTES = Math.ceil(
-	Math.max(UPLOAD_LIMITS.photoBytes, UPLOAD_LIMITS.documentBytes) * BASE64_RATIO + ENVELOPE_BYTES
+	Math.max(...Object.values(UPLOAD_LIMITS)) * BASE64_RATIO + ENVELOPE_BYTES
 );
+
+/** Isian JSON terbesar yang aman dikirim lewat form action (mis. baris impor hasil baca berkas). */
+export const MAX_JSON_PAYLOAD_BYTES = REQUIRED_BODY_BYTES - ENVELOPE_BYTES;
 
 const UNIT: Readonly<Record<string, number>> = { K: 1024, M: 1024 ** 2, G: 1024 ** 3 };
 

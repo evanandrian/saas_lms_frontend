@@ -12,6 +12,7 @@ import Building2 from '@lucide/svelte/icons/building-2';
 import CalendarRange from '@lucide/svelte/icons/calendar-range';
 import KeyRound from '@lucide/svelte/icons/key-round';
 import Layers from '@lucide/svelte/icons/layers';
+import Server from '@lucide/svelte/icons/server';
 import Shapes from '@lucide/svelte/icons/shapes';
 import Shield from '@lucide/svelte/icons/shield';
 import Signal from '@lucide/svelte/icons/signal';
@@ -81,7 +82,9 @@ export type FieldKey =
 	| 'action'
 	| 'channels'
 	| 'subject'
-	| 'body';
+	| 'body'
+	| 'zone'
+	| 'outside_indonesia';
 
 /** Grup label i18n `master_data.options.<group>.<value>` untuk pilihan tetap. */
 export type OptionGroup =
@@ -152,7 +155,8 @@ const description = (type: FieldType = 'textarea'): MasterField => ({
 });
 
 /**
- * 11 master referensi FLIXARE App v3 · DataMaster (keputusan pemilik 5 Okt 2026), urutan = referensi.
+ * 11 master referensi FLIXARE App v3 · DataMaster (keputusan pemilik 5 Okt 2026), urutan = referensi,
+ * ditambah Region cluster DB (`cluster_region`, referensi "04g Cluster DB").
  * Teks (nama, deskripsi, label isian) lewat i18n `master_data.masters.<kind>` / `master_data.fields.<kind>`.
  */
 export const MASTER_DEFINITIONS: readonly MasterDefinition[] = [
@@ -196,6 +200,19 @@ export const MASTER_DEFINITIONS: readonly MasterDefinition[] = [
 			code(),
 			{ key: 'sort_order', type: 'number', required: true, help: true },
 			description('text')
+		]
+	},
+	{
+		kind: 'cluster_region',
+		section: 'platform',
+		icon: Server,
+		meta: ['zone', 'sort_order'],
+		fields: [
+			name({ placeholder: true }),
+			code({ placeholder: true, help: true }),
+			{ key: 'zone', type: 'text', placeholder: true, help: true },
+			{ key: 'sort_order', type: 'number', required: true, help: true },
+			{ key: 'outside_indonesia', type: 'toggle', full: true, help: true }
 		]
 	},
 	{
@@ -382,6 +399,8 @@ export interface MasterDraft {
 	channels: string[];
 	subject: string;
 	body: string;
+	zone: string;
+	outside_indonesia: boolean;
 	updated_at?: string;
 }
 
@@ -414,7 +433,9 @@ export function blankDraft(kind?: MasterKind): MasterDraft {
 		action: PERMISSION_ACTIONS[0],
 		channels: [],
 		subject: '',
-		body: ''
+		body: '',
+		zone: '',
+		outside_indonesia: false
 	};
 	if (kind === 'permission') {
 		d.module = PERMISSION_MODULES[1];
@@ -460,6 +481,8 @@ export function draftFromRecord(r: MasterRecord): MasterDraft {
 		channels: [...(r.channels ?? [])],
 		subject: r.subject ?? '',
 		body: r.body ?? '',
+		zone: r.zone ?? '',
+		outside_indonesia: r.outside_indonesia ?? false,
 		updated_at: r.updated_at
 	};
 }
@@ -495,6 +518,7 @@ export function toSaveRequest(
 export function normalizeCode(kind: MasterKind, value: string): string {
 	if (kind === 'tenant_type') return value.toLowerCase().replace(/[^a-z0-9_]/g, '');
 	if (kind === 'institution') return value.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+	if (kind === 'cluster_region') return value.toLowerCase().replace(/[^a-z0-9-]/g, '');
 	switch (codeType(kind)) {
 		case 'key':
 			return value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
@@ -512,6 +536,7 @@ export type FieldErrorKey =
 	| 'code_lower'
 	| 'code_grade'
 	| 'code_institution'
+	| 'code_region'
 	| 'key'
 	| 'email'
 	| 'tel'
@@ -532,7 +557,8 @@ export interface FieldError {
 const CODE_PATTERNS: Partial<Record<MasterKind, [RegExp, FieldErrorKey]>> = {
 	tenant_type: [/^[a-z][a-z0-9_]{1,49}$/, 'code_lower'],
 	institution: [/^[a-z0-9_-]{3,50}$/, 'code_institution'],
-	grade_level: [/^[A-Z0-9_]{1,20}$/, 'code_grade']
+	grade_level: [/^[A-Z0-9_]{1,20}$/, 'code_grade'],
+	cluster_region: [/^[a-z0-9-]{2,30}$/, 'code_region']
 };
 const CODE_UPPER = /^[A-Z0-9_]{2,20}$/;
 const KEY = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/;

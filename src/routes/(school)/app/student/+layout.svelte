@@ -19,8 +19,6 @@
 	const i18n = useI18n();
 	const identity = $derived(workspaceIdentity(data.workspace, i18n.t));
 
-	const section = (hash: string) => ({ href: APP_PATHS.STUDENT_HOME, hash });
-
 	// Arsitektur informasi area murid (beranda, materi mandiri, dan seksi fitur).
 	const navItems: WorkspaceNavItem[] = $derived([
 		{ label: i18n.t('nav.student.home'), icon: House, href: APP_PATHS.STUDENT_HOME },
@@ -31,9 +29,17 @@
 			href: APP_PATHS.STUDENT_TASKS,
 			badge: workspaceBadge(data.workspace, 'tasks')
 		},
-		{ label: i18n.t('nav.student.assessments'), icon: ClipboardCheck, href: APP_PATHS.STUDENT_ASSESSMENTS },
+		{
+			label: i18n.t('nav.student.assessments'),
+			icon: ClipboardCheck,
+			href: APP_PATHS.STUDENT_ASSESSMENTS
+		},
 		{ label: i18n.t('nav.student.grades'), icon: Award, href: APP_PATHS.STUDENT_GRADES },
-		{ label: i18n.t('nav.student.attendance'), icon: CalendarCheck, href: APP_PATHS.STUDENT_ATTENDANCE },
+		{
+			label: i18n.t('nav.student.attendance'),
+			icon: CalendarCheck,
+			href: APP_PATHS.STUDENT_ATTENDANCE
+		},
 		{ label: i18n.t('nav.student.messages'), icon: MessageSquare, href: APP_PATHS.STUDENT_MESSAGES }
 	]);
 </script>

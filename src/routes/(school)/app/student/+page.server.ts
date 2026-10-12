@@ -1,11 +1,18 @@
 import { dev } from '$app/environment';
+import { throwIfTenantMaintenance } from '$lib/api/tenant-maintenance';
 import { loadStudent } from '$lib/features/dashboards/dashboards.api';
 import { dashboardsContext } from '$lib/features/dashboards/dashboards.server';
-import { buildDynamicStreak, type StudentDashboardData } from './student-dashboard';
+import {
+	buildDynamicStreak,
+	type AttendanceMonth,
+	type StudentDashboardData,
+	type SubjectIconKey
+} from './student-dashboard';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const res = await loadStudent(dashboardsContext(event));
+	throwIfTenantMaintenance(res);
 	const fixture = dev ? (await import('./student.fixture')).studentDashboardFixture : null;
 
 	const now = new Date();
@@ -58,7 +65,7 @@ export const load: PageServerLoad = async (event) => {
 		const subjects = (apiData.subjects ?? []).map((s) => ({
 			id: s.id,
 			name: s.name,
-			icon: (s.icon as any) ?? 'math',
+			icon: (s.icon as SubjectIconKey | undefined) ?? 'math',
 			percent: s.percent
 		}));
 
@@ -98,7 +105,7 @@ export const load: PageServerLoad = async (event) => {
 			const exceptions: Record<number, 'late' | 'permit' | 'sick' | 'holiday'> = {};
 			if (m.exceptions) {
 				for (const [dayStr, status] of Object.entries(m.exceptions)) {
-					exceptions[Number(dayStr)] = status as any;
+					exceptions[Number(dayStr)] = status as AttendanceMonth['exceptions'][number];
 				}
 			}
 			return {
@@ -118,18 +125,23 @@ export const load: PageServerLoad = async (event) => {
 			level,
 			streak,
 			quests,
-			tierThresholds: (apiData.tier_thresholds as any) ?? (fixture?.tierThresholds ?? { gold: 80, silver: 65 }),
+			tierThresholds: (apiData.tier_thresholds as
+				StudentDashboardData['tierThresholds'] | undefined) ??
+				fixture?.tierThresholds ?? { gold: 80, silver: 65 },
 			subjects,
-			scoreBands: (apiData.score_bands as any) ?? (fixture?.scoreBands ?? { high: 85, mid: 70 }),
+			scoreBands: (apiData.score_bands as StudentDashboardData['scoreBands'] | undefined) ??
+				fixture?.scoreBands ?? { high: 85, mid: 70 },
 			recentScores,
-			masteryTarget: apiData.mastery_target ?? (fixture?.masteryTarget ?? 75),
-			remedialXp: apiData.remedial_xp ?? (fixture?.remedialXp ?? 40),
+			masteryTarget: apiData.mastery_target ?? fixture?.masteryTarget ?? 75,
+			remedialXp: apiData.remedial_xp ?? fixture?.remedialXp ?? 40,
 			remedials,
 			bonusPractice,
-			lowScoreThreshold: apiData.low_score_threshold ?? (fixture?.lowScoreThreshold ?? 65),
+			lowScoreThreshold: apiData.low_score_threshold ?? fixture?.lowScoreThreshold ?? 65,
 			improvements,
-			attendanceMonths: attendanceMonths.length > 0 ? attendanceMonths : (fixture?.attendanceMonths ?? []),
-			defaultAttendanceMonth: apiData.default_attendance_month ?? (fixture?.defaultAttendanceMonth ?? 0)
+			attendanceMonths:
+				attendanceMonths.length > 0 ? attendanceMonths : (fixture?.attendanceMonths ?? []),
+			defaultAttendanceMonth:
+				apiData.default_attendance_month ?? fixture?.defaultAttendanceMonth ?? 0
 		};
 	} else if (dev && fixture) {
 		dashboard = {
@@ -145,5 +157,3 @@ export const load: PageServerLoad = async (event) => {
 		canSimulate: dev && (!isLive || (dashboard?.todayAssessments.length ?? 0) === 0)
 	};
 };
-
-

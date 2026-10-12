@@ -1,7 +1,7 @@
 <script lang="ts">
+	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
-	import { useI18n } from '$lib/i18n';
-	import logogramColor from '$lib/assets/brand/flixare-logogram-color.png';
+	import { useI18n, type TranslationParams } from '$lib/i18n';
 	import AlertCircle from '@lucide/svelte/icons/alert-circle';
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import CalendarCheck from '@lucide/svelte/icons/calendar-check';
@@ -12,22 +12,45 @@
 	import Flame from '@lucide/svelte/icons/flame';
 	import Paperclip from '@lucide/svelte/icons/paperclip';
 	import Send from '@lucide/svelte/icons/send';
-	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import UploadCloud from '@lucide/svelte/icons/upload-cloud';
-	import UserCheck from '@lucide/svelte/icons/user-check';
 	import X from '@lucide/svelte/icons/x';
 	import type { PageProps } from './$types';
 	import type { AttendanceStatus, MonthlyAttendanceSummary } from './attendance.types';
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
+	const t = (key: string, params?: TranslationParams) =>
+		i18n.t(`student_attendance.hero.${key}`, params);
 
-	const STATUS_CONFIG: Record<AttendanceStatus, { label: string; badge: string; icon: typeof CheckCircle2 }> = {
-		present: { label: 'Hadir', badge: 'bg-success-400/15 text-success-500 border-success-400/30', icon: CheckCircle2 },
-		late: { label: 'Terlambat', badge: 'bg-warning-500/15 text-warning-500 border-warning-500/30', icon: Clock },
-		permit: { label: 'Izin', badge: 'bg-lms-interactive-subtle text-lms-interactive border-lms-interactive/30', icon: FileText },
-		sick: { label: 'Sakit', badge: 'bg-purple-500/15 text-purple-400 border-purple-500/30', icon: AlertCircle },
-		absent: { label: 'Tanpa Keterangan', badge: 'bg-error-500/15 text-error-400 border-error-500/30', icon: X }
+	const STATUS_CONFIG: Record<
+		AttendanceStatus,
+		{ label: string; badge: string; icon: typeof CheckCircle2 }
+	> = {
+		present: {
+			label: 'Hadir',
+			badge: 'bg-success-400/15 text-success-500 border-success-400/30',
+			icon: CheckCircle2
+		},
+		late: {
+			label: 'Terlambat',
+			badge: 'bg-warning-500/15 text-warning-500 border-warning-500/30',
+			icon: Clock
+		},
+		permit: {
+			label: 'Izin',
+			badge: 'bg-lms-interactive-subtle text-lms-interactive border-lms-interactive/30',
+			icon: FileText
+		},
+		sick: {
+			label: 'Sakit',
+			badge: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+			icon: AlertCircle
+		},
+		absent: {
+			label: 'Tanpa Keterangan',
+			badge: 'bg-error-500/15 text-error-400 border-error-500/30',
+			icon: X
+		}
 	};
 
 	let selectedMonthIndex = $state<number>(0);
@@ -90,63 +113,51 @@
 </svelte:head>
 
 <div class="flex min-w-0 flex-col gap-6 leading-tight">
-	<!-- Hero Section -->
-	<section
-		class="bg-lms-hero text-lms-on-hero relative isolate flex min-w-0 flex-col gap-5 overflow-hidden rounded-[22px] p-7 md:p-8"
+	<HeroBanner
+		eyebrow={t('eyebrow')}
+		title={t('title')}
+		description={t('desc', {
+			name: data.attendanceData.studentName,
+			class: data.attendanceData.className,
+			rate: data.attendanceData.semesterAttendanceRate
+		})}
+		actionsPlacement="end"
+		help="help.student_attendance"
 	>
-		<img
-			src={logogramColor}
-			alt=""
-			aria-hidden="true"
-			draggable="false"
-			class="pointer-events-none absolute -top-8 -right-10 -z-10 w-72 max-w-none opacity-10 select-none"
-		/>
-		<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-			<div class="flex flex-col items-start gap-2">
-				<span
-					class="bg-warning-400 text-lms-brand-deep-neutral rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.14em]"
-				>
-					PRESENSI & KEHADIRAN
-				</span>
-				<h1 class="text-[1.75rem] md:text-3xl font-bold">Rekap Presensi Siswa</h1>
-				<p class="text-lms-on-hero-muted text-sm md:text-base max-w-xl">
-					{data.attendanceData.studentName} · Kelas {data.attendanceData.className} · Tingkat Kehadiran Semester: <strong>{data.attendanceData.semesterAttendanceRate}%</strong>
-				</p>
-			</div>
-
-			<!-- Action Button -->
+		{#snippet actions()}
 			<button
 				type="button"
 				class="bg-lms-on-hero text-lms-brand-deep-neutral hover:opacity-90 flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition-all self-start md:self-auto"
 				onclick={openPermitModal}
 			>
 				<Icon icon={FilePlus} size="sm" />
-				Ajukan Izin / Sakit
+				{t('request_permit')}
 			</button>
-		</div>
-
-		<!-- Quick Stats -->
-		<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl">
+		{/snippet}
+		<div class="grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Persentase Hadir</span>
-				<span class="text-2xl font-bold text-success-400">{data.attendanceData.semesterAttendanceRate}%</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_rate')}</span>
+				<span class="text-success-400 text-2xl font-bold"
+					>{data.attendanceData.semesterAttendanceRate}%</span
+				>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Streak Belajar</span>
-				<span class="text-2xl font-bold text-warning-400 flex items-center gap-1">
-					<Icon icon={Flame} size="sm" /> {data.attendanceData.currentStreakDays} Hari
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_streak')}</span>
+				<span class="text-warning-400 flex items-center gap-1 text-2xl font-bold">
+					<Icon icon={Flame} size="sm" />
+					{t('value_days', { count: data.attendanceData.currentStreakDays })}
 				</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Terlambat</span>
-				<span class="text-2xl font-bold text-warning-500">1 Kali</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_late')}</span>
+				<span class="text-warning-500 text-2xl font-bold">{t('value_times', { count: 1 })}</span>
 			</div>
 			<div class="bg-lms-hero-raised flex flex-col gap-1 rounded-xl p-3.5">
-				<span class="text-lms-on-hero-muted text-xs">Izin / Sakit</span>
-				<span class="text-2xl font-bold text-lms-link">3 Hari</span>
+				<span class="text-lms-on-hero-muted text-xs">{t('stat_permit_sick')}</span>
+				<span class="text-lms-link text-2xl font-bold">{t('value_days', { count: 3 })}</span>
 			</div>
 		</div>
-	</section>
+	</HeroBanner>
 
 	<!-- Month Filter Selector -->
 	<div class="lms-card flex items-center justify-between gap-4 rounded-[22px]! p-4 shadow-none!">
@@ -170,31 +181,53 @@
 
 		<div class="hidden sm:flex items-center gap-3 text-xs font-semibold">
 			<span class="text-lms-muted">Tingkat Kehadiran Bulan Ini:</span>
-			<span class="text-success-400 font-bold text-sm tabular-nums">{currentMonth.attendanceRate}%</span>
+			<span class="text-success-400 font-bold text-sm tabular-nums"
+				>{currentMonth.attendanceRate}%</span
+			>
 		</div>
 	</div>
 
 	<!-- Monthly Summary Counters Card -->
 	<div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-		<div class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-success-400/20 bg-success-400/5">
+		<div
+			class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-success-400/20 bg-success-400/5"
+		>
 			<span class="text-xs font-semibold text-success-500">Hadir Tepat Waktu</span>
-			<span class="text-2xl font-bold tabular-nums text-success-500">{currentMonth.presentDays} <span class="text-xs font-normal">Hari</span></span>
+			<span class="text-2xl font-bold tabular-nums text-success-500"
+				>{currentMonth.presentDays} <span class="text-xs font-normal">Hari</span></span
+			>
 		</div>
-		<div class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-warning-500/20 bg-warning-500/5">
+		<div
+			class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-warning-500/20 bg-warning-500/5"
+		>
 			<span class="text-xs font-semibold text-warning-500">Terlambat</span>
-			<span class="text-2xl font-bold tabular-nums text-warning-500">{currentMonth.lateDays} <span class="text-xs font-normal">Hari</span></span>
+			<span class="text-2xl font-bold tabular-nums text-warning-500"
+				>{currentMonth.lateDays} <span class="text-xs font-normal">Hari</span></span
+			>
 		</div>
-		<div class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-lms-interactive/20 bg-lms-interactive-subtle">
+		<div
+			class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-lms-interactive/20 bg-lms-interactive-subtle"
+		>
 			<span class="text-xs font-semibold text-lms-interactive">Izin Resmi</span>
-			<span class="text-2xl font-bold tabular-nums text-lms-interactive">{currentMonth.permitDays} <span class="text-xs font-normal">Hari</span></span>
+			<span class="text-2xl font-bold tabular-nums text-lms-interactive"
+				>{currentMonth.permitDays} <span class="text-xs font-normal">Hari</span></span
+			>
 		</div>
-		<div class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-purple-500/20 bg-purple-500/5">
+		<div
+			class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-purple-500/20 bg-purple-500/5"
+		>
 			<span class="text-xs font-semibold text-purple-400">Sakit</span>
-			<span class="text-2xl font-bold tabular-nums text-purple-400">{currentMonth.sickDays} <span class="text-xs font-normal">Hari</span></span>
+			<span class="text-2xl font-bold tabular-nums text-purple-400"
+				>{currentMonth.sickDays} <span class="text-xs font-normal">Hari</span></span
+			>
 		</div>
-		<div class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-error-500/20 bg-error-500/5 col-span-2 sm:col-span-1">
+		<div
+			class="lms-card rounded-2xl! p-4 flex flex-col gap-1 shadow-none! border border-error-500/20 bg-error-500/5 col-span-2 sm:col-span-1"
+		>
 			<span class="text-xs font-semibold text-error-400">Alpa / Tanpa Surat</span>
-			<span class="text-2xl font-bold tabular-nums text-error-400">{currentMonth.absentDays} <span class="text-xs font-normal">Hari</span></span>
+			<span class="text-2xl font-bold tabular-nums text-error-400"
+				>{currentMonth.absentDays} <span class="text-xs font-normal">Hari</span></span
+			>
 		</div>
 	</div>
 
@@ -205,20 +238,26 @@
 				<Icon icon={CalendarCheck} size="md" />
 				Log Presensi Harian ({currentMonth.monthLabel})
 			</h3>
-			<span class="text-xs text-lms-muted font-medium">Total {currentMonth.totalSchoolDays} Hari Sekolah</span>
+			<span class="text-xs text-lms-muted font-medium"
+				>Total {currentMonth.totalSchoolDays} Hari Sekolah</span
+			>
 		</div>
 
 		{#if currentMonth.dailyRecords.length === 0}
 			<div class="flex flex-col items-center justify-center gap-2 py-10 text-center">
 				<Icon icon={Clock} size="lg" />
 				<p class="text-sm font-semibold">Belum ada rincian catatan harian untuk bulan ini</p>
-				<p class="text-xs text-lms-muted">Semua kehadiran tercatat otomatis saat tap kartu RFID / aplikasi presensi.</p>
+				<p class="text-xs text-lms-muted">
+					Semua kehadiran tercatat otomatis saat tap kartu RFID / aplikasi presensi.
+				</p>
 			</div>
 		{:else}
 			<div class="overflow-x-auto border border-lms-border rounded-xl">
 				<table class="w-full text-left border-collapse text-xs">
 					<thead>
-						<tr class="border-b border-lms-border bg-lms-surface-muted text-[11px] text-lms-muted uppercase tracking-wider">
+						<tr
+							class="border-b border-lms-border bg-lms-surface-muted text-[11px] text-lms-muted uppercase tracking-wider"
+						>
 							<th class="p-3">Tanggal & Hari</th>
 							<th class="p-3 text-center">Jam Masuk</th>
 							<th class="p-3 text-center">Jam Pulang</th>
@@ -229,14 +268,21 @@
 					<tbody>
 						{#each currentMonth.dailyRecords as row (row.date)}
 							{@const cfg = STATUS_CONFIG[row.status]}
-							<tr class="border-b border-lms-border/50 hover:bg-lms-surface-muted/30 transition-colors">
+							<tr
+								class="border-b border-lms-border/50 hover:bg-lms-surface-muted/30 transition-colors"
+							>
 								<td class="p-3 font-semibold">
 									{row.dayName}, {row.date}
 								</td>
 								<td class="p-3 text-center font-mono font-medium">{row.checkInTime}</td>
 								<td class="p-3 text-center font-mono font-medium">{row.checkOutTime}</td>
 								<td class="p-3 text-center">
-									<span class={['inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold', cfg.badge]}>
+									<span
+										class={[
+											'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold',
+											cfg.badge
+										]}
+									>
 										<Icon icon={cfg.icon} size="sm" />
 										{cfg.label}
 									</span>
@@ -261,13 +307,19 @@
 
 		<div class="grid gap-3 md:grid-cols-2">
 			{#each permitRequests as req (req.id)}
-				<div class="border border-lms-border rounded-2xl p-4 flex flex-col justify-between gap-3 bg-lms-surface">
+				<div
+					class="border border-lms-border rounded-2xl p-4 flex flex-col justify-between gap-3 bg-lms-surface"
+				>
 					<div class="flex flex-col gap-2">
 						<div class="flex items-center justify-between">
-							<span class="bg-lms-interactive-subtle text-lms-interactive font-bold text-xs rounded-lg px-2.5 py-1">
+							<span
+								class="bg-lms-interactive-subtle text-lms-interactive font-bold text-xs rounded-lg px-2.5 py-1"
+							>
 								{req.type === 'permit' ? 'Surat Izin' : 'Surat Sakit'}
 							</span>
-							<span class="bg-success-400/10 text-success-500 border border-success-400/30 rounded-md px-2 py-0.5 text-[11px] font-bold">
+							<span
+								class="bg-success-400/10 text-success-500 border border-success-400/30 rounded-md px-2 py-0.5 text-[11px] font-bold"
+							>
 								Disetujui
 							</span>
 						</div>
@@ -282,7 +334,9 @@
 					</div>
 
 					{#if req.fileName}
-						<div class="border-t border-lms-border pt-2 text-[11px] text-lms-muted flex items-center gap-1.5">
+						<div
+							class="border-t border-lms-border pt-2 text-[11px] text-lms-muted flex items-center gap-1.5"
+						>
 							<Icon icon={Paperclip} size="sm" /> Lampiran: <strong>{req.fileName}</strong>
 						</div>
 					{/if}
@@ -306,7 +360,9 @@
 			<!-- Modal Header -->
 			<div class="flex items-center justify-between border-b border-lms-border p-5">
 				<div class="flex items-center gap-3">
-					<span class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl">
+					<span
+						class="bg-lms-interactive-subtle text-lms-interactive flex size-10 items-center justify-center rounded-xl"
+					>
 						<Icon icon={FilePlus} size="md" />
 					</span>
 					<div class="flex flex-col">
@@ -331,7 +387,9 @@
 			<!-- Modal Body -->
 			<div class="flex flex-col gap-4 overflow-y-auto p-6 leading-relaxed text-xs">
 				{#if permitSuccessMsg}
-					<div class="bg-success-400/10 border border-success-400 text-success-500 rounded-xl p-4 flex items-center gap-3 text-sm font-bold">
+					<div
+						class="bg-success-400/10 border border-success-400 text-success-500 rounded-xl p-4 flex items-center gap-3 text-sm font-bold"
+					>
 						<Icon icon={CheckCircle2} size="md" />
 						{permitSuccessMsg}
 					</div>
@@ -392,7 +450,9 @@
 
 				<!-- Keterangan Alasan -->
 				<div class="flex flex-col gap-1.5">
-					<label for="permit-reason" class="font-bold text-lms-foreground">Alasan / Keterangan</label>
+					<label for="permit-reason" class="font-bold text-lms-foreground"
+						>Alasan / Keterangan</label
+					>
 					<textarea
 						id="permit-reason"
 						bind:value={permitReason}
@@ -404,7 +464,9 @@
 
 				<!-- Upload Lampiran -->
 				<div class="flex flex-col gap-1.5">
-					<span class="font-bold text-lms-foreground">Unggah Surat Keterangan / Bukti (PDF / Foto)</span>
+					<span class="font-bold text-lms-foreground"
+						>Unggah Surat Keterangan / Bukti (PDF / Foto)</span
+					>
 					<label
 						class="border-lms-border hover:border-lms-interactive bg-lms-surface hover:bg-lms-interactive-subtle/40 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-5 cursor-pointer transition-all text-center"
 					>
@@ -424,7 +486,9 @@
 			</div>
 
 			<!-- Modal Footer -->
-			<div class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30">
+			<div
+				class="flex items-center justify-end gap-2 border-t border-lms-border p-4 bg-lms-surface-muted/30"
+			>
 				<button
 					type="button"
 					class="lms-action-ghost rounded-xl px-4 py-2 text-xs font-semibold"
