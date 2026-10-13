@@ -161,10 +161,29 @@ const FILE_HEADERS = [
 	'content-type',
 	'content-disposition',
 	'cache-control',
-	'x-content-type-options'
+	'x-content-type-options',
+	'content-security-policy'
 ] as const;
 
-/** Meneruskan respons berkas backend ke browser (token tetap di cookie HttpOnly). */
+/** Tipe yang boleh tampil inline di origin aplikasi; tipe lain selalu diunduh. */
+const INLINE_FILE_TYPES = new Set(['image/png', 'image/jpeg', 'application/pdf']);
+
+/** Tipe yang dapat menjalankan skrip bila dirender (SVG, HTML, XML, JS) — dinetralkan menjadi biner. */
+const ACTIVE_FILE_TYPE = /(^|\/|\+)(svg|html|xhtml|xml|javascript|ecmascript)(\+|$)/;
+
+/** Sama dengan CSP berkas backend; PDF dikecualikan karena penampil PDF menolak dokumen ber-sandbox. */
+const FILE_SANDBOX_CSP = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+
+function asAttachment(disposition: string | null): string {
+	const value = disposition?.replace(/^\s*inline\b/i, 'attachment') ?? '';
+	return value.startsWith('attachment') ? value : 'attachment';
+}
+
+/**
+ * Meneruskan respons berkas backend ke browser (token tetap di cookie HttpOnly). Header keamanan
+ * backend ikut diteruskan, dan tipe dari upstream tidak dipercaya begitu saja (SEC-01): konten aktif
+ * atau tanpa tipe tidak pernah dirender inline di origin konsol.
+ */
 export function relayFile(upstream: Response | null): Response {
 	if (!upstream) return new Response(null, { status: 401 });
 	if (!upstream.ok) return new Response(null, { status: upstream.status });
@@ -172,6 +191,16 @@ export function relayFile(upstream: Response | null): Response {
 	for (const name of FILE_HEADERS) {
 		const value = upstream.headers.get(name);
 		if (value) headers.set(name, value);
+	}
+	const type = (headers.get('content-type') ?? '').split(';')[0]?.trim().toLowerCase() ?? '';
+	if (!INLINE_FILE_TYPES.has(type)) {
+		if (!type || ACTIVE_FILE_TYPE.test(type))
+			headers.set('content-type', 'application/octet-stream');
+		headers.set('content-disposition', asAttachment(headers.get('content-disposition')));
+	}
+	headers.set('x-content-type-options', 'nosniff');
+	if (type !== 'application/pdf' && !headers.has('content-security-policy')) {
+		headers.set('content-security-policy', FILE_SANDBOX_CSP);
 	}
 	return new Response(upstream.body, { status: 200, headers });
 }

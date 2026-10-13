@@ -143,7 +143,7 @@ export const groupSuffix = (index: number, scheme: 'huruf' | 'angka') =>
 export const FILE_LIMITS = {
 	logoBytes: 2 * 1024 * 1024,
 	documentBytes: 5 * 1024 * 1024,
-	logoTypes: ['image/png', 'image/jpeg', 'image/svg+xml'],
+	logoTypes: ['image/png', 'image/jpeg'],
 	documentTypes: ['application/pdf', 'image/png', 'image/jpeg']
 } as const;
 
