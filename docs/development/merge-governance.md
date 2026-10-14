@@ -32,6 +32,8 @@ Dokumen ini mengatur cara perubahan masuk ke `main`: setiap perubahan melalui pu
 
    Langkah ini **mengurangi** risiko upstream yang salah, tetapi **tidak mencegah** semua push tidak sengaja ke `main` (mis. refspec yang salah ketik atau alat lain). Tetap periksa target ref sebelum setiap push.
 
+   **Editor/IDE:** tombol *Sync*, *Push*, atau *Publish* di editor melakukan push ke upstream branch aktif. Sebelum memakainya, periksa branch aktif dan upstream (`git rev-parse --abbrev-ref --symbolic-full-name @{u}`); jangan memakai *Sync*/*Push* bila upstream adalah `origin/main`. Merge PR hanya dari halaman PR setelah check `build-and-test` berstatus completed/success. Langkah ini juga **tidak** mencegah secara mutlak push atau merge yang salah.
+
 ## 3. Pull request
 
 - Isi [`.github/pull_request_template.md`](../../.github/pull_request_template.md) **lengkap**: Tujuan, Aturan yang disentuh, Perubahan, Cara uji, Checklist arsitektur, Dampak. Template yang tidak diisi tidak memenuhi syarat merge.
@@ -140,7 +142,12 @@ Setiap penyimpangan (mis. merge sebelum CI selesai) dicatat di PR atau dokumen a
 | #1 | `577e041` | — (workflow belum ada) | — | 2026-10-14 04:14:33 (`26abc8d`) | — | Tidak ada CI |
 | #2 | `b0605d4` | `38557845174` (success) | 2026-10-14 11:37:14 | 11:37:17 (`f45a956`) | 11:39:12 | CI NOT VERIFIED |
 | — (tanpa PR) | `a2a4520` | — | — | push langsung 2026-10-14 12:04:50 (19:04:50 +0700) | — | CI NOT VERIFIED |
+| #3 | `e49c741` | `38566999550` (success) | 2026-10-14 12:51:13 | 12:51:15 (`5457162`) | 12:52:41 | CI NOT VERIFIED |
 
 PR #2 di-merge 3 detik setelah `build-and-test` mulai, sebelum run selesai; hasil akhir run sukses, tetapi merge tidak menunggu hasil tersebut. Prosedur bagian 5 berlaku mulai PR berikutnya.
 
 **Push langsung tanpa PR (2026-10-14).** Commit `a2a4520` (hanya `docs/development/merge-governance.md`, FE-GOV-03) masuk ke `main` melalui push langsung pada 19:04:50 +0700 (reflog lokal `origin/main`: "update by push"), sebelum branch `docs/merge-governance` dipublikasikan pada 19:32. Tidak ada PR untuk perubahan ini, dan CI pasca-push berstatus **CI NOT VERIFIED** sampai bukti run tersedia. Faktor pemungkin: branch dibuat dari `origin/main` dengan upstream default `origin/main`. Penyebab dan pelaku push belum dapat dipastikan. GitHub Free untuk repository privat tidak menyediakan kontrol teknis untuk memblokir push atau merge ke `main` (bagian 1). Mitigasi: bagian 2 butir 4.
+
+**Pembaruan penyebab push langsung (FE-GOV-09/10, 2026-10-14).** Log ekstensi Git bawaan editor (Antigravity IDE, `exthost/vscode.git/Git.log`) mencatat `git push origin docs/merge-governance:main` pada 2026-10-14 19:04:50.176 +0700, sesuai dengan reflog `origin/main`. Perintah tersebut adalah push ke upstream `origin/main` yang terpasang otomatis saat branch dibuat dari `origin/main`. Log tidak mencatat pemicunya (aksi pengguna atau agen di dalam editor); pemicu push tetap **belum diketahui**. Keberadaan ekstensi tertentu di editor bukan bukti siapa yang memicu perintah.
+
+**Merge sebelum CI selesai berulang (PR #3).** PR #3 (head `e49c741`, berisi catatan penyimpangan dan mitigasi di atas) di-merge pada 2026-10-14 12:51:15 UTC (`5457162`), 2 detik setelah `build-and-test` mulai; run `38566999550` selesai **success** pada 12:52:41 UTC, sesudah merge. Penyimpangannya adalah urutan proses, bukan kegagalan test. CI `push` untuk merge SHA: **CI NOT VERIFIED**. Prosedur tertulis tidak mencegah pengulangan ini; tanpa branch protection (tidak tersedia pada GitHub Free untuk repository privat), kepatuhan bergantung sepenuhnya pada operator.
