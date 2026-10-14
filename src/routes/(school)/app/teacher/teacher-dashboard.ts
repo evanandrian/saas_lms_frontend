@@ -14,6 +14,8 @@ export interface AgendaItem {
 	readonly id: string;
 	/** Menit sejak tengah malam (WIB). */
 	readonly startMinutes: number;
+	/** Akhir jam pelajaran (data asli); tinggi kartu mengikuti durasi. Tanpa nilai: tinggi per jenis. */
+	readonly endMinutes?: number;
 	readonly title: string;
 	readonly meta: string;
 	readonly statusLabel: string;
@@ -47,7 +49,16 @@ export interface GradebookClass {
 	readonly name: string;
 	readonly progressPercent: number;
 	readonly objectives: readonly LearningObjective[];
-	readonly students: readonly { readonly name: string; readonly scores: readonly number[] }[];
+	/** `null` = nilai belum diisi. */
+	readonly students: readonly {
+		readonly name: string;
+		readonly scores: readonly (number | null)[];
+	}[];
+	/**
+	 * KKTP mapel kelas ini (data asli). `undefined` = pakai `remedialThreshold` dashboard (data contoh);
+	 * `null` = mapel belum menetapkan KKTP → tidak ada sorotan remedial.
+	 */
+	readonly remedialThreshold?: number | null;
 }
 
 export interface TeacherDashboardData {
@@ -87,6 +98,9 @@ const AGENDA_CARD_HEIGHT_PX: Record<AgendaKind, number> = {
 	later: 56
 };
 const AGENDA_META_MIN_HEIGHT_PX = 52;
+/** Kartu jam pelajaran asli: jarak antar kartu berurutan & tinggi minimum agar teks terbaca. */
+const AGENDA_CARD_GAP_PX = 4;
+const AGENDA_MIN_CARD_HEIGHT_PX = 36;
 
 export const formatMinutesOfDay = (minutes: number) =>
 	formatHourMinute(minutes * SECONDS_PER_MINUTE);
@@ -116,7 +130,15 @@ export interface AgendaCard extends AgendaItem {
 
 export function layoutAgenda(items: readonly AgendaItem[]): AgendaCard[] {
 	return items.map((item) => {
-		const heightPx = AGENDA_CARD_HEIGHT_PX[item.kind];
+		const heightPx =
+			item.endMinutes === undefined
+				? AGENDA_CARD_HEIGHT_PX[item.kind]
+				: Math.max(
+						AGENDA_MIN_CARD_HEIGHT_PX,
+						Math.round(
+							((item.endMinutes - item.startMinutes) / MINUTES_PER_HOUR) * AGENDA_HOUR_HEIGHT_PX
+						) - AGENDA_CARD_GAP_PX
+					);
 		return {
 			...item,
 			time: formatMinutesOfDay(item.startMinutes),
@@ -143,21 +165,134 @@ export function nowLinePosition(nowSeconds: number): number | null {
 }
 
 export interface GradebookView {
-	readonly rows: readonly { readonly name: string; readonly scores: readonly number[] }[];
-	readonly averages: readonly number[];
+	readonly rows: readonly { readonly name: string; readonly scores: readonly (number | null)[] }[];
+	/** Rata-rata nilai yang sudah diisi; `null` bila belum ada nilai di kolom itu. */
+	readonly averages: readonly (number | null)[];
 	readonly lowCount: number;
 }
 
-export function buildGradebook(gradebookClass: GradebookClass, threshold: number): GradebookView {
+export function buildGradebook(
+	gradebookClass: GradebookClass,
+	threshold: number | null
+): GradebookView {
 	const rows = gradebookClass.students;
-	const averages = gradebookClass.objectives.map((_, column) =>
-		rows.length
-			? Math.round(rows.reduce((sum, row) => sum + (row.scores[column] ?? 0), 0) / rows.length)
-			: 0
-	);
+	const averages = gradebookClass.objectives.map((_, column) => {
+		const filled = rows.map((row) => row.scores[column]).filter(isScore);
+		return filled.length
+			? Math.round(filled.reduce((sum, score) => sum + score, 0) / filled.length)
+			: null;
+	});
 	const lowCount = rows.reduce(
-		(sum, row) => sum + row.scores.filter((score) => score < threshold).length,
+		(sum, row) =>
+			sum +
+			row.scores.filter((score) => threshold !== null && isScore(score) && score < threshold)
+				.length,
 		0
 	);
 	return { rows, averages, lowCount };
+}
+
+const isScore = (score: number | null | undefined): score is number => typeof score === 'number';
+
+/** Data dashboard guru dari API (bagian yang modulnya sudah ada) + label status agenda. */
+export interface TeacherApiData {
+	readonly date: string;
+	readonly agenda?:
+		| readonly {
+				readonly id: string;
+				readonly start_minutes: number;
+				readonly end_minutes: number;
+				readonly subject: string;
+				readonly class_name: string;
+		  }[]
+		| null;
+	readonly gradebook?:
+		| readonly {
+				readonly id: string;
+				readonly class_name: string;
+				readonly subject: string;
+				readonly passing_criteria: number | null;
+				readonly students: number;
+				readonly filled: number;
+				readonly grades: readonly { readonly name: string; readonly score: number | null }[];
+		  }[]
+		| null;
+}
+
+export interface TeacherApiLabels {
+	readonly status: Record<AgendaKind, string>;
+	readonly finalScoreCode: string;
+	readonly finalScoreName: string;
+}
+
+const PERCENT = 100;
+
+/** Ambang remedial kelas terpilih; `null` bila KKTP belum ditetapkan. */
+export const classThreshold = (gradebookClass: GradebookClass, fallback: number) =>
+	gradebookClass.remedialThreshold === undefined ? fallback : gradebookClass.remedialThreshold;
+
+/** Status agenda terhadap jam sekarang: selesai, berlangsung, berikutnya (pertama), lalu terjadwal. */
+export function agendaKinds(
+	lessons: readonly { readonly startMinutes: number; readonly endMinutes: number }[],
+	nowMinutes: number
+): AgendaKind[] {
+	let nextAssigned = false;
+	return lessons.map(({ startMinutes, endMinutes }) => {
+		if (endMinutes <= nowMinutes) return 'done';
+		if (startMinutes <= nowMinutes) return 'open';
+		if (!nextAssigned) {
+			nextAssigned = true;
+			return 'next';
+		}
+		return 'later';
+	});
+}
+
+/**
+ * Model halaman dari data asli: jam nyata (`clockStartSeconds: null`), agenda & buku nilai dari
+ * backend; bagian tanpa modul backend (sesi ujian, tumpukan koreksi, lobi) kosong — tanpa data contoh.
+ */
+export function teacherDashboardFromApi(
+	api: TeacherApiData,
+	nowMinutes: number,
+	semesterLabel: string,
+	labels: TeacherApiLabels
+): TeacherDashboardData {
+	const lessons = (api.agenda ?? []).map((lesson) => ({
+		...lesson,
+		startMinutes: lesson.start_minutes,
+		endMinutes: lesson.end_minutes
+	}));
+	const kinds = agendaKinds(lessons, nowMinutes);
+	const gradebook = (api.gradebook ?? []).map((item): GradebookClass => ({
+		id: item.id,
+		name: `${item.class_name} · ${item.subject}`,
+		progressPercent: item.students ? Math.round((item.filled / item.students) * PERCENT) : 0,
+		objectives: [{ code: labels.finalScoreCode, name: labels.finalScoreName }],
+		students: item.grades.map((grade) => ({ name: grade.name, scores: [grade.score] })),
+		remedialThreshold: item.passing_criteria
+	}));
+	return {
+		date: api.date,
+		semesterLabel,
+		clockStartSeconds: null,
+		nextSession: null,
+		agenda: lessons.map((lesson, index) => {
+			const kind = kinds[index] ?? 'later';
+			return {
+				id: lesson.id,
+				startMinutes: lesson.startMinutes,
+				endMinutes: lesson.endMinutes,
+				title: lesson.subject,
+				meta: lesson.class_name,
+				statusLabel: labels.status[kind],
+				kind
+			};
+		}),
+		toGrade: [],
+		// Ambang per kelas (KKTP mapel) dipakai lewat `classThreshold`; nilai dashboard tidak berlaku.
+		remedialThreshold: 0,
+		gradebook,
+		lobbyRoster: []
+	};
 }

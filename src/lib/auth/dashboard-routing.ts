@@ -81,7 +81,7 @@ export function eligibleMemberships(
 		if (host.kind === 'unified') return true;
 		if (route.hostKind !== host.kind) return false;
 		return host.kind === 'tenant'
-			? membership.tenant === host.subdomain
+			? host.tenantCode !== undefined && membership.tenant === host.tenantCode
 			: membership.tenant === null;
 	});
 }

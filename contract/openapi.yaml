@@ -5514,6 +5514,38 @@ paths:
       summary: Invitation info
       tags:
       - school-admin
+  /api/v1/public/tenant-domains/{domain}:
+    get:
+      operationId: resolveTenantDomain
+      summary: Resolve tenant host
+      description: 'Maps a tenant host label (subdomain) to its tenant (SAD tenant_domain_s). Tenant codes contain
+        underscores and are not valid hostnames, so the subdomain is not the tenant code. Results are cached 60 seconds.
+        Unknown, unverified, terminated or syntactically invalid labels return 404 `tenant_not_found`.'
+      parameters:
+      - in: path
+        name: domain
+        required: true
+        schema:
+          type: string
+          example: test-school-mat
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TenantDomain'
+                required:
+                - data
+                type: object
+          description: OK
+        '404':
+          $ref: '#/components/responses/Error'
+        default:
+          $ref: '#/components/responses/Error'
+      tags:
+      - registration
   /api/v1/public/school/invitations/accept:
     post:
       operationId: acceptSchoolInvitation
@@ -10788,6 +10820,24 @@ components:
           type: string
           format: date-time
           description: Required on update; must equal the stored value
+    TenantDomain:
+      type: object
+      required:
+      - domain
+      - tenant_code
+      - tenant_name
+      properties:
+        domain:
+          type: string
+          example: test-school-mat
+        tenant_code:
+          type: string
+          example: test_school_mat
+        tenant_name:
+          type: string
+        status:
+          type: string
+          description: Tenant lifecycle status (omitted when not set).
     ErrorResponse:
       type: object
       required:
@@ -11374,6 +11424,7 @@ components:
       - tenant_name
       - period
       - homeroom_class
+      - date
       properties:
         viewer:
           $ref: '#/components/schemas/DashboardViewer'
@@ -11383,13 +11434,17 @@ components:
           $ref: '#/components/schemas/DashboardPeriod'
         homeroom_class:
           $ref: '#/components/schemas/HomeroomClass'
+        date:
+          type: string
+          format: date
+          description: Today in the institution time zone (YYYY-MM-DD).
         agenda:
           type: array
           nullable: true
-          description: Null until the backing module exists; the UI then shows labelled sample data.
+          description: Teaching schedule for today. Null when the tenant database is unavailable or the user is not a
+            registered teacher; empty array when there are no lessons today.
           items:
-            type: object
-            additionalProperties: true
+            $ref: '#/components/schemas/TeacherAgendaItem'
         next_session:
           type: array
           nullable: true
@@ -11407,10 +11462,10 @@ components:
         gradebook:
           type: array
           nullable: true
-          description: Null until the backing module exists; the UI then shows labelled sample data.
+          description: Class × subject assignments of the active semester with final scores. Null when unavailable
+            (see agenda); empty array when the teacher has no assignments.
           items:
-            type: object
-            additionalProperties: true
+            $ref: '#/components/schemas/TeacherGradebookItem'
         schedule:
           type: array
           nullable: true
@@ -11439,6 +11494,59 @@ components:
           items:
             type: object
             additionalProperties: true
+    TeacherAgendaItem:
+      type: object
+      required: [id, period_no, start_minutes, end_minutes, subject, class_name]
+      properties:
+        id:
+          type: string
+        period_no:
+          type: integer
+        start_minutes:
+          type: integer
+          description: Minutes since midnight, institution time zone.
+        end_minutes:
+          type: integer
+        subject:
+          type: string
+        class_name:
+          type: string
+    TeacherGradebookItem:
+      type: object
+      required: [id, class_name, subject, passing_criteria, students, filled, locked, grades]
+      properties:
+        id:
+          type: string
+          description: Teaching assignment id (grade sheet /app/teacher/grades/{id}).
+        class_name:
+          type: string
+        subject:
+          type: string
+        passing_criteria:
+          type: number
+          nullable: true
+          description: KKTP; scores below it need remedial.
+        students:
+          type: integer
+        filled:
+          type: integer
+        locked:
+          type: integer
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherGradeItem'
+    TeacherGradeItem:
+      type: object
+      required: [student_id, name, score]
+      properties:
+        student_id:
+          type: string
+        name:
+          type: string
+        score:
+          type: number
+          nullable: true
     TodayAssessment:
       type: object
       required: [id, title, subject, start_minutes, end_minutes, question_count, xp_reward]

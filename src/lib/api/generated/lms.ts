@@ -2524,6 +2524,14 @@ export interface SaveMasterRecordRequest {
 	updated_at?: string;
 }
 
+export interface TenantDomain {
+	domain: string;
+	tenant_code: string;
+	tenant_name: string;
+	/** Tenant lifecycle status (omitted when not set). */
+	status?: string;
+}
+
 export type NavigationIssueField = (typeof NavigationIssueField)[keyof typeof NavigationIssueField];
 
 export const NavigationIssueField = {
@@ -2922,13 +2930,9 @@ export interface HomeroomDashboard {
 	behavior_notes?: HomeroomDashboardBehaviorNotesItem[] | null;
 }
 
-export type TeacherDashboardAgendaItem = { [key: string]: unknown };
-
 export type TeacherDashboardNextSessionItem = { [key: string]: unknown };
 
 export type TeacherDashboardGradingPileItem = { [key: string]: unknown };
-
-export type TeacherDashboardGradebookItem = { [key: string]: unknown };
 
 export type TeacherDashboardScheduleItem = { [key: string]: unknown };
 
@@ -2938,16 +2942,51 @@ export type TeacherDashboardQuestionBankItem = { [key: string]: unknown };
 
 export type TeacherDashboardItemAnalysisItem = { [key: string]: unknown };
 
+export interface TeacherAgendaItem {
+	id: string;
+	period_no: number;
+	/** Minutes since midnight, institution time zone. */
+	start_minutes: number;
+	end_minutes: number;
+	subject: string;
+	class_name: string;
+}
+
+export interface TeacherGradeItem {
+	student_id: string;
+	name: string;
+	/** @nullable */
+	score: number | null;
+}
+
+export interface TeacherGradebookItem {
+	/** Teaching assignment id (grade sheet /app/teacher/grades/{id}). */
+	id: string;
+	class_name: string;
+	subject: string;
+	/**
+	 * KKTP; scores below it need remedial.
+	 * @nullable
+	 */
+	passing_criteria: number | null;
+	students: number;
+	filled: number;
+	locked: number;
+	grades: TeacherGradeItem[];
+}
+
 export interface TeacherDashboard {
 	viewer: DashboardViewer;
 	tenant_name: string;
 	period: DashboardPeriod;
 	homeroom_class: HomeroomClass | null;
+	/** Today in the institution time zone (YYYY-MM-DD). */
+	date: string;
 	/**
-	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * Teaching schedule for today. Null when the tenant database is unavailable or the user is not a registered teacher; empty array when there are no lessons today.
 	 * @nullable
 	 */
-	agenda?: TeacherDashboardAgendaItem[] | null;
+	agenda?: TeacherAgendaItem[] | null;
 	/**
 	 * Null until the backing module exists; the UI then shows labelled sample data.
 	 * @nullable
@@ -2959,10 +2998,10 @@ export interface TeacherDashboard {
 	 */
 	grading_pile?: TeacherDashboardGradingPileItem[] | null;
 	/**
-	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * Class × subject assignments of the active semester with final scores. Null when unavailable (see agenda); empty array when the teacher has no assignments.
 	 * @nullable
 	 */
-	gradebook?: TeacherDashboardGradebookItem[] | null;
+	gradebook?: TeacherGradebookItem[] | null;
 	/**
 	 * Null until the backing module exists; the UI then shows labelled sample data.
 	 * @nullable
@@ -5330,6 +5369,10 @@ export type GetSchoolInvitationParams = {
 
 export type GetSchoolInvitation200 = {
 	data: SchoolInvitationInfo;
+};
+
+export type ResolveTenantDomain200 = {
+	data: TenantDomain;
 };
 
 export type AcceptSchoolInvitation200 = {
@@ -16825,6 +16868,51 @@ export const getSchoolInvitation = async (
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<getSchoolInvitationResponse> => {
 	return lmsFetch<getSchoolInvitationResponse>(getGetSchoolInvitationUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type resolveTenantDomainResponse200 = {
+	data: ResolveTenantDomain200;
+	status: 200;
+};
+
+export type resolveTenantDomainResponse404 = {
+	data: ErrorResponse;
+	status: 404;
+};
+
+export type resolveTenantDomainResponseDefault = {
+	data: ErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200 | 404>;
+};
+
+export type resolveTenantDomainResponseSuccess = resolveTenantDomainResponse200 & {
+	headers: Headers;
+};
+export type resolveTenantDomainResponseError = (
+	resolveTenantDomainResponse404 | resolveTenantDomainResponseDefault
+) & {
+	headers: Headers;
+};
+
+export type resolveTenantDomainResponse =
+	resolveTenantDomainResponseSuccess | resolveTenantDomainResponseError;
+
+export const getResolveTenantDomainUrl = (domain: string) => {
+	return `/api/v1/public/tenant-domains/${domain}`;
+};
+
+/**
+ * Maps a tenant host label (subdomain) to its tenant (SAD tenant_domain_s). Tenant codes contain underscores and are not valid hostnames, so the subdomain is not the tenant code. Results are cached 60 seconds. Unknown, unverified, terminated or syntactically invalid labels return 404 `tenant_not_found`.
+ * @summary Resolve tenant host
+ */
+export const resolveTenantDomain = async (
+	domain: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<resolveTenantDomainResponse> => {
+	return lmsFetch<resolveTenantDomainResponse>(getResolveTenantDomainUrl(domain), {
 		...options,
 		method: 'GET'
 	});

@@ -5,17 +5,31 @@ import { clearBackendTokens, verifyBackendSession } from '$lib/auth/backend-auth
 import { resolveProductionSession } from '$lib/auth/backend-session';
 import { UNRESOLVED_SESSION } from '$lib/auth/session';
 import { clearSessionMeta, writeSessionEnded } from '$lib/auth/session-meta';
-import { DEFAULT_LOCALE } from '$lib/i18n';
+import { DEFAULT_LOCALE, translate } from '$lib/i18n';
 import { COLOR_MODE_COOKIE, resolveColorMode } from '$lib/utils/color-mode';
-import { RESERVED_SUBDOMAINS, UNIFIED_DEV_HOST, resolveHostContext } from '$lib/utils/host-context';
+import { TENANT_NOT_FOUND_CODE, resolveTenantHost } from '$lib/auth/tenant-host';
+import {
+	RESERVED_SUBDOMAINS,
+	UNIFIED_DEV_HOST,
+	resolveHostContext,
+	type HostContext
+} from '$lib/utils/host-context';
 import { noteUnknownHost } from '$lib/utils/host-observability';
 import { enforceHostAccess } from '$lib/utils/host-policy';
 import { REQUIRED_BODY_BYTES, parseBodySizeLimit } from '$lib/utils/upload-limits';
-import type { Handle, HandleServerError, RequestEvent, ServerInit } from '@sveltejs/kit';
+import {
+	error,
+	type Handle,
+	type HandleServerError,
+	type RequestEvent,
+	type ServerInit
+} from '@sveltejs/kit';
 
 const HTML_LANG_PLACEHOLDER = '%lms.lang%';
 const HTML_MODE_PLACEHOLDER = '%lms.mode%';
 const PERMANENT_REDIRECT_STATUS = 308;
+const HTTP_NOT_FOUND = 404;
+const HTTP_SERVICE_UNAVAILABLE = 503;
 
 /**
  * Server produksi (adapter-node) menolak body di atas `BODY_SIZE_LIMIT` (default 512K), padahal foto
@@ -51,7 +65,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		});
 	}
 
-	event.locals.host = host;
+	event.locals.host = host.kind === 'tenant' ? await withTenantCode(event, host) : host;
 	// Kebijakan host terpusat (P0-2): tolak path di host yang salah sebelum route load;
 	// assertHostKind di route tetap sebagai lapis kedua.
 	enforceHostAccess(host, event.url.pathname);
@@ -73,6 +87,29 @@ export const handle: Handle = async ({ event, resolve }) => {
 				.replace(HTML_MODE_PLACEHOLDER, event.locals.colorMode)
 	});
 };
+
+/**
+ * Host tenant → kode tenant dari backend (SAD `tenant_domain_s`). Subdomain tak terdaftar → 404
+ * `tenant_not_found` (ADR-019 §5); backend tak terjangkau → 503, bukan 404.
+ */
+async function withTenantCode(
+	event: RequestEvent,
+	host: Extract<HostContext, { kind: 'tenant' }>
+): Promise<HostContext> {
+	const result = await resolveTenantHost(event.fetch, host.subdomain);
+	if (result.status === 'not_found') {
+		error(HTTP_NOT_FOUND, {
+			message: translate(DEFAULT_LOCALE, 'common.error.tenant_not_found'),
+			code: TENANT_NOT_FOUND_CODE
+		});
+	}
+	if (result.status === 'unavailable') {
+		error(HTTP_SERVICE_UNAVAILABLE, {
+			message: translate(DEFAULT_LOCALE, 'common.error.service_unavailable')
+		});
+	}
+	return { ...host, tenantCode: result.tenantCode };
+}
 
 /**
  * Sesi dev = persona contoh + (bila masuk lewat backend) token yang diverifikasi ke backend tiap request.

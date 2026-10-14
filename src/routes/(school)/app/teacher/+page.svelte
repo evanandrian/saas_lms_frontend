@@ -29,6 +29,7 @@
 	import {
 		agendaHours,
 		buildGradebook,
+		classThreshold,
 		layoutAgenda,
 		nextSessionMeta,
 		nowLinePosition,
@@ -88,9 +89,11 @@
 	const agendaCards = $derived(layoutAgenda(dashboard?.agenda ?? []));
 	const nowTop = $derived(nowLinePosition(nowSeconds));
 	const selectedClass = $derived(dashboard?.gradebook[selectedClassIndex] ?? null);
-	const gradebook = $derived(
-		selectedClass && dashboard ? buildGradebook(selectedClass, dashboard.remedialThreshold) : null
+	// KKTP mapel kelas terpilih (data asli) atau ambang data contoh; `null` = KKTP belum ditetapkan.
+	const threshold = $derived(
+		selectedClass && dashboard ? classThreshold(selectedClass, dashboard.remedialThreshold) : null
 	);
+	const gradebook = $derived(selectedClass ? buildGradebook(selectedClass, threshold) : null);
 	const joined = $derived(
 		lobbyOpenedAt === null
 			? 0
@@ -162,7 +165,7 @@
 				name: greetingName
 			})}
 			description={i18n.t('dashboard.teacher.summary', {
-				classes: data.panels.classCount,
+				classes: data.classCount,
 				agenda: dashboard.agenda.length,
 				pending: gradeLeft
 			})}
@@ -190,7 +193,9 @@
 							<span
 								class="text-lms-on-hero-muted flex items-center gap-2 text-[11px] font-bold tracking-[0.16em] uppercase"
 							>
-								{i18n.t('dashboard.teacher.next')}<SampleBadge tone="on-hero" />
+								{i18n.t('dashboard.teacher.next')}{#if data.sample}<SampleBadge
+										tone="on-hero"
+									/>{/if}
 							</span>
 							<span
 								class="bg-lms-progress/22 text-lms-on-hero-progress inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-semibold"
@@ -281,7 +286,7 @@
 			>
 				<div class="border-lms-border flex items-center justify-between border-b px-5 py-4">
 					<h2 id="{reasonId}-agenda" class="flex items-center gap-2 text-base font-bold">
-						{i18n.t('dashboard.teacher.agenda')}<SampleBadge />
+						{i18n.t('dashboard.teacher.agenda')}{#if data.sample}<SampleBadge />{/if}
 					</h2>
 					<UnavailableLink
 						label={i18n.t('dashboard.teacher.calendar')}
@@ -341,6 +346,13 @@
 							</li>
 						{/each}
 					</ol>
+					{#if agendaCards.length === 0}
+						<p
+							class="bg-lms-surface text-lms-muted absolute inset-x-3.5 top-1/2 left-18.5 z-1 -translate-y-1/2 rounded-lg px-3 py-2 text-center text-[0.8125rem]"
+						>
+							{i18n.t('dashboard.teacher.agenda_empty')}
+						</p>
+					{/if}
 				</div>
 			</section>
 
@@ -350,7 +362,7 @@
 			>
 				<div class="mb-2.5 flex items-baseline justify-between">
 					<h2 id="{reasonId}-pile" class="flex items-center gap-2 text-base font-bold">
-						{i18n.t('dashboard.teacher.grading_pile')}<SampleBadge />
+						{i18n.t('dashboard.teacher.grading_pile')}{#if data.sample}<SampleBadge />{/if}
 					</h2>
 					<span class="text-lms-muted text-[0.8125rem]">
 						<strong class="text-lms-foreground">{gradeLeft}</strong>
@@ -420,6 +432,11 @@
 						</li>
 					{/each}
 				</ul>
+				{#if toGrade.length === 0}
+					<p class="border-lms-border text-lms-muted border-t py-3.5 text-[0.8125rem]">
+						{i18n.t('dashboard.teacher.grading_empty')}
+					</p>
+				{/if}
 			</section>
 		</div>
 
@@ -431,12 +448,16 @@
 				<div class="flex flex-wrap items-start justify-between gap-3">
 					<div>
 						<h2 id="{reasonId}-gradebook" class="flex items-center gap-2 text-base font-bold">
-							{i18n.t('dashboard.teacher.gradebook')}<SampleBadge />
+							{i18n.t('dashboard.teacher.gradebook')}{#if data.sample}<SampleBadge />{/if}
 						</h2>
 						<p class="text-lms-muted text-[0.8125rem]">
-							{i18n.t('dashboard.teacher.gradebook_description', {
-								threshold: dashboard.remedialThreshold
-							})}
+							{data.sample
+								? i18n.t('dashboard.teacher.gradebook_description', {
+										threshold: dashboard.remedialThreshold
+									})
+								: threshold === null
+									? i18n.t('dashboard.teacher.gradebook_description_no_criteria')
+									: i18n.t('dashboard.teacher.gradebook_description_final', { threshold })}
 						</p>
 					</div>
 					<button
@@ -472,9 +493,12 @@
 						>
 							<span class="text-[0.8125rem] font-bold">{gradebookClass.name}</span>
 							<span class="text-lms-muted text-[11px]">
-								{i18n.t('dashboard.teacher.material_progress', {
-									percent: gradebookClass.progressPercent
-								})}
+								{i18n.t(
+									data.sample
+										? 'dashboard.teacher.material_progress'
+										: 'dashboard.teacher.grades_filled',
+									{ percent: gradebookClass.progressPercent }
+								)}
 							</span>
 						</button>
 					{/each}
@@ -525,7 +549,7 @@
 									{row.name}
 								</span>
 								{#each row.scores as score, column (column)}
-									{@const low = score < dashboard.remedialThreshold}
+									{@const low = score !== null && threshold !== null && score < threshold}
 									<span
 										role="cell"
 										class={[
@@ -541,13 +565,13 @@
 													: 'text-lms-foreground border-transparent'
 											]}
 										>
-											<span class="rotate-8">{score}</span>
+											<span class="rotate-8">{score ?? '—'}</span>
 										</span>
-										{#if low}
+										{#if score === null}
+											<span class="sr-only">{i18n.t('dashboard.teacher.score_empty')}</span>
+										{:else if low}
 											<span class="sr-only">
-												({i18n.t('dashboard.teacher.below_threshold', {
-													threshold: dashboard.remedialThreshold
-												})})</span
+												({i18n.t('dashboard.teacher.below_threshold', { threshold })})</span
 											>
 										{/if}
 									</span>
@@ -557,9 +581,21 @@
 					</div>
 				</div>
 			</section>
+		{:else}
+			<section
+				class="lms-card flex min-w-0 flex-col gap-1 rounded-xl! p-5 shadow-none!"
+				aria-labelledby="{reasonId}-gradebook"
+			>
+				<h2 id="{reasonId}-gradebook" class="text-base font-bold">
+					{i18n.t('dashboard.teacher.gradebook')}
+				</h2>
+				<p class="text-lms-muted text-[0.8125rem]">{i18n.t('dashboard.teacher.gradebook_empty')}</p>
+			</section>
 		{/if}
 
-		<TeacherPanels panels={data.panels} notify={showToast} />
+		{#if data.panels}
+			<TeacherPanels panels={data.panels} notify={showToast} />
+		{/if}
 
 		<Toast message={visibleToast?.message ?? null} icon={visibleToast?.icon} />
 	{:else}

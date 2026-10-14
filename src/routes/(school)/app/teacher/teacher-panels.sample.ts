@@ -1,7 +1,7 @@
 /**
  * DATA CONTOH panel mapel guru — isi persis `FLIXARE App v3.html` komponen "06 Guru · panel mapel"
- * (konstanta CLS, TIMES, WEEK, DAYS, BABS, BANK, EXAMS, ITEMS, QTEXT). Dipakai di dev & produksi
- * selama modul jadwal, RPP, dan bank soal belum tersedia; selalu berlabel "Data contoh".
+ * (konstanta CLS, TIMES, WEEK, DAYS, BABS, BANK, EXAMS, ITEMS, QTEXT). Hanya di dev selama modul
+ * jadwal pekan, RPP, dan bank soal belum tersedia; selalu berlabel "Data contoh". Produksi: panel tidak tampil.
  */
 
 export type RppStatus = 'approved' | 'submitted' | 'draft' | 'none';

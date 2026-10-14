@@ -19,7 +19,9 @@
 			"unexpected_description": "An unexpected error occurred. Please try again.",
 			"maintenance_title": "Under maintenance",
 			"maintenance_description": "Your school database is undergoing scheduled maintenance. Your data is safe; try again in a few minutes.",
-			"maintenance_retry": "Try again"
+			"maintenance_retry": "Try again",
+			"tenant_not_found": "Institution not found. Please check your school address.",
+			"service_unavailable": "Service is temporarily unavailable. Please try again shortly."
 		},
 		"workspace": {
 			"open_navigation": "Open navigation",
@@ -576,7 +578,20 @@
 			"below_threshold": "below {threshold}",
 			"toast_all_graded": "All {title} sheets have been graded.",
 			"toast_remedial": "Remedial created for {count} scores in {class}. Students are notified.",
-			"simulation_note": "(dev simulation, not saved)"
+			"simulation_note": "(dev simulation, not saved)",
+			"agenda_status_done": "Done",
+			"agenda_status_open": "In progress",
+			"agenda_status_next": "Next",
+			"agenda_status_later": "Scheduled",
+			"agenda_empty": "No teaching schedule today.",
+			"grading_empty": "No submissions are waiting to be graded.",
+			"gradebook_empty": "No teaching assignments in the active semester yet.",
+			"gradebook_description_final": "Students' final scores per class and subject. Circled scores are below the passing criteria {threshold}.",
+			"gradebook_description_no_criteria": "Students' final scores per class and subject. Passing criteria for this subject are not set yet.",
+			"grades_filled": "Grades filled {percent}%",
+			"final_score": "Final score",
+			"final_score_code": "FS",
+			"score_empty": "Not filled yet"
 		},
 		"student": {
 			"mission": "TODAY'S MISSION",
@@ -5688,21 +5703,21 @@
 			}
 		},
 		"teacher_dashboard": {
-			"purpose": "The Teacher Workspace home summarizes your teaching day as a subject teacher, including the date and active semester. Most sections on this page are still previews labeled \"Sample data\" because their modules are not available yet.",
+			"purpose": "The Teacher Workspace home summarizes your teaching day as a subject teacher: the current date and time, active semester, today's teaching schedule, and students' final scores per class and subject.",
 			"features": {
 				"overview": "See the greeting, date, and active semester at the top of the page.",
-				"preview": "Explore \"Today's agenda\", \"Grading pile per class\", \"Gradebook\", \"Teaching schedule this week\", \"Material & lesson plan progress per class\", \"Latest question bank\", and \"Item analysis\" as sample data.",
+				"preview": "See \"Today's agenda\" from the school timetable and the \"Gradebook\" with students' final scores and each subject's passing criteria. The grading pile and assessment sessions appear once their modules are available.",
 				"grades": "Open the \"Final grades\" menu in the sidebar to enter and lock report card final grades.",
 				"role": "Switch to the homeroom view with the role toggle at the top of the screen if you are also a homeroom teacher."
 			},
 			"steps": {
 				"s1": "Check the date and active semester at the top of the page.",
-				"s2": "Browse the summary sections to get to know the home page; sections labeled \"Sample data\" do not use your class data yet.",
+				"s2": "Check \"Today's agenda\" for your lessons, then the \"Gradebook\" for scores that are missing or below the passing criteria.",
 				"s3": "To enter report card final grades, click the \"Final grades\" menu in the sidebar.",
 				"s4": "If you are also a homeroom teacher, choose \"Homeroom teacher\" on the role toggle at the top of the screen to open the Homeroom Workspace."
 			},
 			"tips": {
-				"sample": "Figures and actions in sections labeled \"Sample data\", such as \"Grade 1 sheet\", \"Open assessment lobby\", or \"Submit lesson plan\", are simulations only and are not saved.",
+				"sample": "Sections whose modules are not available yet stay empty. During development (dev), sections labeled \"Sample data\" are simulations only and are not saved.",
 				"disabled": "The \"Create assignment\" and \"Question bank\" buttons are not active yet because their modules are not available."
 			}
 		},

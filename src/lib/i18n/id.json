@@ -19,7 +19,9 @@
 			"unexpected_description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
 			"maintenance_title": "Sedang pemeliharaan",
 			"maintenance_description": "Database sekolah Anda sedang dalam pemeliharaan terjadwal. Data Anda aman; coba lagi beberapa menit lagi.",
-			"maintenance_retry": "Coba lagi"
+			"maintenance_retry": "Coba lagi",
+			"tenant_not_found": "Lembaga tidak ditemukan. Periksa kembali alamat sekolah Anda.",
+			"service_unavailable": "Layanan sedang tidak tersedia. Coba lagi beberapa saat lagi."
 		},
 		"workspace": {
 			"open_navigation": "Buka navigasi",
@@ -576,7 +578,20 @@
 			"below_threshold": "di bawah {threshold}",
 			"toast_all_graded": "Semua lembar {title} sudah dinilai.",
 			"toast_remedial": "Remedial dibuat untuk {count} nilai di {class}. Murid menerima notifikasi.",
-			"simulation_note": "(simulasi dev, tidak disimpan)"
+			"simulation_note": "(simulasi dev, tidak disimpan)",
+			"agenda_status_done": "Selesai",
+			"agenda_status_open": "Berlangsung",
+			"agenda_status_next": "Berikutnya",
+			"agenda_status_later": "Terjadwal",
+			"agenda_empty": "Tidak ada jadwal mengajar hari ini.",
+			"grading_empty": "Belum ada pengumpulan yang menunggu nilai.",
+			"gradebook_empty": "Belum ada penugasan mengajar di semester aktif.",
+			"gradebook_description_final": "Nilai akhir murid per kelas dan mapel. Angka dilingkari berada di bawah KKTP {threshold}.",
+			"gradebook_description_no_criteria": "Nilai akhir murid per kelas dan mapel. KKTP mapel ini belum ditetapkan.",
+			"grades_filled": "Nilai terisi {percent}%",
+			"final_score": "Nilai akhir",
+			"final_score_code": "NA",
+			"score_empty": "Belum diisi"
 		},
 		"student": {
 			"mission": "MISI HARI INI",
@@ -5688,21 +5703,21 @@
 			}
 		},
 		"teacher_dashboard": {
-			"purpose": "Beranda Ruang Guru merangkum hari mengajar Anda sebagai guru mapel, lengkap dengan tanggal dan semester aktif. Sebagian besar bagian di halaman ini masih berupa pratinjau berlabel \"Data contoh\" karena modulnya belum tersedia.",
+			"purpose": "Beranda Ruang Guru merangkum hari mengajar Anda sebagai guru mapel: tanggal dan jam saat ini, semester aktif, jadwal mengajar hari ini, dan nilai akhir murid per kelas dan mapel.",
 			"features": {
 				"overview": "Melihat sapaan, tanggal, dan semester aktif di bagian atas halaman.",
-				"preview": "Mengenal tampilan \"Agenda hari ini\", \"Tumpukan koreksi per kelas\", \"Buku nilai\", \"Jadwal mengajar minggu ini\", \"Progres materi & RPP per kelas\", \"Bank soal terbaru\", dan \"Analisis butir soal\" dalam bentuk data contoh.",
+				"preview": "Melihat \"Agenda hari ini\" dari jadwal pelajaran sekolah dan \"Buku nilai\" berisi nilai akhir murid serta KKTP tiap mapel. Tumpukan koreksi dan sesi ujian tampil setelah modulnya tersedia.",
 				"grades": "Membuka menu \"Nilai akhir\" di sidebar untuk mengisi dan mengunci nilai akhir rapor.",
 				"role": "Beralih ke tampilan wali kelas melalui tombol peran di bagian atas layar, bila Anda juga ditugaskan sebagai wali kelas."
 			},
 			"steps": {
 				"s1": "Periksa tanggal dan semester aktif di bagian atas halaman.",
-				"s2": "Telusuri bagian ringkasan untuk mengenal tampilan beranda; bagian berlabel \"Data contoh\" belum memakai data kelas Anda.",
+				"s2": "Periksa \"Agenda hari ini\" untuk jam pelajaran Anda, lalu \"Buku nilai\" untuk melihat nilai yang belum diisi atau di bawah KKTP.",
 				"s3": "Untuk mengisi nilai akhir rapor, klik menu \"Nilai akhir\" di sidebar.",
 				"s4": "Bila Anda juga wali kelas, pilih \"Wali kelas\" pada tombol peran di bagian atas layar untuk membuka Ruang Wali Kelas."
 			},
 			"tips": {
-				"sample": "Angka dan aksi pada bagian berlabel \"Data contoh\", misalnya \"Nilai 1 lembar\", \"Buka lobi ujian\", atau \"Ajukan RPP\", hanya simulasi dan tidak disimpan.",
+				"sample": "Bagian yang modulnya belum tersedia tampil kosong. Saat pengembangan (dev), bagian berlabel \"Data contoh\" hanya simulasi dan tidak disimpan.",
 				"disabled": "Tombol \"Buat tugas\" dan \"Bank soal\" belum aktif karena modulnya belum tersedia."
 			}
 		},

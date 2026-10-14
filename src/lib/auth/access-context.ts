@@ -20,7 +20,7 @@ export type WorkspaceArea = (typeof WORKSPACE_AREAS)[number];
 export interface Membership {
 	readonly id: string;
 	readonly area: WorkspaceArea;
-	/** Subdomain tenant tempat membership berlaku; `null` untuk area platform. */
+	/** Kode tenant tempat membership berlaku (bukan label subdomain); `null` untuk area platform. */
 	readonly tenant: string | null;
 	/** Label tampilan (mis. nama lembaga + peran). */
 	readonly label: string;

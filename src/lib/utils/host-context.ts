@@ -15,10 +15,12 @@ export type HostKind = 'public' | 'www' | 'platform' | 'api' | 'tenant' | 'unifi
 /**
  * Konteks host hasil inspeksi request. `subdomain` hanya label host untuk routing/UX;
  * identitas dan status tenant tetap ditentukan backend (otoritas final, ADR-019).
+ * `tenantCode` diisi `hooks.server.ts` dari pemetaan backend (SAD `tenant_domain_s`); subdomain bukan
+ * kode tenant (kode memakai underscore). Tanpa `tenantCode`, tidak ada membership tenant yang berlaku.
  */
 export type HostContext =
 	| { readonly kind: Exclude<HostKind, 'tenant'> }
-	| { readonly kind: 'tenant'; readonly subdomain: string };
+	| { readonly kind: 'tenant'; readonly subdomain: string; readonly tenantCode?: string };
 
 /**
  * Host gabungan KHUSUS DEVELOPMENT (FE-05R, keputusan pemilik produk): root domain dev (`localhost`)
