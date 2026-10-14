@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+# Least privilege: workflow hanya membaca repository (checkout, install, check, test, build).
+# Tanpa secret, tanpa deploy/publish; PR dari fork tetap memakai token read-only.
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Corepack mengunduh pnpm sesuai `packageManager` tanpa prompt interaktif.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      # Versi Node dari .nvmrc (sesuai engines `>=24 <25`); tanpa cache dependency agar install selalu dari lockfile.
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
+
+      # pnpm dari Corepack bawaan Node (tanpa action pihak ketiga); versi wajib sama dengan `packageManager`.
+      - name: Enable pnpm
+        run: |
+          corepack enable pnpm
+          node --version
+          expected="$(node -p "require('./package.json').packageManager.split('@')[1]")"
+          actual="$(pnpm --version)"
+          echo "pnpm $actual (packageManager $expected)"
+          test "$actual" = "$expected"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format Check
+        run: pnpm run format:check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Svelte Check
+        run: pnpm run check
+
+      - name: Unit Tests
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+      # Generate ulang client dari contract/openapi.yaml lalu gagal bila berbeda dari yang di-commit.
+      # `api:check` memakai `git diff` (hanya berkas ter-track); berkas generated baru yang belum di-commit juga gagal.
+      - name: API Contract Check
+        run: |
+          pnpm run api:check
+          test -z "$(git status --porcelain -- src/lib/api/generated)"
