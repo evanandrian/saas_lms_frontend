@@ -1,0 +1,4 @@
+# Kebijakan build script dependency (pnpm 12): install gagal bila ada build script yang belum diputuskan.
+# esbuild: postinstall (`node install.js`) ditolak — least privilege; binary tetap dari paket @esbuild/<platform>.
+allowBuilds:
+  esbuild: false

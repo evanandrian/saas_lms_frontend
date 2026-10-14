@@ -363,20 +363,44 @@ Menjalankan hasil build untuk pemeriksaan lokal; membaca `.env`. Bukan server pr
 
 ### Unit, Component, dan E2E Tests
 
-Belum dikonfigurasi. Rencana lokasi: unit/komponen `<file>.test.ts` di samping file (Vitest + Testing Library), E2E `tests/e2e/<kode-alur>-<nama>.spec.ts` (Playwright).
+```bash
+pnpm test            # vitest run — proyek `server` (node) dan `client` (*.svelte.test.ts) di tests/
+```
+
+E2E (Playwright, `tests/e2e/<kode-alur>-<nama>.spec.ts`) belum dikonfigurasi.
 
 ### Full Quality Gate
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm check
-pnpm lint
 pnpm format:check
-pnpm api:check
+pnpm lint
+pnpm check
+pnpm test
 pnpm build
+pnpm api:check
 ```
 
-Urutan ini sama di Linux, macOS, dan Windows.
+Urutan ini sama di Linux, macOS, dan Windows, dan sama dengan workflow CI.
+
+**Build script dependency:** pnpm 12 menggagalkan install bila ada build script dependency yang belum diputuskan (`ERR_PNPM_IGNORED_BUILDS`). Keputusan dicatat di `pnpm-workspace.yaml` (`allowBuilds`); saat ini `esbuild: false` (postinstall ditolak, binary dari paket `@esbuild/<platform>`). Dependency baru dengan build script memerlukan keputusan eksplisit di file tersebut — jangan memakai `--ignore-scripts` atau menyetujui massal.
+
+### Continuous Integration
+
+Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml), job `build-and-test`, berjalan pada `pull_request` ke `main` dan `push` ke `main`:
+
+| Langkah | Perintah |
+|---|---|
+| Node.js | versi dari `.nvmrc` (24; `engines` `>=24 <25`) |
+| pnpm | Corepack, versi dari `packageManager` (12.8.1); job gagal bila berbeda |
+| Install | `pnpm install --frozen-lockfile` (tanpa cache) |
+| Pemeriksaan | `format:check`, `lint`, `check`, `test`, `build`, `api:check` + tidak ada berkas generated yang belum di-commit |
+
+Keamanan: `permissions: contents: read`, action dipin ke commit SHA, `persist-credentials: false`, tanpa secret, tanpa deploy.
+
+Reproduksi lokal: jalankan **Full Quality Gate** di atas dengan Node 24 dan pnpm 12.8.1 pada clone bersih (tanpa `.env` dan `node_modules`). Hasil lokal **bukan** bukti CI; bukti CI adalah run GitHub Actions yang selesai sukses pada SHA yang relevan. Status required check / branch protection di GitHub tidak diatur oleh workflow ini.
+
+Keterbatasan: test paritas kontrak FE ↔ backend (`tests/error-code-contract.test.ts`) di-skip di CI karena repository backend tidak tersedia di runner; provenance kontrak tetap dicatat di [`contract/README.md`](contract/README.md) dan `api:check` memastikan client sesuai `contract/openapi.yaml`.
 
 ### Troubleshooting
 
