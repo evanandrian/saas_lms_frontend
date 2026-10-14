@@ -22,6 +22,15 @@ Dokumen ini mengatur cara perubahan masuk ke `main`: setiap perubahan melalui pu
 
 2. Tipe branch: `fix/`, `feat/`, `test/`, `docs/`, `ci/`, `chore/`.
 3. Dilarang: push langsung atau force push ke `main`, menghapus `main`, menulis ulang riwayat `main`. Koreksi dilakukan dengan commit baru atau `git revert` melalui PR.
+4. **Upstream dan target push.** `git switch -c <branch> origin/main` memasang upstream `origin/main`, sehingga alat yang melakukan push "ke upstream" dapat mengirim commit langsung ke `main`. Buat branch tanpa upstream dan tetapkan target push secara eksplisit:
+
+   ```bash
+   git switch --no-track -c <branch> origin/main
+   git push --dry-run -u origin <branch>:<branch>   # periksa target ref sebelum push
+   git push -u origin <branch>:<branch>
+   ```
+
+   Langkah ini **mengurangi** risiko upstream yang salah, tetapi **tidak mencegah** semua push tidak sengaja ke `main` (mis. refspec yang salah ketik atau alat lain). Tetap periksa target ref sebelum setiap push.
 
 ## 3. Pull request
 
@@ -130,5 +139,8 @@ Setiap penyimpangan (mis. merge sebelum CI selesai) dicatat di PR atau dokumen a
 |---|---|---|---|---|---|---|
 | #1 | `577e041` | — (workflow belum ada) | — | 2026-10-14 04:14:33 (`26abc8d`) | — | Tidak ada CI |
 | #2 | `b0605d4` | `38557845174` (success) | 2026-10-14 11:37:14 | 11:37:17 (`f45a956`) | 11:39:12 | CI NOT VERIFIED |
+| — (tanpa PR) | `a2a4520` | — | — | push langsung 2026-10-14 12:04:50 (19:04:50 +0700) | — | CI NOT VERIFIED |
 
 PR #2 di-merge 3 detik setelah `build-and-test` mulai, sebelum run selesai; hasil akhir run sukses, tetapi merge tidak menunggu hasil tersebut. Prosedur bagian 5 berlaku mulai PR berikutnya.
+
+**Push langsung tanpa PR (2026-10-14).** Commit `a2a4520` (hanya `docs/development/merge-governance.md`, FE-GOV-03) masuk ke `main` melalui push langsung pada 19:04:50 +0700 (reflog lokal `origin/main`: "update by push"), sebelum branch `docs/merge-governance` dipublikasikan pada 19:32. Tidak ada PR untuk perubahan ini, dan CI pasca-push berstatus **CI NOT VERIFIED** sampai bukti run tersedia. Faktor pemungkin: branch dibuat dari `origin/main` dengan upstream default `origin/main`. Penyebab dan pelaku push belum dapat dipastikan. GitHub Free untuk repository privat tidak menyediakan kontrol teknis untuk memblokir push atau merge ke `main` (bagian 1). Mitigasi: bagian 2 butir 4.
