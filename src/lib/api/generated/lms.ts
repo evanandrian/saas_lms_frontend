@@ -549,6 +549,8 @@ export interface SchoolGuardianRow {
 	name: string;
 	email: string;
 	phone: string;
+	/** Present and true only when a stored phone number exists but cannot be decrypted (key mismatch or corrupt data); `phone` is then empty and must not be shown as "no phone". Saving the form with an empty phone keeps the stored value. */
+	phone_unavailable?: boolean;
 	relation: string;
 	primary: boolean;
 	status: string;
@@ -705,6 +707,8 @@ export interface SchoolInviteJob {
 	skipped: number;
 	failed: number;
 	codes: SchoolActivationCode[];
+	/** Present and true only when activation codes were issued but cannot be decrypted (key mismatch or unreadable job state); `codes` is then empty and must not be shown as "no codes". */
+	codes_unavailable?: boolean;
 	error: string;
 	created_at: string;
 	/** @nullable */
@@ -1239,6 +1243,8 @@ export interface SchoolTeacherRow {
 	gender: string;
 	email: string;
 	phone: string;
+	/** Present and true only when a stored phone number exists but cannot be decrypted (key mismatch or corrupt data); `phone` is then empty and must not be shown as "no phone". Saving the form with an empty phone keeps the stored value. */
+	phone_unavailable?: boolean;
 	active: boolean;
 	status: string;
 	assignments: number;

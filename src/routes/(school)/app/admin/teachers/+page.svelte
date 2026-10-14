@@ -28,6 +28,7 @@
 		inputClass,
 		normalizePhone,
 		percent,
+		phoneFieldNote,
 		sectionGap,
 		type AccountStatus
 	} from '$lib/features/school-admin/school-admin.model';
@@ -317,7 +318,7 @@
 			<FieldBox
 				label={t('fields.phone')}
 				for="t-phone"
-				note={t('fields.encrypted')}
+				note={phoneFieldNote(i18n.t, current)}
 				error={editor.errors.phone}
 			>
 				<input

@@ -39,6 +39,8 @@ export class InviteJobPoller {
 	codes = $derived(
 		this.#ids.flatMap((id) => (this.jobs[id]?.status === 'succeeded' ? this.jobs[id].codes : []))
 	);
+	/** Kode diterbitkan tetapi tidak dapat didekripsi (BV03-F1): bukan "tidak ada kode". */
+	codesUnavailable = $derived(this.#ids.some((id) => this.jobs[id]?.codes_unavailable === true));
 
 	constructor(deps: InviteJobPollerDeps) {
 		this.#deps = deps;

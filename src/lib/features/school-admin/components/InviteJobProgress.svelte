@@ -123,6 +123,13 @@
 		</p>
 	{/if}
 
+	{#if poller.finished && poller.codesUnavailable}
+		<p role="alert" class="lms-tone-warning flex items-start gap-2 rounded-lg px-3 py-2 text-xs">
+			<Icon icon={CircleAlert} size="sm" />
+			<span>{t('codes_unavailable')}</span>
+		</p>
+	{/if}
+
 	{#if poller.finished && poller.codes.length}
 		<div class="flex flex-col gap-1.5">
 			<ActivationCodes codes={poller.codes} />

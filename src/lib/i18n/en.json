@@ -3840,7 +3840,9 @@
 			"relation": "Relationship",
 			"child": "Child",
 			"nis": "NIS",
-			"nisn": "NISN"
+			"nisn": "NISN",
+			"phone_unavailable": "Stored number cannot be displayed",
+			"phone_unavailable_note": "The stored number cannot be displayed. Leave this empty to keep it, or enter a new number to replace it."
 		},
 		"gender": {
 			"L": "Male",
@@ -4702,7 +4704,8 @@
 				"succeeded": "Done",
 				"failed": "Failed"
 			},
-			"poll_stopped": "Progress could not be loaded ({message}). Reload the page to see the latest status."
+			"poll_stopped": "Progress could not be loaded ({message}). Reload the page to see the latest status.",
+			"codes_unavailable": "Activation codes from this run cannot be displayed. Contact the platform administrator."
 		},
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",

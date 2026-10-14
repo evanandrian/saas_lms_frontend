@@ -276,3 +276,26 @@ export function activationQuote(
 		: Math.floor((gross * vatBp + BASIS_POINTS / 2) / BASIS_POINTS);
 	return { monthly: plan.price_idr * seats, subtotal, tax, total: subtotal + tax };
 }
+
+/**
+ * Telepon tersimpan yang tidak dapat didekripsi (`phone_unavailable`, BV03-F1) bukan "tanpa telepon":
+ * daftar menampilkan keterangan, bukan nilai kosong/ciphertext.
+ */
+interface PhoneRow {
+	phone: string;
+	phone_unavailable?: boolean;
+}
+
+/** Kontak di daftar wali: email, lalu telepon; telepon tak terbaca diberi keterangan, bukan "tanpa kontak". */
+export function guardianContact(t: T, row: PhoneRow & { email: string }): string {
+	if (row.email) return row.email;
+	if (row.phone) return row.phone;
+	return t(
+		`${PREFIX}.${row.phone_unavailable ? 'fields.phone_unavailable' : 'guardians.no_contact'}`
+	);
+}
+
+/** Catatan field telepon di formulir: telepon tak terbaca dipertahankan bila field dibiarkan kosong. */
+export function phoneFieldNote(t: T, row: PhoneRow | null): string {
+	return t(`${PREFIX}.fields.${row?.phone_unavailable ? 'phone_unavailable_note' : 'encrypted'}`);
+}
