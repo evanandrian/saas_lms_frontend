@@ -165,6 +165,27 @@ describe('InviteJobPoller', () => {
 		expect(action).toHaveBeenCalledTimes(1);
 	});
 
+	it('codes_unavailable (BV03-F1): kode tak terbaca ditandai, bukan dianggap tidak ada kode', async () => {
+		action.mockResolvedValue(ok(job('succeeded', { done: 60, codes_unavailable: true })));
+		const poller = new InviteJobPoller({ jobIds: () => ['j1'], ondone: vi.fn(), t });
+		poller.start();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(poller.finished).toBe(true);
+		expect(poller.codes).toHaveLength(0);
+		expect(poller.codesUnavailable).toBe(true);
+	});
+
+	it('tanpa codes_unavailable: kode normal dan daftar kosong tidak ditandai', async () => {
+		action.mockResolvedValue(
+			ok(job('succeeded', { done: 60, codes: [{ name: 'A', username: 'a', code: 'X' }] }))
+		);
+		const poller = new InviteJobPoller({ jobIds: () => ['j1'], ondone: vi.fn(), t });
+		poller.start();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(poller.codes).toHaveLength(1);
+		expect(poller.codesUnavailable).toBe(false);
+	});
+
 	it('tanpa job id tidak melakukan polling', async () => {
 		const poller = new InviteJobPoller({ jobIds: () => [], ondone: vi.fn(), t });
 		poller.start();

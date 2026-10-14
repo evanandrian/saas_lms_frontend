@@ -7151,6 +7151,9 @@ components:
           type: string
         phone:
           type: string
+        phone_unavailable:
+          type: boolean
+          description: Present and true only when a stored phone number exists but cannot be decrypted (key mismatch or corrupt data); `phone` is then empty and must not be shown as "no phone". Saving the form with an empty phone keeps the stored value.
         relation:
           type: string
         primary:
@@ -7507,6 +7510,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SchoolActivationCode'
+        codes_unavailable:
+          type: boolean
+          description: Present and true only when activation codes were issued but cannot be decrypted (key mismatch or unreadable job state); `codes` is then empty and must not be shown as "no codes".
         error:
           type: string
         created_at:
@@ -8820,6 +8826,9 @@ components:
           type: string
         phone:
           type: string
+        phone_unavailable:
+          type: boolean
+          description: Present and true only when a stored phone number exists but cannot be decrypted (key mismatch or corrupt data); `phone` is then empty and must not be shown as "no phone". Saving the form with an empty phone keeps the stored value.
         active:
           type: boolean
         status:

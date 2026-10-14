@@ -23,9 +23,11 @@
 		PREFIX,
 		RE,
 		RELATIONS,
+		guardianContact,
 		initials,
 		inputClass,
 		normalizePhone,
+		phoneFieldNote,
 		sectionGap,
 		type AccountStatus
 	} from '$lib/features/school-admin/school-admin.model';
@@ -133,7 +135,7 @@
 					g.children
 						.map((c) => `${c.name}${c.class_name ? ` (${c.class_name})` : ''}`)
 						.join(', ') || '—',
-				extra: g.email || g.phone || t('guardians.no_contact'),
+				extra: guardianContact(i18n.t, g),
 				extraTone: g.email ? 'default' : 'warning',
 				status: { label: t(`account.${g.status}`), tone: ACCOUNT_TONES[g.status as AccountStatus] }
 			}))
@@ -324,7 +326,7 @@
 			<FieldBox
 				label={t('fields.phone')}
 				for="g-phone"
-				note={t('fields.encrypted')}
+				note={phoneFieldNote(i18n.t, current)}
 				error={editor.errors.phone}
 			>
 				<input

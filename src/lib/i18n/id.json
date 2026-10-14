@@ -3840,7 +3840,9 @@
 			"relation": "Hubungan",
 			"child": "Anak",
 			"nis": "NIS",
-			"nisn": "NISN"
+			"nisn": "NISN",
+			"phone_unavailable": "Nomor tersimpan tidak dapat ditampilkan",
+			"phone_unavailable_note": "Nomor tersimpan tidak dapat ditampilkan. Biarkan kosong untuk mempertahankannya, atau isi nomor baru untuk menggantinya."
 		},
 		"gender": {
 			"L": "Laki-laki",
@@ -4702,7 +4704,8 @@
 				"succeeded": "Selesai",
 				"failed": "Gagal"
 			},
-			"poll_stopped": "Progres belum bisa dimuat ({message}). Muat ulang halaman untuk melihat status terbaru."
+			"poll_stopped": "Progres belum bisa dimuat ({message}). Muat ulang halaman untuk melihat status terbaru.",
+			"codes_unavailable": "Kode aktivasi dari proses ini tidak dapat ditampilkan. Hubungi administrator platform."
 		},
 		"audit": {
 			"eyebrow": "ADMIN SEKOLAH",
