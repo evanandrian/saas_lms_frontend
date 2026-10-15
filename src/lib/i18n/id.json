@@ -3770,7 +3770,7 @@
 			"range": "Nilai di luar rentang yang diizinkan.",
 			"before_start": "Jam selesai harus setelah jam mulai.",
 			"time_format": "Format jam harus JJ:MM.",
-			"subject_in_use": "Mapel masih dipakai penugasan, TP, atau nilai sehingga tidak bisa dinonaktifkan.",
+			"subject_in_use": "Mapel masih dipakai penugasan, TP, nilai, jadwal, atau rapor sehingga tidak bisa dinonaktifkan.",
 			"student_invalid": "Murid tidak ditemukan atau tidak aktif.",
 			"class_invalid": "Kelas tidak ditemukan di tahun ajaran aktif.",
 			"assessment_in_use": "Jenis asesmen sudah dipakai nilai dan tidak bisa dihapus.",

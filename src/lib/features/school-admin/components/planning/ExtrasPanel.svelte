@@ -1,4 +1,4 @@
-<!-- Ekstrakurikuler & pembina; dipakai drawer setup & halaman Ekskul. -->
+<!-- Ekstrakurikuler & pembina; hanya dipakai wizard (PlanningDrawer); halaman Ekskul memakai kartu sendiri. -->
 <script lang="ts">
 	import type { SchoolPlanningView } from '$lib/api/generated/lms';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';

@@ -3542,7 +3542,7 @@ paths:
   /api/v1/school/setup/subjects:
     put:
       operationId: saveSchoolSetupSubjects
-      description: 'Replace taught subjects + KKTP. A disabled subject still referenced by assignments/objectives/grades yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.'
+      description: 'Replace taught subjects + KKTP. A disabled subject still referenced by assignments, objectives, grades, schedule, or report cards yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.'
       requestBody:
         content:
           application/json:

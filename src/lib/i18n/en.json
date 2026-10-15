@@ -3770,7 +3770,7 @@
 			"range": "Value is outside the allowed range.",
 			"before_start": "End time must be after start time.",
 			"time_format": "Time must be HH:MM.",
-			"subject_in_use": "This subject is still used by assignments, objectives, or grades and cannot be deactivated.",
+			"subject_in_use": "This subject is still used by assignments, objectives, grades, the schedule, or report cards and cannot be deactivated.",
 			"student_invalid": "Student not found or inactive.",
 			"class_invalid": "Class not found in the active academic year.",
 			"assessment_in_use": "Assessment type is used by grades and cannot be removed.",

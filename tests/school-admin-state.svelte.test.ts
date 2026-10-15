@@ -643,6 +643,22 @@ describe('PlanningDrawerState', () => {
 		expect(state.editObjective).toBeNull();
 		expect(onplanning).toHaveBeenCalled();
 	});
+
+	it('planning null (muat gagal) → konstruktor tidak melempar, pemilih kosong', () => {
+		const create = () =>
+			new PlanningDrawerState({
+				planning: () => null as unknown as SchoolPlanningView,
+				key: () => 'assess',
+				t,
+				onplanning: vi.fn(),
+				onnotify: vi.fn()
+			});
+		expect(create).not.toThrow();
+		const state = create();
+		expect(state.classId).toBe('');
+		expect(state.objSubject).toBe('');
+		expect(state.objGrade).toBe('');
+	});
 });
 
 // ===================================================================== RequiredWizardState

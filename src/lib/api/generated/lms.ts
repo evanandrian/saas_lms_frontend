@@ -13826,7 +13826,7 @@ export const getSaveSchoolSetupSubjectsUrl = () => {
 };
 
 /**
- * Replace taught subjects + KKTP. A disabled subject still referenced by assignments/objectives/grades yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.
+ * Replace taught subjects + KKTP. A disabled subject still referenced by assignments, objectives, grades, schedule, or report cards yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.
  * @summary Step 5 subjects
  */
 export const saveSchoolSetupSubjects = async (

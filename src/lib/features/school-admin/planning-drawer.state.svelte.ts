@@ -44,6 +44,25 @@ const OBJECTIVE_MIN = 10;
 const RECENT_PEOPLE = 5;
 const DEFAULT_PERIOD_START = '07:00';
 
+/** Pengganti aman saat perencanaan gagal dimuat (null): semua daftar kosong. */
+const EMPTY_PLANNING: SchoolPlanningView = {
+	year: '',
+	semester_id: null,
+	term: 0,
+	grades: [],
+	classes: [],
+	teachers: [],
+	subjects: [],
+	assignments: [],
+	objectives: [],
+	assessments: [],
+	weight_total: 0,
+	decimal_places: 0,
+	periods: [],
+	schedule: [],
+	extras: []
+};
+
 type Period = { start: string; end: string };
 
 /**
@@ -119,14 +138,15 @@ export class PlanningDrawerState {
 
 	constructor(deps: PlanningDrawerDeps) {
 		this.#deps = deps;
-		const { classes, subjects, grades } = deps.planning();
+		const { classes, subjects, grades } = this.#planning;
 		this.#classId = classes[0]?.id ?? '';
 		this.#objSubject = deps.initialSubject ?? subjects[0]?.id ?? '';
 		this.#objGrade = grades[0]?.id ?? '';
 	}
 
-	get #planning() {
-		return this.#deps.planning();
+	/** Halaman membuat planner sebelum tahu apakah muat perencanaan berhasil (view bisa null). */
+	get #planning(): SchoolPlanningView {
+		return (this.#deps.planning() as SchoolPlanningView | null) ?? EMPTY_PLANNING;
 	}
 
 	#t(k: string, params?: Record<string, string | number>) {
