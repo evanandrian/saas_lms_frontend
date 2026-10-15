@@ -89,9 +89,7 @@
 		});
 		if (!out) return;
 		view = out;
-		editor.notify(
-			t('reports.reminded', { name: remindTarget.homeroom || t('reports.homeroom_fallback') })
-		);
+		editor.notify(t('reports.reminded', { count: body.recipient_ids?.length ?? 0 }));
 		remindOpen = false;
 	}
 

@@ -4118,8 +4118,7 @@
 			"no_homeroom": "Homeroom teacher not assigned",
 			"remind": "Remind",
 			"reminded_label": "Reminded",
-			"reminded": "Reminder sent to {name}",
-			"homeroom_fallback": "homeroom teacher",
+			"reminded": "Reminder sent to {count} teachers",
 			"remind_dialog": {
 				"title": "Remind {class} report card",
 				"close": "Close",
@@ -4801,7 +4800,7 @@
 			"empty_title": "No change history yet",
 			"empty_desc": "Important changes such as deleted records, account invitations, and report card steps will be recorded here.",
 			"empty_filtered_title": "No matching history",
-			"empty_filtered_desc": "Change the category or date range to see other entries.",
+			"empty_filtered_desc": "Change the category, date range, search keyword, or actor role to see other entries.",
 			"entity": {
 				"teacher": "teacher",
 				"student": "student",
@@ -5503,10 +5502,10 @@
 			}
 		},
 		"school_admin_audit": {
-			"purpose": "This page shows a trail of important school changes, such as deleted and deactivated records, account invitations, and the report card workflow. Use it to trace who did what and when.",
+			"purpose": "This page shows a trail of important school changes across teacher and student records, guardians, accounts, report cards, academic years and classes, academic planning, reminders, and data exports. Use it to trace who did what and when.",
 			"features": {
 				"timeline": "View change history newest first in a table with time, actor, role, and action.",
-				"category": "Filter history by category: teachers & students, guardians, account invitations, or report cards.",
+				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years & classes, academic planning, reminders, or data exports.",
 				"range": "Filter history by date range.",
 				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
 				"more": "Load older history step by step.",
@@ -5522,7 +5521,7 @@
 			"tips": {
 				"read_only": "This page is read-only; history cannot be changed or deleted.",
 				"range": "The start date cannot be after the end date.",
-				"system": "Entries with \"System\" as the actor come from automated processes, not from a user."
+				"system": "The \"System\" actor means an automated process or a user who currently has no membership role in the school, such as a former member."
 			}
 		},
 		"school_admin_classes": {

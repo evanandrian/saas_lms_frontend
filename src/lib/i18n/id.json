@@ -4118,8 +4118,7 @@
 			"no_homeroom": "Wali kelas belum ditetapkan",
 			"remind": "Ingatkan",
 			"reminded_label": "Diingatkan",
-			"reminded": "Pengingat dikirim ke {name}",
-			"homeroom_fallback": "wali kelas",
+			"reminded": "Pengingat terkirim ke {count} guru",
 			"remind_dialog": {
 				"title": "Ingatkan rapor {class}",
 				"close": "Tutup",
@@ -4801,7 +4800,7 @@
 			"empty_title": "Belum ada riwayat perubahan",
 			"empty_desc": "Perubahan penting seperti penghapusan data, undangan akun, dan proses rapor akan tercatat di sini.",
 			"empty_filtered_title": "Tidak ada riwayat yang cocok",
-			"empty_filtered_desc": "Ubah kategori atau rentang tanggal untuk melihat riwayat lainnya.",
+			"empty_filtered_desc": "Ubah kategori, rentang tanggal, kata kunci, atau peran pelaku untuk melihat riwayat lainnya.",
 			"entity": {
 				"teacher": "guru",
 				"student": "murid",
@@ -5503,10 +5502,10 @@
 			}
 		},
 		"school_admin_audit": {
-			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, seperti penghapusan dan penonaktifan data, undangan akun, serta alur rapor. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
+			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, mulai dari data guru dan murid, wali murid, akun, rapor, tahun ajaran dan kelas, perencanaan akademik, pengingat, hingga ekspor data. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
 			"features": {
 				"timeline": "Melihat riwayat perubahan terbaru lebih dulu dalam tabel berisi waktu, pelaku, peran, dan aksi.",
-				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, undangan akun, atau rapor.",
+				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran & kelas, perencanaan akademik, pengingat, atau ekspor data.",
 				"range": "Menyaring riwayat berdasarkan rentang tanggal.",
 				"detail": "Melihat detail tambahan seperti NIS/NIP, alasan, dan jumlah undangan terkirim atau gagal.",
 				"more": "Memuat riwayat yang lebih lama secara bertahap.",
@@ -5522,7 +5521,7 @@
 			"tips": {
 				"read_only": "Halaman ini hanya untuk dibaca; riwayat tidak bisa diubah atau dihapus.",
 				"range": "Tanggal awal tidak boleh setelah tanggal akhir.",
-				"system": "Entri dengan pelaku \"Sistem\" berasal dari proses otomatis, bukan dari pengguna."
+				"system": "Pelaku \"Sistem\" berarti proses otomatis atau pengguna yang saat ini tidak memiliki peran keanggotaan di sekolah, misalnya mantan anggota."
 			}
 		},
 		"school_admin_classes": {
