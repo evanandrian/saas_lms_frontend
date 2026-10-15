@@ -173,8 +173,7 @@
 								<button
 									type="button"
 									class="lms-action-secondary lms-focus-ring inline-flex h-8 items-center gap-1.5 justify-self-end rounded-lg px-3 text-xs font-semibold disabled:opacity-50"
-									disabled={reminded || editor.busy || !r.homeroom}
-									title={r.homeroom ? '' : t('reports.no_homeroom')}
+									disabled={reminded || editor.busy}
 									onclick={() => openRemind(r.class_id, r.name, r.homeroom)}
 									><Icon icon={reminded ? Check : BellRing} size="sm" />{reminded
 										? t('reports.reminded_label')
