@@ -105,14 +105,10 @@ describe('reasonRequired / reasonValid (R9)', () => {
 });
 
 describe('weightValid', () => {
-	it('hanya bilangan bulat 0–100; 250, 33.5, kosong, null ditandai tidak sah', () => {
-		expect(weightValid(0)).toBe(true);
+	// Kasus tepi bilangan bulat/kosong diuji sekali di `intInRange` (school-admin-subjects.test.ts).
+	it('bobot sah = bilangan bulat 0–100 → boolean', () => {
 		expect(weightValid('100')).toBe(true);
 		expect(weightValid(250)).toBe(false);
-		expect(weightValid(33.5)).toBe(false);
-		expect(weightValid('')).toBe(false);
-		expect(weightValid(null)).toBe(false);
-		expect(weightValid(-1)).toBe(false);
 	});
 });
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { SchoolPlanningView, SchoolSetupState } from '$lib/api/generated/lms';
 import {
+	intInRange,
 	parseKktp,
+	subjectIssues,
 	subjectRows,
 	subjectsPayload
 } from '$lib/features/school-admin/school-admin.model';
@@ -84,15 +86,41 @@ describe('subjectsPayload', () => {
 	});
 });
 
-describe('parseKktp', () => {
-	it('menerima number dan string bilangan bulat 0–100', () => {
-		expect(parseKktp(75)).toBe(75);
-		expect(parseKktp('80')).toBe(80);
-		expect(parseKktp(0)).toBe(0);
-		expect(parseKktp(100)).toBe(100);
+describe('intInRange', () => {
+	it('menerima number dan string bilangan bulat di dalam rentang (inklusif)', () => {
+		expect(intInRange(75, 0, 100)).toBe(75);
+		expect(intInRange('80', 0, 100)).toBe(80);
+		expect(intInRange(0, 0, 100)).toBe(0);
+		expect(intInRange(100, 0, 100)).toBe(100);
 	});
 	it('menolak null, kosong, NaN, di luar rentang, dan desimal', () => {
 		for (const bad of [null, undefined, '', '  ', 'abc', Number.NaN, 101, -1, 70.5])
-			expect(parseKktp(bad)).toBeNull();
+			expect(intInRange(bad, 0, 100)).toBeNull();
+	});
+});
+
+describe('parseKktp', () => {
+	it('KKTP = bilangan bulat 0–100 (lihat intInRange), selain itu null', () => {
+		expect(parseKktp('75')).toBe(75);
+		expect(parseKktp(101)).toBeNull();
+	});
+});
+
+describe('subjectIssues', () => {
+	const existing = ['MAT', 'SEN'];
+	it('kode & nama sah (kode dinormalisasi huruf besar) → tanpa masalah', () => {
+		expect(subjectIssues({ code: ' inf ', name: 'Informatika' }, existing)).toEqual({});
+	});
+	it('kode format salah → code_invalid; kode sudah ada → code_taken', () => {
+		expect(subjectIssues({ code: 'X', name: 'Mapel' }, existing).code).toBe('code_invalid');
+		expect(subjectIssues({ code: 'MAT-1', name: 'Mapel' }, existing).code).toBe('code_invalid');
+		expect(subjectIssues({ code: 'mat', name: 'Mapel' }, existing).code).toBe('code_taken');
+	});
+	it('nama < 2 karakter (ter-trim) → required, sama dengan backend', () => {
+		expect(subjectIssues({ code: 'INF', name: ' I ' }, existing).name).toBe('required');
+		expect(subjectIssues({ code: 'INF', name: 'IP' }, existing).name).toBeUndefined();
+	});
+	it('existing null (mode ubah, kode terkunci) → kode tidak divalidasi', () => {
+		expect(subjectIssues({ code: 'MAT', name: 'Matematika' }, null)).toEqual({});
 	});
 });

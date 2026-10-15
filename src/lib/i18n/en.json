@@ -3773,7 +3773,6 @@
 			"subject_in_use": "This subject is still used by assignments, objectives, grades, the schedule, or report cards and cannot be deactivated.",
 			"student_invalid": "Student not found or inactive.",
 			"class_invalid": "Class not found in the active academic year.",
-			"assessment_in_use": "Assessment type is used by grades and cannot be removed.",
 			"extra_exists": "Activity already exists.",
 			"not_in_class": "Student is not in this class.",
 			"all_students_required": "Fill attendance for every student in the class.",
@@ -4438,7 +4437,6 @@
 			"assess_empty": "No assessment types yet. Use the default to start.",
 			"formative": "Formative",
 			"summative": "Summative",
-			"exam": "exam",
 			"weight_of": "Weight of {name}",
 			"weight_total": "Total weight",
 			"save_weights": "Save weights",
@@ -4791,7 +4789,7 @@
 			"codes_unavailable": "Activation codes from this run cannot be displayed. Contact the platform administrator."
 		},
 		"subjects": {
-			"eyebrow": "ACADEMICS",
+			"eyebrow": "ACADEMIC",
 			"title": "Subjects & objectives",
 			"desc": "Subjects taught at the school, their KKTP, and learning objectives per grade.",
 			"add": "Add subject",
@@ -4806,13 +4804,13 @@
 			"stat_objectives": "Learning objectives",
 			"stat_without_tp": "Subjects without objectives",
 			"empty": "No subjects yet.",
-			"foot": "Subjects already used by assignments, objectives, or grades cannot be disabled.",
+			"foot": "Subjects still used by assignments, objectives, grades, the schedule, or report cards cannot be deactivated.",
 			"field_code": "Subject code",
 			"field_name": "Subject name",
 			"field_kktp": "KKTP",
 			"code_note": "Capital letters, digits, or underscore (2–20).",
 			"code_locked": "The code cannot be changed.",
-			"inactive_note": "Inactive = not taught. Subjects already used by assignments, objectives, or grades cannot be disabled.",
+			"inactive_note": "Inactive = not taught. {rule}",
 			"open_tp": "Manage learning objectives ({count})",
 			"tp_title": "Learning objectives",
 			"tp_note": "Objectives are set per grade; the phase follows the class grade."
@@ -4983,7 +4981,7 @@
 			}
 		},
 		"assessments": {
-			"eyebrow": "ACADEMICS",
+			"eyebrow": "ACADEMIC",
 			"title": "Assessments & weights",
 			"desc": "School assessment types and their weights in the final grade (total 100%).",
 			"stat_types": "Assessment types",
@@ -4998,7 +4996,6 @@
 			"stat_count": "Activities",
 			"stat_members": "Total members",
 			"stat_mandatory": "Mandatory activities",
-			"coach": "Coach: {name}",
 			"no_schedule": "Schedule not set",
 			"members": "{count} members",
 			"mandatory": "MANDATORY",
@@ -5006,7 +5003,6 @@
 			"manage_members": "Members",
 			"empty": "No extracurricular activities yet. Add the school's first activity.",
 			"field_name": "Activity name",
-			"field_coach": "Coach",
 			"field_day": "Day",
 			"field_start": "Start time",
 			"field_end": "End time",
@@ -5024,7 +5020,6 @@
 			"search_students": "Search name or NIS",
 			"no_candidates": "No students available to add.",
 			"add_selected": "Add {count} students",
-			"delete_title": "Delete activity?",
 			"selected_hidden": "{count} selected students are hidden by the search but will still be added."
 		}
 	},

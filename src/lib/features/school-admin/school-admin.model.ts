@@ -469,18 +469,53 @@ export function auditRoleLabel(t: T, role: string): string {
 		: t(`${PREFIX}.audit.role.other`);
 }
 
-// ===== Mata pelajaran (halaman Mapel & TP) =====
-/** Kode mapel (cermin backend `reCode`). */
-export const SUBJECT_CODE = /^[A-Z0-9_]{2,20}$/;
-export const SUBJECT_NAME_MIN = 2;
-export const KKTP_MAX = 100;
+/** Nilai input apa pun → string ter-trim (angka/undefined dari binding tidak melempar). */
+const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 
-/** KKTP dari input number Svelte (number | null) atau string; null bila kosong/bukan bilangan bulat 0–100. */
-export function parseKktp(raw: string | number | null | undefined): number | null {
+/**
+ * Bilangan bulat min–max dari input number Svelte (number | null) atau string; null bila kosong,
+ * bukan bilangan bulat, atau di luar rentang. Dasar `parseKktp` & `weightValid`.
+ */
+export function intInRange(
+	raw: string | number | null | undefined,
+	min: number,
+	max: number
+): number | null {
 	if (raw === null || raw === undefined) return null;
 	if (typeof raw === 'string' && !raw.trim()) return null;
 	const value = Number(raw);
-	return Number.isInteger(value) && value >= 0 && value <= KKTP_MAX ? value : null;
+	return Number.isInteger(value) && value >= min && value <= max ? value : null;
+}
+
+// ===== Mata pelajaran (halaman Mapel & TP, wizard setup) =====
+/** Cermin backend `SaveSubjects`: nama mapel minimal 2 karakter (rune). */
+export const SUBJECT_NAME_MIN = 2;
+export const KKTP_MAX = 100;
+
+/** KKTP dari input; null bila kosong/bukan bilangan bulat 0–100. */
+export const parseKktp = (raw: string | number | null | undefined): number | null =>
+	intInRange(raw, 0, KKTP_MAX);
+
+/** Kode masalah validasi mapel; dipetakan ke `errors.<kode>` (atau pesan ringkas wizard). */
+export type SubjectIssue = 'code_invalid' | 'code_taken' | 'required';
+
+/**
+ * Validasi cepat tambah/ubah mapel, dipakai wizard setup & halaman Mapel (cermin `SaveSubjects`
+ * backend: kode `RE.code`, nama ≥ 2 karakter). `existing` = kode yang sudah ada; null = kode
+ * tidak divalidasi (mode ubah, kode terkunci).
+ */
+export function subjectIssues(
+	f: { code: string; name: string },
+	existing: readonly string[] | null
+): Partial<Record<'code' | 'name', SubjectIssue>> {
+	const issues: Partial<Record<'code' | 'name', SubjectIssue>> = {};
+	if (existing) {
+		const code = textOf(f.code).toUpperCase();
+		if (!RE.code.test(code)) issues.code = 'code_invalid';
+		else if (existing.includes(code)) issues.code = 'code_taken';
+	}
+	if ([...textOf(f.name)].length < SUBJECT_NAME_MIN) issues.name = 'required';
+	return issues;
 }
 
 export interface SubjectRow extends SchoolSubjectItem {
@@ -565,8 +600,6 @@ export const DEFAULT_AGGREGATION: AssessmentAggregation = 'average';
 export const DECIMAL_OPTIONS = [0, 1, 2] as const;
 export const REASON_MIN = 5;
 export const REASON_MAX = 500;
-/** Kode jenis asesmen (cermin backend `reCode`). */
-export const ASSESSMENT_CODE = /^[A-Z0-9_]{2,20}$/;
 export const ASSESSMENT_NAME_MIN = 2;
 const PERCENT = 100;
 const ASSESSMENT_CATEGORIES = ['formative', 'summative'] as const;
@@ -578,11 +611,8 @@ export const exampleSample = (codes: readonly string[]): Record<string, number> 
 	Object.fromEntries(codes.map((c, i) => [c, EXAMPLE_SCORES[i % EXAMPLE_SCORES.length]!]));
 
 /** Bobot sah = bilangan bulat 0–100 (kontrak `weight` integer). */
-export const weightValid = (raw: string | number | null | undefined): boolean => {
-	if (raw === null || raw === undefined || (typeof raw === 'string' && !raw.trim())) return false;
-	const value = Number(raw);
-	return Number.isInteger(value) && value >= 0 && value <= PERCENT;
-};
+export const weightValid = (raw: string | number | null | undefined): boolean =>
+	intInRange(raw, 0, PERCENT) !== null;
 
 /** Bobot untuk perhitungan: dibulatkan ke bilangan bulat, dijepit 0–100; kosong/bukan angka → 0. */
 export function normalizeWeight(raw: string | number | null | undefined): number {
@@ -658,9 +688,6 @@ export interface ExtraForm {
 	place: string;
 	is_mandatory: boolean;
 }
-
-/** Nilai input apa pun → string ter-trim (angka/undefined dari binding tidak melempar). */
-const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 
 /** Hari ekskul dari select/backend (angka atau string) → '1'..'6', selain itu ''. */
 export function extraDay(v: unknown): string {

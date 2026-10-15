@@ -7,7 +7,8 @@ import {
 	REQUIRED_SECTIONS,
 	failureMessage,
 	fieldErrors,
-	readFileBase64
+	readFileBase64,
+	subjectIssues
 } from './school-admin.model';
 
 type Translate = (key: string, params?: Readonly<Record<string, string | number>>) => string;
@@ -15,7 +16,6 @@ type Translate = (key: string, params?: Readonly<Record<string, string | number>
 export const ACCREDITATIONS = ['A', 'B', 'C', 'BELUM'] as const;
 export const MAX_GROUPS = 15;
 export const MAX_CAPACITY = 60;
-export const KKTP_MAX = 100;
 const LOGO_TYPES: readonly string[] = ['image/png', 'image/jpeg'];
 const LAST_STEP = REQUIRED_SECTIONS.length - 1;
 
@@ -270,11 +270,15 @@ export class RequiredWizardState {
 		const { t } = this.#deps;
 		const code = this.newCode.trim().toUpperCase();
 		const name = this.newName.trim();
-		if (!RE.code.test(code) || !name) {
+		const issues = subjectIssues(
+			{ code, name },
+			this.subjects.map((s) => s.code)
+		);
+		if (issues.name || issues.code === 'code_invalid') {
 			this.errors = { ...this.errors, subjects: t(`${PREFIX}.setup.custom_invalid`) };
 			return;
 		}
-		if (this.subjects.some((s) => s.code === code)) {
+		if (issues.code === 'code_taken') {
 			this.errors = { ...this.errors, subjects: t(`${PREFIX}.errors.code_taken`) };
 			return;
 		}

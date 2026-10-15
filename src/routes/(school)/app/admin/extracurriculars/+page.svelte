@@ -210,7 +210,7 @@
 								>
 							{/if}
 						</div>
-						<span class="text-lms-muted">{t('extras.coach', { name: x.coach_name || '—' })}</span>
+						<span class="text-lms-muted">{t('planning.coach', { name: x.coach_name || '—' })}</span>
 						<span>{schedule(x)}</span>
 						{#if x.place}<span class="text-lms-muted">{x.place}</span>{/if}
 						<span class="font-semibold">{t('extras.members', { count: x.member_count ?? 0 })}</span>
@@ -266,7 +266,12 @@
 					oninput={() => editor.clearError('name')}
 				/>
 			</FieldBox>
-			<FieldBox label={t('extras.field_coach')} for="ex-coach" full error={editor.errors.coach_id}>
+			<FieldBox
+				label={t('planning.coach_label')}
+				for="ex-coach"
+				full
+				error={editor.errors.coach_id}
+			>
 				<select
 					id="ex-coach"
 					class={inputClass(editor.errors.coach_id)}

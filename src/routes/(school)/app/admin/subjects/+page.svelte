@@ -19,11 +19,10 @@
 		KKTP_MAX,
 		PREFIX,
 		PROGRESS_DEPENDENCY_KEY,
-		SUBJECT_CODE,
-		SUBJECT_NAME_MIN,
 		parseKktp,
 		inputClass,
 		sectionGap,
+		subjectIssues,
 		subjectRows,
 		subjectsPayload
 	} from '$lib/features/school-admin/school-admin.model';
@@ -135,9 +134,8 @@
 		const e: Record<string, string> = {};
 		const code = form.code.trim().toUpperCase();
 		const kktp = parseKktp(form.kktp);
-		if (!editor.editId && (!SUBJECT_CODE.test(code) || rows.some((r) => r.code === code)))
-			e.code = t('errors.code_invalid');
-		if (form.name.trim().length < SUBJECT_NAME_MIN) e.name = t('errors.required');
+		const issues = subjectIssues(form, editor.editId ? null : rows.map((r) => r.code));
+		for (const [field, issue] of Object.entries(issues)) e[field] = t(`errors.${issue}`);
 		if (kktp === null) e.kktp = t('errors.kktp_range');
 		editor.setErrors(e);
 		if (Object.keys(e).length) return;
@@ -269,7 +267,11 @@
 					oninput={() => editor.clearError('name')}
 				/>
 			</FieldBox>
-			<FieldBox label={t('fields.status')} full note={t('subjects.inactive_note')}>
+			<FieldBox
+				label={t('fields.status')}
+				full
+				note={t('subjects.inactive_note', { rule: t('subjects.foot') })}
+			>
 				<Segmented
 					label={t('fields.status')}
 					value={form.enabled ? 'yes' : 'no'}

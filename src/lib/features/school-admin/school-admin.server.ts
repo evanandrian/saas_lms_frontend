@@ -397,7 +397,6 @@ export const setupActions: Actions = {
 /** Halaman Mapel & TP: daftar mapel (setup) + TP (perencanaan), memakai aksi setup yang sama. */
 const SUBJECTS_PAGE_ACTIONS = [
 	'subjects',
-	'setup',
 	'planning',
 	'objectiveAdd',
 	'objectiveRemove',
@@ -409,13 +408,11 @@ export const subjectsPageActions: Actions = Object.fromEntries(
 
 /** Halaman Penugasan mengajar (per kelas langsung tersimpan). */
 export const assignmentsPageActions: Actions = {
-	planning: setupActions.planning!,
 	assignment: setupActions.assignment!
 };
 
 /** Halaman Asesmen & bobot. */
 export const assessmentsPageActions: Actions = {
-	planning: setupActions.planning!,
 	assessments: setupActions.assessments!
 };
 

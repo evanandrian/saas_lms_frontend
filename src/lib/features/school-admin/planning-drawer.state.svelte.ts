@@ -6,13 +6,14 @@ import type {
 } from '$lib/api/generated/lms';
 import { runPageAction } from '$lib/utils/page-action';
 import {
-	ASSESSMENT_CODE,
 	ASSESSMENT_NAME_MIN,
 	DEFAULT_AGGREGATION,
+	RE,
 	REASON_MIN,
 	PREFIX,
 	assessmentsBody,
 	extraBody,
+	extraErrors,
 	extraForm,
 	failureMessage,
 	nextObjectiveCode,
@@ -194,7 +195,7 @@ export class PlanningDrawerState {
 
 	addType() {
 		const code = this.newType.code.trim().toUpperCase();
-		if (!ASSESSMENT_CODE.test(code) || this.types.some((x) => x.code === code)) {
+		if (!RE.code.test(code) || this.types.some((x) => x.code === code)) {
 			this.#deps.onnotify(this.#deps.t(`${PREFIX}.errors.code_invalid`));
 			return;
 		}
@@ -440,17 +441,12 @@ export class PlanningDrawerState {
 	}
 
 	async addExtra() {
-		if (!this.exName.trim()) {
+		// Atribut lengkap (jadwal/tempat/wajib kosong) agar body & validasi sama dengan halaman Ekskul.
+		const form = { ...extraForm(null), name: this.exName, coach_id: this.exCoach };
+		if (extraErrors(form, this.#deps.t).name) {
 			this.#deps.onnotify(this.#t('extra_name_required'));
 			return;
 		}
-		if (
-			await this.call('extraSave', {
-				id: '',
-				// Atribut lengkap (jadwal/tempat/wajib kosong) agar bentuk body sama dengan halaman Ekskul.
-				data: extraBody({ ...extraForm(null), name: this.exName, coach_id: this.exCoach })
-			})
-		)
-			this.exName = '';
+		if (await this.call('extraSave', { id: '', data: extraBody(form) })) this.exName = '';
 	}
 }

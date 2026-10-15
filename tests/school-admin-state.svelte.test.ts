@@ -558,6 +558,21 @@ describe('PlanningDrawerState', () => {
 		expect(onnotify).toHaveBeenCalledWith('T(school_admin.planning.objective_short)');
 	});
 
+	it('nama ekskul < 2 karakter ditolak di klien (validasi sama dengan halaman Ekskul)', async () => {
+		const onnotify = vi.fn();
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1),
+			key: () => 'extras',
+			t,
+			onplanning: vi.fn(),
+			onnotify
+		});
+		state.exName = ' P ';
+		await state.addExtra();
+		expect(action).not.toHaveBeenCalled();
+		expect(onnotify).toHaveBeenCalledWith('T(school_admin.planning.extra_name_required)');
+	});
+
 	it('kode TP berikutnya = max+1 mapel×tingkat terpilih (cermin BE, tahan celah hapus)', () => {
 		const objective = (id: string, code: string, subject = 's1', grade = 'g1') => ({
 			id,
@@ -766,6 +781,12 @@ describe('RequiredWizardState', () => {
 		wizard.newName = 'Duplikat';
 		wizard.addSubject();
 		expect(wizard.errors.subjects).toBe('T(school_admin.errors.code_taken)');
+		// Nama 1 karakter ditolak seperti halaman Mapel & backend (min 2).
+		wizard.newCode = 'inf';
+		wizard.newName = 'I';
+		wizard.addSubject();
+		expect(wizard.errors.subjects).toBe('T(school_admin.setup.custom_invalid)');
+		expect(wizard.subjects.map((s) => s.code)).toEqual(['MTK']);
 		wizard.newCode = 'inf';
 		wizard.newName = 'Informatika';
 		wizard.addSubject();
