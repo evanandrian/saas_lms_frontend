@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
 	NAVIGATION_BADGES,
 	NAVIGATION_ICON_KEYS,
 	splitRoute,
 	toWorkspaceNav,
 	validateTree,
+	visibleGroups,
 	type NavigationGroup
 } from '$lib/features/navigation/navigation.model';
 
@@ -159,5 +161,46 @@ describe('validateTree rute ber-fragmen', () => {
 		'/App'
 	])('menolak %s', (route) => {
 		expect(routeError(route)).toBe('route_invalid');
+	});
+});
+
+describe('defaultNavigationLayout (cermin defaults.go)', () => {
+	it('school_admin: 6 grup, 22 item, 10 tersembunyi', () => {
+		const layout = defaultNavigationLayout('school_admin');
+		expect(layout.groups.map((g) => g.code)).toEqual([
+			'grp-utama',
+			'grp-akademik',
+			'grp-pengguna',
+			'grp-kegiatan',
+			'grp-keuangan',
+			'grp-sistem'
+		]);
+		const items = layout.groups.flatMap((g) => g.items);
+		expect(items).toHaveLength(22);
+		expect(items.filter((i) => i.hidden).map((i) => i.code)).toEqual([
+			'mapel-tp',
+			'penugasan',
+			'asesmen-bobot',
+			'presensi-guru',
+			'ekstrakurikuler',
+			'pengumuman',
+			'pendaftaran',
+			'spp-iuran',
+			'kwitansi',
+			'identitas-rapor'
+		]);
+		expect(items.every((i) => i.route.startsWith('/app/admin'))).toBe(true);
+		expect(items.find((i) => i.code === 'persetujuan')?.badge).toBe('approvals');
+	});
+
+	it('sidebar cadangan menyembunyikan menu fase berikut', () => {
+		const groups = visibleGroups(defaultNavigationLayout('school_admin').groups);
+		expect(groups.flatMap((g) => g.items)).toHaveLength(12);
+		expect(groups.map((g) => g.code)).not.toContain('grp-keuangan');
+	});
+
+	it('principal & homeroom tersedia', () => {
+		expect(defaultNavigationLayout('principal').groups[0]!.items).toHaveLength(10);
+		expect(defaultNavigationLayout('homeroom').groups[0]!.items).toHaveLength(11);
 	});
 });

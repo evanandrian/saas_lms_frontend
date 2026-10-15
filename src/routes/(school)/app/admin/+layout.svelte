@@ -1,29 +1,14 @@
 <script lang="ts">
-	import WorkspaceShell, {
-		type WorkspaceNavItem
-	} from '$lib/components/layout/WorkspaceShell.svelte';
+	import WorkspaceShell from '$lib/components/layout/WorkspaceShell.svelte';
 	import RoleSwitch, {
 		type RoleSwitchItem
 	} from '$lib/features/dashboards/components/RoleSwitch.svelte';
+	import { toWorkspaceNav } from '$lib/features/navigation/navigation.model';
 	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import Briefcase from '@lucide/svelte/icons/briefcase';
-	import CalendarCheck from '@lucide/svelte/icons/calendar-check';
-	import CalendarRange from '@lucide/svelte/icons/calendar-range';
-	import ChartColumn from '@lucide/svelte/icons/chart-column';
-	import CreditCard from '@lucide/svelte/icons/credit-card';
-	import FileText from '@lucide/svelte/icons/file-text';
-	import GraduationCap from '@lucide/svelte/icons/graduation-cap';
-	import HeartHandshake from '@lucide/svelte/icons/heart-handshake';
-	import History from '@lucide/svelte/icons/history';
-	import House from '@lucide/svelte/icons/house';
-	import Inbox from '@lucide/svelte/icons/inbox';
-	import Megaphone from '@lucide/svelte/icons/megaphone';
-	import School from '@lucide/svelte/icons/school';
-	import Settings from '@lucide/svelte/icons/settings';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
-	import Users from '@lucide/svelte/icons/users';
 	import type { LayoutProps } from './$types';
 
 	let { data, children }: LayoutProps = $props();
@@ -33,78 +18,34 @@
 	const isPrincipalView = $derived(data.activeView === 'principal');
 	const approvalsBadge = $derived(data.pendingApprovals ?? undefined);
 
-	// Arsitektur informasi area (referensi v4 05a–05h). Langganan menggabungkan paket, kursi, dan tagihan.
-	const schoolNav: WorkspaceNavItem[] = $derived([
-		{ label: i18n.t('nav.school.home'), icon: House, href: APP_PATHS.SCHOOL_ADMIN_HOME },
-		{
-			label: i18n.t('nav.school.approvals'),
-			icon: Inbox,
-			href: APP_PATHS.SCHOOL_ADMIN_APPROVALS,
-			badge: approvalsBadge
-		},
-		{
-			label: i18n.t('nav.school.academic_years'),
-			icon: CalendarRange,
-			href: APP_PATHS.SCHOOL_ADMIN_YEARS
-		},
-		{ label: i18n.t('nav.school.classes'), icon: School, href: APP_PATHS.SCHOOL_ADMIN_CLASSES },
-		{ label: i18n.t('nav.school.teachers'), icon: Users, href: APP_PATHS.SCHOOL_ADMIN_TEACHERS },
-		{
-			label: i18n.t('nav.school.students'),
-			icon: GraduationCap,
-			href: APP_PATHS.SCHOOL_ADMIN_STUDENTS
-		},
-		{
-			label: i18n.t('nav.school.guardians'),
-			icon: HeartHandshake,
-			href: APP_PATHS.SCHOOL_ADMIN_GUARDIANS
-		},
-		{
-			label: i18n.t('nav.school.attendance'),
-			icon: CalendarCheck,
-			href: APP_PATHS.SCHOOL_ADMIN_ATTENDANCE
-		},
-		{
-			label: i18n.t('nav.school.report_cards'),
-			icon: FileText,
-			href: APP_PATHS.SCHOOL_ADMIN_REPORTS
-		},
-		{
-			label: i18n.t('nav.school.subscription'),
-			icon: CreditCard,
-			href: APP_PATHS.SCHOOL_ADMIN_SUBSCRIPTION
-		},
-		{ label: i18n.t('nav.school.audit'), icon: History, href: APP_PATHS.SCHOOL_ADMIN_AUDIT },
-		{ label: i18n.t('nav.school.settings'), icon: Settings, href: APP_PATHS.SCHOOL_ADMIN_ACCOUNT }
-	]);
+	// Rute yang sudah dibangun; menu fase berikut tanpa halaman tampil nonaktif (FE-04 D6).
+	const BUILT_PATHS: ReadonlySet<string> = new Set(Object.values(APP_PATHS));
+	// Item menu -> bagian data sekolah (backend `setup.sections[].key`) untuk titik "perlu dilengkapi".
+	const SCHOOL_DOT_SECTIONS: Readonly<Record<string, string>> = {
+		'tahun-ajaran': 'year',
+		kelas: 'classes',
+		guru: 'teachers',
+		murid: 'students',
+		'orang-tua': 'students'
+	};
 
-	// Sidebar kepala sekolah (referensi shell NAV.principal): menu bagian menggulir ke seksi dashboard.
-	const section = (hash: string) => ({ href: APP_PATHS.PRINCIPAL_HOME, hash });
-	const principalNav: WorkspaceNavItem[] = $derived([
-		{ label: i18n.t('nav.principal.home'), icon: House, href: APP_PATHS.PRINCIPAL_HOME },
-		{
-			label: i18n.t('nav.principal.approvals'),
-			icon: Inbox,
-			href: APP_PATHS.SCHOOL_ADMIN_APPROVALS,
-			badge: approvalsBadge
-		},
-		{ label: i18n.t('nav.principal.attendance'), icon: CalendarCheck, ...section('presensi') },
-		{ label: i18n.t('nav.principal.reports'), icon: ChartColumn, ...section('laporan') },
-		{ label: i18n.t('nav.principal.classes'), icon: School, ...section('kelas') },
-		{
-			label: i18n.t('nav.principal.report_cards'),
-			icon: FileText,
-			href: APP_PATHS.SCHOOL_ADMIN_REPORTS
-		},
-		{ label: i18n.t('nav.principal.teachers'), icon: Users, ...section('guru') },
-		{ label: i18n.t('nav.principal.students'), icon: GraduationCap, ...section('murid') },
-		{ label: i18n.t('nav.principal.announcements'), icon: Megaphone, ...section('pengumuman') },
-		{
-			label: i18n.t('nav.principal.settings'),
-			icon: Settings,
-			href: APP_PATHS.SCHOOL_ADMIN_ACCOUNT
-		}
-	]);
+	const dots = $derived.by(() => {
+		if (isPrincipalView) return {};
+		const sections = data.schoolProgress?.sections ?? [];
+		const pendingKeys = new Set(sections.filter((s) => !s.done).map((s) => s.key));
+		return Object.fromEntries(
+			Object.entries(SCHOOL_DOT_SECTIONS).map(([code, key]) => [code, pendingKeys.has(key)])
+		);
+	});
+
+	// Arsitektur informasi = susunan Menu & navigasi area aktif (backend; cadangan: bawaan FLIXARE).
+	const navItems = $derived(
+		toWorkspaceNav(data.navigation, {
+			badges: { approvals: approvalsBadge },
+			dots,
+			builtPaths: BUILT_PATHS
+		})
+	);
 
 	const roleLabel = $derived(
 		isPrincipalView
@@ -140,7 +81,7 @@
 
 <WorkspaceShell
 	areaLabel={isPrincipalView ? i18n.t('nav.principal.area') : i18n.t('nav.school.area')}
-	navItems={isPrincipalView ? principalNav : schoolNav}
+	{navItems}
 	tenant={identity?.tenant}
 	user={identity?.user}
 	searchPlaceholder={isPrincipalView ? i18n.t('nav.principal.search') : i18n.t('nav.school.search')}

@@ -1,0 +1,110 @@
+import type { RequestEvent } from '@sveltejs/kit';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
+
+const mocks = vi.hoisted(() => ({
+	loadNavigationSidebar: vi.fn(),
+	loadAreaViews: vi.fn()
+}));
+
+vi.mock('$app/environment', () => ({ dev: false }));
+vi.mock('$lib/features/navigation/navigation.api', () => ({
+	loadNavigationSidebar: mocks.loadNavigationSidebar
+}));
+vi.mock('$lib/features/dashboards/dashboards.server', () => ({
+	loadAreaViews: mocks.loadAreaViews
+}));
+vi.mock('$lib/features/approvals/approvals.server', () => ({
+	pendingApprovals: vi.fn().mockResolvedValue(3)
+}));
+vi.mock('$lib/features/workspace/workspace.server', () => ({
+	loadWorkspace: vi.fn().mockResolvedValue(null)
+}));
+vi.mock('$lib/features/school-admin/school-admin.server', () => ({
+	loadProgress: vi.fn().mockResolvedValue(null)
+}));
+
+import { load } from '../src/routes/(school)/app/admin/+layout.server';
+
+const backendGroups: NavigationGroup[] = [
+	{
+		id: 'g1',
+		code: 'grp-backend',
+		name: 'Dari backend',
+		icon: 'house',
+		route: '',
+		show_label: false,
+		default_open: true,
+		clickable: false,
+		hidden: false,
+		items: []
+	}
+];
+
+const event = {
+	depends: vi.fn(),
+	fetch: vi.fn(),
+	cookies: { get: vi.fn(), set: vi.fn() }
+} as unknown as RequestEvent;
+
+async function runLoad() {
+	return (await load(event as never)) as unknown as {
+		navigation: NavigationGroup[];
+	};
+}
+
+const requestedRole = (): NavigationRole => mocks.loadNavigationSidebar.mock.calls.at(-1)![1];
+
+describe('layout admin sekolah: sidebar dinamis', () => {
+	beforeEach(() => {
+		mocks.loadNavigationSidebar.mockReset();
+		mocks.loadAreaViews.mockReset();
+	});
+
+	it('tampilan principal memuat area principal, bukan school_admin', async () => {
+		mocks.loadAreaViews.mockResolvedValue({ views: ['principal'], activeView: 'principal' });
+		mocks.loadNavigationSidebar.mockResolvedValue({
+			ok: true,
+			layout: { groups: backendGroups }
+		});
+		const data = await runLoad();
+		expect(requestedRole()).toBe('principal');
+		expect(data.navigation).toBe(backendGroups);
+	});
+
+	it('tampilan school_admin memuat area school_admin', async () => {
+		mocks.loadAreaViews.mockResolvedValue({
+			views: ['principal', 'school_admin'],
+			activeView: 'school_admin'
+		});
+		mocks.loadNavigationSidebar.mockResolvedValue({
+			ok: true,
+			layout: { groups: backendGroups }
+		});
+		await runLoad();
+		expect(requestedRole()).toBe('school_admin');
+	});
+
+	it('tampilan tak dikenal (null) jatuh ke school_admin', async () => {
+		mocks.loadAreaViews.mockResolvedValue({ views: [], activeView: null });
+		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'unavailable' });
+		await runLoad();
+		expect(requestedRole()).toBe('school_admin');
+	});
+
+	it('API sidebar gagal: cadangan bawaan school_admin (12 item tampil) tetap dirender', async () => {
+		mocks.loadAreaViews.mockResolvedValue({ views: [], activeView: 'school_admin' });
+		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'unavailable' });
+		const data = await runLoad();
+		expect(data.navigation.flatMap((g) => g.items)).toHaveLength(12);
+		expect(data.navigation.map((g) => g.code)).not.toContain('grp-keuangan');
+	});
+
+	it('API sidebar gagal pada tampilan principal: cadangan bawaan principal (10 item)', async () => {
+		mocks.loadAreaViews.mockResolvedValue({ views: ['principal'], activeView: 'principal' });
+		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'forbidden' });
+		const data = await runLoad();
+		expect(requestedRole()).toBe('principal');
+		expect(data.navigation.flatMap((g) => g.items)).toHaveLength(10);
+	});
+});

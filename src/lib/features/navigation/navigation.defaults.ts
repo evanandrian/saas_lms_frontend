@@ -11,8 +11,18 @@ import type {
  * cadangan saat backend tidak terjangkau (sidebar tetap tampil) dan data simulasi editor saat dev.
  * Ubah keduanya bersamaan.
  */
-type ItemSeed = [code: string, name: string, icon: string, route: string, badge?: NavigationBadge];
+type ItemSeed = [
+	code: string,
+	name: string,
+	icon: string,
+	route: string,
+	badge?: NavigationBadge,
+	hidden?: boolean
+];
 type GroupSeed = [code: string, name: string, icon: string, showLabel: boolean, items: ItemSeed[]];
+
+/** Menu fase berikut: sudah di-seed, tersembunyi sampai halamannya dibangun (keputusan pemilik 15 Okt 2026). */
+const LATER = true;
 
 const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 	platform: [
@@ -62,15 +72,27 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 		]
 	],
 	school_admin: [
-		['grp-utama', 'Utama', 'house', false, [['beranda', 'Beranda', 'house', '/app/admin']]],
+		[
+			'grp-utama',
+			'Utama',
+			'house',
+			false,
+			[
+				['beranda', 'Beranda', 'house', '/app/admin'],
+				['persetujuan', 'Persetujuan', 'inbox', '/app/admin/approvals', 'approvals']
+			]
+		],
 		[
 			'grp-akademik',
 			'Akademik',
 			'calendar-range',
 			true,
 			[
-				['tahun-ajaran', 'Tahun ajaran', 'calendar-range', '/sekolah/tahun-ajaran'],
-				['kelas', 'Kelas', 'school', '/sekolah/kelas']
+				['tahun-ajaran', 'Tahun ajaran', 'calendar-range', '/app/admin/years'],
+				['kelas', 'Kelas', 'school', '/app/admin/classes'],
+				['mapel-tp', 'Mapel & TP', 'book-marked', '/app/admin/subjects', 'none', LATER],
+				['penugasan', 'Penugasan mengajar', 'network', '/app/admin/assignments', 'none', LATER],
+				['asesmen-bobot', 'Asesmen & bobot', 'scale', '/app/admin/assessments', 'none', LATER]
 			]
 		],
 		[
@@ -79,9 +101,9 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'users',
 			true,
 			[
-				['guru', 'Guru', 'users', '/sekolah/guru'],
-				['murid', 'Murid', 'graduation-cap', '/sekolah/murid'],
-				['orang-tua', 'Orang tua', 'heart-handshake', '/sekolah/orang-tua']
+				['guru', 'Guru', 'users', '/app/admin/teachers'],
+				['murid', 'Murid', 'graduation-cap', '/app/admin/students'],
+				['orang-tua', 'Orang tua', 'heart-handshake', '/app/admin/guardians']
 			]
 		],
 		[
@@ -90,17 +112,74 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'calendar-check',
 			true,
 			[
-				['presensi', 'Presensi', 'calendar-check', '/sekolah/presensi'],
-				['rapor', 'Rapor', 'file-text', '/sekolah/rapor']
+				['presensi', 'Presensi', 'calendar-check', '/app/admin/attendance'],
+				[
+					'presensi-guru',
+					'Presensi guru',
+					'user-check',
+					'/app/admin/teacher-attendance',
+					'none',
+					LATER
+				],
+				['rapor', 'Rapor', 'file-text', '/app/admin/reports'],
+				[
+					'ekstrakurikuler',
+					'Ekstrakurikuler',
+					'trophy',
+					'/app/admin/extracurriculars',
+					'none',
+					LATER
+				],
+				['pengumuman', 'Pengumuman', 'megaphone', '/app/admin/announcements', 'none', LATER]
 			]
 		],
 		[
-			'grp-akun',
-			'Akun',
+			'grp-keuangan',
+			'Keuangan & Penerimaan',
+			'wallet',
+			true,
+			[
+				['pendaftaran', 'Pendaftaran', 'user-plus', '/app/admin/admissions', 'none', LATER],
+				['spp-iuran', 'SPP & iuran', 'wallet', '/app/admin/fees', 'none', LATER],
+				['kwitansi', 'Kwitansi & invoice', 'receipt', '/app/admin/receipts', 'none', LATER]
+			]
+		],
+		[
+			'grp-sistem',
+			'Sistem',
 			'settings',
 			true,
 			[
-				['langganan', 'Langganan', 'credit-card', '/sekolah/langganan'],
+				['langganan', 'Langganan', 'credit-card', '/app/admin/subscription'],
+				[
+					'identitas-rapor',
+					'Identitas rapor',
+					'stamp',
+					'/app/admin/report-branding',
+					'none',
+					LATER
+				],
+				['log-audit', 'Log audit', 'history', '/app/admin/audit'],
+				['pengaturan', 'Pengaturan', 'settings', '/app/admin/settings']
+			]
+		]
+	],
+	principal: [
+		[
+			'grp-utama',
+			'Utama',
+			'house',
+			false,
+			[
+				['beranda', 'Beranda', 'house', '/app/admin/principal'],
+				['persetujuan', 'Persetujuan', 'inbox', '/app/admin/approvals', 'approvals'],
+				['presensi', 'Presensi', 'calendar-check', '/app/admin/principal#presensi'],
+				['laporan', 'Laporan', 'chart-column', '/app/admin/principal#laporan'],
+				['kelas', 'Kelas', 'school', '/app/admin/principal#kelas'],
+				['rapor', 'Rapor', 'file-text', '/app/admin/reports'],
+				['guru', 'Guru', 'users', '/app/admin/principal#guru'],
+				['murid', 'Murid', 'graduation-cap', '/app/admin/principal#murid'],
+				['pengumuman', 'Pengumuman', 'megaphone', '/app/admin/principal#pengumuman'],
 				['pengaturan', 'Pengaturan', 'settings', '/app/admin/settings']
 			]
 		]
@@ -134,6 +213,32 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'settings',
 			true,
 			[['pengaturan', 'Pengaturan', 'settings', '/app/teacher/settings']]
+		]
+	],
+	homeroom: [
+		[
+			'grp-utama',
+			'Utama',
+			'house',
+			false,
+			[
+				['beranda', 'Beranda', 'house', '/app/teacher/homeroom'],
+				['presensi-kelas', 'Presensi kelas', 'calendar-check', '/app/teacher/homeroom/attendance'],
+				['persetujuan', 'Persetujuan', 'inbox', '/app/teacher/homeroom#persetujuan'],
+				[
+					'buku-penghubung',
+					'Buku penghubung',
+					'message-circle',
+					'/app/teacher/homeroom#buku-penghubung'
+				],
+				['rekap-nilai', 'Rekap nilai', 'table', '/app/teacher/homeroom#rekap-nilai'],
+				['murid-kelas', 'Murid kelas', 'users', '/app/teacher/homeroom#murid'],
+				['rapor', 'Rapor', 'file-text', '/app/teacher/homeroom/report'],
+				['nilai-akhir', 'Nilai akhir mapel', 'clipboard-list', '/app/teacher/grades'],
+				['jadwal-kelas', 'Jadwal kelas', 'calendar-days', '/app/teacher/homeroom#jadwal'],
+				['catatan-perilaku', 'Catatan perilaku', 'notebook-pen', '/app/teacher/homeroom#catatan'],
+				['pengaturan', 'Pengaturan', 'settings', '/app/teacher/settings']
+			]
 		]
 	],
 	student: [
@@ -205,14 +310,14 @@ export function defaultNavigationLayout(role: NavigationRole): NavigationLayout 
 		default_open: true,
 		clickable: false,
 		hidden: false,
-		items: items.map(([itemCode, itemName, itemIcon, route, badge = 'none']) => ({
+		items: items.map(([itemCode, itemName, itemIcon, route, badge = 'none', hidden = false]) => ({
 			id: `${role}:${itemCode}`,
 			code: itemCode,
 			name: itemName,
 			icon: itemIcon,
 			route,
 			target: 'same',
-			hidden: false,
+			hidden,
 			badge
 		}))
 	}));
