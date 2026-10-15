@@ -419,6 +419,41 @@ export const assessmentsPageActions: Actions = {
 	assessments: setupActions.assessments!
 };
 
+type MembersAddBody = WithId & { studentIds?: unknown; classId?: unknown };
+
+/** Halaman Ekstrakurikuler: data ekskul (perencanaan) + anggota per tahun ajaran aktif. */
+export const extrasPageActions: Actions = {
+	planning: setupActions.planning!,
+	extraSave: setupActions.extraSave!,
+	extraRemove: setupActions.extraRemove!,
+	students: setupActions.students!,
+	extraMembers: action<WithId>((ctx, b) =>
+		validId(b.id) ? api.fetchExtraMembers(ctx, b.id) : null
+	),
+	extraMembersAdd: action<MembersAddBody>((ctx, b) => {
+		if (!validId(b.id)) return null;
+		// Daftar murid eksplisit (bukan "semua"): bila dikirim harus array berisi id valid.
+		let ids: string[] = [];
+		if (b.studentIds !== undefined) {
+			if (!Array.isArray(b.studentIds) || !b.studentIds.every(validId)) return null;
+			ids = b.studentIds;
+		}
+		let classId = '';
+		if (b.classId !== undefined) {
+			if (!validId(b.classId)) return null;
+			classId = b.classId;
+		}
+		if (!ids.length && !classId) return null;
+		return api.addExtraMembers(ctx, b.id, {
+			...(ids.length ? { student_ids: ids } : {}),
+			...(classId ? { class_id: classId } : {})
+		});
+	}),
+	extraMemberRemove: action<WithId & { studentId?: string }>((ctx, b) =>
+		validId(b.id) && validId(b.studentId) ? api.removeExtraMember(ctx, b.id, b.studentId) : null
+	)
+};
+
 export const homeroomAttendanceActions: Actions = {
 	save: action<{ data?: SchoolAttendanceInput }>((ctx, b) =>
 		b.data ? api.saveHomeroomAttendanceEntries(ctx, b.data) : null

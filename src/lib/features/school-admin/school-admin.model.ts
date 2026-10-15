@@ -2,12 +2,15 @@ import {
 	GetSchoolAuditCategory,
 	SchoolAuditActorRole,
 	type SchoolAssessmentsInput,
+	type SchoolExtraInput,
 	type SchoolPlanAssessment,
+	type SchoolPlanExtra,
 	type SchoolPlanningView,
 	type SchoolRemindOutcome,
 	type SchoolReportRecipient,
 	type SchoolReportRemindInput,
 	type SchoolSetupState,
+	type SchoolStudentRow,
 	type SchoolSubjectItem,
 	type SchoolSubjectsInput
 } from '$lib/api/generated/lms';
@@ -635,4 +638,113 @@ export function assessmentsBody(
 		decimal_places: normalizeDecimals(decimals),
 		items: items.map((i) => ({ ...i, aggregation: i.aggregation ?? DEFAULT_AGGREGATION }))
 	};
+}
+
+// ===== Ekstrakurikuler =====
+export const EXTRA_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+export const EXTRA_NAME_MIN = 2;
+export const EXTRA_NAME_MAX = 120;
+export const EXTRA_PLACE_MAX = 120;
+/** "HH:MM:SS" (mis. nilai `<input type="time">` ber-step detik) → "HH:MM". */
+const CLOCK_WITH_SECONDS = /^(\d{2}:\d{2}):\d{2}$/;
+
+export interface ExtraForm {
+	name: string;
+	coach_id: string;
+	/** '' = tanpa jadwal; '1'..'6' = Senin..Sabtu. */
+	schedule_day: string;
+	start_time: string;
+	end_time: string;
+	place: string;
+	is_mandatory: boolean;
+}
+
+/** Nilai input apa pun → string ter-trim (angka/undefined dari binding tidak melempar). */
+const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+
+/** Hari ekskul dari select/backend (angka atau string) → '1'..'6', selain itu ''. */
+export function extraDay(v: unknown): string {
+	const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN;
+	return (WEEKDAYS as readonly number[]).includes(n) ? String(n) : '';
+}
+
+/** Jam ekskul dari input/backend → string ter-trim, detik dibuang; non-string → ''. */
+export function extraClock(v: unknown): string {
+	const s = textOf(v);
+	return CLOCK_WITH_SECONDS.exec(s)?.[1] ?? s;
+}
+
+/** Form ekskul dari data backend (null = ekskul baru). */
+export function extraForm(x: SchoolPlanExtra | null | undefined): ExtraForm {
+	return {
+		name: x?.name ?? '',
+		coach_id: x?.coach_id ?? '',
+		schedule_day: extraDay(x?.schedule_day),
+		start_time: extraClock(x?.start_time),
+		end_time: extraClock(x?.end_time),
+		place: x?.place ?? '',
+		is_mandatory: x?.is_mandatory ?? false
+	};
+}
+
+/** Validasi cepat ekskul (cermin `parseExtraAttrs` + nama di backend). */
+export function extraErrors(f: ExtraForm, t: T): Record<string, string> {
+	const e: Record<string, string> = {};
+	const name = textOf(f.name);
+	const start = extraClock(f.start_time);
+	const end = extraClock(f.end_time);
+	if (name.length < EXTRA_NAME_MIN || name.length > EXTRA_NAME_MAX)
+		e.name = t(`${PREFIX}.errors.required`);
+	if (start && !EXTRA_TIME.test(start)) e.start_time = t(`${PREFIX}.errors.time_format`);
+	if (end && !EXTRA_TIME.test(end)) e.end_time = t(`${PREFIX}.errors.time_format`);
+	if (Boolean(start) !== Boolean(end)) e.start_time ??= t(`${PREFIX}.errors.required`);
+	if (!e.start_time && !e.end_time && start && end && end <= start)
+		e.end_time = t(`${PREFIX}.errors.before_start`);
+	if (textOf(f.place).length > EXTRA_PLACE_MAX) e.place = t(`${PREFIX}.errors.too_long`);
+	return e;
+}
+
+/**
+ * Body simpan ekskul. PUT = penggantian penuh: SEMUA atribut selalu dikirim (kosong → `null`,
+ * tidak pernah `undefined` yang hilang saat serialisasi JSON).
+ */
+export function extraBody(f: ExtraForm): SchoolExtraInput {
+	const orNull = (v: string) => v || null;
+	const day = extraDay(f.schedule_day);
+	return {
+		name: textOf(f.name),
+		coach_id: textOf(f.coach_id),
+		schedule_day: day ? Number(day) : null,
+		start_time: orNull(extraClock(f.start_time)),
+		end_time: orNull(extraClock(f.end_time)),
+		place: orNull(textOf(f.place)),
+		is_mandatory: f.is_mandatory === true
+	};
+}
+
+/** Kandidat anggota: murid aktif yang belum menjadi anggota, cocok nama/NIS. */
+export function memberCandidates(
+	students: readonly SchoolStudentRow[],
+	members: readonly { student_id: string }[],
+	query: string
+): SchoolStudentRow[] {
+	const taken = new Set(members.map((m) => m.student_id));
+	const q = textOf(query).toLowerCase();
+	return students.filter(
+		(s) =>
+			s.active &&
+			!taken.has(s.id) &&
+			(!q || s.name.toLowerCase().includes(q) || s.nis.toLowerCase().includes(q))
+	);
+}
+
+/**
+ * Pesan ConfirmDialog hapus ekskul (wizard & halaman Ekskul). Jumlah = anggota tahun ajaran aktif;
+ * backend menghapus keanggotaan SEMUA tahun, jadi teks selalu menyebut riwayat ikut terhapus.
+ */
+export function extraDeleteMessage(t: T, members: number | null | undefined): string {
+	const count = typeof members === 'number' && members > 0 ? members : 0;
+	return count
+		? t(`${PREFIX}.planning.extra_delete_members`, { count })
+		: t(`${PREFIX}.planning.extra_delete_empty`);
 }

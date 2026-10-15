@@ -4488,7 +4488,10 @@
 			"reason_hint": "Required, at least {min} characters; recorded in the change history.",
 			"reason_optional": "Optional on the first save; recorded in the change history.",
 			"reason_short": "Enter a reason of at least {min} characters.",
-			"weight_bar": "Weight composition"
+			"weight_bar": "Weight composition",
+			"extra_delete_title": "Delete {name}?",
+			"extra_delete_members": "This activity has {count} members this year. Membership history from previous years is also deleted and cannot be restored.",
+			"extra_delete_empty": "This activity has no members this year. Membership history from previous years (if any) is also deleted and cannot be restored."
 		},
 		"setup": {
 			"title": "Complete school data",
@@ -4986,6 +4989,42 @@
 			"stat_types": "Assessment types",
 			"stat_total": "Total weight",
 			"stat_decimals": "Rounding"
+		},
+		"extras": {
+			"eyebrow": "ACTIVITIES",
+			"title": "Extracurriculars",
+			"desc": "School extracurricular activities: coach, schedule, place, and members for the active academic year.",
+			"add": "Add activity",
+			"stat_count": "Activities",
+			"stat_members": "Total members",
+			"stat_mandatory": "Mandatory activities",
+			"coach": "Coach: {name}",
+			"no_schedule": "Schedule not set",
+			"members": "{count} members",
+			"mandatory": "MANDATORY",
+			"edit": "Edit",
+			"manage_members": "Members",
+			"empty": "No extracurricular activities yet. Add the school's first activity.",
+			"field_name": "Activity name",
+			"field_coach": "Coach",
+			"field_day": "Day",
+			"field_start": "Start time",
+			"field_end": "End time",
+			"field_place": "Place",
+			"field_mandatory": "Mandatory activity",
+			"mandatory_note": "The mandatory label does not add members automatically.",
+			"members_title": "{name} members",
+			"members_loading": "Loading members…",
+			"members_count": "Active academic year members ({count})",
+			"members_empty": "No members this year yet.",
+			"member_remove": "Remove {name}",
+			"add_class_title": "Add all active students of a class",
+			"add_class": "Add class",
+			"add_students_title": "Add students",
+			"search_students": "Search name or NIS",
+			"no_candidates": "No students available to add.",
+			"add_selected": "Add {count} students",
+			"delete_title": "Delete activity?"
 		}
 	},
 	"payments": {
@@ -6396,6 +6435,20 @@
 				"s1": "Set each type weight until the total is 100%.",
 				"s2": "Choose the aggregation per type and the final grade rounding.",
 				"s3": "Enter a reason if the policy already has weights, then click \"Save weights\"."
+			}
+		},
+		"school_admin_extracurriculars": {
+			"purpose": "This page manages the school's extracurricular activities with their coach, schedule, place, and members for the active academic year.",
+			"features": {
+				"list": "Activity cards: name, coach, day and time, place, mandatory label, and this year's member count.",
+				"edit": "Add or edit an activity: name, coach (teacher), day, start–end time, place, and mandatory label. The mandatory label does not add members automatically.",
+				"members": "Manage members: search and tick active students, add all active students of a class, or remove members.",
+				"delete": "Delete an activity through a confirmation showing this year's member count; membership history from previous years is also deleted."
+			},
+			"steps": {
+				"s1": "Click \"Add activity\", fill in the name and (optionally) coach, schedule, and place, then save.",
+				"s2": "Click \"Members\" on an activity card to add students or a whole class.",
+				"s3": "Click \"Edit\" to update the activity or delete it."
 			}
 		}
 	},

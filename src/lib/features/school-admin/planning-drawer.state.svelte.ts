@@ -12,6 +12,8 @@ import {
 	REASON_MIN,
 	PREFIX,
 	assessmentsBody,
+	extraBody,
+	extraForm,
 	failureMessage,
 	nextObjectiveCode,
 	normalizeDecimals,
@@ -425,7 +427,8 @@ export class PlanningDrawerState {
 		if (
 			await this.call('extraSave', {
 				id: '',
-				data: { name: this.exName.trim(), coach_id: this.exCoach }
+				// Atribut lengkap (jadwal/tempat/wajib kosong) agar bentuk body sama dengan halaman Ekskul.
+				data: extraBody({ ...extraForm(null), name: this.exName, coach_id: this.exCoach })
 			})
 		)
 			this.exName = '';

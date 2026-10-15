@@ -1,11 +1,12 @@
 <!-- Ekstrakurikuler & pembina; dipakai drawer setup & halaman Ekskul. -->
 <script lang="ts">
 	import type { SchoolPlanningView } from '$lib/api/generated/lms';
+	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { useI18n } from '$lib/i18n';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import type { PlanningDrawerState } from '../../planning-drawer.state.svelte';
-	import { PREFIX } from '../../school-admin.model';
+	import { PREFIX, extraDeleteMessage } from '../../school-admin.model';
 
 	interface Props {
 		planner: PlanningDrawerState;
@@ -16,6 +17,9 @@
 	const i18n = useI18n();
 	const t = (k: string, params?: Record<string, string | number>) =>
 		i18n.t(`${PREFIX}.planning.${k}`, params);
+
+	/** Ekskul yang menunggu konfirmasi hapus (anggota = tahun ajaran aktif). */
+	let pendingDelete = $state<{ id: string; name: string; members: number } | null>(null);
 </script>
 
 <div class="border-lms-border flex flex-col rounded-xl border">
@@ -31,7 +35,8 @@
 				aria-label={t('delete')}
 				class="lms-action-ghost lms-focus-ring flex size-7 items-center justify-center rounded-md"
 				disabled={planner.busy}
-				onclick={() => planner.removeExtra(x.id)}><Icon icon={Trash2} size="sm" /></button
+				onclick={() => (pendingDelete = { id: x.id, name: x.name, members: x.member_count ?? 0 })}
+				><Icon icon={Trash2} size="sm" /></button
 			>
 		</div>
 	{:else}<p class="text-lms-muted p-4 text-sm">{t('extras_empty')}</p>{/each}
@@ -57,3 +62,22 @@
 		onclick={() => planner.addExtra()}>{t('extra_add')}</button
 	>
 </div>
+<ConfirmDialog
+	bind:open={
+		() => pendingDelete !== null,
+		(v) => {
+			if (!v) pendingDelete = null;
+		}
+	}
+	tone="danger"
+	icon={Trash2}
+	title={t('extra_delete_title', { name: pendingDelete?.name ?? '' })}
+	message={extraDeleteMessage(i18n.t, pendingDelete?.members)}
+	confirmLabel={i18n.t(`${PREFIX}.common.delete`)}
+	busyLabel={i18n.t(`${PREFIX}.common.deleting`)}
+	cancelLabel={i18n.t(`${PREFIX}.common.cancel`)}
+	onconfirm={async () => {
+		if (pendingDelete) await planner.removeExtra(pendingDelete.id);
+		pendingDelete = null;
+	}}
+/>

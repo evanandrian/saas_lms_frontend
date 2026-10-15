@@ -4488,7 +4488,10 @@
 			"reason_hint": "Wajib, minimal {min} karakter; tercatat di riwayat perubahan.",
 			"reason_optional": "Opsional pada penyimpanan pertama; tercatat di riwayat perubahan.",
 			"reason_short": "Isi alasan perubahan minimal {min} karakter.",
-			"weight_bar": "Komposisi bobot"
+			"weight_bar": "Komposisi bobot",
+			"extra_delete_title": "Hapus {name}?",
+			"extra_delete_members": "Ekskul ini punya {count} anggota tahun ini. Riwayat keanggotaan tahun-tahun sebelumnya juga ikut terhapus dan tidak bisa dikembalikan.",
+			"extra_delete_empty": "Ekskul belum punya anggota tahun ini. Riwayat keanggotaan tahun-tahun sebelumnya (bila ada) ikut terhapus dan tidak bisa dikembalikan."
 		},
 		"setup": {
 			"title": "Lengkapi data sekolah",
@@ -4986,6 +4989,42 @@
 			"stat_types": "Jenis asesmen",
 			"stat_total": "Total bobot",
 			"stat_decimals": "Pembulatan"
+		},
+		"extras": {
+			"eyebrow": "KEGIATAN",
+			"title": "Ekstrakurikuler",
+			"desc": "Kegiatan ekstrakurikuler sekolah: pembina, jadwal, tempat, dan anggota tahun ajaran aktif.",
+			"add": "Tambah ekskul",
+			"stat_count": "Ekskul",
+			"stat_members": "Total anggota",
+			"stat_mandatory": "Ekskul wajib",
+			"coach": "Pembina: {name}",
+			"no_schedule": "Jadwal belum diatur",
+			"members": "{count} anggota",
+			"mandatory": "WAJIB",
+			"edit": "Ubah",
+			"manage_members": "Anggota",
+			"empty": "Belum ada kegiatan ekstrakurikuler. Tambahkan ekskul pertama sekolah.",
+			"field_name": "Nama kegiatan",
+			"field_coach": "Pembina",
+			"field_day": "Hari",
+			"field_start": "Jam mulai",
+			"field_end": "Jam selesai",
+			"field_place": "Tempat",
+			"field_mandatory": "Ekskul wajib",
+			"mandatory_note": "Label wajib tidak menambahkan anggota otomatis.",
+			"members_title": "Anggota {name}",
+			"members_loading": "Memuat anggota…",
+			"members_count": "Anggota tahun ajaran aktif ({count})",
+			"members_empty": "Belum ada anggota tahun ini.",
+			"member_remove": "Keluarkan {name}",
+			"add_class_title": "Tambah seluruh murid aktif satu kelas",
+			"add_class": "Tambah kelas",
+			"add_students_title": "Tambah murid",
+			"search_students": "Cari nama atau NIS",
+			"no_candidates": "Tidak ada murid yang bisa ditambahkan.",
+			"add_selected": "Tambah {count} murid",
+			"delete_title": "Hapus ekskul?"
 		}
 	},
 	"payments": {
@@ -6396,6 +6435,20 @@
 				"s1": "Atur bobot tiap jenis hingga totalnya 100%.",
 				"s2": "Pilih agregasi per jenis dan pembulatan nilai akhir.",
 				"s3": "Isi alasan perubahan bila kebijakan sudah pernah berbobot, lalu klik \"Simpan bobot\"."
+			}
+		},
+		"school_admin_extracurriculars": {
+			"purpose": "Halaman ini untuk mengelola kegiatan ekstrakurikuler sekolah beserta pembina, jadwal, tempat, dan anggotanya pada tahun ajaran aktif.",
+			"features": {
+				"list": "Kartu ekskul: nama, pembina, hari dan jam, tempat, label wajib, serta jumlah anggota tahun ini.",
+				"edit": "Tambah atau ubah ekskul: nama, pembina (guru), hari, jam mulai–selesai, tempat, dan label wajib. Label wajib tidak menambahkan anggota otomatis.",
+				"members": "Kelola anggota: cari dan centang murid aktif, tambah seluruh murid aktif satu kelas, atau keluarkan anggota.",
+				"delete": "Hapus ekskul lewat konfirmasi yang menampilkan jumlah anggota tahun ini; riwayat keanggotaan tahun sebelumnya ikut terhapus."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah ekskul\", isi nama dan (opsional) pembina, jadwal, serta tempat, lalu simpan.",
+				"s2": "Klik \"Anggota\" pada kartu ekskul untuk menambahkan murid atau seluruh kelas.",
+				"s3": "Klik \"Ubah\" untuk memperbarui data ekskul atau menghapusnya."
 			}
 		}
 	},

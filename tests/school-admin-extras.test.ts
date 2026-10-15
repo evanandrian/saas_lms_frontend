@@ -1,0 +1,194 @@
+import { describe, expect, it } from 'vitest';
+import type { SchoolPlanExtra, SchoolStudentRow } from '$lib/api/generated/lms';
+import {
+	extraBody,
+	extraClock,
+	extraDay,
+	extraDeleteMessage,
+	extraErrors,
+	extraForm,
+	memberCandidates,
+	type ExtraForm
+} from '$lib/features/school-admin/school-admin.model';
+
+const t = (k: string) => k;
+const base = {
+	name: 'Pramuka',
+	coach_id: '',
+	schedule_day: '5',
+	start_time: '14:00',
+	end_time: '16:00',
+	place: 'Lapangan',
+	is_mandatory: true
+};
+
+/** Atribut penuh PUT ekskul (penggantian penuh: semua harus selalu dikirim). */
+const EXTRA_KEYS = [
+	'coach_id',
+	'end_time',
+	'is_mandatory',
+	'name',
+	'place',
+	'schedule_day',
+	'start_time'
+];
+
+describe('extraErrors', () => {
+	it('valid → tanpa error', () => expect(extraErrors(base, t)).toEqual({}));
+	it('hanya satu jam diisi → start_time wajib (cermin BE start_time/required)', () =>
+		expect(extraErrors({ ...base, start_time: '' }, t)).toHaveProperty('start_time'));
+	it('jam selesai ≤ mulai & format salah ditolak', () => {
+		expect(extraErrors({ ...base, end_time: '13:00' }, t)).toHaveProperty('end_time');
+		expect(extraErrors({ ...base, start_time: '7.00' }, t)).toHaveProperty('start_time');
+	});
+	it('nama < 2 karakter ditolak', () =>
+		expect(extraErrors({ ...base, name: 'P' }, t)).toHaveProperty('name'));
+	it('nilai input non-string (mis. angka dari select/time) tidak melempar', () => {
+		const odd = { ...base, schedule_day: 5, start_time: undefined } as unknown as ExtraForm;
+		expect(() => extraErrors(odd, t)).not.toThrow();
+		expect(extraErrors(odd, t)).toHaveProperty('start_time');
+	});
+	it('tempat > 120 karakter ditolak', () =>
+		expect(extraErrors({ ...base, place: 'x'.repeat(121) }, t)).toHaveProperty('place'));
+});
+
+describe('extraBody', () => {
+	it('kosong → null; hari jadi angka', () => {
+		expect(
+			extraBody({ ...base, schedule_day: '', start_time: '', end_time: '', place: '' })
+		).toEqual({
+			name: 'Pramuka',
+			coach_id: '',
+			schedule_day: null,
+			start_time: null,
+			end_time: null,
+			place: null,
+			is_mandatory: true
+		});
+		expect(extraBody(base).schedule_day).toBe(5);
+	});
+	it('atribut yang tidak diisi tidak pernah dikirim sebagai undefined → selalu ada', () => {
+		const partial = { name: 'Paskibra' } as unknown as ExtraForm;
+		const body = extraBody(partial);
+		expect(Object.keys(body).sort()).toEqual(EXTRA_KEYS);
+		for (const key of EXTRA_KEYS) expect(body[key as keyof typeof body]).not.toBeUndefined();
+		expect(body).toEqual({
+			name: 'Paskibra',
+			coach_id: '',
+			schedule_day: null,
+			start_time: null,
+			end_time: null,
+			place: null,
+			is_mandatory: false
+		});
+		// Lolos JSON tanpa kehilangan kunci (undefined akan hilang saat serialisasi).
+		expect(Object.keys(JSON.parse(JSON.stringify(body))).sort()).toEqual(EXTRA_KEYS);
+	});
+	it('hari angka (select terikat angka) dan jam ber-detik dinormalisasi', () => {
+		const odd = { ...base, schedule_day: 3, start_time: '14:00:00' } as unknown as ExtraForm;
+		const body = extraBody(odd);
+		expect(body.schedule_day).toBe(3);
+		expect(body.start_time).toBe('14:00');
+	});
+});
+
+describe('extraDay / extraClock', () => {
+	it('extraDay: 1..6 (angka/string) → string; lainnya → kosong', () => {
+		expect(extraDay(1)).toBe('1');
+		expect(extraDay('6')).toBe('6');
+		expect(extraDay(0)).toBe('');
+		expect(extraDay(7)).toBe('');
+		expect(extraDay('abc')).toBe('');
+		expect(extraDay(null)).toBe('');
+		expect(extraDay(undefined)).toBe('');
+	});
+	it('extraClock: potong detik, trim, non-string → kosong', () => {
+		expect(extraClock('14:00:00')).toBe('14:00');
+		expect(extraClock(' 07:30 ')).toBe('07:30');
+		expect(extraClock('7.00')).toBe('7.00');
+		expect(extraClock(null)).toBe('');
+		expect(extraClock(930)).toBe('');
+	});
+});
+
+describe('extraForm', () => {
+	it('tanpa ekskul → form kosong (tidak wajib)', () =>
+		expect(extraForm(null)).toEqual({
+			name: '',
+			coach_id: '',
+			schedule_day: '',
+			start_time: '',
+			end_time: '',
+			place: '',
+			is_mandatory: false
+		}));
+	it('dari ekskul backend: null → kosong, hari → string, jam dinormalisasi', () => {
+		const x: SchoolPlanExtra = {
+			id: 'e1',
+			name: 'Pramuka',
+			coach_id: null,
+			coach_name: '',
+			schedule_day: 5,
+			start_time: '14:00:00',
+			end_time: '16:00',
+			place: null,
+			is_mandatory: true,
+			member_count: 3
+		};
+		expect(extraForm(x)).toEqual({
+			name: 'Pramuka',
+			coach_id: '',
+			schedule_day: '5',
+			start_time: '14:00',
+			end_time: '16:00',
+			place: '',
+			is_mandatory: true
+		});
+		expect(extraBody(extraForm(x))).toEqual({
+			name: 'Pramuka',
+			coach_id: '',
+			schedule_day: 5,
+			start_time: '14:00',
+			end_time: '16:00',
+			place: null,
+			is_mandatory: true
+		});
+	});
+});
+
+describe('memberCandidates', () => {
+	const s = (id: string, name: string, active = true) =>
+		({
+			id,
+			name,
+			nis: id,
+			class_id: 'c',
+			class_name: 'X-A',
+			active
+		}) as unknown as SchoolStudentRow;
+	it('hanya murid aktif yang belum anggota, cocok kueri', () => {
+		const out = memberCandidates(
+			[s('1', 'Andi'), s('2', 'Budi'), s('3', 'Cici', false)],
+			[{ student_id: '2' }],
+			'an'
+		);
+		expect(out.map((x) => x.id)).toEqual(['1']);
+	});
+	it('cocok NIS; kueri kosong → semua kandidat', () => {
+		const list = [s('1001', 'Andi'), s('2002', 'Budi')];
+		expect(memberCandidates(list, [], '200').map((x) => x.id)).toEqual(['2002']);
+		expect(memberCandidates(list, [], '  ').map((x) => x.id)).toEqual(['1001', '2002']);
+	});
+});
+
+describe('extraDeleteMessage', () => {
+	const tp = (k: string, p?: Readonly<Record<string, string | number>>) =>
+		p ? `${k}:${JSON.stringify(p)}` : k;
+	it('ber-anggota → jumlah anggota tahun ini; kosong/null → pesan tanpa jumlah', () => {
+		expect(extraDeleteMessage(tp, 4)).toBe(
+			'school_admin.planning.extra_delete_members:{"count":4}'
+		);
+		expect(extraDeleteMessage(tp, 0)).toBe('school_admin.planning.extra_delete_empty');
+		expect(extraDeleteMessage(tp, null)).toBe('school_admin.planning.extra_delete_empty');
+	});
+});
