@@ -550,7 +550,11 @@ export interface SchoolDashboardView {
  * PUT replaces the whole extracurricular (omitted attributes become null/false).
  */
 export interface SchoolExtraInput {
-	/** Whitespace-collapsed name, 2–120 Unicode code points; otherwise validation_failed {field: "name", code: "required"}. */
+	/**
+	 * Whitespace-collapsed name, counted in Unicode code points (JSON Schema lengths count characters, not bytes or UTF-16 units). Fewer than 2 → validation_failed {field: "name", code: "required"}; more than 120 → validation_failed {field: "name", code: "max_chars:120"}.
+	 * @minLength 2
+	 * @maxLength 120
+	 */
 	name?: string;
 	coach_id?: string;
 	/**
@@ -567,7 +571,7 @@ export interface SchoolExtraInput {
 	/** @nullable */
 	end_time?: string | null;
 	/**
-	 * Counted in Unicode code points; longer → validation_failed {field: "place", code: "too_long"}.
+	 * Whitespace-collapsed, counted in Unicode code points (JSON Schema lengths count characters, not bytes or UTF-16 units); longer → validation_failed {field: "place", code: "max_chars:120"}.
 	 * @maxLength 120
 	 * @nullable
 	 */

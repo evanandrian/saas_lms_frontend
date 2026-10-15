@@ -27,6 +27,7 @@
 		extraForm,
 		failureMessage,
 		inputClass,
+		inputMaxLength,
 		sectionGap,
 		type ExtraForm
 	} from '$lib/features/school-admin/school-admin.model';
@@ -260,7 +261,7 @@
 			>
 				<input
 					id="ex-name"
-					maxlength={EXTRA_NAME_MAX}
+					maxlength={inputMaxLength(EXTRA_NAME_MAX)}
 					class={inputClass(editor.errors.name)}
 					bind:value={form.name}
 					oninput={() => editor.clearError('name')}
@@ -296,7 +297,7 @@
 			<FieldBox label={t('extras.field_place')} for="ex-place" error={editor.errors.place}>
 				<input
 					id="ex-place"
-					maxlength={EXTRA_PLACE_MAX}
+					maxlength={inputMaxLength(EXTRA_PLACE_MAX)}
 					class={inputClass(editor.errors.place)}
 					bind:value={form.place}
 					oninput={() => editor.clearError('place')}

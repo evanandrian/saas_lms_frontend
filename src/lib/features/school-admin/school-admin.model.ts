@@ -146,11 +146,17 @@ export function shiftDate(iso: string, days: number): string {
 
 type Failure = Extract<PageActionOutcome<never>, { ok: false }>;
 
+/**
+ * Nama parameter i18n untuk kode isu ber-parameter; default `value`. `min_chars:<n>`/`max_chars:<n>`
+ * memakai `{min}`/`{max}` agar pesan server sama persis dengan `lengthMessage` di klien.
+ */
+const ISSUE_PARAM: Readonly<Record<string, string>> = { min_chars: 'min', max_chars: 'max' };
+
 /** Kode isu field (`{field, code}`) → pesan; kode dengan parameter memakai format `kode:nilai`. */
 export function issueMessage(t: T, code: string): string {
-	const [base, arg = ''] = code.split(':');
+	const [base = '', arg = ''] = code.split(':');
 	const key = `${PREFIX}.errors.${base}`;
-	const text = t(key, { value: arg });
+	const text = t(key, { [ISSUE_PARAM[base] ?? 'value']: arg });
 	return text === key ? t(`${PREFIX}.errors.generic`) : text;
 }
 
@@ -517,8 +523,11 @@ export const KKTP_MAX = 100;
 export const parseKktp = (raw: string | number | null | undefined): number | null =>
 	intInRange(raw, 0, KKTP_MAX);
 
-/** Kode masalah validasi mapel; dipetakan lewat `subjectIssueMessage` (atau pesan ringkas wizard). */
-export type SubjectIssue = 'code_invalid' | 'code_taken' | LengthIssue;
+/**
+ * Kode masalah validasi mapel; dipetakan lewat `subjectIssueMessage` (atau pesan ringkas wizard).
+ * Nama mapel tidak berbatas atas (cermin backend), jadi tidak ada `too_long`.
+ */
+export type SubjectIssue = 'code_invalid' | 'code_taken' | 'required' | 'too_short';
 
 /**
  * Validasi cepat tambah/ubah mapel, dipakai wizard setup & halaman Mapel (cermin `SaveSubjects`
@@ -536,14 +545,13 @@ export function subjectIssues(
 		else if (existing.includes(code)) issues.code = 'code_taken';
 	}
 	const name = lengthIssue(f.name, SUBJECT_NAME_MIN);
-	if (name) issues.name = name;
+	if (name === 'required' || name === 'too_short') issues.name = name;
 	return issues;
 }
 
 /** Pesan masalah mapel; sama dengan pesan isu backend (`code_taken`, `code_invalid`, `required`). */
 export function subjectIssueMessage(t: T, issue: SubjectIssue): string {
-	if (issue === 'too_short' || issue === 'too_long')
-		return lengthMessage(t, issue, SUBJECT_NAME_MIN);
+	if (issue === 'too_short') return lengthMessage(t, issue, SUBJECT_NAME_MIN);
 	return t(`${PREFIX}.errors.${issue}`);
 }
 
@@ -704,6 +712,15 @@ export const EXTRA_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 export const EXTRA_NAME_MIN = 2;
 export const EXTRA_NAME_MAX = 120;
 export const EXTRA_PLACE_MAX = 120;
+/** Satu code point Unicode = maksimal 2 unit UTF-16 (pasangan surrogate, mis. emoji). */
+const UTF16_UNITS_PER_CODE_POINT = 2;
+/**
+ * `maxlength` HTML menghitung unit UTF-16, bukan code point: batas keras input = 2 × batas code point
+ * agar nama sah (mis. 120 emoji) tidak terpotong. Batas sebenarnya tetap divalidasi `charCount` →
+ * pesan `max_chars` yang spesifik.
+ */
+export const inputMaxLength = (maxCodePoints: number): number =>
+	maxCodePoints * UTF16_UNITS_PER_CODE_POINT;
 /** "HH:MM:SS" (mis. nilai `<input type="time">` ber-step detik) → "HH:MM". */
 const CLOCK_WITH_SECONDS = /^(\d{2}:\d{2}):\d{2}$/;
 

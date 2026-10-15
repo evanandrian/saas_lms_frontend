@@ -5,14 +5,22 @@
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { useI18n } from '$lib/i18n';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import { onMount } from 'svelte';
 	import type { PlanningDrawerState } from '../../planning-drawer.state.svelte';
-	import { EXTRA_NAME_MAX, PREFIX, extraDeleteMessage } from '../../school-admin.model';
+	import {
+		EXTRA_NAME_MAX,
+		PREFIX,
+		extraDeleteMessage,
+		inputMaxLength
+	} from '../../school-admin.model';
 
 	interface Props {
 		planner: PlanningDrawerState;
 		planning: SchoolPlanningView;
 	}
 	let { planner, planning }: Props = $props();
+	// Bagian dibuka (ulang): error nama dari kunjungan sebelumnya tidak boleh tetap tampil.
+	onMount(() => planner.resetExtraError());
 	const uid = $props.id();
 	const nameErrorId = `${uid}-extra-name-error`;
 
@@ -50,7 +58,7 @@
 			: 'border-lms-input-border'}"
 		aria-label={t('extra_ph')}
 		placeholder={t('extra_ph')}
-		maxlength={EXTRA_NAME_MAX}
+		maxlength={inputMaxLength(EXTRA_NAME_MAX)}
 		aria-invalid={planner.exNameError ? 'true' : undefined}
 		aria-describedby={planner.exNameError ? nameErrorId : undefined}
 		bind:value={planner.exName}

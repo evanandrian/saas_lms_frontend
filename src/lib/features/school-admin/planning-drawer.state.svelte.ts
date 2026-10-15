@@ -442,6 +442,11 @@ export class PlanningDrawerState {
 			this.objDesc = '';
 	}
 
+	/** Bagian ekskul dibuka (ulang): buang pesan error nama dari kunjungan sebelumnya. */
+	resetExtraError() {
+		this.exNameError = '';
+	}
+
 	async addExtra() {
 		// Atribut lengkap (jadwal/tempat/wajib kosong) agar body & validasi sama dengan halaman Ekskul.
 		const form = { ...extraForm(null), name: this.exName, coach_id: this.exCoach };

@@ -582,6 +582,22 @@ describe('PlanningDrawerState', () => {
 		expect(action).not.toHaveBeenCalled();
 	});
 
+	it('error nama ekskul di-reset saat bagian ekskul dibuka ulang', async () => {
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1),
+			key: () => 'extras',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		});
+		state.exName = 'P';
+		await state.addExtra();
+		expect(state.exNameError).not.toBe('');
+		state.resetExtraError();
+		expect(state.exNameError).toBe('');
+		expect(action).not.toHaveBeenCalled();
+	});
+
 	it('kode TP berikutnya = max+1 mapel×tingkat terpilih (cermin BE, tahan celah hapus)', () => {
 		const objective = (id: string, code: string, subject = 's1', grade = 'g1') => ({
 			id,

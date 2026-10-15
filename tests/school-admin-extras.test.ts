@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { SchoolPlanExtra, SchoolStudentRow } from '$lib/api/generated/lms';
 import {
+	EXTRA_NAME_MAX,
+	EXTRA_PLACE_MAX,
+	charCount,
 	extraBody,
 	extraClock,
 	extraDay,
@@ -8,6 +11,8 @@ import {
 	extraErrors,
 	extraForm,
 	emptyPicks,
+	inputMaxLength,
+	issueMessage,
 	memberCandidates,
 	pickedIds,
 	picksFor,
@@ -72,6 +77,50 @@ describe('extraErrors', () => {
 	});
 	it('tempat > 120 karakter ditolak', () =>
 		expect(extraErrors({ ...base, place: 'x'.repeat(121) }, t)).toHaveProperty('place'));
+});
+
+describe('batas panjang input ekskul (maxlength UTF-16 vs code point)', () => {
+	const tp = (k: string, p?: Readonly<Record<string, string | number>>) =>
+		p ? `${k}${JSON.stringify(p)}` : k;
+	const maxMessage = 'school_admin.errors.max_chars{"max":120}';
+
+	it('maxlength input ≥ panjang UTF-16 nama/tempat 120 emoji (tidak memotong nilai sah)', () => {
+		const name = '😀'.repeat(EXTRA_NAME_MAX);
+		const place = '🏟'.repeat(EXTRA_PLACE_MAX);
+		expect(name.length).toBe(240); // unit UTF-16
+		expect(charCount(name)).toBe(120); // code point
+		expect(inputMaxLength(EXTRA_NAME_MAX)).toBeGreaterThanOrEqual(name.length);
+		expect(inputMaxLength(EXTRA_PLACE_MAX)).toBeGreaterThanOrEqual(place.length);
+	});
+
+	it('120 emoji diterima, 121 ditolak lewat validator (pesan max_chars spesifik)', () => {
+		expect(extraErrors({ ...base, name: '😀'.repeat(120) }, tp)).not.toHaveProperty('name');
+		expect(extraErrors({ ...base, name: '😀'.repeat(121) }, tp).name).toBe(maxMessage);
+		// 121–240 karakter BMP masih bisa diketik (di bawah maxlength) → validator yang menolak.
+		const ascii = 'x'.repeat(EXTRA_NAME_MAX + 1);
+		expect(ascii.length).toBeLessThanOrEqual(inputMaxLength(EXTRA_NAME_MAX));
+		expect(extraErrors({ ...base, name: ascii }, tp).name).toBe(maxMessage);
+		expect(extraErrors({ ...base, place: ascii }, tp).place).toBe(maxMessage);
+	});
+
+	it('isu server max_chars:120 (nama/tempat) = pesan klien yang sama', () => {
+		// Parameter dirender sebagai teks (seperti i18n): server "120" ≡ klien 120.
+		const render = (k: string, p?: Readonly<Record<string, string | number>>) =>
+			`${k}|${Object.entries(p ?? {})
+				.map(([n, v]) => `${n}=${v}`)
+				.join(',')}`;
+		expect(issueMessage(render, 'max_chars:120')).toBe('school_admin.errors.max_chars|max=120');
+		expect(issueMessage(render, 'max_chars:120')).toBe(
+			extraErrors({ ...base, place: 'x'.repeat(121) }, render).place
+		);
+		expect(issueMessage(render, 'max_chars:120')).toBe(
+			extraErrors({ ...base, name: 'x'.repeat(121) }, render).name
+		);
+		// Parameter kode lain tetap `{value}`.
+		expect(issueMessage(tp, 'schedule_clash:Budi')).toBe(
+			'school_admin.errors.schedule_clash{"value":"Budi"}'
+		);
+	});
 });
 
 describe('extraBody', () => {

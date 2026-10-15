@@ -162,6 +162,9 @@ describe('panjang teks (code point Unicode)', () => {
 		expect(subjectIssueMessage(t, 'required')).toBe('school_admin.errors.required');
 		expect(subjectIssueMessage(t, 'code_taken')).toBe('school_admin.errors.code_taken');
 		expect(subjectIssueMessage(t, 'code_invalid')).toBe('school_admin.errors.code_invalid');
+		// Nama mapel tanpa batas atas: `too_long` bukan SubjectIssue (tidak ada "Maksimal Infinity").
+		// @ts-expect-error — 'too_long' sengaja tidak termasuk tipe SubjectIssue.
+		expect(subjectIssueMessage(t, 'too_long')).not.toMatch(/Infinity/);
 	});
 	it('isu server code_taken (BE SaveSubjects) = pesan validasi klien yang sama (id & en)', () => {
 		for (const dict of [id, en]) {
@@ -176,6 +179,9 @@ describe('panjang teks (code point Unicode)', () => {
 			expect(issueMessage(real, 'code_taken')).not.toBe(real('school_admin.errors.generic'));
 			expect(subjectIssueMessage(real, 'too_short')).toMatch(/2/);
 			expect(lengthMessage(real, 'too_long', 2, 120)).toMatch(/120/);
+			// Isu server ekskul `max_chars:120` (nama/tempat) = pesan klien `lengthMessage` (satu sumber).
+			expect(issueMessage(real, 'max_chars:120')).toBe(lengthMessage(real, 'too_long', 2, 120));
+			expect(issueMessage(real, 'max_chars:120')).not.toMatch(/\{max\}/);
 		}
 	});
 });
