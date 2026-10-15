@@ -1,8 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
 	NAVIGATION_BADGES,
 	NAVIGATION_ICON_KEYS,
+	NAVIGATION_ROLES,
 	splitRoute,
 	toWorkspaceNav,
 	validateTree,
@@ -202,5 +204,27 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 	it('principal & homeroom tersedia', () => {
 		expect(defaultNavigationLayout('principal').groups[0]!.items).toHaveLength(10);
 		expect(defaultNavigationLayout('homeroom').groups[0]!.items).toHaveLength(11);
+	});
+});
+
+describe('editor Menu & navigasi', () => {
+	it('7 area berurutan seperti backend Roles', () => {
+		expect(NAVIGATION_ROLES.map((r) => r.key)).toEqual([
+			'platform',
+			'school_admin',
+			'principal',
+			'teacher',
+			'homeroom',
+			'student',
+			'guardian'
+		]);
+	});
+
+	it('label area & badge tersedia di semua locale', () => {
+		for (const locale of ['id', 'en']) {
+			const messages = JSON.parse(readFileSync(`src/lib/i18n/${locale}.json`, 'utf8'));
+			for (const { key } of NAVIGATION_ROLES) expect(messages.navigation.roles[key]).toBeTruthy();
+			for (const badge of NAVIGATION_BADGES) expect(messages.navigation.badges[badge]).toBeTruthy();
+		}
 	});
 });

@@ -1053,7 +1053,9 @@
 		"roles": {
 			"platform": "Platform",
 			"school_admin": "Admin sekolah",
-			"teacher": "Guru",
+			"principal": "Kepala sekolah",
+			"teacher": "Guru mapel",
+			"homeroom": "Wali kelas",
 			"student": "Murid",
 			"guardian": "Orang tua"
 		},
@@ -1118,6 +1120,7 @@
 		"badges": {
 			"none": "Tidak ada",
 			"apps": "Pengajuan menunggu",
+			"approvals": "Persetujuan menunggu",
 			"tasks": "Tugas belum dinilai",
 			"msgs": "Pesan belum dibaca",
 			"due": "Tenggat dekat"

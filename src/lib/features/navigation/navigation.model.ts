@@ -71,7 +71,9 @@ export type {
 export const NAVIGATION_ROLES: readonly { key: NavigationRole; accent: string }[] = [
 	{ key: 'platform', accent: '#4169E1' },
 	{ key: 'school_admin', accent: '#0B7F82' },
+	{ key: 'principal', accent: '#7A3E9D' },
 	{ key: 'teacher', accent: '#A8620A' },
+	{ key: 'homeroom', accent: '#B4532A' },
 	{ key: 'student', accent: '#6D4AE0' },
 	{ key: 'guardian', accent: '#2A8A5D' }
 ];

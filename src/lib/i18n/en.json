@@ -1053,7 +1053,9 @@
 		"roles": {
 			"platform": "Platform",
 			"school_admin": "School admin",
-			"teacher": "Teacher",
+			"principal": "Principal",
+			"teacher": "Subject teacher",
+			"homeroom": "Homeroom teacher",
 			"student": "Student",
 			"guardian": "Parent"
 		},
@@ -1118,6 +1120,7 @@
 		"badges": {
 			"none": "None",
 			"apps": "Pending applications",
+			"approvals": "Pending approvals",
 			"tasks": "Ungraded tasks",
 			"msgs": "Unread messages",
 			"due": "Due soon"
