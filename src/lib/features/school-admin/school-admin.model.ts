@@ -1,4 +1,10 @@
-import type { SchoolRemindOutcome, SchoolReportRemindInput } from '$lib/api/generated/lms';
+import {
+	GetSchoolAuditCategory,
+	SchoolAuditActorRole,
+	type SchoolRemindOutcome,
+	type SchoolReportRemindInput
+} from '$lib/api/generated/lms';
+import type { BackendIssue } from '$lib/api/backend-call';
 import { formatNumber } from '$lib/utils/format';
 import { initialsOf } from '$lib/utils/initials';
 import type { PageActionOutcome } from '$lib/utils/page-action';
@@ -336,4 +342,84 @@ export function remindBody(
 ): SchoolReportRemindInput {
 	const text = message.trim().slice(0, REMIND_MESSAGE_MAX);
 	return { ...(text ? { message: text } : {}), recipient_ids: [...recipientIds] };
+}
+
+// ===== Riwayat perubahan (audit) =====
+
+/** Kategori riwayat dari kontrak backend (urutan tab). */
+export const AUDIT_CATEGORIES = Object.values(GetSchoolAuditCategory);
+export type AuditCategory = (typeof AUDIT_CATEGORIES)[number];
+/** Peran pelaku untuk filter & kolom riwayat (kontrak backend). */
+export const AUDIT_ACTOR_ROLES = Object.values(SchoolAuditActorRole);
+export type AuditActorRole = (typeof AUDIT_ACTOR_ROLES)[number];
+/** Batas kata kunci pencarian riwayat (cermin OpenAPI `q` maxLength). */
+export const AUDIT_QUERY_MAX = 100;
+/** Rentang ekspor CSV maksimal, inklusif (cermin backend `auditExportMaxDays`). */
+export const AUDIT_EXPORT_MAX_DAYS = 90;
+/** Query halaman riwayat berisi kode galat ekspor dari proxy `/app/admin/audit/export`. */
+export const AUDIT_EXPORT_ERROR_PARAM = 'export_error';
+const AUDIT_EXPORT_FALLBACK_CODE = 'internal_error';
+const SAFE_ERROR_CODE = /^[a-z0-9_]{1,64}$/;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const MS_PER_DAY = 86_400_000;
+
+export interface AuditFilter {
+	category: AuditCategory | '';
+	from: string;
+	to: string;
+	q: string;
+	actorRole: AuditActorRole | '';
+}
+
+/** Query ekspor CSV riwayat — hanya filter yang terisi. */
+export function auditExportQuery(filter: AuditFilter): URLSearchParams {
+	const query = new URLSearchParams();
+	if (filter.category) query.set('category', filter.category);
+	if (filter.from) query.set('from', filter.from);
+	if (filter.to) query.set('to', filter.to);
+	const q = filter.q.trim().slice(0, AUDIT_QUERY_MAX);
+	if (q) query.set('q', q);
+	if (filter.actorRole) query.set('actor_role', filter.actorRole);
+	return query;
+}
+
+/** Tanggal lokal perangkat (YYYY-MM-DD). */
+export function localIsoDate(date = new Date()): string {
+	const pad = (n: number) => String(n).padStart(2, '0');
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/** Hari kalender sejak epoch (UTC) agar selisih tidak terpengaruh DST; tanggal rusak → NaN. */
+const epochDay = (iso: string) =>
+	ISO_DATE.test(iso) ? Date.parse(`${iso}T00:00:00Z`) / MS_PER_DAY : NaN;
+
+/**
+ * Cermin `auditExportRange` backend: `to` kosong = hari ini, `from` kosong = 89 hari sebelum `to`;
+ * valid bila from ≤ to dan rentang inklusif ≤ 90 hari. Backend tetap memvalidasi (zona sekolah).
+ */
+export function auditExportRangeValid(from: string, to: string, today: string): boolean {
+	const end = epochDay(to || today);
+	const start = from ? epochDay(from) : end - (AUDIT_EXPORT_MAX_DAYS - 1);
+	if (Number.isNaN(start) || Number.isNaN(end)) return false;
+	return start <= end && end - start < AUDIT_EXPORT_MAX_DAYS;
+}
+
+/** Kode galat ekspor untuk query halaman: isu field pertama, lalu kode error; hanya karakter aman. */
+export function auditExportErrorCode(failure: { code: string; issues: readonly BackendIssue[] }) {
+	const code = failure.issues[0]?.code || failure.code;
+	return SAFE_ERROR_CODE.test(code) ? code : AUDIT_EXPORT_FALLBACK_CODE;
+}
+
+/** Pesan Toast galat ekspor: `errors.<kode>` bila ada, selain itu pesan ekspor umum. */
+export function auditExportErrorMessage(t: T, code: string): string {
+	const key = `${PREFIX}.errors.${code}`;
+	const text = t(key);
+	return text === key ? t(`${PREFIX}.audit.export_failed`) : text;
+}
+
+/** Label peran pelaku; peran di luar kontrak (mis. EVENT_ORGANIZER) → "Lainnya", bukan "Sistem". */
+export function auditRoleLabel(t: T, role: string): string {
+	return AUDIT_ACTOR_ROLES.includes(role as AuditActorRole)
+		? t(`${PREFIX}.audit.role.${role}`)
+		: t(`${PREFIX}.audit.role.other`);
 }

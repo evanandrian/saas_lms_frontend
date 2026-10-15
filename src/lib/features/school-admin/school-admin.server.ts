@@ -1,4 +1,5 @@
 import {
+	backendFailure,
 	relayFile,
 	type BackendContext,
 	type BackendFailure,
@@ -32,7 +33,17 @@ import { APP_PATHS } from '$lib/utils/app-paths';
 import { fail, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import * as api from './school-admin.api';
 import type { ImportKind, InviteKind } from './school-admin.api';
-import { PROGRESS_DEPENDENCY_KEY } from './school-admin.model';
+import {
+	AUDIT_ACTOR_ROLES,
+	AUDIT_CATEGORIES,
+	AUDIT_EXPORT_ERROR_PARAM,
+	AUDIT_QUERY_MAX,
+	PROGRESS_DEPENDENCY_KEY,
+	auditExportErrorCode,
+	auditExportQuery,
+	type AuditActorRole,
+	type AuditCategory
+} from './school-admin.model';
 
 /**
  * Load & form action Admin Sekolah. Aksi dipanggil lewat `runPageAction` (`?/<nama>`, body JSON);
@@ -283,14 +294,28 @@ export const homeroomReportActions: Actions = {
 	submit: action((ctx) => api.submitReport(ctx))
 };
 
-/** Riwayat perubahan: muat halaman berikutnya / filter. */
+type AuditBody = {
+	category?: string;
+	from?: string;
+	to?: string;
+	q?: string;
+	actorRole?: string;
+	before?: string;
+};
+const asCategory = (v: unknown) =>
+	AUDIT_CATEGORIES.includes(v as AuditCategory) ? (v as AuditCategory) : undefined;
+const asActorRole = (v: unknown) =>
+	AUDIT_ACTOR_ROLES.includes(v as AuditActorRole) ? (v as AuditActorRole) : undefined;
+
+/** Riwayat perubahan: muat halaman berikutnya / filter / cari. */
 export const auditActions: Actions = {
-	list: action<{ category?: string; from?: string; to?: string; before?: string }>((ctx, b) =>
+	list: action<AuditBody>((ctx, b) =>
 		api.fetchAudit(ctx, {
-			category: (b.category || undefined) as
-				'person' | 'guardian' | 'account' | 'report' | undefined,
+			category: asCategory(b.category),
 			from: b.from || undefined,
 			to: b.to || undefined,
+			q: typeof b.q === 'string' && b.q.trim() ? b.q.trim().slice(0, AUDIT_QUERY_MAX) : undefined,
+			actor_role: asActorRole(b.actorRole),
 			before: b.before || undefined
 		})
 	)
@@ -390,6 +415,31 @@ export async function proxyReportPdf(event: RequestEvent, classId: string, stude
 export async function proxyLearnerReportPdf(event: RequestEvent, reportId: string) {
 	if (!validId(reportId)) return new Response('Not found', { status: 404 });
 	return relayFile(await api.fetchLearnerReportPdf(context(event), reportId));
+}
+
+/**
+ * Unduh CSV riwayat (backend mencatat `export.audit_log`); token tetap di cookie HttpOnly.
+ * Galat backend (non-2xx, JSON sebelum byte CSV pertama) tidak diteruskan sebagai berkas: kembali ke
+ * halaman riwayat dengan `?export_error=<kode>` agar halaman menampilkan Toast i18n (PF7).
+ */
+export async function proxyAuditExport(event: RequestEvent) {
+	const p = event.url.searchParams;
+	const query = auditExportQuery({
+		category: asCategory(p.get('category')) ?? '',
+		from: p.get('from') ?? '',
+		to: p.get('to') ?? '',
+		q: p.get('q') ?? '',
+		actorRole: asActorRole(p.get('actor_role')) ?? ''
+	});
+	const upstream = await api.fetchAuditExport(context(event), query);
+	if (upstream?.ok) return relayFile(upstream);
+	const code = upstream
+		? auditExportErrorCode(backendFailure(upstream.status, await upstream.json().catch(() => null)))
+		: 'unauthenticated';
+	redirect(
+		303,
+		`${APP_PATHS.SCHOOL_ADMIN_AUDIT}?${new URLSearchParams({ [AUDIT_EXPORT_ERROR_PARAM]: code })}`
+	);
 }
 
 export async function proxyLogo(event: RequestEvent) {

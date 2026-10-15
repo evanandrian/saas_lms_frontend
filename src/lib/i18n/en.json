@@ -4759,22 +4759,41 @@
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",
 			"title": "Change history",
-			"desc": "A trail of important school changes: deleted and deactivated records, account invitations, and report card workflow.",
+			"desc": "A trail of important school changes: teachers, students, guardians, years, classes, academic planning, invitations, reminders, report cards, and exports.",
 			"category_label": "History category",
 			"category": {
 				"all": "All",
 				"person": "Teachers & students",
 				"guardian": "Guardians",
 				"account": "Account invitations",
-				"report": "Report cards"
+				"report": "Report cards",
+				"academic": "Years & classes",
+				"planning": "Academic planning",
+				"reminder": "Reminders",
+				"export": "Data exports"
 			},
 			"from": "From date",
 			"to": "To date",
 			"reset": "Reset filters",
 			"range_invalid": "The start date cannot be after the end date.",
-			"today": "Today",
-			"yesterday": "Yesterday",
-			"by": "By {actor} · {time}",
+			"search": "Search",
+			"search_placeholder": "Search action, actor, or record…",
+			"role_label": "Actor role",
+			"role_all": "All roles",
+			"export": "Export CSV",
+			"export_failed": "The history could not be exported. Try again shortly.",
+			"head_time": "TIME",
+			"head_actor": "ACTOR",
+			"head_role": "ROLE",
+			"head_action": "ACTION",
+			"role": {
+				"SCHOOL_ADMIN": "School admin",
+				"PRINCIPAL": "Principal",
+				"TEACHER": "Subject teacher",
+				"HOMEROOM_TEACHER": "Homeroom teacher",
+				"SYSTEM": "System",
+				"other": "Other"
+			},
 			"system": "System",
 			"load_more": "Load more",
 			"loading": "Loading…",
@@ -4812,7 +4831,54 @@
 					"return": "Returned report cards for class {subject} for revision",
 					"lock": "Locked report cards for class {subject}",
 					"unlock": "Unlocked report cards for class {subject}",
-					"notify_failed": "Report card notification for class {subject} failed to send"
+					"notify_failed": "Report card notification for class {subject} failed to send",
+					"remind": "Sent report card reminder {subject}"
+				},
+				"academic_year": {
+					"create": "Added academic year {subject}",
+					"update": "Updated academic year {subject}",
+					"delete": "Deleted academic year {subject}"
+				},
+				"class": {
+					"create": "Added class {subject}",
+					"update": "Updated class {subject}",
+					"delete": "Deleted class {subject}"
+				},
+				"planning": {
+					"homeroom": {
+						"save": "Assigned homeroom teacher {subject}",
+						"delete": "Removed homeroom teacher {subject}"
+					},
+					"assignment": {
+						"save": "Saved teaching assignment {subject}",
+						"delete": "Deleted teaching assignment {subject}"
+					},
+					"objective": {
+						"save": "Saved learning objective {subject}",
+						"delete": "Deleted learning objective {subject}"
+					},
+					"assessment": {
+						"save": "Saved assessment types & weights",
+						"delete": "Deleted assessment type {subject}"
+					},
+					"period": {
+						"save": "Saved lesson periods",
+						"delete": "Deleted lesson period {subject}"
+					},
+					"schedule": {
+						"save": "Updated schedule {subject}",
+						"delete": "Deleted schedule {subject}"
+					},
+					"extra": {
+						"save": "Saved extracurricular {subject}",
+						"delete": "Deleted extracurricular {subject}"
+					}
+				},
+				"attendance": {
+					"remind": "Sent attendance reminder {subject}"
+				},
+				"export": {
+					"audit_log": "Exported change history"
 				},
 				"generic": "Activity {action} on {subject}"
 			},
@@ -5439,16 +5505,17 @@
 		"school_admin_audit": {
 			"purpose": "This page shows a trail of important school changes, such as deleted and deactivated records, account invitations, and the report card workflow. Use it to trace who did what and when.",
 			"features": {
-				"timeline": "View change history newest first, grouped by day, with the actor and time.",
+				"timeline": "View change history newest first in a table with time, actor, role, and action.",
 				"category": "Filter history by category: teachers & students, guardians, account invitations, or report cards.",
 				"range": "Filter history by date range.",
 				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
-				"more": "Load older history step by step."
+				"more": "Load older history step by step.",
+				"search_export": "Search by keyword, filter by actor role, and export the filtered history to CSV (up to a 90-day range)."
 			},
 			"steps": {
 				"s1": "Select a category tab, for example \"Account invitations\" or \"Report cards\".",
 				"s2": "Fill in \"From date\" and \"To date\" to limit the time range.",
-				"s3": "Read each entry along with its actor and time on the \"By …\" line.",
+				"s3": "Read each table row: time, actor, role, and the action with its details.",
 				"s4": "Click \"Load more\" to see older history.",
 				"s5": "Click \"Reset filters\" to show all history again."
 			},

@@ -319,6 +319,9 @@ export const fetchInviteJob = (ctx: Ctx, jobId: string) =>
 	callBackend<SchoolInviteJob>(ctx, (init) => getSchoolInviteJob(jobId, init));
 export const fetchAudit = (ctx: Ctx, params: GetSchoolAuditParams) =>
 	callBackend<SchoolAuditView>(ctx, (init) => getSchoolAudit(params, init));
+/** CSV riwayat (stream); dibaca mentah karena generated client mem-parse JSON. */
+export const fetchAuditExport = (ctx: Ctx, query: URLSearchParams) =>
+	fetchBackendFile(ctx, `/api/v1/school/audit/export?${query}`);
 export const fetchSubscription = (ctx: Ctx) =>
 	callBackend<SchoolSubscriptionView>(ctx, (init) => getSchoolSubscription(init));
 export const fetchActivation = (ctx: Ctx) =>
