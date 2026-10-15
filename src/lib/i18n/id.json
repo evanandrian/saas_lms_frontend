@@ -591,7 +591,8 @@
 			"grades_filled": "Nilai terisi {percent}%",
 			"final_score": "Nilai akhir",
 			"final_score_code": "NA",
-			"score_empty": "Belum diisi"
+			"score_empty": "Belum diisi",
+			"period_label": "Jam ke-{n}"
 		},
 		"student": {
 			"mission": "MISI HARI INI",

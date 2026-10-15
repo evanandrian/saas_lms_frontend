@@ -10,11 +10,13 @@ import {
 /** Dashboard guru dari data asli (backend `GET /api/v1/dashboards/teacher`), tanpa data contoh. */
 const LABELS = {
 	status: { done: 'Selesai', open: 'Berlangsung', next: 'Berikutnya', later: 'Terjadwal' },
+	period: (n: number) => `Jam ke-${n}`,
 	finalScoreCode: 'NA',
 	finalScoreName: 'Nilai akhir'
 };
 const lesson = (id: string, start: number, end: number) => ({
 	id,
+	period_no: 2,
 	start_minutes: start,
 	end_minutes: end,
 	subject: 'Matematika',
@@ -65,7 +67,8 @@ describe('teacher dashboard (data asli)', () => {
 		expect(model.agenda[0]).toMatchObject({
 			kind: 'open',
 			statusLabel: 'Berlangsung',
-			meta: 'X-A'
+			title: 'Matematika · X-A',
+			meta: 'Jam ke-2'
 		});
 		expect(model.gradebook[0]).toMatchObject({
 			name: 'X-A · Matematika',

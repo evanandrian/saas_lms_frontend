@@ -200,6 +200,7 @@ export interface TeacherApiData {
 	readonly agenda?:
 		| readonly {
 				readonly id: string;
+				readonly period_no: number;
 				readonly start_minutes: number;
 				readonly end_minutes: number;
 				readonly subject: string;
@@ -221,6 +222,8 @@ export interface TeacherApiData {
 
 export interface TeacherApiLabels {
 	readonly status: Record<AgendaKind, string>;
+	/** Label jam pelajaran, mis. `n => "Jam ke-" + n`. */
+	readonly period: (periodNo: number) => string;
 	readonly finalScoreCode: string;
 	readonly finalScoreName: string;
 }
@@ -283,8 +286,9 @@ export function teacherDashboardFromApi(
 				id: lesson.id,
 				startMinutes: lesson.startMinutes,
 				endMinutes: lesson.endMinutes,
-				title: lesson.subject,
-				meta: lesson.class_name,
+				// Kelas di judul: kartu jam pelajaran pendek menyembunyikan baris detail.
+				title: `${lesson.subject} · ${lesson.class_name}`,
+				meta: labels.period(lesson.period_no),
 				statusLabel: labels.status[kind],
 				kind
 			};

@@ -591,7 +591,8 @@
 			"grades_filled": "Grades filled {percent}%",
 			"final_score": "Final score",
 			"final_score_code": "FS",
-			"score_empty": "Not filled yet"
+			"score_empty": "Not filled yet",
+			"period_label": "Period {n}"
 		},
 		"student": {
 			"mission": "TODAY'S MISSION",

@@ -49,6 +49,8 @@ export const load: PageServerLoad = async (event) => {
 			status: Object.fromEntries(
 				AGENDA_KINDS.map((kind) => [kind, t(`agenda_status_${kind}`)])
 			) as Record<AgendaKind, string>,
+			period: (periodNo) =>
+				translate(DEFAULT_LOCALE, 'dashboard.teacher.period_label', { n: periodNo }),
 			finalScoreCode: t('final_score_code'),
 			finalScoreName: t('final_score')
 		});
