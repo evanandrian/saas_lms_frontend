@@ -574,18 +574,19 @@ export const EXAMPLE_SCORES = [78, 72, 80, 85, 75] as const;
 export const exampleSample = (codes: readonly string[]): Record<string, number> =>
 	Object.fromEntries(codes.map((c, i) => [c, EXAMPLE_SCORES[i % EXAMPLE_SCORES.length]!]));
 
-/** Pembulatan half-up (BR-31) pada `decimals` digit. */
-export function roundHalfUp(value: number, decimals: number): number {
-	const factor = 10 ** decimals;
-	return Math.round((value + Number.EPSILON) * factor) / factor;
-}
+/** Bobot sah = bilangan bulat 0–100 (kontrak `weight` integer). */
+export const weightValid = (raw: string | number | null | undefined): boolean => {
+	if (raw === null || raw === undefined || (typeof raw === 'string' && !raw.trim())) return false;
+	const value = Number(raw);
+	return Number.isInteger(value) && value >= 0 && value <= PERCENT;
+};
 
-/** Bobot dari input number Svelte (number | null) atau string: bilangan 0–100, selain itu 0. */
+/** Bobot untuk perhitungan: dibulatkan ke bilangan bulat, dijepit 0–100; kosong/bukan angka → 0. */
 export function normalizeWeight(raw: string | number | null | undefined): number {
 	if (raw === null || raw === undefined || (typeof raw === 'string' && !raw.trim())) return 0;
 	const value = Number(raw);
 	if (!Number.isFinite(value)) return 0;
-	return Math.min(PERCENT, Math.max(0, value));
+	return Math.min(PERCENT, Math.max(0, Math.round(value)));
 }
 
 /** Digit pembulatan dari select/input; di luar opsi → 0. */
@@ -594,7 +595,12 @@ export function normalizeDecimals(raw: string | number | null | undefined): numb
 	return (DECIMAL_OPTIONS as readonly number[]).includes(value) ? value : 0;
 }
 
-/** Contoh perhitungan bobot untuk pengguna (bukan perhitungan nilai resmi). */
+const SCORE_SCALE = 100;
+
+/**
+ * Contoh perhitungan bobot (bukan nilai resmi). Half-up (BR-31) dengan aritmetika bilangan bulat:
+ * skor diskalakan ke perseratus, bobot bulat, sehingga tidak ada galat floating point.
+ */
 export function weightExample(
 	items: readonly { code: string; weight: number }[],
 	sample: Readonly<Record<string, number>>,
@@ -603,8 +609,12 @@ export function weightExample(
 	const parts = items
 		.filter((i) => i.weight > 0)
 		.map((i) => ({ code: i.code, score: sample[i.code] ?? 0, weight: i.weight }));
-	const raw = parts.reduce((sum, p) => sum + (p.score * p.weight) / PERCENT, 0);
-	return { parts, total: roundHalfUp(raw, decimals) };
+	// Σ dalam satuan 1/(100·100): skor×100 (bulat) × bobot (bulat).
+	const scaled = parts.reduce((sum, p) => sum + Math.round(p.score * SCORE_SCALE) * p.weight, 0);
+	const unit = SCORE_SCALE * PERCENT;
+	const factor = 10 ** decimals;
+	const total = Math.floor((scaled * factor + unit / 2) / unit) / factor;
+	return { parts, total };
 }
 
 /** Alasan wajib bila kebijakan aktif sudah punya total bobot > 0 (cermin backend, R9). */

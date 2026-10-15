@@ -6,7 +6,8 @@ import {
 	normalizeWeight,
 	reasonRequired,
 	reasonValid,
-	weightExample
+	weightExample,
+	weightValid
 } from '$lib/features/school-admin/school-admin.model';
 
 describe('weightExample', () => {
@@ -30,6 +31,35 @@ describe('weightExample', () => {
 	});
 	it('exampleSample menurunkan skor ilustrasi deterministik per kode', () => {
 		expect(exampleSample(['A', 'B', 'C'])).toEqual({ A: 78, B: 72, C: 80 });
+	});
+});
+
+describe('weightExample half-up eksak', () => {
+	const SCORES = [78, 72, 80, 85, 75];
+	const reference = (weights: number[], decimals: number) => {
+		const sum = weights.reduce((acc, w, i) => acc + BigInt(SCORES[i]! * w), 0n); // satuan 1/100
+		const factor = 10n ** BigInt(decimals);
+		return Number((sum * factor + 50n) / 100n) / Number(factor);
+	};
+	const run = (weights: number[], decimals: number) =>
+		weightExample(
+			weights.map((weight, i) => ({ code: `K${i}`, weight })),
+			exampleSample(weights.map((_, i) => `K${i}`)),
+			decimals
+		).total;
+	it('regresi: [7,92,1] @0dp → 73; [1,1,7,91] @1dp → 84.5', () => {
+		expect(run([7, 92, 1], 0)).toBe(73);
+		expect(run([1, 1, 7, 91], 1)).toBe(84.5);
+	});
+	it('sama dengan referensi BigInt pada sampel vektor bobot (0/1/2 desimal)', () => {
+		for (let a = 0; a <= 100; a += 3)
+			for (let b = 0; a + b <= 100; b += 7) {
+				const c = 100 - a - b;
+				for (const d of [0, 1, 2]) {
+					expect(run([a, b, c], d)).toBe(reference([a, b, c], d));
+					expect(run([c, a, b, 0, 0], d)).toBe(reference([c, a, b, 0, 0], d));
+				}
+			}
 	});
 });
 
@@ -74,6 +104,18 @@ describe('reasonRequired / reasonValid (R9)', () => {
 	});
 });
 
+describe('weightValid', () => {
+	it('hanya bilangan bulat 0–100; 250, 33.5, kosong, null ditandai tidak sah', () => {
+		expect(weightValid(0)).toBe(true);
+		expect(weightValid('100')).toBe(true);
+		expect(weightValid(250)).toBe(false);
+		expect(weightValid(33.5)).toBe(false);
+		expect(weightValid('')).toBe(false);
+		expect(weightValid(null)).toBe(false);
+		expect(weightValid(-1)).toBe(false);
+	});
+});
+
 describe('normalisasi input number', () => {
 	it('normalizeWeight menerima number|string|null tanpa melempar', () => {
 		expect(normalizeWeight(null)).toBe(0);
@@ -82,6 +124,7 @@ describe('normalisasi input number', () => {
 		expect(normalizeWeight('30')).toBe(30);
 		expect(normalizeWeight(45)).toBe(45);
 		expect(normalizeWeight(250)).toBe(100);
+		expect(normalizeWeight(33.6)).toBe(34);
 		expect(normalizeWeight(-3)).toBe(0);
 	});
 	it('normalizeDecimals membatasi ke 0/1/2', () => {

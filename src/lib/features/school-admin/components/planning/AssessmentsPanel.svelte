@@ -1,5 +1,6 @@
 <!-- Jenis asesmen & bobot kebijakan penilaian; dipakai drawer setup & halaman Asesmen. -->
 <script lang="ts">
+	import { formatNumber } from '$lib/utils/format';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { useI18n } from '$lib/i18n';
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
@@ -17,6 +18,7 @@
 		exampleSample,
 		normalizeDecimals,
 		normalizeWeight,
+		weightValid,
 		weightExample
 	} from '../../school-admin.model';
 
@@ -84,6 +86,8 @@
 								type="number"
 								min="0"
 								max="100"
+								step="1"
+								aria-invalid={weightValid(planner.weights[a.code]) ? undefined : 'true'}
 								aria-label={t('weight_of', { name: a.name })}
 								class="{FIELD} w-20 border-[1.5px] text-center"
 								disabled={a.category === 'formative'}
@@ -198,7 +202,12 @@
 		<p class="text-lms-muted font-mono text-[10px] tracking-[0.1em]">{t('example_title')}</p>
 		<p class="mt-1 text-sm tabular-nums">
 			{example.parts.length
-				? t('example_line', { expr: expression, total: example.total })
+				? t('example_line', {
+						expr: expression,
+						total: formatNumber(example.total, i18n.locale, {
+							maximumFractionDigits: planner.decimals
+						})
+					})
 				: t('example_empty')}
 		</p>
 	</div>
@@ -216,7 +225,10 @@
 	<button
 		type="button"
 		class="lms-action-primary lms-focus-ring h-10 self-start rounded-[10px] px-4 text-sm font-semibold disabled:opacity-50"
-		disabled={planner.busy || planner.weightSum !== 100 || !planner.reasonValid}
+		disabled={planner.busy ||
+			planner.weightSum !== 100 ||
+			!planner.weightsValid ||
+			!planner.reasonValid}
 		onclick={() => planner.saveWeights()}>{t('save_weights')}</button
 	>
 {/if}

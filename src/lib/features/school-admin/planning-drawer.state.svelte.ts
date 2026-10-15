@@ -17,7 +17,8 @@ import {
 	normalizeDecimals,
 	normalizeWeight,
 	reasonRequired,
-	reasonValid
+	reasonValid,
+	weightValid
 } from './school-admin.model';
 
 type Translate = (key: string, params?: Readonly<Record<string, string | number>>) => string;
@@ -152,6 +153,11 @@ export class PlanningDrawerState {
 	/** Alasan wajib hanya bila kebijakan aktif sudah berbobot > 0 (cermin backend `reason/too_short`). */
 	get reasonRequired() {
 		return reasonRequired(this.#planning.assessments);
+	}
+
+	/** Semua bobot draf bilangan bulat 0–100 (input di luar rentang ditandai, tidak dijepit diam-diam). */
+	get weightsValid() {
+		return Object.values(this.#drafts.weights).every((w) => weightValid(w));
 	}
 
 	get reasonValid() {
@@ -367,7 +373,7 @@ export class PlanningDrawerState {
 	}
 
 	async saveWeights() {
-		if (!this.#reasonOk()) return;
+		if (!this.weightsValid || !this.#reasonOk()) return;
 		const items = this.types.map((a) => ({ ...a, weight: normalizeWeight(this.weights[a.code]) }));
 		const body = assessmentsBody(items, this.decimals, this.reason);
 		if (await this.call('assessments', { data: body }, this.#t('saved'))) this.reason = '';
