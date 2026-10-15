@@ -2329,6 +2329,7 @@
 	},
 	"approvals": {
 		"head_title": "Approvals inbox",
+		"students": "Parent of {names}",
 		"eyebrow": "APPROVALS · {role}",
 		"title": "Approvals inbox",
 		"role_tag": {

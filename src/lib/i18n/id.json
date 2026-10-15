@@ -2329,6 +2329,7 @@
 	},
 	"approvals": {
 		"head_title": "Kotak persetujuan",
+		"students": "Orang tua dari {names}",
 		"eyebrow": "PERSETUJUAN · {role}",
 		"title": "Kotak persetujuan",
 		"role_tag": {

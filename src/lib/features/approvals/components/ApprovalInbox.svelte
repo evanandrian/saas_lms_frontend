@@ -50,6 +50,7 @@
 		isNew,
 		logTime,
 		sortItems,
+		studentsLabel,
 		type Decision,
 		type Inbox as InboxData,
 		type InboxItem,
@@ -525,6 +526,11 @@
 										<span class="text-lms-muted truncate text-xs"
 											>{x.requester.role_name} · APV-{x.number}</span
 										>
+										{#if studentsLabel(x.students)}
+											<span class="text-lms-muted truncate text-xs"
+												>{t('students', { names: studentsLabel(x.students) })}</span
+											>
+										{/if}
 									</span>
 								</button>
 								<span class="flex" role="cell"
