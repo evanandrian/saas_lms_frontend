@@ -551,6 +551,52 @@ describe('PlanningDrawerState', () => {
 		expect(action).not.toHaveBeenCalled();
 		expect(onnotify).toHaveBeenCalledWith('T(school_admin.planning.objective_short)');
 	});
+
+	it('kode TP berikutnya = max+1 mapel×tingkat terpilih (cermin BE, tahan celah hapus)', () => {
+		const objective = (id: string, code: string, subject = 's1', grade = 'g1') => ({
+			id,
+			code,
+			subject_id: subject,
+			grade_id: grade,
+			description: 'Deskripsi TP'
+		});
+		const planning = {
+			...planningView(40, 1),
+			objectives: [
+				objective('o1', 'TP-10.1'),
+				objective('o3', 'TP-10.3'),
+				objective('o9', 'TP-10.9', 's2')
+			]
+		} as unknown as SchoolPlanningView;
+		const state = new PlanningDrawerState({
+			planning: () => planning,
+			key: () => 'objectives',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		});
+		expect(state.objectives).toHaveLength(2);
+		expect(state.nextCode).toBe('TP-10.4');
+	});
+
+	it('initialSubject memilih mapel awal; tanpa opsi → mapel pertama', () => {
+		const planning = {
+			...planningView(40, 1),
+			subjects: [
+				{ id: 's1', name: 'MTK' },
+				{ id: 's2', name: 'IPA' }
+			]
+		} as unknown as SchoolPlanningView;
+		const deps = {
+			planning: () => planning,
+			key: () => 'objectives' as const,
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		};
+		expect(new PlanningDrawerState({ ...deps, initialSubject: 's2' }).objSubject).toBe('s2');
+		expect(new PlanningDrawerState(deps).objSubject).toBe('s1');
+	});
 });
 
 // ===================================================================== RequiredWizardState

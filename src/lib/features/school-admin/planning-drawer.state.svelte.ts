@@ -4,7 +4,7 @@ import type {
 	SchoolTeachersView
 } from '$lib/api/generated/lms';
 import { runPageAction } from '$lib/utils/page-action';
-import { PREFIX, failureMessage } from './school-admin.model';
+import { PREFIX, failureMessage, nextObjectiveCode } from './school-admin.model';
 
 type Translate = (key: string, params?: Readonly<Record<string, string | number>>) => string;
 
@@ -19,6 +19,8 @@ export interface PlanningDrawerDeps {
 	t: Translate;
 	onplanning: (view: SchoolPlanningView) => void;
 	onnotify: (message: string) => void;
+	/** Mapel awal pemilih TP (halaman Mapel); default mapel pertama. */
+	initialSubject?: string;
 }
 
 const OBJECTIVE_MIN = 10;
@@ -72,7 +74,10 @@ export class PlanningDrawerState {
 	);
 	nextCode = $derived.by(() => {
 		const grade = this.#planning.grades.find((g) => g.id === this.objGrade);
-		return `TP-${grade?.grade ?? ''}.${this.objectives.length + 1}`;
+		return nextObjectiveCode(
+			grade?.grade ?? '',
+			this.objectives.map((o) => o.code)
+		);
 	});
 	weightSum = $derived(
 		Object.values(this.#drafts.weights).reduce((a, b) => a + (Number(b) || 0), 0)
@@ -82,7 +87,7 @@ export class PlanningDrawerState {
 		this.#deps = deps;
 		const { classes, subjects, grades } = deps.planning();
 		this.#classId = classes[0]?.id ?? '';
-		this.#objSubject = subjects[0]?.id ?? '';
+		this.#objSubject = deps.initialSubject ?? subjects[0]?.id ?? '';
 		this.#objGrade = grades[0]?.id ?? '';
 	}
 

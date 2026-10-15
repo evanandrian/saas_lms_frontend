@@ -5,8 +5,6 @@
 	import { resolve } from '$app/paths';
 	import { APP_PATHS } from '$lib/utils/app-paths';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import CircleAlert from '@lucide/svelte/icons/circle-alert';
-	import CircleCheck from '@lucide/svelte/icons/circle-check';
 	import CloudCheck from '@lucide/svelte/icons/cloud-check';
 	import FileUp from '@lucide/svelte/icons/file-up';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -17,6 +15,10 @@
 	import { PlanningDrawerState, type DrawerKey } from '../../planning-drawer.state.svelte';
 	import { PREFIX, WEEKDAYS, sectionCount } from '../../school-admin.model';
 	import TabBar from '../TabBar.svelte';
+	import AssessmentsPanel from '../planning/AssessmentsPanel.svelte';
+	import AssignmentsPanel from '../planning/AssignmentsPanel.svelte';
+	import ExtrasPanel from '../planning/ExtrasPanel.svelte';
+	import ObjectivesPanel from '../planning/ObjectivesPanel.svelte';
 
 	interface Props {
 		key: DrawerKey;
@@ -184,162 +186,11 @@
 					{:else}<p class="text-lms-muted p-4 text-sm">{t('no_classes')}</p>{/each}
 				</div>
 			{:else if key === 'assign'}
-				<div class="flex flex-wrap items-center gap-3">
-					<select
-						aria-label={t('pick_class')}
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 rounded-lg px-2 text-sm"
-						bind:value={planner.classId}
-						>{#each planning.classes as c (c.id)}<option value={c.id}
-								>{i18n.t(`${PREFIX}.common.class_of`, { class: c.name })}</option
-							>{/each}</select
-					>
-					<span class="text-lms-muted text-xs"
-						>{planning.semester_id
-							? t('teaching_note', {
-									term:
-										planning.term === 1
-											? i18n.t(`${PREFIX}.years.term_odd`)
-											: i18n.t(`${PREFIX}.years.term_even`),
-									filled: planner.classAssignments.length,
-									total: planning.subjects.length
-								})
-							: t('no_semester')}</span
-					>
-				</div>
-				<div class="border-lms-border flex flex-col rounded-xl border">
-					{#each planning.subjects as s (s.id)}
-						<div
-							class="border-lms-border flex items-center gap-3 border-t px-4 py-2 first:border-t-0"
-						>
-							<span class="flex flex-1 items-center gap-2 text-sm"
-								><span class="text-lms-muted w-14 font-mono text-xs">{s.code}</span>{s.name}</span
-							>
-							<select
-								aria-label={t('teacher_of', { subject: s.name })}
-								class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 w-56 rounded-lg px-2 text-sm"
-								value={planner.assignmentOf(s.id)}
-								disabled={planner.busy || !planning.semester_id}
-								onchange={(e) => planner.setAssignment(s.id, e.currentTarget.value)}
-							>
-								<option value="">{i18n.t(`${PREFIX}.common.not_set_option`)}</option>
-								{#each planner.teacherOptions as o (o.value)}<option value={o.value}
-										>{o.label}</option
-									>{/each}
-							</select>
-						</div>
-					{/each}
-				</div>
+				<AssignmentsPanel {planner} {planning} />
 			{:else if key === 'objectives'}
-				<div class="flex flex-wrap gap-2">
-					<select
-						aria-label={t('pick_subject')}
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 flex-1 rounded-lg px-2 text-sm"
-						bind:value={planner.objSubject}
-						>{#each planning.subjects as s (s.id)}<option value={s.id}>{s.code} · {s.name}</option
-							>{/each}</select
-					>
-					<select
-						aria-label={t('pick_grade')}
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 rounded-lg px-2 text-sm"
-						bind:value={planner.objGrade}
-						>{#each planning.grades as g (g.id)}<option value={g.id}
-								>{t('grade', { grade: g.grade })}</option
-							>{/each}</select
-					>
-				</div>
-				<div class="border-lms-border flex flex-col rounded-xl border">
-					{#each planner.objectives as o (o.id)}
-						<div
-							class="border-lms-border flex items-start gap-3 border-t px-4 py-2.5 first:border-t-0"
-						>
-							<span class="text-lms-interactive w-16 font-mono text-xs font-bold">{o.code}</span>
-							<span class="flex-1 text-[13px]">{o.description}</span>
-							<button
-								type="button"
-								aria-label={t('delete')}
-								class="lms-action-ghost lms-focus-ring flex size-7 items-center justify-center rounded-md"
-								disabled={planner.busy}
-								onclick={() => planner.removeObjective(o.id)}
-								><Icon icon={Trash2} size="sm" /></button
-							>
-						</div>
-					{:else}<p class="text-lms-muted p-4 text-sm">{t('objectives_empty')}</p>{/each}
-				</div>
-				<div class="flex flex-col gap-2">
-					<span class="text-[13px] font-semibold"
-						>{t('objective_add')} ·
-						<span class="text-lms-interactive font-mono">{planner.nextCode}</span></span
-					>
-					<textarea
-						rows="2"
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border rounded-[10px] px-3 py-2 text-sm"
-						placeholder={t('objective_ph')}
-						bind:value={planner.objDesc}></textarea>
-					<button
-						type="button"
-						class="lms-action-primary lms-focus-ring h-10 self-start rounded-[10px] px-4 text-sm font-semibold disabled:opacity-50"
-						disabled={planner.busy || !planner.objSubject || !planner.objGrade}
-						onclick={() => planner.addObjective()}>{t('objective_add')}</button
-					>
-				</div>
+				<ObjectivesPanel {planner} {planning} />
 			{:else if key === 'assess'}
-				<div class="flex flex-wrap items-center gap-3">
-					<span class="text-lms-muted flex-[1_1_260px] text-[13px]">{t('assess_note')}</span>
-					<button
-						type="button"
-						class="lms-action-secondary lms-focus-ring h-9 rounded-lg px-3 text-xs font-semibold"
-						disabled={planner.busy}
-						onclick={() => planner.useDefaultAssessments()}>{t('assess_default')}</button
-					>
-				</div>
-				<div class="border-lms-border flex flex-col rounded-xl border">
-					{#each planning.assessments as a (a.code)}
-						<div
-							class="border-lms-border flex items-center gap-3 border-t px-4 py-2.5 first:border-t-0"
-						>
-							<span class="flex flex-1 flex-col"
-								><span class="text-sm font-semibold">{a.name}</span><span
-									class="text-lms-muted text-xs"
-									>{a.code} · {a.category === 'formative'
-										? t('formative')
-										: t('summative')}{a.is_exam ? ` · ${t('exam')}` : ''}</span
-								></span
-							>
-							<span class="flex items-center gap-1"
-								><input
-									type="number"
-									min="0"
-									max="100"
-									aria-label={t('weight_of', { name: a.name })}
-									class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 w-20 rounded-lg px-2 text-center text-sm"
-									disabled={a.category === 'formative'}
-									bind:value={planner.weights[a.code]}
-								/>%</span
-							>
-						</div>
-					{:else}<p class="text-lms-muted p-4 text-sm">{t('assess_empty')}</p>{/each}
-				</div>
-				{#if planning.assessments.length}
-					<div
-						class="flex items-center justify-between rounded-xl px-4 py-3 {planner.weightSum === 100
-							? 'lms-tone-success'
-							: 'lms-tone-danger'}"
-					>
-						<span class="text-sm font-semibold">{t('weight_total')}</span>
-						<span class="flex items-center gap-1.5 font-bold tabular-nums"
-							><Icon
-								icon={planner.weightSum === 100 ? CircleCheck : CircleAlert}
-								size="sm"
-							/>{planner.weightSum}%</span
-						>
-					</div>
-					<button
-						type="button"
-						class="lms-action-primary lms-focus-ring h-10 self-start rounded-[10px] px-4 text-sm font-semibold disabled:opacity-50"
-						disabled={planner.busy || planner.weightSum !== 100}
-						onclick={() => planner.saveWeights()}>{t('save_weights')}</button
-					>
-				{/if}
+				<AssessmentsPanel {planner} {planning} />
 			{:else if key === 'schedule' && planner.tab === 0}
 				<div class="flex flex-wrap items-center gap-3">
 					<span class="text-lms-muted flex-[1_1_260px] text-[13px]">{t('periods_note')}</span>
@@ -457,48 +308,7 @@
 					</table>
 				</div>
 			{:else if key === 'extras'}
-				<div class="border-lms-border flex flex-col rounded-xl border">
-					{#each planning.extras as x (x.id)}
-						<div
-							class="border-lms-border flex items-center gap-3 border-t px-4 py-2.5 first:border-t-0"
-						>
-							<span class="flex flex-1 flex-col"
-								><span class="text-sm font-semibold">{x.name}</span><span
-									class="text-lms-muted text-xs">{t('coach', { name: x.coach_name || '—' })}</span
-								></span
-							>
-							<button
-								type="button"
-								aria-label={t('delete')}
-								class="lms-action-ghost lms-focus-ring flex size-7 items-center justify-center rounded-md"
-								disabled={planner.busy}
-								onclick={() => planner.removeExtra(x.id)}><Icon icon={Trash2} size="sm" /></button
-							>
-						</div>
-					{:else}<p class="text-lms-muted p-4 text-sm">{t('extras_empty')}</p>{/each}
-				</div>
-				<div class="flex flex-wrap gap-2">
-					<input
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-10 flex-[1_1_200px] rounded-[10px] px-3 text-sm"
-						placeholder={t('extra_ph')}
-						bind:value={planner.exName}
-					/>
-					<select
-						aria-label={t('coach_label')}
-						class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-10 rounded-[10px] px-2 text-sm"
-						bind:value={planner.exCoach}
-					>
-						<option value="">{t('coach_none')}</option>
-						{#each planner.teacherOptions as o (o.value)}<option value={o.value}>{o.label}</option
-							>{/each}
-					</select>
-					<button
-						type="button"
-						class="lms-action-primary lms-focus-ring h-10 rounded-[10px] px-4 text-sm font-semibold disabled:opacity-50"
-						disabled={planner.busy}
-						onclick={() => planner.addExtra()}>{t('extra_add')}</button
-					>
-				</div>
+				<ExtrasPanel {planner} {planning} />
 			{/if}
 		</div>
 		<div class="border-lms-border flex items-center gap-3 border-t px-5 py-3">

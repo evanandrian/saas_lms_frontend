@@ -69,6 +69,24 @@ export const RE = {
 	code: /^[A-Z0-9_]{2,20}$/
 } as const;
 
+/** Nomor urut kode TP: bilangan bulat bertanda opsional (cermin `strconv.Atoi` backend). */
+const OBJECTIVE_ORDER = /^[+-]?\d+$/;
+
+/**
+ * Prediksi kode TP baru "TP-<tingkat>.<max+1>" dari kode TP mapel×tingkat yang ada — cermin backend
+ * `nextObjectiveCode` (bukan jumlah, agar tidak bentrok setelah penghapusan).
+ */
+export function nextObjectiveCode(grade: number | string, existing: readonly string[]): string {
+	const prefix = `TP-${grade}.`;
+	let max = 0;
+	for (const code of existing) {
+		if (!code.startsWith(prefix)) continue;
+		const rest = code.slice(prefix.length);
+		if (OBJECTIVE_ORDER.test(rest)) max = Math.max(max, Number(rest));
+	}
+	return `${prefix}${max + 1}`;
+}
+
 export const normalizePhone = (v: string) => v.replace(/[\s-]/g, '');
 
 const HONORIFIC_PREFIX = /^(Dra?|Drs|H|Hj)\.\s*/;
