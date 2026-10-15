@@ -150,14 +150,26 @@ type Failure = Extract<PageActionOutcome<never>, { ok: false }>;
  * Nama parameter i18n untuk kode isu ber-parameter; default `value`. `min_chars:<n>`/`max_chars:<n>`
  * memakai `{min}`/`{max}` agar pesan server sama persis dengan `lengthMessage` di klien.
  */
-const ISSUE_PARAM: Readonly<Record<string, string>> = { min_chars: 'min', max_chars: 'max' };
+const ISSUE_PARAM: ReadonlyMap<string, string> = new Map([
+	['min_chars', 'min'],
+	['max_chars', 'max']
+]);
 
-/** Kode isu field (`{field, code}`) → pesan; kode dengan parameter memakai format `kode:nilai`. */
+/**
+ * Kode isu field (`{field, code}`) → pesan; kode dengan parameter memakai format `kode:nilai`
+ * (dipisah pada `:` pertama, nilai boleh mengandung `:`). Kode tak dikenal atau `min_chars`/`max_chars`
+ * tanpa angka → pesan generic.
+ */
 export function issueMessage(t: T, code: string): string {
-	const [base = '', arg = ''] = code.split(':');
+	const sep = code.indexOf(':');
+	const base = sep < 0 ? code : code.slice(0, sep);
+	const arg = sep < 0 ? '' : code.slice(sep + 1);
+	const generic = t(`${PREFIX}.errors.generic`);
+	const param = ISSUE_PARAM.get(base);
+	if (param && !arg) return generic;
 	const key = `${PREFIX}.errors.${base}`;
-	const text = t(key, { [ISSUE_PARAM[base] ?? 'value']: arg });
-	return text === key ? t(`${PREFIX}.errors.generic`) : text;
+	const text = t(key, { [param ?? 'value']: arg });
+	return text === key ? generic : text;
 }
 
 /** Kode 429 endpoint kredensial publik (aktivasi murid, undangan akun). */

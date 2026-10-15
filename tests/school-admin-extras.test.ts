@@ -121,6 +121,18 @@ describe('batas panjang input ekskul (maxlength UTF-16 vs code point)', () => {
 			'school_admin.errors.schedule_clash{"value":"Budi"}'
 		);
 	});
+
+	it('kode isu malformed → generic; nilai boleh mengandung titik dua', () => {
+		const generic = issueMessage(t, 'kode_tak_dikenal');
+		expect(generic).toBe('school_admin.errors.generic');
+		expect(issueMessage(tp, 'max_chars')).toBe(generic);
+		expect(issueMessage(tp, 'max_chars:')).toBe(generic);
+		expect(issueMessage(tp, 'min_chars')).toBe(generic);
+		expect(issueMessage(t, 'constructor')).toBe(generic);
+		expect(issueMessage(tp, 'schedule_clash:Budi 07:00')).toBe(
+			'school_admin.errors.schedule_clash{"value":"Budi 07:00"}'
+		);
+	});
 });
 
 describe('extraBody', () => {
