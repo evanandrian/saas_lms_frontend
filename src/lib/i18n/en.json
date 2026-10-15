@@ -3744,7 +3744,7 @@
 			"class_not_found": "Class does not exist.",
 			"already_filled": "This class is already fully filled in.",
 			"no_contact": "The recipient has no email contact.",
-			"no_homeroom_contact": "The homeroom teacher has no email contact.",
+			"no_homeroom_contact": "Homeroom teacher is not assigned or has no email.",
 			"recipient_invalid": "The reminder recipient is not valid for this report card.",
 			"audit_export_range_invalid": "The export range is at most 90 days and the start date cannot be after the end date.",
 			"capacity_range": "Must be 1–60.",
@@ -3781,7 +3781,6 @@
 			"holiday": "Holiday (Sunday).",
 			"remind_cooldown": "A reminder was just sent. Try again in an hour.",
 			"all_filled": "All classes have filled attendance.",
-			"no_homeroom_contact": "Homeroom teacher is not assigned or has no email.",
 			"seats_range": "Seats must be 1–2,000.",
 			"password_weak": "Password needs at least 8 characters without leading/trailing spaces.",
 			"logo_invalid": "Logo must be PNG/JPG up to 1 MB.",
@@ -4465,7 +4464,31 @@
 			"extra_name_required": "Enter the activity name",
 			"saved": "Saved",
 			"autosaved": "Changes are saved automatically",
-			"done": "Done"
+			"done": "Done",
+			"weight_head": "WEIGHT",
+			"aggregation": "Aggregation",
+			"aggregation_of": "Aggregation for {name}",
+			"aggregation_average": "Average",
+			"aggregation_latest": "Latest",
+			"aggregation_max": "Highest",
+			"decimals": "Final grade rounding",
+			"decimals_0": "Whole number",
+			"decimals_1": "1 decimal",
+			"decimals_2": "2 decimals",
+			"type_add": "Add type",
+			"type_code": "Code",
+			"type_name": "Name",
+			"type_category": "Category",
+			"exam_label": "Exam",
+			"example_title": "CALCULATION EXAMPLE",
+			"example_line": "{expr} = {total}",
+			"example_empty": "Give at least one type a weight to see an example.",
+			"policy_pending_note": "Aggregation and rounding are saved; they are used once automatic final-grade calculation is available.",
+			"reason_label": "Reason for change",
+			"reason_hint": "Required, at least {min} characters; recorded in the change history.",
+			"reason_optional": "Optional on the first save; recorded in the change history.",
+			"reason_short": "Enter a reason of at least {min} characters.",
+			"weight_bar": "Weight composition"
 		},
 		"setup": {
 			"title": "Complete school data",
@@ -4955,6 +4978,14 @@
 				"skipped": "{count} skipped",
 				"failed": "{count} failed"
 			}
+		},
+		"assessments": {
+			"eyebrow": "ACADEMICS",
+			"title": "Assessments & weights",
+			"desc": "School assessment types and their weights in the final grade (total 100%).",
+			"stat_types": "Assessment types",
+			"stat_total": "Total weight",
+			"stat_decimals": "Rounding"
 		}
 	},
 	"payments": {
@@ -6352,6 +6383,19 @@
 			"tips": {
 				"existing": "Price and feature changes apply to new subscriptions and the next renewal; issued invoices do not change.",
 				"delete": "Plans that already have customers cannot be deleted. Change the status to \"Archived\" if you no longer want to offer them."
+			}
+		},
+		"school_admin_assessments": {
+			"purpose": "Use this page to manage the school assessment types, their weight in the final grade, aggregation, and rounding.",
+			"features": {
+				"types": "Assessment types: code, name, category, and exam flag; new types can be added.",
+				"weights": "Weights: the total must be 100%; formative is always 0%. The example card shows the result with the chosen rounding.",
+				"policy": "Aggregation and rounding are saved; they are used once automatic final-grade calculation is available."
+			},
+			"steps": {
+				"s1": "Set each type weight until the total is 100%.",
+				"s2": "Choose the aggregation per type and the final grade rounding.",
+				"s3": "Enter a reason if the policy already has weights, then click \"Save weights\"."
 			}
 		}
 	},

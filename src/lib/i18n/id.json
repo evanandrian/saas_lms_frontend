@@ -3744,7 +3744,7 @@
 			"class_not_found": "Kelas tidak ada.",
 			"already_filled": "Presensi/rapor kelas ini sudah terisi lengkap.",
 			"no_contact": "Penerima belum memiliki kontak email.",
-			"no_homeroom_contact": "Wali kelas belum memiliki kontak email.",
+			"no_homeroom_contact": "Wali kelas belum ditetapkan atau belum punya email.",
 			"recipient_invalid": "Penerima pengingat tidak valid untuk rapor ini.",
 			"audit_export_range_invalid": "Rentang ekspor maksimal 90 hari dan tanggal awal tidak boleh setelah tanggal akhir.",
 			"capacity_range": "Harus 1–60.",
@@ -3781,7 +3781,6 @@
 			"holiday": "Hari libur (Minggu).",
 			"remind_cooldown": "Pengingat baru saja dikirim. Coba lagi dalam satu jam.",
 			"all_filled": "Semua kelas sudah mengisi presensi.",
-			"no_homeroom_contact": "Wali kelas belum ditetapkan atau belum punya email.",
 			"seats_range": "Jumlah kursi 1–2.000.",
 			"password_weak": "Kata sandi minimal 8 karakter tanpa spasi di awal/akhir.",
 			"logo_invalid": "Logo PNG/JPG maks. 1 MB.",
@@ -4465,7 +4464,31 @@
 			"extra_name_required": "Isi nama kegiatan",
 			"saved": "Tersimpan",
 			"autosaved": "Perubahan tersimpan otomatis",
-			"done": "Selesai"
+			"done": "Selesai",
+			"weight_head": "BOBOT",
+			"aggregation": "Agregasi",
+			"aggregation_of": "Agregasi {name}",
+			"aggregation_average": "Rata-rata",
+			"aggregation_latest": "Terakhir",
+			"aggregation_max": "Tertinggi",
+			"decimals": "Pembulatan nilai akhir",
+			"decimals_0": "Bilangan bulat",
+			"decimals_1": "1 desimal",
+			"decimals_2": "2 desimal",
+			"type_add": "Tambah jenis",
+			"type_code": "Kode",
+			"type_name": "Nama",
+			"type_category": "Kategori",
+			"exam_label": "Ujian",
+			"example_title": "CONTOH PERHITUNGAN",
+			"example_line": "{expr} = {total}",
+			"example_empty": "Beri bobot pada minimal satu jenis untuk melihat contoh.",
+			"policy_pending_note": "Agregasi & pembulatan disimpan; dipakai saat perhitungan otomatis nilai akhir tersedia.",
+			"reason_label": "Alasan perubahan",
+			"reason_hint": "Wajib, minimal {min} karakter; tercatat di riwayat perubahan.",
+			"reason_optional": "Opsional pada penyimpanan pertama; tercatat di riwayat perubahan.",
+			"reason_short": "Isi alasan perubahan minimal {min} karakter.",
+			"weight_bar": "Komposisi bobot"
 		},
 		"setup": {
 			"title": "Lengkapi data sekolah",
@@ -4955,6 +4978,14 @@
 				"skipped": "{count} dilewati",
 				"failed": "{count} gagal"
 			}
+		},
+		"assessments": {
+			"eyebrow": "AKADEMIK",
+			"title": "Asesmen & bobot",
+			"desc": "Jenis asesmen sekolah dan bobotnya dalam nilai akhir (total 100%).",
+			"stat_types": "Jenis asesmen",
+			"stat_total": "Total bobot",
+			"stat_decimals": "Pembulatan"
 		}
 	},
 	"payments": {
@@ -6352,6 +6383,19 @@
 			"tips": {
 				"existing": "Perubahan harga dan fitur berlaku untuk langganan baru dan perpanjangan berikutnya; tagihan yang sudah terbit tidak berubah.",
 				"delete": "Paket yang sudah punya pelanggan tidak bisa dihapus. Ubah statusnya menjadi \"Arsip\" bila tidak ingin ditawarkan lagi."
+			}
+		},
+		"school_admin_assessments": {
+			"purpose": "Halaman ini untuk mengatur jenis asesmen sekolah, bobot tiap jenis dalam nilai akhir, cara agregasi, dan pembulatan.",
+			"features": {
+				"types": "Jenis asesmen: kode, nama, kategori, dan penanda ujian; jenis baru dapat ditambahkan.",
+				"weights": "Bobot: total harus 100%; formatif selalu 0%. Kartu contoh menunjukkan hasil hitung dengan pembulatan terpilih.",
+				"policy": "Agregasi dan pembulatan disimpan; dipakai saat perhitungan otomatis nilai akhir tersedia."
+			},
+			"steps": {
+				"s1": "Atur bobot tiap jenis hingga totalnya 100%.",
+				"s2": "Pilih agregasi per jenis dan pembulatan nilai akhir.",
+				"s3": "Isi alasan perubahan bila kebijakan sudah pernah berbobot, lalu klik \"Simpan bobot\"."
 			}
 		}
 	},

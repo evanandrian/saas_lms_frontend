@@ -1,6 +1,8 @@
 import {
 	GetSchoolAuditCategory,
 	SchoolAuditActorRole,
+	type SchoolAssessmentsInput,
+	type SchoolPlanAssessment,
 	type SchoolPlanningView,
 	type SchoolRemindOutcome,
 	type SchoolReportRecipient,
@@ -551,4 +553,76 @@ export function teacherLoads(planning: SchoolPlanningView): TeacherLoad[] {
 			};
 		})
 		.filter((l) => l.subjects.length || l.jp);
+}
+
+// ===== Asesmen & bobot =====
+export const ASSESSMENT_AGGREGATIONS = ['average', 'latest', 'max'] as const;
+export type AssessmentAggregation = (typeof ASSESSMENT_AGGREGATIONS)[number];
+export const DEFAULT_AGGREGATION: AssessmentAggregation = 'average';
+export const DECIMAL_OPTIONS = [0, 1, 2] as const;
+export const REASON_MIN = 5;
+export const REASON_MAX = 500;
+/** Kode jenis asesmen (cermin backend `reCode`). */
+export const ASSESSMENT_CODE = /^[A-Z0-9_]{2,20}$/;
+export const ASSESSMENT_NAME_MIN = 2;
+const PERCENT = 100;
+const ASSESSMENT_CATEGORIES = ['formative', 'summative'] as const;
+export const ASSESSMENT_CATEGORY_OPTIONS = ASSESSMENT_CATEGORIES;
+
+/** Skor ilustrasi kartu "Contoh perhitungan" (bukan data murid). */
+export const EXAMPLE_SCORES = [78, 72, 80, 85, 75] as const;
+export const exampleSample = (codes: readonly string[]): Record<string, number> =>
+	Object.fromEntries(codes.map((c, i) => [c, EXAMPLE_SCORES[i % EXAMPLE_SCORES.length]!]));
+
+/** Pembulatan half-up (BR-31) pada `decimals` digit. */
+export function roundHalfUp(value: number, decimals: number): number {
+	const factor = 10 ** decimals;
+	return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
+/** Bobot dari input number Svelte (number | null) atau string: bilangan 0–100, selain itu 0. */
+export function normalizeWeight(raw: string | number | null | undefined): number {
+	if (raw === null || raw === undefined || (typeof raw === 'string' && !raw.trim())) return 0;
+	const value = Number(raw);
+	if (!Number.isFinite(value)) return 0;
+	return Math.min(PERCENT, Math.max(0, value));
+}
+
+/** Digit pembulatan dari select/input; di luar opsi → 0. */
+export function normalizeDecimals(raw: string | number | null | undefined): number {
+	const value = Number(raw);
+	return (DECIMAL_OPTIONS as readonly number[]).includes(value) ? value : 0;
+}
+
+/** Contoh perhitungan bobot untuk pengguna (bukan perhitungan nilai resmi). */
+export function weightExample(
+	items: readonly { code: string; weight: number }[],
+	sample: Readonly<Record<string, number>>,
+	decimals: number
+) {
+	const parts = items
+		.filter((i) => i.weight > 0)
+		.map((i) => ({ code: i.code, score: sample[i.code] ?? 0, weight: i.weight }));
+	const raw = parts.reduce((sum, p) => sum + (p.score * p.weight) / PERCENT, 0);
+	return { parts, total: roundHalfUp(raw, decimals) };
+}
+
+/** Alasan wajib bila kebijakan aktif sudah punya total bobot > 0 (cermin backend, R9). */
+export const reasonRequired = (active: readonly { weight: number }[]): boolean =>
+	active.reduce((sum, a) => sum + a.weight, 0) > 0;
+
+export const reasonValid = (required: boolean, reason: string): boolean =>
+	!required || reason.trim().length >= REASON_MIN;
+
+export function assessmentsBody(
+	items: readonly SchoolPlanAssessment[],
+	decimals: number,
+	reason: string
+): SchoolAssessmentsInput {
+	const trimmed = reason.trim();
+	return {
+		...(trimmed ? { reason: trimmed } : {}),
+		decimal_places: normalizeDecimals(decimals),
+		items: items.map((i) => ({ ...i, aggregation: i.aggregation ?? DEFAULT_AGGREGATION }))
+	};
 }

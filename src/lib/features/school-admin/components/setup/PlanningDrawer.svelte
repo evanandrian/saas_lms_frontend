@@ -190,7 +190,7 @@
 			{:else if key === 'objectives'}
 				<ObjectivesPanel {planner} {planning} />
 			{:else if key === 'assess'}
-				<AssessmentsPanel {planner} {planning} />
+				<AssessmentsPanel {planner} />
 			{:else if key === 'schedule' && planner.tab === 0}
 				<div class="flex flex-wrap items-center gap-3">
 					<span class="text-lms-muted flex-[1_1_260px] text-[13px]">{t('periods_note')}</span>

@@ -413,6 +413,12 @@ export const assignmentsPageActions: Actions = {
 	assignment: setupActions.assignment!
 };
 
+/** Halaman Asesmen & bobot. */
+export const assessmentsPageActions: Actions = {
+	planning: setupActions.planning!,
+	assessments: setupActions.assessments!
+};
+
 export const homeroomAttendanceActions: Actions = {
 	save: action<{ data?: SchoolAttendanceInput }>((ctx, b) =>
 		b.data ? api.saveHomeroomAttendanceEntries(ctx, b.data) : null

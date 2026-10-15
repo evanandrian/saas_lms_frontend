@@ -1,10 +1,24 @@
 import type {
+	SchoolPlanAssessment,
 	SchoolPlanningView,
 	SchoolStudentsView,
 	SchoolTeachersView
 } from '$lib/api/generated/lms';
 import { runPageAction } from '$lib/utils/page-action';
-import { PREFIX, failureMessage, nextObjectiveCode } from './school-admin.model';
+import {
+	ASSESSMENT_CODE,
+	ASSESSMENT_NAME_MIN,
+	DEFAULT_AGGREGATION,
+	REASON_MIN,
+	PREFIX,
+	assessmentsBody,
+	failureMessage,
+	nextObjectiveCode,
+	normalizeDecimals,
+	normalizeWeight,
+	reasonRequired,
+	reasonValid
+} from './school-admin.model';
 
 type Translate = (key: string, params?: Readonly<Record<string, string | number>>) => string;
 
@@ -36,10 +50,16 @@ type Period = { start: string; end: string };
 class PlanningDrafts {
 	weights: Record<string, number>;
 	periods: Period[];
+	types: SchoolPlanAssessment[];
+	decimals: number;
 
 	constructor(planning: SchoolPlanningView) {
 		this.weights = $state(Object.fromEntries(planning.assessments.map((a) => [a.code, a.weight])));
 		this.periods = $state(planning.periods.map((p) => ({ start: p.start, end: p.end })));
+		this.types = $state(
+			planning.assessments.map((a) => ({ ...a, aggregation: a.aggregation ?? DEFAULT_AGGREGATION }))
+		);
+		this.decimals = $state(normalizeDecimals(planning.decimal_places));
 	}
 }
 
@@ -53,6 +73,14 @@ export class PlanningDrawerState {
 	tab = $state(0);
 	busy = $state(false);
 	objDesc = $state('');
+	/** Alasan perubahan kebijakan penilaian (wajib bila kebijakan aktif sudah berbobot). */
+	reason = $state('');
+	newType = $state<{ code: string; name: string; category: string; is_exam: boolean }>({
+		code: '',
+		name: '',
+		category: 'summative',
+		is_exam: false
+	});
 	exName = $state('');
 	exCoach = $state('');
 	/** Edit TP inline: id TP yang sedang diubah + teksnya. */
@@ -83,7 +111,7 @@ export class PlanningDrawerState {
 		);
 	});
 	weightSum = $derived(
-		Object.values(this.#drafts.weights).reduce((a, b) => a + (Number(b) || 0), 0)
+		Object.values(this.#drafts.weights).reduce((a, b) => a + normalizeWeight(b), 0)
 	);
 
 	constructor(deps: PlanningDrawerDeps) {
@@ -108,6 +136,59 @@ export class PlanningDrawerState {
 
 	get periods() {
 		return this.#drafts.periods;
+	}
+
+	get types() {
+		return this.#drafts.types;
+	}
+
+	get decimals() {
+		return this.#drafts.decimals;
+	}
+	set decimals(v: number) {
+		this.#drafts.decimals = normalizeDecimals(v);
+	}
+
+	/** Alasan wajib hanya bila kebijakan aktif sudah berbobot > 0 (cermin backend `reason/too_short`). */
+	get reasonRequired() {
+		return reasonRequired(this.#planning.assessments);
+	}
+
+	get reasonValid() {
+		return reasonValid(this.reasonRequired, this.reason);
+	}
+
+	#reasonOk() {
+		if (this.reasonValid) return true;
+		this.#deps.onnotify(this.#t('reason_short', { min: REASON_MIN }));
+		return false;
+	}
+
+	addType() {
+		const code = this.newType.code.trim().toUpperCase();
+		if (!ASSESSMENT_CODE.test(code) || this.types.some((x) => x.code === code)) {
+			this.#deps.onnotify(this.#deps.t(`${PREFIX}.errors.code_invalid`));
+			return;
+		}
+		const name = this.newType.name.trim();
+		if (name.length < ASSESSMENT_NAME_MIN) {
+			this.#deps.onnotify(this.#deps.t(`${PREFIX}.errors.required`));
+			return;
+		}
+		const drafts = this.#drafts;
+		drafts.types = [
+			...drafts.types,
+			{
+				code,
+				name,
+				category: this.newType.category,
+				is_exam: this.newType.is_exam,
+				weight: 0,
+				aggregation: DEFAULT_AGGREGATION
+			}
+		];
+		drafts.weights = { ...drafts.weights, [code]: 0 };
+		this.newType = { code: '', name: '', category: 'summative', is_exam: false };
 	}
 
 	get classId() {
@@ -240,8 +321,16 @@ export class PlanningDrawerState {
 		});
 	}
 
-	useDefaultAssessments() {
-		return this.call('assessments', { data: { use_default: true } }, this.#t('saved'));
+	async useDefaultAssessments() {
+		if (!this.#reasonOk()) return false;
+		const reason = this.reason.trim();
+		const ok = await this.call(
+			'assessments',
+			{ data: { use_default: true, ...(reason ? { reason } : {}) } },
+			this.#t('saved')
+		);
+		if (ok) this.reason = '';
+		return ok;
 	}
 
 	useDefaultPeriods() {
@@ -278,21 +367,10 @@ export class PlanningDrawerState {
 	}
 
 	async saveWeights() {
-		await this.call(
-			'assessments',
-			{
-				data: {
-					items: this.#planning.assessments.map((a) => ({
-						code: a.code,
-						name: a.name,
-						category: a.category,
-						is_exam: a.is_exam,
-						weight: Number(this.weights[a.code]) || 0
-					}))
-				}
-			},
-			this.#t('saved')
-		);
+		if (!this.#reasonOk()) return;
+		const items = this.types.map((a) => ({ ...a, weight: normalizeWeight(this.weights[a.code]) }));
+		const body = assessmentsBody(items, this.decimals, this.reason);
+		if (await this.call('assessments', { data: body }, this.#t('saved'))) this.reason = '';
 	}
 
 	async savePeriods() {

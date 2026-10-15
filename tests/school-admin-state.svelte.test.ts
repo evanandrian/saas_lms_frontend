@@ -526,6 +526,11 @@ describe('PlanningDrawerState', () => {
 			onplanning,
 			onnotify
 		});
+		// Kebijakan aktif berbobot > 0 → alasan wajib (R9); tanpa alasan tidak memanggil backend.
+		await state.saveWeights();
+		expect(action).not.toHaveBeenCalled();
+		expect(onnotify).toHaveBeenLastCalledWith('T(school_admin.planning.reason_short){"min":5}');
+		state.reason = 'revisi bobot';
 		action.mockResolvedValueOnce(fail('tenant_read_only'));
 		await state.saveWeights();
 		expect(onplanning).not.toHaveBeenCalled();
@@ -534,6 +539,7 @@ describe('PlanningDrawerState', () => {
 		action.mockResolvedValueOnce(ok(view));
 		await state.saveWeights();
 		expect(onplanning).toHaveBeenCalledWith(view);
+		expect(state.reason).toBe('');
 		expect(onnotify).toHaveBeenLastCalledWith('T(school_admin.planning.saved)');
 	});
 
