@@ -92,11 +92,11 @@ describe('layout admin sekolah: sidebar dinamis', () => {
 		expect(requestedRole()).toBe('school_admin');
 	});
 
-	it('API sidebar gagal: cadangan bawaan school_admin (12 item tampil) tetap dirender', async () => {
+	it('API sidebar gagal: cadangan bawaan school_admin (16 item tampil) tetap dirender', async () => {
 		mocks.loadAreaViews.mockResolvedValue({ views: [], activeView: 'school_admin' });
 		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'unavailable' });
 		const data = await runLoad();
-		expect(data.navigation.flatMap((g) => g.items)).toHaveLength(12);
+		expect(data.navigation.flatMap((g) => g.items)).toHaveLength(16);
 		expect(data.navigation.map((g) => g.code)).not.toContain('grp-keuangan');
 	});
 

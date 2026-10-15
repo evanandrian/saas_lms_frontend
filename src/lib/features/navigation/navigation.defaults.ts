@@ -90,9 +90,9 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			[
 				['tahun-ajaran', 'Tahun ajaran', 'calendar-range', '/app/admin/years'],
 				['kelas', 'Kelas', 'school', '/app/admin/classes'],
-				['mapel-tp', 'Mapel & TP', 'book-marked', '/app/admin/subjects', 'none', LATER],
-				['penugasan', 'Penugasan mengajar', 'network', '/app/admin/assignments', 'none', LATER],
-				['asesmen-bobot', 'Asesmen & bobot', 'scale', '/app/admin/assessments', 'none', LATER]
+				['mapel-tp', 'Mapel & TP', 'book-marked', '/app/admin/subjects'],
+				['penugasan', 'Penugasan mengajar', 'network', '/app/admin/assignments'],
+				['asesmen-bobot', 'Asesmen & bobot', 'scale', '/app/admin/assessments']
 			]
 		],
 		[
@@ -122,14 +122,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 					LATER
 				],
 				['rapor', 'Rapor', 'file-text', '/app/admin/reports'],
-				[
-					'ekstrakurikuler',
-					'Ekstrakurikuler',
-					'trophy',
-					'/app/admin/extracurriculars',
-					'none',
-					LATER
-				],
+				['ekstrakurikuler', 'Ekstrakurikuler', 'trophy', '/app/admin/extracurriculars'],
 				['pengumuman', 'Pengumuman', 'megaphone', '/app/admin/announcements', 'none', LATER]
 			]
 		],
