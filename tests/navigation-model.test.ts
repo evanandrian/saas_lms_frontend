@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { APP_PATHS } from '$lib/utils/app-paths';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
 	NAVIGATION_BADGES,
@@ -167,7 +168,7 @@ describe('validateTree rute ber-fragmen', () => {
 });
 
 describe('defaultNavigationLayout (cermin defaults.go)', () => {
-	it('school_admin: 6 grup, 22 item, 10 tersembunyi', () => {
+	it('school_admin: 6 grup, 22 item, 6 tersembunyi', () => {
 		const layout = defaultNavigationLayout('school_admin');
 		expect(layout.groups.map((g) => g.code)).toEqual([
 			'grp-utama',
@@ -180,11 +181,7 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 		const items = layout.groups.flatMap((g) => g.items);
 		expect(items).toHaveLength(22);
 		expect(items.filter((i) => i.hidden).map((i) => i.code)).toEqual([
-			'mapel-tp',
-			'penugasan',
-			'asesmen-bobot',
 			'presensi-guru',
-			'ekstrakurikuler',
 			'pengumuman',
 			'pendaftaran',
 			'spp-iuran',
@@ -197,8 +194,24 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 
 	it('sidebar cadangan menyembunyikan menu fase berikut', () => {
 		const groups = visibleGroups(defaultNavigationLayout('school_admin').groups);
-		expect(groups.flatMap((g) => g.items)).toHaveLength(12);
+		expect(groups.flatMap((g) => g.items)).toHaveLength(16);
 		expect(groups.map((g) => g.code)).not.toContain('grp-keuangan');
+	});
+
+	it('menu fase 2 ber-href karena rutenya sudah dibangun', () => {
+		const built = new Set(Object.values(APP_PATHS));
+		const groups = toWorkspaceNav(visibleGroups(defaultNavigationLayout('school_admin').groups), {
+			badges: {},
+			builtPaths: built
+		});
+		const hrefs = groups.flatMap((g) => g.items).map((i) => i.href);
+		for (const r of [
+			'/app/admin/subjects',
+			'/app/admin/assignments',
+			'/app/admin/assessments',
+			'/app/admin/extracurriculars'
+		])
+			expect(hrefs).toContain(r);
 	});
 
 	it('principal & homeroom tersedia', () => {

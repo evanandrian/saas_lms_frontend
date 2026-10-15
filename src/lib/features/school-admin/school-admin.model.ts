@@ -1,9 +1,18 @@
 import {
 	GetSchoolAuditCategory,
 	SchoolAuditActorRole,
+	type SchoolAssessmentsInput,
+	type SchoolExtraInput,
+	type SchoolPlanAssessment,
+	type SchoolPlanExtra,
+	type SchoolPlanningView,
 	type SchoolRemindOutcome,
 	type SchoolReportRecipient,
-	type SchoolReportRemindInput
+	type SchoolReportRemindInput,
+	type SchoolSetupState,
+	type SchoolStudentRow,
+	type SchoolSubjectItem,
+	type SchoolSubjectsInput
 } from '$lib/api/generated/lms';
 import type { BackendIssue } from '$lib/api/backend-call';
 import { formatNumber } from '$lib/utils/format';
@@ -69,6 +78,24 @@ export const RE = {
 	code: /^[A-Z0-9_]{2,20}$/
 } as const;
 
+/** Nomor urut kode TP: bilangan bulat bertanda opsional (cermin `strconv.Atoi` backend). */
+const OBJECTIVE_ORDER = /^[+-]?\d+$/;
+
+/**
+ * Prediksi kode TP baru "TP-<tingkat>.<max+1>" dari kode TP mapel×tingkat yang ada — cermin backend
+ * `nextObjectiveCode` (bukan jumlah, agar tidak bentrok setelah penghapusan).
+ */
+export function nextObjectiveCode(grade: number | string, existing: readonly string[]): string {
+	const prefix = `TP-${grade}.`;
+	let max = 0;
+	for (const code of existing) {
+		if (!code.startsWith(prefix)) continue;
+		const rest = code.slice(prefix.length);
+		if (OBJECTIVE_ORDER.test(rest)) max = Math.max(max, Number(rest));
+	}
+	return `${prefix}${max + 1}`;
+}
+
 export const normalizePhone = (v: string) => v.replace(/[\s-]/g, '');
 
 const HONORIFIC_PREFIX = /^(Dra?|Drs|H|Hj)\.\s*/;
@@ -119,12 +146,30 @@ export function shiftDate(iso: string, days: number): string {
 
 type Failure = Extract<PageActionOutcome<never>, { ok: false }>;
 
-/** Kode isu field (`{field, code}`) → pesan; kode dengan parameter memakai format `kode:nilai`. */
+/**
+ * Nama parameter i18n untuk kode isu ber-parameter; default `value`. `min_chars:<n>`/`max_chars:<n>`
+ * memakai `{min}`/`{max}` agar pesan server sama persis dengan `lengthMessage` di klien.
+ */
+const ISSUE_PARAM: ReadonlyMap<string, string> = new Map([
+	['min_chars', 'min'],
+	['max_chars', 'max']
+]);
+
+/**
+ * Kode isu field (`{field, code}`) → pesan; kode dengan parameter memakai format `kode:nilai`
+ * (dipisah pada `:` pertama, nilai boleh mengandung `:`). Kode tak dikenal atau `min_chars`/`max_chars`
+ * tanpa angka → pesan generic.
+ */
 export function issueMessage(t: T, code: string): string {
-	const [base, arg = ''] = code.split(':');
+	const sep = code.indexOf(':');
+	const base = sep < 0 ? code : code.slice(0, sep);
+	const arg = sep < 0 ? '' : code.slice(sep + 1);
+	const generic = t(`${PREFIX}.errors.generic`);
+	const param = ISSUE_PARAM.get(base);
+	if (param && !arg) return generic;
 	const key = `${PREFIX}.errors.${base}`;
-	const text = t(key, { value: arg });
-	return text === key ? t(`${PREFIX}.errors.generic`) : text;
+	const text = t(key, { [param ?? 'value']: arg });
+	return text === key ? generic : text;
 }
 
 /** Kode 429 endpoint kredensial publik (aktivasi murid, undangan akun). */
@@ -440,4 +485,382 @@ export function auditRoleLabel(t: T, role: string): string {
 	return AUDIT_ACTOR_ROLES.includes(role as AuditActorRole)
 		? t(`${PREFIX}.audit.role.${role}`)
 		: t(`${PREFIX}.audit.role.other`);
+}
+
+/** Nilai input apa pun → string ter-trim (angka/undefined dari binding tidak melempar). */
+const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+
+/** Jumlah karakter Unicode (code point), sama dengan `utf8.RuneCountInString` di backend. */
+export const charCount = (s: string): number => [...s].length;
+
+/** Masalah panjang teks (ter-trim): kosong → `required`; di bawah/di atas batas → `too_short`/`too_long`. */
+export type LengthIssue = 'required' | 'too_short' | 'too_long';
+
+export function lengthIssue(value: unknown, min: number, max = Infinity): LengthIssue | null {
+	const n = charCount(textOf(value));
+	if (n === 0) return 'required';
+	if (n < min) return 'too_short';
+	if (n > max) return 'too_long';
+	return null;
+}
+
+/** Pesan masalah panjang: `required` → "Wajib diisi"; selain itu menyebut batasnya (min/maks karakter). */
+export function lengthMessage(t: T, issue: LengthIssue, min: number, max = Infinity): string {
+	if (issue === 'too_short') return t(`${PREFIX}.errors.min_chars`, { min });
+	if (issue === 'too_long') return t(`${PREFIX}.errors.max_chars`, { max });
+	return t(`${PREFIX}.errors.required`);
+}
+
+/**
+ * Bilangan bulat min–max dari input number Svelte (number | null) atau string; null bila kosong,
+ * bukan bilangan bulat, atau di luar rentang. Dasar `parseKktp` & `weightValid`.
+ */
+export function intInRange(
+	raw: string | number | null | undefined,
+	min: number,
+	max: number
+): number | null {
+	if (raw === null || raw === undefined) return null;
+	if (typeof raw === 'string' && !raw.trim()) return null;
+	const value = Number(raw);
+	return Number.isInteger(value) && value >= min && value <= max ? value : null;
+}
+
+// ===== Mata pelajaran (halaman Mapel & TP, wizard setup) =====
+/** Cermin backend `SaveSubjects`: nama mapel minimal 2 karakter (rune). */
+export const SUBJECT_NAME_MIN = 2;
+export const KKTP_MAX = 100;
+
+/** KKTP dari input; null bila kosong/bukan bilangan bulat 0–100. */
+export const parseKktp = (raw: string | number | null | undefined): number | null =>
+	intInRange(raw, 0, KKTP_MAX);
+
+/**
+ * Kode masalah validasi mapel; dipetakan lewat `subjectIssueMessage` (atau pesan ringkas wizard).
+ * Nama mapel tidak berbatas atas (cermin backend), jadi tidak ada `too_long`.
+ */
+export type SubjectIssue = 'code_invalid' | 'code_taken' | 'required' | 'too_short';
+
+/**
+ * Validasi cepat tambah/ubah mapel, dipakai wizard setup & halaman Mapel (cermin `SaveSubjects`
+ * backend: kode `RE.code`, nama ≥ 2 code point). `existing` = kode yang sudah ada; null = kode
+ * tidak divalidasi (mode ubah, kode terkunci).
+ */
+export function subjectIssues(
+	f: { code: string; name: string },
+	existing: readonly string[] | null
+): Partial<Record<'code' | 'name', SubjectIssue>> {
+	const issues: Partial<Record<'code' | 'name', SubjectIssue>> = {};
+	if (existing) {
+		const code = textOf(f.code).toUpperCase();
+		if (!RE.code.test(code)) issues.code = 'code_invalid';
+		else if (existing.includes(code)) issues.code = 'code_taken';
+	}
+	const name = lengthIssue(f.name, SUBJECT_NAME_MIN);
+	if (name === 'required' || name === 'too_short') issues.name = name;
+	return issues;
+}
+
+/** Pesan masalah mapel; sama dengan pesan isu backend (`code_taken`, `code_invalid`, `required`). */
+export function subjectIssueMessage(t: T, issue: SubjectIssue): string {
+	if (issue === 'too_short') return lengthMessage(t, issue, SUBJECT_NAME_MIN);
+	return t(`${PREFIX}.errors.${issue}`);
+}
+
+export interface SubjectRow extends SchoolSubjectItem {
+	/** Id `subject_m` (null bila katalog belum dipakai sekolah). */
+	id: string | null;
+	objectives: number;
+}
+
+/** Baris tabel mapel: KKTP & status dari setup, id & jumlah TP dari perencanaan (cocok per kode). */
+export function subjectRows(setup: SchoolSetupState, planning: SchoolPlanningView): SubjectRow[] {
+	const idOf = new Map(planning.subjects.map((s) => [s.code, s.id]));
+	const count = new Map<string, number>();
+	for (const o of planning.objectives) count.set(o.subject_id, (count.get(o.subject_id) ?? 0) + 1);
+	return setup.subjects.map((s) => {
+		const id = idOf.get(s.code) ?? null;
+		return { ...s, id, objectives: id ? (count.get(id) ?? 0) : 0 };
+	});
+}
+
+/** Body `PUT /setup/subjects`: seluruh daftar; item ber-kode sama diganti, kode baru ditambah. */
+export function subjectsPayload(
+	items: readonly SchoolSubjectItem[],
+	edit: SchoolSubjectItem | null
+): SchoolSubjectsInput {
+	const list = items.map((s) => ({ ...s }));
+	if (edit) {
+		const next = { ...edit, code: edit.code.trim().toUpperCase(), name: edit.name.trim() };
+		const at = list.findIndex((s) => s.code === next.code);
+		if (at >= 0) list[at] = next;
+		else list.push(next);
+	}
+	return { subjects: list };
+}
+
+// ===== Beban mengajar (halaman Penugasan) =====
+/** Beban wajib guru per minggu (referensi: ASN 24–40 JP); di luar rentang ditandai, tidak diblokir. */
+export const TEACHING_LOAD_MIN_JP = 24;
+export const TEACHING_LOAD_MAX_JP = 40;
+
+export interface TeacherLoad {
+	teacher_id: string;
+	name: string;
+	/** JP per minggu = jumlah sel jadwal pelajaran semester aktif. */
+	jp: number;
+	subjects: string[];
+	classes: string[];
+	flag: 'low' | 'ok' | 'high';
+}
+
+export function loadFlag(jp: number): TeacherLoad['flag'] {
+	if (jp < TEACHING_LOAD_MIN_JP) return 'low';
+	return jp > TEACHING_LOAD_MAX_JP ? 'high' : 'ok';
+}
+
+export function teacherLoads(planning: SchoolPlanningView): TeacherLoad[] {
+	const subjectCode = new Map(planning.subjects.map((s) => [s.id, s.code]));
+	const className = new Map(planning.classes.map((c) => [c.id, c.name]));
+	const jp = new Map<string, number>();
+	for (const c of planning.schedule) jp.set(c.teacher_id, (jp.get(c.teacher_id) ?? 0) + 1);
+	return planning.teachers
+		.map((t) => {
+			const mine = planning.assignments.filter((a) => a.teacher_id === t.value);
+			const hours = jp.get(t.value) ?? 0;
+			return {
+				teacher_id: t.value,
+				name: t.label,
+				jp: hours,
+				subjects: [...new Set(mine.map((a) => subjectCode.get(a.subject_id) ?? ''))].filter(
+					Boolean
+				),
+				classes: [...new Set(mine.map((a) => className.get(a.class_id) ?? ''))].filter(Boolean),
+				flag: loadFlag(hours)
+			};
+		})
+		.filter((l) => l.subjects.length || l.jp);
+}
+
+// ===== Asesmen & bobot =====
+export const ASSESSMENT_AGGREGATIONS = ['average', 'latest', 'max'] as const;
+export type AssessmentAggregation = (typeof ASSESSMENT_AGGREGATIONS)[number];
+export const DEFAULT_AGGREGATION: AssessmentAggregation = 'average';
+export const DECIMAL_OPTIONS = [0, 1, 2] as const;
+export const REASON_MIN = 5;
+export const REASON_MAX = 500;
+export const ASSESSMENT_NAME_MIN = 2;
+const PERCENT = 100;
+const ASSESSMENT_CATEGORIES = ['formative', 'summative'] as const;
+export const ASSESSMENT_CATEGORY_OPTIONS = ASSESSMENT_CATEGORIES;
+
+/** Skor ilustrasi kartu "Contoh perhitungan" (bukan data murid). */
+export const EXAMPLE_SCORES = [78, 72, 80, 85, 75] as const;
+export const exampleSample = (codes: readonly string[]): Record<string, number> =>
+	Object.fromEntries(codes.map((c, i) => [c, EXAMPLE_SCORES[i % EXAMPLE_SCORES.length]!]));
+
+/** Bobot sah = bilangan bulat 0–100 (kontrak `weight` integer). */
+export const weightValid = (raw: string | number | null | undefined): boolean =>
+	intInRange(raw, 0, PERCENT) !== null;
+
+/** Bobot untuk perhitungan: dibulatkan ke bilangan bulat, dijepit 0–100; kosong/bukan angka → 0. */
+export function normalizeWeight(raw: string | number | null | undefined): number {
+	if (raw === null || raw === undefined || (typeof raw === 'string' && !raw.trim())) return 0;
+	const value = Number(raw);
+	if (!Number.isFinite(value)) return 0;
+	return Math.min(PERCENT, Math.max(0, Math.round(value)));
+}
+
+/** Digit pembulatan dari select/input; di luar opsi → 0. */
+export function normalizeDecimals(raw: string | number | null | undefined): number {
+	const value = Number(raw);
+	return (DECIMAL_OPTIONS as readonly number[]).includes(value) ? value : 0;
+}
+
+const SCORE_SCALE = 100;
+
+/**
+ * Contoh perhitungan bobot (bukan nilai resmi). Half-up (BR-31) dengan aritmetika bilangan bulat:
+ * skor diskalakan ke perseratus, bobot bulat, sehingga tidak ada galat floating point.
+ */
+export function weightExample(
+	items: readonly { code: string; weight: number }[],
+	sample: Readonly<Record<string, number>>,
+	decimals: number
+) {
+	const parts = items
+		.filter((i) => i.weight > 0)
+		.map((i) => ({ code: i.code, score: sample[i.code] ?? 0, weight: i.weight }));
+	// Σ dalam satuan 1/(100·100): skor×100 (bulat) × bobot (bulat).
+	const scaled = parts.reduce((sum, p) => sum + Math.round(p.score * SCORE_SCALE) * p.weight, 0);
+	const unit = SCORE_SCALE * PERCENT;
+	const factor = 10 ** decimals;
+	const total = Math.floor((scaled * factor + unit / 2) / unit) / factor;
+	return { parts, total };
+}
+
+/** Alasan wajib bila kebijakan aktif sudah punya total bobot > 0 (cermin backend, R9). */
+export const reasonRequired = (active: readonly { weight: number }[]): boolean =>
+	active.reduce((sum, a) => sum + a.weight, 0) > 0;
+
+export const reasonValid = (required: boolean, reason: string): boolean =>
+	!required || reason.trim().length >= REASON_MIN;
+
+export function assessmentsBody(
+	items: readonly SchoolPlanAssessment[],
+	decimals: number,
+	reason: string
+): SchoolAssessmentsInput {
+	const trimmed = reason.trim();
+	return {
+		...(trimmed ? { reason: trimmed } : {}),
+		decimal_places: normalizeDecimals(decimals),
+		items: items.map((i) => ({ ...i, aggregation: i.aggregation ?? DEFAULT_AGGREGATION }))
+	};
+}
+
+// ===== Ekstrakurikuler =====
+export const EXTRA_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+export const EXTRA_NAME_MIN = 2;
+export const EXTRA_NAME_MAX = 120;
+export const EXTRA_PLACE_MAX = 120;
+/** Satu code point Unicode = maksimal 2 unit UTF-16 (pasangan surrogate, mis. emoji). */
+const UTF16_UNITS_PER_CODE_POINT = 2;
+/**
+ * `maxlength` HTML menghitung unit UTF-16, bukan code point: batas keras input = 2 × batas code point
+ * agar nama sah (mis. 120 emoji) tidak terpotong. Batas sebenarnya tetap divalidasi `charCount` →
+ * pesan `max_chars` yang spesifik.
+ */
+export const inputMaxLength = (maxCodePoints: number): number =>
+	maxCodePoints * UTF16_UNITS_PER_CODE_POINT;
+/** "HH:MM:SS" (mis. nilai `<input type="time">` ber-step detik) → "HH:MM". */
+const CLOCK_WITH_SECONDS = /^(\d{2}:\d{2}):\d{2}$/;
+
+export interface ExtraForm {
+	name: string;
+	coach_id: string;
+	/** '' = tanpa jadwal; '1'..'6' = Senin..Sabtu. */
+	schedule_day: string;
+	start_time: string;
+	end_time: string;
+	place: string;
+	is_mandatory: boolean;
+}
+
+/** Hari ekskul dari select/backend (angka atau string) → '1'..'6', selain itu ''. */
+export function extraDay(v: unknown): string {
+	const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN;
+	return (WEEKDAYS as readonly number[]).includes(n) ? String(n) : '';
+}
+
+/** Jam ekskul dari input/backend → string ter-trim, detik dibuang; non-string → ''. */
+export function extraClock(v: unknown): string {
+	const s = textOf(v);
+	return CLOCK_WITH_SECONDS.exec(s)?.[1] ?? s;
+}
+
+/** Form ekskul dari data backend (null = ekskul baru). */
+export function extraForm(x: SchoolPlanExtra | null | undefined): ExtraForm {
+	return {
+		name: x?.name ?? '',
+		coach_id: x?.coach_id ?? '',
+		schedule_day: extraDay(x?.schedule_day),
+		start_time: extraClock(x?.start_time),
+		end_time: extraClock(x?.end_time),
+		place: x?.place ?? '',
+		is_mandatory: x?.is_mandatory ?? false
+	};
+}
+
+/** Validasi cepat ekskul (cermin `parseExtraAttrs` + nama di backend). */
+export function extraErrors(f: ExtraForm, t: T): Record<string, string> {
+	const e: Record<string, string> = {};
+	const nameIssue = lengthIssue(f.name, EXTRA_NAME_MIN, EXTRA_NAME_MAX);
+	const start = extraClock(f.start_time);
+	const end = extraClock(f.end_time);
+	if (nameIssue) e.name = lengthMessage(t, nameIssue, EXTRA_NAME_MIN, EXTRA_NAME_MAX);
+	if (start && !EXTRA_TIME.test(start)) e.start_time = t(`${PREFIX}.errors.time_format`);
+	if (end && !EXTRA_TIME.test(end)) e.end_time = t(`${PREFIX}.errors.time_format`);
+	if (Boolean(start) !== Boolean(end)) e.start_time ??= t(`${PREFIX}.errors.required`);
+	if (!e.start_time && !e.end_time && start && end && end <= start)
+		e.end_time = t(`${PREFIX}.errors.before_start`);
+	if (charCount(textOf(f.place)) > EXTRA_PLACE_MAX)
+		e.place = lengthMessage(t, 'too_long', 0, EXTRA_PLACE_MAX);
+	return e;
+}
+
+/**
+ * Body simpan ekskul. PUT = penggantian penuh: SEMUA atribut selalu dikirim (kosong → `null`,
+ * tidak pernah `undefined` yang hilang saat serialisasi JSON).
+ */
+export function extraBody(f: ExtraForm): SchoolExtraInput {
+	const orNull = (v: string) => v || null;
+	const day = extraDay(f.schedule_day);
+	return {
+		name: textOf(f.name),
+		coach_id: textOf(f.coach_id),
+		schedule_day: day ? Number(day) : null,
+		start_time: orNull(extraClock(f.start_time)),
+		end_time: orNull(extraClock(f.end_time)),
+		place: orNull(textOf(f.place)),
+		is_mandatory: f.is_mandatory === true
+	};
+}
+
+/** Kandidat anggota: murid aktif yang belum menjadi anggota, cocok nama/NIS. */
+export function memberCandidates(
+	students: readonly SchoolStudentRow[],
+	members: readonly { student_id: string }[],
+	query: string
+): SchoolStudentRow[] {
+	const taken = new Set(members.map((m) => m.student_id));
+	const q = textOf(query).toLowerCase();
+	return students.filter(
+		(s) =>
+			s.active &&
+			!taken.has(s.id) &&
+			(!q || s.name.toLowerCase().includes(q) || s.nis.toLowerCase().includes(q))
+	);
+}
+
+/**
+ * Pesan ConfirmDialog hapus ekskul (wizard & halaman Ekskul). Jumlah = anggota tahun ajaran aktif;
+ * backend menghapus keanggotaan SEMUA tahun, jadi teks selalu menyebut riwayat ikut terhapus.
+ */
+export function extraDeleteMessage(t: T, members: number | null | undefined): string {
+	const count = typeof members === 'number' && members > 0 ? members : 0;
+	return count
+		? t(`${PREFIX}.planning.extra_delete_members`, { count })
+		: t(`${PREFIX}.planning.extra_delete_empty`);
+}
+
+/** Pilihan murid calon anggota, terikat ke satu ekskul (ganti ekskul → pilihan kosong). */
+export interface MemberPicks {
+	extraId: string;
+	ids: Readonly<Record<string, boolean>>;
+}
+
+export const emptyPicks = (extraId = ''): MemberPicks => ({ extraId, ids: {} });
+
+/** Pilihan untuk ekskul `extraId`: dipertahankan bila ekskul sama, selain itu kosong. */
+export function picksFor(picks: MemberPicks, extraId: string): MemberPicks {
+	return picks.extraId === extraId ? picks : emptyPicks(extraId);
+}
+
+export function togglePick(picks: MemberPicks, studentId: string, on: boolean): MemberPicks {
+	return { extraId: picks.extraId, ids: { ...picks.ids, [studentId]: on } };
+}
+
+/**
+ * Id murid tercentang yang dikirim: tidak bergantung pada kueri pencarian (pilihan bertahan saat
+ * dicari ulang), tetap hanya murid aktif yang belum menjadi anggota.
+ */
+export function pickedIds(
+	picks: MemberPicks,
+	students: readonly SchoolStudentRow[],
+	members: readonly { student_id: string }[]
+): string[] {
+	return memberCandidates(students, members, '')
+		.filter((s) => picks.ids[s.id] === true)
+		.map((s) => s.id);
 }

@@ -25,6 +25,7 @@ import {
 	type SchoolInviteJob,
 	type SchoolNotesInput,
 	activateSchoolStudent,
+	addSchoolExtraMembers,
 	addSchoolObjective,
 	activateSchoolSubscription,
 	addSchoolSeats,
@@ -47,6 +48,7 @@ import {
 	getSchoolAttendance,
 	getSchoolClass,
 	getSchoolDashboard,
+	getSchoolExtraMembers,
 	getSchoolImportSpec,
 	getSchoolInvitation,
 	getSchoolPlanning,
@@ -67,6 +69,7 @@ import {
 	previewSchoolImport,
 	remindSchoolAttendance,
 	remindSchoolReport,
+	removeSchoolExtraMember,
 	saveHomeroomAttendance,
 	saveSchoolAssessments,
 	saveSchoolPeriods,
@@ -83,6 +86,7 @@ import {
 	updateSchoolClass,
 	updateSchoolExtra,
 	updateSchoolGuardian,
+	updateSchoolObjective,
 	updateSchoolStudent,
 	updateSchoolTeacher,
 	updateSchoolYear,
@@ -101,6 +105,8 @@ import {
 	type SchoolClassesView,
 	type SchoolDashboardView,
 	type SchoolExtraInput,
+	type SchoolExtraMembersInput,
+	type SchoolExtraMembersView,
 	type SchoolGuardianInput,
 	type SchoolGuardiansView,
 	type SchoolHomeroomAttendanceView,
@@ -114,6 +120,7 @@ import {
 	type SchoolInviteResult,
 	type SchoolLogoInput,
 	type SchoolObjectiveInput,
+	type SchoolObjectiveUpdateInput,
 	type SchoolParsedImport,
 	type SchoolPeriodsInput,
 	type SchoolPlanningView,
@@ -183,6 +190,8 @@ export const setAssignment = (ctx: Ctx, body: SchoolAssignmentInput) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => setSchoolAssignment(body, init));
 export const addObjective = (ctx: Ctx, body: SchoolObjectiveInput) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => addSchoolObjective(body, init));
+export const updateObjective = (ctx: Ctx, id: string, body: SchoolObjectiveUpdateInput) =>
+	callBackend<SchoolPlanningView>(ctx, (init) => updateSchoolObjective(id, body, init));
 export const deleteObjective = (ctx: Ctx, id: string) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => deleteSchoolObjective(id, init));
 export const saveAssessments = (ctx: Ctx, body: SchoolAssessmentsInput) =>
@@ -197,6 +206,12 @@ export const saveExtra = (ctx: Ctx, id: string, body: SchoolExtraInput) =>
 	);
 export const deleteExtra = (ctx: Ctx, id: string) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => deleteSchoolExtra(id, init));
+export const fetchExtraMembers = (ctx: Ctx, id: string) =>
+	callBackend<SchoolExtraMembersView>(ctx, (init) => getSchoolExtraMembers(id, init));
+export const addExtraMembers = (ctx: Ctx, id: string, body: SchoolExtraMembersInput) =>
+	callBackend<SchoolExtraMembersView>(ctx, (init) => addSchoolExtraMembers(id, body, init));
+export const removeExtraMember = (ctx: Ctx, id: string, studentId: string) =>
+	callBackend<SchoolExtraMembersView>(ctx, (init) => removeSchoolExtraMember(id, studentId, init));
 
 // ===== 05a–05e =====
 export const fetchYears = (ctx: Ctx) =>

@@ -3744,7 +3744,7 @@
 			"class_not_found": "Class does not exist.",
 			"already_filled": "This class is already fully filled in.",
 			"no_contact": "The recipient has no email contact.",
-			"no_homeroom_contact": "The homeroom teacher has no email contact.",
+			"no_homeroom_contact": "Homeroom teacher is not assigned or has no email.",
 			"recipient_invalid": "The reminder recipient is not valid for this report card.",
 			"audit_export_range_invalid": "The export range is at most 90 days and the start date cannot be after the end date.",
 			"capacity_range": "Must be 1–60.",
@@ -3766,7 +3766,15 @@
 			"objective_exists": "Learning objective already exists.",
 			"weight_range": "Weight 0–100; formative 0%.",
 			"weight_total_100": "Total weight must be 100%.",
-			"assessment_in_use": "Assessment type is used by grades and cannot be removed.",
+			"too_short": "Too short.",
+			"min_chars": "At least {min} characters.",
+			"max_chars": "At most {max} characters.",
+			"range": "Value is outside the allowed range.",
+			"before_start": "End time must be after start time.",
+			"time_format": "Time must be HH:MM.",
+			"subject_in_use": "This subject is still used by assignments, objectives, grades, the schedule, or report cards and cannot be deactivated.",
+			"student_invalid": "Student not found or inactive.",
+			"class_invalid": "Class not found in the active academic year.",
 			"extra_exists": "Activity already exists.",
 			"not_in_class": "Student is not in this class.",
 			"all_students_required": "Fill attendance for every student in the class.",
@@ -3774,7 +3782,6 @@
 			"holiday": "Holiday (Sunday).",
 			"remind_cooldown": "A reminder was just sent. Try again in an hour.",
 			"all_filled": "All classes have filled attendance.",
-			"no_homeroom_contact": "Homeroom teacher is not assigned or has no email.",
 			"seats_range": "Seats must be 1–2,000.",
 			"password_weak": "Password needs at least 8 characters without leading/trailing spaces.",
 			"logo_invalid": "Logo must be PNG/JPG up to 1 MB.",
@@ -4424,13 +4431,14 @@
 			"objective_add": "Add objective",
 			"objective_ph": "Students are able to …",
 			"objective_short": "Write an objective of at least 10 characters",
+			"objective_edit": "Edit learning objective",
+			"objective_save": "Save objective",
 			"delete": "Delete",
 			"assess_note": "Weights are used when teachers compute final grades. Formative may be 0% when used for feedback only.",
 			"assess_default": "Use default",
 			"assess_empty": "No assessment types yet. Use the default to start.",
 			"formative": "Formative",
 			"summative": "Summative",
-			"exam": "exam",
 			"weight_of": "Weight of {name}",
 			"weight_total": "Total weight",
 			"save_weights": "Save weights",
@@ -4453,10 +4461,36 @@
 			"extras_empty": "No extracurricular activities yet.",
 			"extra_ph": "Activity name, e.g. Scouts",
 			"extra_add": "Add",
-			"extra_name_required": "Enter the activity name",
 			"saved": "Saved",
 			"autosaved": "Changes are saved automatically",
-			"done": "Done"
+			"done": "Done",
+			"weight_head": "WEIGHT",
+			"aggregation": "Aggregation",
+			"aggregation_of": "Aggregation for {name}",
+			"aggregation_average": "Average",
+			"aggregation_latest": "Latest",
+			"aggregation_max": "Highest",
+			"decimals": "Final grade rounding",
+			"decimals_0": "Whole number",
+			"decimals_1": "1 decimal",
+			"decimals_2": "2 decimals",
+			"type_add": "Add type",
+			"type_code": "Code",
+			"type_name": "Name",
+			"type_category": "Category",
+			"exam_label": "Exam",
+			"example_title": "CALCULATION EXAMPLE",
+			"example_line": "{expr} = {total}",
+			"example_empty": "Give at least one type a weight to see an example.",
+			"policy_pending_note": "Aggregation and rounding are saved; they are used once automatic final-grade calculation is available.",
+			"reason_label": "Reason for change",
+			"reason_hint": "Required, at least {min} characters; recorded in the change history.",
+			"reason_optional": "Optional on the first save; recorded in the change history.",
+			"reason_short": "Enter a reason of at least {min} characters.",
+			"weight_bar": "Weight composition",
+			"extra_delete_title": "Delete {name}?",
+			"extra_delete_members": "This activity has {count} members this year. Membership history from previous years is also deleted and cannot be restored.",
+			"extra_delete_empty": "This activity has no members this year. Membership history from previous years (if any) is also deleted and cannot be restored."
 		},
 		"setup": {
 			"title": "Complete school data",
@@ -4755,6 +4789,52 @@
 			"poll_stopped": "Progress could not be loaded ({message}). Reload the page to see the latest status.",
 			"codes_unavailable": "Activation codes from this run cannot be displayed. Contact the platform administrator."
 		},
+		"subjects": {
+			"eyebrow": "ACADEMIC",
+			"title": "Subjects & objectives",
+			"desc": "Subjects taught at the school, their KKTP, and learning objectives per grade.",
+			"add": "Add subject",
+			"search": "Search subject code or name",
+			"head_subject": "SUBJECT",
+			"head_kktp": "KKTP",
+			"head_tp": "OBJECTIVES",
+			"head_status": "STATUS",
+			"kktp_value": "KKTP {value}",
+			"objectives_count": "{count} objectives",
+			"stat_active": "Active subjects",
+			"stat_objectives": "Learning objectives",
+			"stat_without_tp": "Subjects without objectives",
+			"empty": "No subjects yet.",
+			"foot": "Subjects still used by assignments, objectives, grades, the schedule, or report cards cannot be deactivated.",
+			"field_code": "Subject code",
+			"field_name": "Subject name",
+			"field_kktp": "KKTP",
+			"code_note": "Capital letters, digits, or underscore (2–20).",
+			"code_locked": "The code cannot be changed.",
+			"inactive_note": "Inactive = not taught. {rule}",
+			"open_tp": "Manage learning objectives ({count})",
+			"tp_title": "Learning objectives",
+			"tp_note": "Objectives are set per grade; the phase follows the class grade."
+		},
+		"assignments": {
+			"eyebrow": "ACADEMIC",
+			"title": "Teaching assignments",
+			"desc": "The teacher of each subject in every class for the active semester.",
+			"view": "View",
+			"per_class": "By class",
+			"per_teacher": "By teacher",
+			"stat_filled": "Subjects assigned",
+			"stat_teachers": "Teachers teaching",
+			"stat_out_of_range": "Load out of range",
+			"load_note": "Weekly periods are calculated from the active semester's lesson schedule. Red: below {min} or above {max} periods.",
+			"head_teacher": "TEACHER",
+			"head_subjects": "SUBJECTS",
+			"head_classes": "CLASSES",
+			"head_jp": "PERIODS/WEEK",
+			"jp_value": "{jp} periods",
+			"empty_teachers": "No teachers have assignments yet.",
+			"no_semester": "There is no active semester. Activate a school year and semester first so teaching assignments can be managed."
+		},
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",
 			"title": "Change history",
@@ -4766,7 +4846,7 @@
 				"guardian": "Guardians",
 				"account": "Account invitations",
 				"report": "Report cards",
-				"academic": "Years & classes",
+				"academic": "Academic years, classes & subjects",
 				"planning": "Academic planning",
 				"reminder": "Reminders",
 				"export": "Data exports"
@@ -4843,6 +4923,9 @@
 					"update": "Updated class {subject}",
 					"delete": "Deleted class {subject}"
 				},
+				"subject": {
+					"save": "Updated the subject list"
+				},
 				"planning": {
 					"homeroom": {
 						"save": "Assigned homeroom teacher {subject}",
@@ -4871,6 +4954,10 @@
 					"extra": {
 						"save": "Saved extracurricular {subject}",
 						"delete": "Deleted extracurricular {subject}"
+					},
+					"extra_member": {
+						"save": "Added members to extracurricular {subject}",
+						"delete": "Removed a member from extracurricular {subject}"
 					}
 				},
 				"attendance": {
@@ -4893,6 +4980,48 @@
 				"skipped": "{count} skipped",
 				"failed": "{count} failed"
 			}
+		},
+		"assessments": {
+			"eyebrow": "ACADEMIC",
+			"title": "Assessments & weights",
+			"desc": "School assessment types and their weights in the final grade (total 100%).",
+			"stat_types": "Assessment types",
+			"stat_total": "Total weight",
+			"stat_decimals": "Rounding"
+		},
+		"extras": {
+			"eyebrow": "ACTIVITIES",
+			"title": "Extracurriculars",
+			"desc": "School extracurricular activities: coach, schedule, place, and members for the active academic year.",
+			"add": "Add activity",
+			"stat_count": "Activities",
+			"stat_members": "Total members",
+			"stat_mandatory": "Mandatory activities",
+			"no_schedule": "Schedule not set",
+			"members": "{count} members",
+			"mandatory": "MANDATORY",
+			"edit": "Edit",
+			"manage_members": "Members",
+			"empty": "No extracurricular activities yet. Add the school's first activity.",
+			"field_name": "Activity name",
+			"field_day": "Day",
+			"field_start": "Start time",
+			"field_end": "End time",
+			"field_place": "Place",
+			"field_mandatory": "Mandatory activity",
+			"mandatory_note": "The mandatory label does not add members automatically.",
+			"members_title": "{name} members",
+			"members_loading": "Loading members…",
+			"members_count": "Active academic year members ({count})",
+			"members_empty": "No members this year yet.",
+			"member_remove": "Remove {name}",
+			"add_class_title": "Add all active students of a class",
+			"add_class": "Add class",
+			"add_students_title": "Add students",
+			"search_students": "Search name or NIS",
+			"no_candidates": "No students available to add.",
+			"add_selected": "Add {count} students",
+			"selected_hidden": "{count} selected students are hidden by the search but will still be added."
 		}
 	},
 	"payments": {
@@ -5505,7 +5634,7 @@
 			"purpose": "This page shows a trail of important school changes across teacher and student records, guardians, accounts, report cards, academic years and classes, academic planning, reminders, and data exports. Use it to trace who did what and when.",
 			"features": {
 				"timeline": "View change history newest first in a table with time, actor, role, and action.",
-				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years & classes, academic planning, reminders, or data exports.",
+				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years, classes & subjects, academic planning, reminders, or data exports.",
 				"range": "Filter history by date range.",
 				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
 				"more": "Load older history step by step.",
@@ -5522,6 +5651,32 @@
 				"read_only": "This page is read-only; history cannot be changed or deleted.",
 				"range": "The start date cannot be after the end date.",
 				"system": "The \"System\" actor means an automated process or a user who currently has no membership role in the school, such as a former member."
+			}
+		},
+		"school_admin_subjects": {
+			"purpose": "Use this page to manage the subjects taught, their KKTP, and learning objectives (TP) per grade.",
+			"features": {
+				"list": "View active and inactive subjects with their KKTP and objective count.",
+				"edit": "Add school subjects, change the name or KKTP, and disable subjects.",
+				"tp": "Add, edit, and delete objectives per subject and grade."
+			},
+			"steps": {
+				"s1": "Click \"Add subject\" and fill in the code, name, and KKTP.",
+				"s2": "Click a subject row to change its name, KKTP, or status.",
+				"s3": "In the subject drawer, click \"Manage learning objectives\" to build objectives per grade."
+			}
+		},
+		"school_admin_assignments": {
+			"purpose": "Use this page to set the teacher of each subject in every class for the active semester, and to review each teacher's teaching load.",
+			"features": {
+				"per_class": "By class: pick a teacher for each subject; choices save immediately.",
+				"per_teacher": "By teacher: see each teacher's subjects, classes, and periods per week.",
+				"load": "Load is calculated from the lesson schedule; shown in red below 24 or above 40 periods."
+			},
+			"steps": {
+				"s1": "Choose the \"By class\" view, then pick a class.",
+				"s2": "Pick the teacher for each subject.",
+				"s3": "Open the \"By teacher\" view to check the load; adjust the lesson schedule if periods are off."
 			}
 		},
 		"school_admin_classes": {
@@ -6264,6 +6419,33 @@
 			"tips": {
 				"existing": "Price and feature changes apply to new subscriptions and the next renewal; issued invoices do not change.",
 				"delete": "Plans that already have customers cannot be deleted. Change the status to \"Archived\" if you no longer want to offer them."
+			}
+		},
+		"school_admin_assessments": {
+			"purpose": "Use this page to manage the school assessment types, their weight in the final grade, aggregation, and rounding.",
+			"features": {
+				"types": "Assessment types: code, name, category, and exam flag; new types can be added.",
+				"weights": "Weights: the total must be 100%; formative is always 0%. The example card shows the result with the chosen rounding.",
+				"policy": "Aggregation and rounding are saved; they are used once automatic final-grade calculation is available."
+			},
+			"steps": {
+				"s1": "Set each type weight until the total is 100%.",
+				"s2": "Choose the aggregation per type and the final grade rounding.",
+				"s3": "Enter a reason if the policy already has weights, then click \"Save weights\"."
+			}
+		},
+		"school_admin_extracurriculars": {
+			"purpose": "This page manages the school's extracurricular activities with their coach, schedule, place, and members for the active academic year.",
+			"features": {
+				"list": "Activity cards: name, coach, day and time, place, mandatory label, and this year's member count.",
+				"edit": "Add or edit an activity: name, coach (teacher), day, start–end time, place, and mandatory label. The mandatory label does not add members automatically.",
+				"members": "Manage members: search and tick active students, add all active students of a class, or remove members.",
+				"delete": "Delete an activity through a confirmation showing this year's member count; membership history from previous years is also deleted."
+			},
+			"steps": {
+				"s1": "Click \"Add activity\", fill in the name and (optionally) coach, schedule, and place, then save.",
+				"s2": "Click \"Members\" on an activity card to add students or a whole class.",
+				"s3": "Click \"Edit\" to update the activity or delete it."
 			}
 		}
 	},

@@ -25,12 +25,17 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import {
 		ACCREDITATIONS,
-		KKTP_MAX,
 		MAX_CAPACITY,
 		MAX_GROUPS,
 		RequiredWizardState
 	} from '../../required-wizard.state.svelte';
-	import { PREFIX, REQUIRED_SECTIONS, inputClass, sectionCount } from '../../school-admin.model';
+	import {
+		KKTP_MAX,
+		PREFIX,
+		REQUIRED_SECTIONS,
+		inputClass,
+		sectionCount
+	} from '../../school-admin.model';
 	import Segmented from '../Segmented.svelte';
 
 	interface Props {

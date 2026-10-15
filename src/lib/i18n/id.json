@@ -3744,7 +3744,7 @@
 			"class_not_found": "Kelas tidak ada.",
 			"already_filled": "Presensi/rapor kelas ini sudah terisi lengkap.",
 			"no_contact": "Penerima belum memiliki kontak email.",
-			"no_homeroom_contact": "Wali kelas belum memiliki kontak email.",
+			"no_homeroom_contact": "Wali kelas belum ditetapkan atau belum punya email.",
 			"recipient_invalid": "Penerima pengingat tidak valid untuk rapor ini.",
 			"audit_export_range_invalid": "Rentang ekspor maksimal 90 hari dan tanggal awal tidak boleh setelah tanggal akhir.",
 			"capacity_range": "Harus 1–60.",
@@ -3766,7 +3766,15 @@
 			"objective_exists": "Tujuan pembelajaran sudah ada.",
 			"weight_range": "Bobot 0–100; formatif 0%.",
 			"weight_total_100": "Total bobot harus 100%.",
-			"assessment_in_use": "Jenis asesmen sudah dipakai nilai dan tidak bisa dihapus.",
+			"too_short": "Terlalu pendek.",
+			"min_chars": "Minimal {min} karakter.",
+			"max_chars": "Maksimal {max} karakter.",
+			"range": "Nilai di luar rentang yang diizinkan.",
+			"before_start": "Jam selesai harus setelah jam mulai.",
+			"time_format": "Format jam harus JJ:MM.",
+			"subject_in_use": "Mapel masih dipakai penugasan, TP, nilai, jadwal, atau rapor sehingga tidak bisa dinonaktifkan.",
+			"student_invalid": "Murid tidak ditemukan atau tidak aktif.",
+			"class_invalid": "Kelas tidak ditemukan di tahun ajaran aktif.",
 			"extra_exists": "Kegiatan sudah ada.",
 			"not_in_class": "Murid bukan anggota kelas ini.",
 			"all_students_required": "Isi presensi seluruh murid kelas.",
@@ -3774,7 +3782,6 @@
 			"holiday": "Hari libur (Minggu).",
 			"remind_cooldown": "Pengingat baru saja dikirim. Coba lagi dalam satu jam.",
 			"all_filled": "Semua kelas sudah mengisi presensi.",
-			"no_homeroom_contact": "Wali kelas belum ditetapkan atau belum punya email.",
 			"seats_range": "Jumlah kursi 1–2.000.",
 			"password_weak": "Kata sandi minimal 8 karakter tanpa spasi di awal/akhir.",
 			"logo_invalid": "Logo PNG/JPG maks. 1 MB.",
@@ -4424,13 +4431,14 @@
 			"objective_add": "Tambah TP",
 			"objective_ph": "Peserta didik mampu …",
 			"objective_short": "Tulis deskripsi TP minimal 10 karakter",
+			"objective_edit": "Ubah TP",
+			"objective_save": "Simpan TP",
 			"delete": "Hapus",
 			"assess_note": "Bobot dipakai saat guru menghitung nilai akhir. Formatif boleh 0% bila hanya untuk umpan balik.",
 			"assess_default": "Pakai default",
 			"assess_empty": "Belum ada jenis asesmen. Pakai default untuk memulai.",
 			"formative": "Formatif",
 			"summative": "Sumatif",
-			"exam": "ujian",
 			"weight_of": "Bobot {name}",
 			"weight_total": "Total bobot",
 			"save_weights": "Simpan bobot",
@@ -4453,10 +4461,36 @@
 			"extras_empty": "Belum ada kegiatan ekstrakurikuler.",
 			"extra_ph": "Nama kegiatan, mis. Pramuka",
 			"extra_add": "Tambah",
-			"extra_name_required": "Isi nama kegiatan",
 			"saved": "Tersimpan",
 			"autosaved": "Perubahan tersimpan otomatis",
-			"done": "Selesai"
+			"done": "Selesai",
+			"weight_head": "BOBOT",
+			"aggregation": "Agregasi",
+			"aggregation_of": "Agregasi {name}",
+			"aggregation_average": "Rata-rata",
+			"aggregation_latest": "Terakhir",
+			"aggregation_max": "Tertinggi",
+			"decimals": "Pembulatan nilai akhir",
+			"decimals_0": "Bilangan bulat",
+			"decimals_1": "1 desimal",
+			"decimals_2": "2 desimal",
+			"type_add": "Tambah jenis",
+			"type_code": "Kode",
+			"type_name": "Nama",
+			"type_category": "Kategori",
+			"exam_label": "Ujian",
+			"example_title": "CONTOH PERHITUNGAN",
+			"example_line": "{expr} = {total}",
+			"example_empty": "Beri bobot pada minimal satu jenis untuk melihat contoh.",
+			"policy_pending_note": "Agregasi & pembulatan disimpan; dipakai saat perhitungan otomatis nilai akhir tersedia.",
+			"reason_label": "Alasan perubahan",
+			"reason_hint": "Wajib, minimal {min} karakter; tercatat di riwayat perubahan.",
+			"reason_optional": "Opsional pada penyimpanan pertama; tercatat di riwayat perubahan.",
+			"reason_short": "Isi alasan perubahan minimal {min} karakter.",
+			"weight_bar": "Komposisi bobot",
+			"extra_delete_title": "Hapus {name}?",
+			"extra_delete_members": "Ekskul ini punya {count} anggota tahun ini. Riwayat keanggotaan tahun-tahun sebelumnya juga ikut terhapus dan tidak bisa dikembalikan.",
+			"extra_delete_empty": "Ekskul belum punya anggota tahun ini. Riwayat keanggotaan tahun-tahun sebelumnya (bila ada) ikut terhapus dan tidak bisa dikembalikan."
 		},
 		"setup": {
 			"title": "Lengkapi data sekolah",
@@ -4755,6 +4789,52 @@
 			"poll_stopped": "Progres belum bisa dimuat ({message}). Muat ulang halaman untuk melihat status terbaru.",
 			"codes_unavailable": "Kode aktivasi dari proses ini tidak dapat ditampilkan. Hubungi administrator platform."
 		},
+		"subjects": {
+			"eyebrow": "AKADEMIK",
+			"title": "Mapel & TP",
+			"desc": "Mata pelajaran yang diajarkan sekolah, KKTP, dan tujuan pembelajaran per tingkat.",
+			"add": "Tambah mapel",
+			"search": "Cari kode atau nama mapel",
+			"head_subject": "MATA PELAJARAN",
+			"head_kktp": "KKTP",
+			"head_tp": "TP",
+			"head_status": "STATUS",
+			"kktp_value": "KKTP {value}",
+			"objectives_count": "{count} TP",
+			"stat_active": "Mapel aktif",
+			"stat_objectives": "Tujuan pembelajaran",
+			"stat_without_tp": "Mapel tanpa TP",
+			"empty": "Belum ada mata pelajaran.",
+			"foot": "Mapel yang masih dipakai penugasan, TP, nilai, jadwal, atau rapor tidak bisa dinonaktifkan.",
+			"field_code": "Kode mapel",
+			"field_name": "Nama mapel",
+			"field_kktp": "KKTP",
+			"code_note": "Huruf kapital, angka, atau garis bawah (2–20).",
+			"code_locked": "Kode tidak dapat diubah.",
+			"inactive_note": "Nonaktif = tidak diajarkan. {rule}",
+			"open_tp": "Kelola tujuan pembelajaran ({count})",
+			"tp_title": "Tujuan pembelajaran",
+			"tp_note": "TP disusun per tingkat; fase mengikuti tingkat kelas."
+		},
+		"assignments": {
+			"eyebrow": "AKADEMIK",
+			"title": "Penugasan mengajar",
+			"desc": "Guru pengampu tiap mata pelajaran di setiap kelas untuk semester aktif.",
+			"view": "Tampilan",
+			"per_class": "Per kelas",
+			"per_teacher": "Per guru",
+			"stat_filled": "Mapel terisi",
+			"stat_teachers": "Guru mengajar",
+			"stat_out_of_range": "Beban di luar rentang",
+			"load_note": "JP per minggu dihitung dari jadwal pelajaran semester aktif. Merah: di bawah {min} atau di atas {max} JP.",
+			"head_teacher": "GURU",
+			"head_subjects": "MAPEL",
+			"head_classes": "KELAS",
+			"head_jp": "JP/MINGGU",
+			"jp_value": "{jp} JP",
+			"empty_teachers": "Belum ada guru dengan penugasan.",
+			"no_semester": "Belum ada semester aktif. Aktifkan tahun ajaran dan semester terlebih dahulu agar penugasan mengajar dapat diatur."
+		},
 		"audit": {
 			"eyebrow": "ADMIN SEKOLAH",
 			"title": "Riwayat perubahan",
@@ -4766,7 +4846,7 @@
 				"guardian": "Wali murid",
 				"account": "Undangan akun",
 				"report": "Rapor",
-				"academic": "Tahun ajaran & kelas",
+				"academic": "Tahun ajaran, kelas & mapel",
 				"planning": "Perencanaan akademik",
 				"reminder": "Pengingat",
 				"export": "Ekspor data"
@@ -4843,6 +4923,9 @@
 					"update": "Mengubah kelas {subject}",
 					"delete": "Menghapus kelas {subject}"
 				},
+				"subject": {
+					"save": "Mengubah daftar mata pelajaran"
+				},
 				"planning": {
 					"homeroom": {
 						"save": "Menetapkan wali kelas {subject}",
@@ -4871,6 +4954,10 @@
 					"extra": {
 						"save": "Menyimpan ekstrakurikuler {subject}",
 						"delete": "Menghapus ekstrakurikuler {subject}"
+					},
+					"extra_member": {
+						"save": "Menambah anggota ekstrakurikuler {subject}",
+						"delete": "Menghapus anggota ekstrakurikuler {subject}"
 					}
 				},
 				"attendance": {
@@ -4893,6 +4980,48 @@
 				"skipped": "{count} dilewati",
 				"failed": "{count} gagal"
 			}
+		},
+		"assessments": {
+			"eyebrow": "AKADEMIK",
+			"title": "Asesmen & bobot",
+			"desc": "Jenis asesmen sekolah dan bobotnya dalam nilai akhir (total 100%).",
+			"stat_types": "Jenis asesmen",
+			"stat_total": "Total bobot",
+			"stat_decimals": "Pembulatan"
+		},
+		"extras": {
+			"eyebrow": "KEGIATAN",
+			"title": "Ekstrakurikuler",
+			"desc": "Kegiatan ekstrakurikuler sekolah: pembina, jadwal, tempat, dan anggota tahun ajaran aktif.",
+			"add": "Tambah ekskul",
+			"stat_count": "Ekskul",
+			"stat_members": "Total anggota",
+			"stat_mandatory": "Ekskul wajib",
+			"no_schedule": "Jadwal belum diatur",
+			"members": "{count} anggota",
+			"mandatory": "WAJIB",
+			"edit": "Ubah",
+			"manage_members": "Anggota",
+			"empty": "Belum ada kegiatan ekstrakurikuler. Tambahkan ekskul pertama sekolah.",
+			"field_name": "Nama kegiatan",
+			"field_day": "Hari",
+			"field_start": "Jam mulai",
+			"field_end": "Jam selesai",
+			"field_place": "Tempat",
+			"field_mandatory": "Ekskul wajib",
+			"mandatory_note": "Label wajib tidak menambahkan anggota otomatis.",
+			"members_title": "Anggota {name}",
+			"members_loading": "Memuat anggota…",
+			"members_count": "Anggota tahun ajaran aktif ({count})",
+			"members_empty": "Belum ada anggota tahun ini.",
+			"member_remove": "Keluarkan {name}",
+			"add_class_title": "Tambah seluruh murid aktif satu kelas",
+			"add_class": "Tambah kelas",
+			"add_students_title": "Tambah murid",
+			"search_students": "Cari nama atau NIS",
+			"no_candidates": "Tidak ada murid yang bisa ditambahkan.",
+			"add_selected": "Tambah {count} murid",
+			"selected_hidden": "{count} murid terpilih tidak tampil karena pencarian, tetapi tetap ikut ditambahkan."
 		}
 	},
 	"payments": {
@@ -5505,7 +5634,7 @@
 			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, mulai dari data guru dan murid, wali murid, akun, rapor, tahun ajaran dan kelas, perencanaan akademik, pengingat, hingga ekspor data. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
 			"features": {
 				"timeline": "Melihat riwayat perubahan terbaru lebih dulu dalam tabel berisi waktu, pelaku, peran, dan aksi.",
-				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran & kelas, perencanaan akademik, pengingat, atau ekspor data.",
+				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran, kelas & mapel, perencanaan akademik, pengingat, atau ekspor data.",
 				"range": "Menyaring riwayat berdasarkan rentang tanggal.",
 				"detail": "Melihat detail tambahan seperti NIS/NIP, alasan, dan jumlah undangan terkirim atau gagal.",
 				"more": "Memuat riwayat yang lebih lama secara bertahap.",
@@ -5522,6 +5651,32 @@
 				"read_only": "Halaman ini hanya untuk dibaca; riwayat tidak bisa diubah atau dihapus.",
 				"range": "Tanggal awal tidak boleh setelah tanggal akhir.",
 				"system": "Pelaku \"Sistem\" berarti proses otomatis atau pengguna yang saat ini tidak memiliki peran keanggotaan di sekolah, misalnya mantan anggota."
+			}
+		},
+		"school_admin_subjects": {
+			"purpose": "Halaman ini untuk mengatur mata pelajaran yang diajarkan, KKTP, dan tujuan pembelajaran (TP) per tingkat.",
+			"features": {
+				"list": "Melihat mapel aktif dan nonaktif beserta KKTP dan jumlah TP.",
+				"edit": "Menambah mapel sekolah, mengubah nama atau KKTP, serta menonaktifkan mapel.",
+				"tp": "Menambah, mengubah, dan menghapus TP per mapel dan tingkat."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah mapel\" lalu isi kode, nama, dan KKTP.",
+				"s2": "Klik baris mapel untuk mengubah nama, KKTP, atau status.",
+				"s3": "Di drawer mapel, klik \"Kelola tujuan pembelajaran\" untuk menyusun TP per tingkat."
+			}
+		},
+		"school_admin_assignments": {
+			"purpose": "Halaman ini untuk mengatur guru pengampu setiap mata pelajaran di tiap kelas pada semester aktif, serta melihat beban mengajar per guru.",
+			"features": {
+				"per_class": "Per kelas: memilih guru untuk setiap mapel; pilihan langsung tersimpan.",
+				"per_teacher": "Per guru: melihat mapel, kelas, dan JP per minggu setiap guru.",
+				"load": "Beban JP dihitung dari jadwal pelajaran; merah bila di bawah 24 atau di atas 40 JP."
+			},
+			"steps": {
+				"s1": "Pilih tampilan \"Per kelas\" lalu pilih kelas.",
+				"s2": "Pilih guru pengampu pada setiap mapel.",
+				"s3": "Buka tampilan \"Per guru\" untuk memeriksa beban JP; atur jadwal pelajaran bila JP belum sesuai."
 			}
 		},
 		"school_admin_classes": {
@@ -6264,6 +6419,33 @@
 			"tips": {
 				"existing": "Perubahan harga dan fitur berlaku untuk langganan baru dan perpanjangan berikutnya; tagihan yang sudah terbit tidak berubah.",
 				"delete": "Paket yang sudah punya pelanggan tidak bisa dihapus. Ubah statusnya menjadi \"Arsip\" bila tidak ingin ditawarkan lagi."
+			}
+		},
+		"school_admin_assessments": {
+			"purpose": "Halaman ini untuk mengatur jenis asesmen sekolah, bobot tiap jenis dalam nilai akhir, cara agregasi, dan pembulatan.",
+			"features": {
+				"types": "Jenis asesmen: kode, nama, kategori, dan penanda ujian; jenis baru dapat ditambahkan.",
+				"weights": "Bobot: total harus 100%; formatif selalu 0%. Kartu contoh menunjukkan hasil hitung dengan pembulatan terpilih.",
+				"policy": "Agregasi dan pembulatan disimpan; dipakai saat perhitungan otomatis nilai akhir tersedia."
+			},
+			"steps": {
+				"s1": "Atur bobot tiap jenis hingga totalnya 100%.",
+				"s2": "Pilih agregasi per jenis dan pembulatan nilai akhir.",
+				"s3": "Isi alasan perubahan bila kebijakan sudah pernah berbobot, lalu klik \"Simpan bobot\"."
+			}
+		},
+		"school_admin_extracurriculars": {
+			"purpose": "Halaman ini untuk mengelola kegiatan ekstrakurikuler sekolah beserta pembina, jadwal, tempat, dan anggotanya pada tahun ajaran aktif.",
+			"features": {
+				"list": "Kartu ekskul: nama, pembina, hari dan jam, tempat, label wajib, serta jumlah anggota tahun ini.",
+				"edit": "Tambah atau ubah ekskul: nama, pembina (guru), hari, jam mulai–selesai, tempat, dan label wajib. Label wajib tidak menambahkan anggota otomatis.",
+				"members": "Kelola anggota: cari dan centang murid aktif, tambah seluruh murid aktif satu kelas, atau keluarkan anggota.",
+				"delete": "Hapus ekskul lewat konfirmasi yang menampilkan jumlah anggota tahun ini; riwayat keanggotaan tahun sebelumnya ikut terhapus."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah ekskul\", isi nama dan (opsional) pembina, jadwal, serta tempat, lalu simpan.",
+				"s2": "Klik \"Anggota\" pada kartu ekskul untuk menambahkan murid atau seluruh kelas.",
+				"s3": "Klik \"Ubah\" untuk memperbarui data ekskul atau menghapusnya."
 			}
 		}
 	},

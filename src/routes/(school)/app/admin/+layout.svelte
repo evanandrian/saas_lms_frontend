@@ -24,9 +24,13 @@
 	const SCHOOL_DOT_SECTIONS: Readonly<Record<string, string>> = {
 		'tahun-ajaran': 'year',
 		kelas: 'classes',
+		'mapel-tp': 'subjects',
+		penugasan: 'assign',
+		'asesmen-bobot': 'assess',
 		guru: 'teachers',
 		murid: 'students',
-		'orang-tua': 'students'
+		'orang-tua': 'students',
+		ekstrakurikuler: 'extras'
 	};
 
 	const dots = $derived.by(() => {

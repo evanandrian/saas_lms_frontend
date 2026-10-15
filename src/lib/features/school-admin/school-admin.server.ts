@@ -372,6 +372,11 @@ export const setupActions: Actions = {
 	objectiveRemove: action<WithId>((ctx, b) =>
 		validId(b.id) ? api.deleteObjective(ctx, b.id) : null
 	),
+	objectiveUpdate: action<WithId & { description?: string }>((ctx, b) =>
+		validId(b.id) && typeof b.description === 'string'
+			? api.updateObjective(ctx, b.id, { description: b.description })
+			: null
+	),
 	assessments: action<{ data?: SchoolAssessmentsInput }>((ctx, b) =>
 		b.data ? api.saveAssessments(ctx, b.data) : null
 	),
@@ -387,6 +392,63 @@ export const setupActions: Actions = {
 	extraRemove: action<WithId>((ctx, b) => (validId(b.id) ? api.deleteExtra(ctx, b.id) : null)),
 	teachers: action((ctx) => api.fetchTeachers(ctx)),
 	students: action((ctx) => api.fetchStudents(ctx))
+};
+
+/** Halaman Mapel & TP: daftar mapel (setup) + TP (perencanaan), memakai aksi setup yang sama. */
+const SUBJECTS_PAGE_ACTIONS = [
+	'subjects',
+	'planning',
+	'objectiveAdd',
+	'objectiveRemove',
+	'objectiveUpdate'
+] as const;
+export const subjectsPageActions: Actions = Object.fromEntries(
+	SUBJECTS_PAGE_ACTIONS.map((name) => [name, setupActions[name]!])
+);
+
+/** Halaman Penugasan mengajar (per kelas langsung tersimpan). */
+export const assignmentsPageActions: Actions = {
+	assignment: setupActions.assignment!
+};
+
+/** Halaman Asesmen & bobot. */
+export const assessmentsPageActions: Actions = {
+	assessments: setupActions.assessments!
+};
+
+type MembersAddBody = WithId & { studentIds?: unknown; classId?: unknown };
+
+/** Halaman Ekstrakurikuler: data ekskul (perencanaan) + anggota per tahun ajaran aktif. */
+export const extrasPageActions: Actions = {
+	planning: setupActions.planning!,
+	extraSave: setupActions.extraSave!,
+	extraRemove: setupActions.extraRemove!,
+	students: setupActions.students!,
+	extraMembers: action<WithId>((ctx, b) =>
+		validId(b.id) ? api.fetchExtraMembers(ctx, b.id) : null
+	),
+	extraMembersAdd: action<MembersAddBody>((ctx, b) => {
+		if (!validId(b.id)) return null;
+		// Daftar murid eksplisit (bukan "semua"): bila dikirim harus array berisi id valid.
+		let ids: string[] = [];
+		if (b.studentIds !== undefined) {
+			if (!Array.isArray(b.studentIds) || !b.studentIds.every(validId)) return null;
+			ids = b.studentIds;
+		}
+		let classId = '';
+		if (b.classId !== undefined) {
+			if (!validId(b.classId)) return null;
+			classId = b.classId;
+		}
+		if (!ids.length && !classId) return null;
+		return api.addExtraMembers(ctx, b.id, {
+			...(ids.length ? { student_ids: ids } : {}),
+			...(classId ? { class_id: classId } : {})
+		});
+	}),
+	extraMemberRemove: action<WithId & { studentId?: string }>((ctx, b) =>
+		validId(b.id) && validId(b.studentId) ? api.removeExtraMember(ctx, b.id, b.studentId) : null
+	)
 };
 
 export const homeroomAttendanceActions: Actions = {

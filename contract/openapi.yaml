@@ -3542,6 +3542,15 @@ paths:
   /api/v1/school/setup/subjects:
     put:
       operationId: saveSchoolSetupSubjects
+      description: >-
+        Replace taught subjects + KKTP. Enabled subjects are validated first (validation_failed issues):
+        code not matching the code format → {field: "code", code: "code_invalid"}; a code repeated in the
+        request (case-insensitive) → {field: "code", code: "code_taken"}; trimmed name shorter than 2 Unicode
+        code points → {field: "name", code: "required"}; KKTP outside 0–100 → {field: "kktp", code: "kktp_range"};
+        no enabled subject → {field: "subjects", code: "subjects_required"}. A disabled subject still referenced
+        by assignments, objectives, grades, schedule, or report cards yields validation_failed issue
+        {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save
+        {added, updated, removed}.
       requestBody:
         content:
           application/json:
@@ -3725,6 +3734,39 @@ paths:
       summary: Delete learning objective
       tags:
       - school-admin
+    put:
+      operationId: updateSchoolObjective
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolObjectiveUpdateInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolPlanningView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Update learning objective description (10–500 chars; code/subject/grade unchanged)
+      tags:
+      - school-admin
   /api/v1/school/planning/assessments:
     put:
       operationId: saveSchoolAssessments
@@ -3896,6 +3938,101 @@ paths:
       security:
       - bearerAuth: []
       summary: Delete extracurricular
+      description: Deletes the extracurricular and all its members (all years); audited with member_count.
+      tags:
+      - school-admin
+  /api/v1/school/planning/extras/{id}/members:
+    get:
+      operationId: getSchoolExtraMembers
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolExtraMembersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Members of an extracurricular in the active academic year
+      tags:
+      - school-admin
+    post:
+      operationId: addSchoolExtraMembers
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolExtraMembersInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolExtraMembersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Add members (selected students and/or all active students of a class); duplicates ignored
+      tags:
+      - school-admin
+  /api/v1/school/planning/extras/{id}/members/{studentID}:
+    delete:
+      operationId: removeSchoolExtraMember
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studentID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolExtraMembersView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Remove a member from an extracurricular (active academic year)
       tags:
       - school-admin
   /api/v1/school/years:
@@ -4649,7 +4786,7 @@ paths:
       parameters:
       - in: query
         name: category
-        description: 'academic = academic_year.* + class.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*'
+        description: 'academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*'
         schema:
           type: string
           enum:
@@ -4712,6 +4849,7 @@ paths:
       parameters:
       - in: query
         name: category
+        description: 'academic = academic_year.* + class.* + subject.*'
         schema:
           type: string
           enum:
@@ -6700,6 +6838,15 @@ components:
           items:
             $ref: '#/components/schemas/SchoolPlanAssessment'
           type: array
+        decimal_places:
+          type: integer
+          minimum: 0
+          maximum: 2
+          description: Rounding digits for final grades (BR-31, half-up). Optional; omitted keeps the current value. Stored; applied once automatic final-grade calculation exists.
+        reason:
+          type: string
+          maxLength: 500
+          description: Required (at least 5 chars, issue reason/too_short) when an active policy with weights already exists.
     SchoolAssignment:
       type: object
       required:
@@ -7208,11 +7355,80 @@ components:
           type: array
     SchoolExtraInput:
       type: object
+      description: PUT replaces the whole extracurricular (omitted attributes become null/false).
       properties:
         name:
           type: string
+          minLength: 2
+          maxLength: 120
+          description: >-
+            Whitespace-collapsed name, counted in Unicode code points (JSON Schema lengths count
+            characters, not bytes or UTF-16 units). Fewer than 2 → validation_failed
+            {field: "name", code: "required"}; more than 120 → validation_failed
+            {field: "name", code: "max_chars:120"}.
         coach_id:
           type: string
+        schedule_day:
+          type: integer
+          nullable: true
+          minimum: 1
+          maximum: 6
+        start_time:
+          type: string
+          nullable: true
+          description: HH:MM (or HH.MM); must be paired with end_time
+        end_time:
+          type: string
+          nullable: true
+        place:
+          type: string
+          nullable: true
+          maxLength: 120
+          description: >-
+            Whitespace-collapsed, counted in Unicode code points (JSON Schema lengths count characters,
+            not bytes or UTF-16 units); longer → validation_failed {field: "place", code: "max_chars:120"}.
+        is_mandatory:
+          type: boolean
+    SchoolExtraMember:
+      type: object
+      required:
+      - student_id
+      - name
+      - nis
+      - class_name
+      properties:
+        student_id:
+          type: string
+        name:
+          type: string
+        nis:
+          type: string
+        class_name:
+          type: string
+    SchoolExtraMembersInput:
+      type: object
+      properties:
+        student_ids:
+          type: array
+          items:
+            type: string
+        class_id:
+          type: string
+    SchoolExtraMembersView:
+      type: object
+      required:
+      - extra_id
+      - year_id
+      - members
+      properties:
+        extra_id:
+          type: string
+        year_id:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolExtraMember'
     SchoolGradeOption:
       type: object
       required:
@@ -8210,6 +8426,15 @@ components:
           type: string
         description:
           type: string
+    SchoolObjectiveUpdateInput:
+      type: object
+      required:
+      - description
+      properties:
+        description:
+          type: string
+          minLength: 10
+          maxLength: 500
     SchoolOption:
       type: object
       required:
@@ -8287,6 +8512,12 @@ components:
           type: boolean
         weight:
           type: integer
+        aggregation:
+          type: string
+          enum:
+          - average
+          - latest
+          - max
     SchoolPlanAssignment:
       type: object
       required:
@@ -8346,6 +8577,12 @@ components:
       - name
       - coach_id
       - coach_name
+      - schedule_day
+      - start_time
+      - end_time
+      - place
+      - is_mandatory
+      - member_count
       properties:
         id:
           type: string
@@ -8356,6 +8593,23 @@ components:
           type: string
         coach_name:
           type: string
+        schedule_day:
+          type: integer
+          nullable: true
+        start_time:
+          type: string
+          nullable: true
+        end_time:
+          type: string
+          nullable: true
+        place:
+          type: string
+          nullable: true
+        is_mandatory:
+          type: boolean
+        member_count:
+          type: integer
+          description: Members in the active academic year.
     SchoolPlanObjective:
       type: object
       required:
@@ -8415,6 +8669,7 @@ components:
       - objectives
       - assessments
       - weight_total
+      - decimal_places
       - periods
       - schedule
       - extras
@@ -8455,6 +8710,8 @@ components:
             $ref: '#/components/schemas/SchoolPlanAssessment'
           type: array
         weight_total:
+          type: integer
+        decimal_places:
           type: integer
         periods:
           items:

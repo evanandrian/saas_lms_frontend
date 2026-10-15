@@ -231,17 +231,38 @@ export interface SchoolActivationCode {
 	code: string;
 }
 
+export type SchoolPlanAssessmentAggregation =
+	(typeof SchoolPlanAssessmentAggregation)[keyof typeof SchoolPlanAssessmentAggregation];
+
+export const SchoolPlanAssessmentAggregation = {
+	average: 'average',
+	latest: 'latest',
+	max: 'max'
+} as const;
+
 export interface SchoolPlanAssessment {
 	code: string;
 	name: string;
 	category: string;
 	is_exam: boolean;
 	weight: number;
+	aggregation?: SchoolPlanAssessmentAggregation;
 }
 
 export interface SchoolAssessmentsInput {
 	use_default?: boolean;
 	items?: SchoolPlanAssessment[];
+	/**
+	 * Rounding digits for final grades (BR-31, half-up). Optional; omitted keeps the current value. Stored; applied once automatic final-grade calculation exists.
+	 * @minimum 0
+	 * @maximum 2
+	 */
+	decimal_places?: number;
+	/**
+	 * Required (at least 5 chars, issue reason/too_short) when an active policy with weights already exists.
+	 * @maxLength 500
+	 */
+	reason?: string;
 }
 
 export interface SchoolAssignment {
@@ -525,9 +546,55 @@ export interface SchoolDashboardView {
 	todo: SchoolDashboardTodo[];
 }
 
+/**
+ * PUT replaces the whole extracurricular (omitted attributes become null/false).
+ */
 export interface SchoolExtraInput {
+	/**
+	 * Whitespace-collapsed name, counted in Unicode code points (JSON Schema lengths count characters, not bytes or UTF-16 units). Fewer than 2 → validation_failed {field: "name", code: "required"}; more than 120 → validation_failed {field: "name", code: "max_chars:120"}.
+	 * @minLength 2
+	 * @maxLength 120
+	 */
 	name?: string;
 	coach_id?: string;
+	/**
+	 * @minimum 1
+	 * @maximum 6
+	 * @nullable
+	 */
+	schedule_day?: number | null;
+	/**
+	 * HH:MM (or HH.MM); must be paired with end_time
+	 * @nullable
+	 */
+	start_time?: string | null;
+	/** @nullable */
+	end_time?: string | null;
+	/**
+	 * Whitespace-collapsed, counted in Unicode code points (JSON Schema lengths count characters, not bytes or UTF-16 units); longer → validation_failed {field: "place", code: "max_chars:120"}.
+	 * @maxLength 120
+	 * @nullable
+	 */
+	place?: string | null;
+	is_mandatory?: boolean;
+}
+
+export interface SchoolExtraMember {
+	student_id: string;
+	name: string;
+	nis: string;
+	class_name: string;
+}
+
+export interface SchoolExtraMembersInput {
+	student_ids?: string[];
+	class_id?: string;
+}
+
+export interface SchoolExtraMembersView {
+	extra_id: string;
+	year_id: string;
+	members: SchoolExtraMember[];
 }
 
 export interface SchoolGradeRow {
@@ -999,6 +1066,14 @@ export interface SchoolObjectiveInput {
 	description?: string;
 }
 
+export interface SchoolObjectiveUpdateInput {
+	/**
+	 * @minLength 10
+	 * @maxLength 500
+	 */
+	description: string;
+}
+
 export interface SchoolParsedImport {
 	file_name: string;
 	rows: SchoolImportRow[];
@@ -1056,6 +1131,17 @@ export interface SchoolPlanExtra {
 	/** @nullable */
 	coach_id: string | null;
 	coach_name: string;
+	/** @nullable */
+	schedule_day: number | null;
+	/** @nullable */
+	start_time: string | null;
+	/** @nullable */
+	end_time: string | null;
+	/** @nullable */
+	place: string | null;
+	is_mandatory: boolean;
+	/** Members in the active academic year. */
+	member_count: number;
 }
 
 export interface SchoolPlanObjective {
@@ -1085,6 +1171,7 @@ export interface SchoolPlanningView {
 	objectives: SchoolPlanObjective[];
 	assessments: SchoolPlanAssessment[];
 	weight_total: number;
+	decimal_places: number;
 	periods: SchoolPlanPeriod[];
 	schedule: SchoolPlanCell[];
 	extras: SchoolPlanExtra[];
@@ -5154,6 +5241,10 @@ export type DeleteSchoolObjective200 = {
 	data: SchoolPlanningView;
 };
 
+export type UpdateSchoolObjective200 = {
+	data: SchoolPlanningView;
+};
+
 export type SaveSchoolAssessments200 = {
 	data: SchoolPlanningView;
 };
@@ -5176,6 +5267,18 @@ export type UpdateSchoolExtra200 = {
 
 export type DeleteSchoolExtra200 = {
 	data: SchoolPlanningView;
+};
+
+export type GetSchoolExtraMembers200 = {
+	data: SchoolExtraMembersView;
+};
+
+export type AddSchoolExtraMembers200 = {
+	data: SchoolExtraMembersView;
+};
+
+export type RemoveSchoolExtraMember200 = {
+	data: SchoolExtraMembersView;
 };
 
 export type ListSchoolYears200 = {
@@ -5288,7 +5391,7 @@ export type GetSchoolInviteJob200 = {
 
 export type GetSchoolAuditParams = {
 	/**
-	 * academic = academic_year.* + class.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*
+	 * academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*
 	 */
 	category?: GetSchoolAuditCategory;
 	from?: string;
@@ -5327,6 +5430,9 @@ export type GetSchoolAudit200 = {
 };
 
 export type ExportSchoolAuditParams = {
+	/**
+	 * academic = academic_year.* + class.* + subject.*
+	 */
 	category?: ExportSchoolAuditCategory;
 	from?: string;
 	to?: string;
@@ -13726,6 +13832,7 @@ export const getSaveSchoolSetupSubjectsUrl = () => {
 };
 
 /**
+ * Replace taught subjects + KKTP. Enabled subjects are validated first (validation_failed issues): code not matching the code format → {field: "code", code: "code_invalid"}; a code repeated in the request (case-insensitive) → {field: "code", code: "code_taken"}; trimmed name shorter than 2 Unicode code points → {field: "name", code: "required"}; KKTP outside 0–100 → {field: "kktp", code: "kktp_range"}; no enabled subject → {field: "subjects", code: "subjects_required"}. A disabled subject still referenced by assignments, objectives, grades, schedule, or report cards yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.
  * @summary Step 5 subjects
  */
 export const saveSchoolSetupSubjects = async (
@@ -14039,6 +14146,65 @@ export const deleteSchoolObjective = async (
 	return lmsFetch<deleteSchoolObjectiveResponse>(getDeleteSchoolObjectiveUrl(id), {
 		...options,
 		method: 'DELETE'
+	});
+};
+
+export type updateSchoolObjectiveResponse200 = {
+	data: UpdateSchoolObjective200;
+	status: 200;
+};
+
+export type updateSchoolObjectiveResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolObjectiveResponseSuccess = updateSchoolObjectiveResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolObjectiveResponseError = updateSchoolObjectiveResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolObjectiveResponse =
+	updateSchoolObjectiveResponseSuccess | updateSchoolObjectiveResponseError;
+
+export const getUpdateSchoolObjectiveUrl = (id: string) => {
+	return `/api/v1/school/planning/objectives/${id}`;
+};
+
+/**
+ * @summary Update learning objective description (10–500 chars; code/subject/grade unchanged)
+ */
+export const updateSchoolObjective = async (
+	id: string,
+	schoolObjectiveUpdateInput: SchoolObjectiveUpdateInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolObjectiveResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolObjectiveResponse>(getUpdateSchoolObjectiveUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolObjectiveUpdateInput)
 	});
 };
 
@@ -14358,6 +14524,7 @@ export const getDeleteSchoolExtraUrl = (id: string) => {
 };
 
 /**
+ * Deletes the extracurricular and all its members (all years); audited with member_count.
  * @summary Delete extracurricular
  */
 export const deleteSchoolExtra = async (
@@ -14365,6 +14532,140 @@ export const deleteSchoolExtra = async (
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<deleteSchoolExtraResponse> => {
 	return lmsFetch<deleteSchoolExtraResponse>(getDeleteSchoolExtraUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type getSchoolExtraMembersResponse200 = {
+	data: GetSchoolExtraMembers200;
+	status: 200;
+};
+
+export type getSchoolExtraMembersResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolExtraMembersResponseSuccess = getSchoolExtraMembersResponse200 & {
+	headers: Headers;
+};
+export type getSchoolExtraMembersResponseError = getSchoolExtraMembersResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolExtraMembersResponse =
+	getSchoolExtraMembersResponseSuccess | getSchoolExtraMembersResponseError;
+
+export const getGetSchoolExtraMembersUrl = (id: string) => {
+	return `/api/v1/school/planning/extras/${id}/members`;
+};
+
+/**
+ * @summary Members of an extracurricular in the active academic year
+ */
+export const getSchoolExtraMembers = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolExtraMembersResponse> => {
+	return lmsFetch<getSchoolExtraMembersResponse>(getGetSchoolExtraMembersUrl(id), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type addSchoolExtraMembersResponse200 = {
+	data: AddSchoolExtraMembers200;
+	status: 200;
+};
+
+export type addSchoolExtraMembersResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type addSchoolExtraMembersResponseSuccess = addSchoolExtraMembersResponse200 & {
+	headers: Headers;
+};
+export type addSchoolExtraMembersResponseError = addSchoolExtraMembersResponseDefault & {
+	headers: Headers;
+};
+
+export type addSchoolExtraMembersResponse =
+	addSchoolExtraMembersResponseSuccess | addSchoolExtraMembersResponseError;
+
+export const getAddSchoolExtraMembersUrl = (id: string) => {
+	return `/api/v1/school/planning/extras/${id}/members`;
+};
+
+/**
+ * @summary Add members (selected students and/or all active students of a class); duplicates ignored
+ */
+export const addSchoolExtraMembers = async (
+	id: string,
+	schoolExtraMembersInput: SchoolExtraMembersInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<addSchoolExtraMembersResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<addSchoolExtraMembersResponse>(getAddSchoolExtraMembersUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolExtraMembersInput)
+	});
+};
+
+export type removeSchoolExtraMemberResponse200 = {
+	data: RemoveSchoolExtraMember200;
+	status: 200;
+};
+
+export type removeSchoolExtraMemberResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type removeSchoolExtraMemberResponseSuccess = removeSchoolExtraMemberResponse200 & {
+	headers: Headers;
+};
+export type removeSchoolExtraMemberResponseError = removeSchoolExtraMemberResponseDefault & {
+	headers: Headers;
+};
+
+export type removeSchoolExtraMemberResponse =
+	removeSchoolExtraMemberResponseSuccess | removeSchoolExtraMemberResponseError;
+
+export const getRemoveSchoolExtraMemberUrl = (id: string, studentID: string) => {
+	return `/api/v1/school/planning/extras/${id}/members/${studentID}`;
+};
+
+/**
+ * @summary Remove a member from an extracurricular (active academic year)
+ */
+export const removeSchoolExtraMember = async (
+	id: string,
+	studentID: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<removeSchoolExtraMemberResponse> => {
+	return lmsFetch<removeSchoolExtraMemberResponse>(getRemoveSchoolExtraMemberUrl(id, studentID), {
 		...options,
 		method: 'DELETE'
 	});

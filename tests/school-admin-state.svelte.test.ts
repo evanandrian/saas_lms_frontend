@@ -526,6 +526,11 @@ describe('PlanningDrawerState', () => {
 			onplanning,
 			onnotify
 		});
+		// Kebijakan aktif berbobot > 0 → alasan wajib (R9); tanpa alasan tidak memanggil backend.
+		await state.saveWeights();
+		expect(action).not.toHaveBeenCalled();
+		expect(onnotify).toHaveBeenLastCalledWith('T(school_admin.planning.reason_short){"min":5}');
+		state.reason = 'revisi bobot';
 		action.mockResolvedValueOnce(fail('tenant_read_only'));
 		await state.saveWeights();
 		expect(onplanning).not.toHaveBeenCalled();
@@ -534,6 +539,7 @@ describe('PlanningDrawerState', () => {
 		action.mockResolvedValueOnce(ok(view));
 		await state.saveWeights();
 		expect(onplanning).toHaveBeenCalledWith(view);
+		expect(state.reason).toBe('');
 		expect(onnotify).toHaveBeenLastCalledWith('T(school_admin.planning.saved)');
 	});
 
@@ -550,6 +556,148 @@ describe('PlanningDrawerState', () => {
 		await state.addObjective();
 		expect(action).not.toHaveBeenCalled();
 		expect(onnotify).toHaveBeenCalledWith('T(school_admin.planning.objective_short)');
+	});
+
+	it('nama ekskul < 2 karakter ditolak di klien (validasi sama dengan halaman Ekskul)', async () => {
+		const onnotify = vi.fn();
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1),
+			key: () => 'extras',
+			t,
+			onplanning: vi.fn(),
+			onnotify
+		});
+		state.exName = ' P ';
+		await state.addExtra();
+		expect(action).not.toHaveBeenCalled();
+		expect(onnotify).not.toHaveBeenCalled();
+		// Pesan inline (bukan toast) & spesifik: terlalu pendek ≠ kosong.
+		expect(state.exNameError).toBe('T(school_admin.errors.min_chars){"min":2}');
+		state.exName = '   ';
+		await state.addExtra();
+		expect(state.exNameError).toBe('T(school_admin.errors.required)');
+		state.exName = 'x'.repeat(121);
+		await state.addExtra();
+		expect(state.exNameError).toBe('T(school_admin.errors.max_chars){"max":120}');
+		expect(action).not.toHaveBeenCalled();
+	});
+
+	it('error nama ekskul di-reset saat bagian ekskul dibuka ulang', async () => {
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1),
+			key: () => 'extras',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		});
+		state.exName = 'P';
+		await state.addExtra();
+		expect(state.exNameError).not.toBe('');
+		state.resetExtraError();
+		expect(state.exNameError).toBe('');
+		expect(action).not.toHaveBeenCalled();
+	});
+
+	it('kode TP berikutnya = max+1 mapel×tingkat terpilih (cermin BE, tahan celah hapus)', () => {
+		const objective = (id: string, code: string, subject = 's1', grade = 'g1') => ({
+			id,
+			code,
+			subject_id: subject,
+			grade_id: grade,
+			description: 'Deskripsi TP'
+		});
+		const planning = {
+			...planningView(40, 1),
+			objectives: [
+				objective('o1', 'TP-10.1'),
+				objective('o3', 'TP-10.3'),
+				objective('o9', 'TP-10.9', 's2')
+			]
+		} as unknown as SchoolPlanningView;
+		const state = new PlanningDrawerState({
+			planning: () => planning,
+			key: () => 'objectives',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		});
+		expect(state.objectives).toHaveLength(2);
+		expect(state.nextCode).toBe('TP-10.4');
+	});
+
+	it('initialSubject memilih mapel awal; tanpa opsi → mapel pertama', () => {
+		const planning = {
+			...planningView(40, 1),
+			subjects: [
+				{ id: 's1', name: 'MTK' },
+				{ id: 's2', name: 'IPA' }
+			]
+		} as unknown as SchoolPlanningView;
+		const deps = {
+			planning: () => planning,
+			key: () => 'objectives' as const,
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn()
+		};
+		expect(new PlanningDrawerState({ ...deps, initialSubject: 's2' }).objSubject).toBe('s2');
+		expect(new PlanningDrawerState(deps).objSubject).toBe('s1');
+	});
+
+	it('initialSubject yang tidak ada di daftar mapel → mapel pertama', () => {
+		const planning = {
+			...planningView(40, 1),
+			subjects: [{ id: 's1', name: 'MTK' }]
+		} as unknown as SchoolPlanningView;
+		const state = new PlanningDrawerState({
+			planning: () => planning,
+			key: () => 'objectives',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn(),
+			initialSubject: 'hilang'
+		});
+		expect(state.objSubject).toBe('s1');
+	});
+
+	it('updateObjective: deskripsi pendek ditolak; valid memanggil objectiveUpdate lalu menutup editor', async () => {
+		const onnotify = vi.fn();
+		const onplanning = vi.fn();
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1) as unknown as SchoolPlanningView,
+			key: () => 'objectives',
+			t,
+			onplanning,
+			onnotify
+		});
+		state.startEditObjective('o1', 'pendek');
+		expect(await state.updateObjective()).toBe(false);
+		expect(action).not.toHaveBeenCalled();
+		state.editObjectiveText = '  Deskripsi TP yang cukup panjang  ';
+		action.mockResolvedValueOnce({ ok: true, data: planningView(40, 1) } as never);
+		expect(await state.updateObjective()).toBe(true);
+		expect(action).toHaveBeenCalledWith('objectiveUpdate', {
+			id: 'o1',
+			description: 'Deskripsi TP yang cukup panjang'
+		});
+		expect(state.editObjective).toBeNull();
+		expect(onplanning).toHaveBeenCalled();
+	});
+
+	it('planning null (muat gagal) → konstruktor tidak melempar, pemilih kosong', () => {
+		const create = () =>
+			new PlanningDrawerState({
+				planning: () => null as unknown as SchoolPlanningView,
+				key: () => 'assess',
+				t,
+				onplanning: vi.fn(),
+				onnotify: vi.fn()
+			});
+		expect(create).not.toThrow();
+		const state = create();
+		expect(state.classId).toBe('');
+		expect(state.objSubject).toBe('');
+		expect(state.objGrade).toBe('');
 	});
 });
 
@@ -658,6 +806,16 @@ describe('RequiredWizardState', () => {
 		wizard.newName = 'Duplikat';
 		wizard.addSubject();
 		expect(wizard.errors.subjects).toBe('T(school_admin.errors.code_taken)');
+		// Nama 1 karakter ditolak seperti halaman Mapel & backend (min 2), dengan pesan batas minimal.
+		wizard.newCode = 'inf';
+		wizard.newName = 'I';
+		wizard.addSubject();
+		expect(wizard.errors.subjects).toBe('T(school_admin.errors.min_chars){"min":2}');
+		// Nama kosong tetap memakai pesan ringkas wizard.
+		wizard.newName = '  ';
+		wizard.addSubject();
+		expect(wizard.errors.subjects).toBe('T(school_admin.setup.custom_invalid)');
+		expect(wizard.subjects.map((s) => s.code)).toEqual(['MTK']);
 		wizard.newCode = 'inf';
 		wizard.newName = 'Informatika';
 		wizard.addSubject();
