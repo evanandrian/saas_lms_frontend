@@ -1,9 +1,13 @@
 import {
 	GetSchoolAuditCategory,
 	SchoolAuditActorRole,
+	type SchoolPlanningView,
 	type SchoolRemindOutcome,
 	type SchoolReportRecipient,
-	type SchoolReportRemindInput
+	type SchoolReportRemindInput,
+	type SchoolSetupState,
+	type SchoolSubjectItem,
+	type SchoolSubjectsInput
 } from '$lib/api/generated/lms';
 import type { BackendIssue } from '$lib/api/backend-call';
 import { formatNumber } from '$lib/utils/format';
@@ -458,4 +462,42 @@ export function auditRoleLabel(t: T, role: string): string {
 	return AUDIT_ACTOR_ROLES.includes(role as AuditActorRole)
 		? t(`${PREFIX}.audit.role.${role}`)
 		: t(`${PREFIX}.audit.role.other`);
+}
+
+// ===== Mata pelajaran (halaman Mapel & TP) =====
+/** Kode mapel (cermin backend `reCode`). */
+export const SUBJECT_CODE = /^[A-Z0-9_]{2,20}$/;
+export const SUBJECT_NAME_MIN = 2;
+export const KKTP_MAX = 100;
+
+export interface SubjectRow extends SchoolSubjectItem {
+	/** Id `subject_m` (null bila katalog belum dipakai sekolah). */
+	id: string | null;
+	objectives: number;
+}
+
+/** Baris tabel mapel: KKTP & status dari setup, id & jumlah TP dari perencanaan (cocok per kode). */
+export function subjectRows(setup: SchoolSetupState, planning: SchoolPlanningView): SubjectRow[] {
+	const idOf = new Map(planning.subjects.map((s) => [s.code, s.id]));
+	const count = new Map<string, number>();
+	for (const o of planning.objectives) count.set(o.subject_id, (count.get(o.subject_id) ?? 0) + 1);
+	return setup.subjects.map((s) => {
+		const id = idOf.get(s.code) ?? null;
+		return { ...s, id, objectives: id ? (count.get(id) ?? 0) : 0 };
+	});
+}
+
+/** Body `PUT /setup/subjects`: seluruh daftar; item ber-kode sama diganti, kode baru ditambah. */
+export function subjectsPayload(
+	items: readonly SchoolSubjectItem[],
+	edit: SchoolSubjectItem | null
+): SchoolSubjectsInput {
+	const list = items.map((s) => ({ ...s }));
+	if (edit) {
+		const next = { ...edit, code: edit.code.trim().toUpperCase(), name: edit.name.trim() };
+		const at = list.findIndex((s) => s.code === next.code);
+		if (at >= 0) list[at] = next;
+		else list.push(next);
+	}
+	return { subjects: list };
 }

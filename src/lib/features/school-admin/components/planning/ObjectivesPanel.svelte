@@ -43,7 +43,36 @@
 	{#each planner.objectives as o (o.id)}
 		<div class="border-lms-border flex items-start gap-3 border-t px-4 py-2.5 first:border-t-0">
 			<span class="text-lms-interactive w-16 font-mono text-xs font-bold">{o.code}</span>
-			<span class="flex-1 text-[13px]">{o.description}</span>
+			{#if planner.editObjective === o.id}
+				<span class="flex flex-1 flex-col gap-1.5">
+					<textarea
+						rows="2"
+						aria-label={t('objective_edit')}
+						class="lms-input lms-focus-ring border-lms-input-border rounded-[10px] border-[1.5px] px-3 py-2 text-sm"
+						bind:value={planner.editObjectiveText}></textarea>
+					<span class="flex gap-2">
+						<button
+							type="button"
+							class="lms-action-primary lms-focus-ring h-8 rounded-lg px-3 text-xs font-semibold disabled:opacity-50"
+							disabled={planner.busy}
+							onclick={() => planner.updateObjective()}>{t('objective_save')}</button
+						>
+						<button
+							type="button"
+							class="lms-action-secondary lms-focus-ring h-8 rounded-lg px-3 text-xs font-semibold"
+							onclick={() => (planner.editObjective = null)}
+							>{i18n.t(`${PREFIX}.common.cancel`)}</button
+						>
+					</span>
+				</span>
+			{:else}
+				<button
+					type="button"
+					class="lms-focus-ring flex-1 rounded-md text-left text-[13px] hover:underline"
+					aria-label={t('objective_edit')}
+					onclick={() => planner.startEditObjective(o.id, o.description)}>{o.description}</button
+				>
+			{/if}
 			<button
 				type="button"
 				aria-label={t('delete')}

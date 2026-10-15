@@ -38,6 +38,7 @@ export const APP_PATHS = {
 	SCHOOL_ADMIN_SETUP: '/app/admin/setup',
 	SCHOOL_ADMIN_YEARS: '/app/admin/years',
 	SCHOOL_ADMIN_CLASSES: '/app/admin/classes',
+	SCHOOL_ADMIN_SUBJECTS: '/app/admin/subjects',
 	SCHOOL_ADMIN_TEACHERS: '/app/admin/teachers',
 	SCHOOL_ADMIN_STUDENTS: '/app/admin/students',
 	SCHOOL_ADMIN_GUARDIANS: '/app/admin/guardians',

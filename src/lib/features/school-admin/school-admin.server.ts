@@ -372,6 +372,11 @@ export const setupActions: Actions = {
 	objectiveRemove: action<WithId>((ctx, b) =>
 		validId(b.id) ? api.deleteObjective(ctx, b.id) : null
 	),
+	objectiveUpdate: action<WithId & { description?: string }>((ctx, b) =>
+		validId(b.id) && typeof b.description === 'string'
+			? api.updateObjective(ctx, b.id, { description: b.description })
+			: null
+	),
 	assessments: action<{ data?: SchoolAssessmentsInput }>((ctx, b) =>
 		b.data ? api.saveAssessments(ctx, b.data) : null
 	),
@@ -388,6 +393,19 @@ export const setupActions: Actions = {
 	teachers: action((ctx) => api.fetchTeachers(ctx)),
 	students: action((ctx) => api.fetchStudents(ctx))
 };
+
+/** Halaman Mapel & TP: daftar mapel (setup) + TP (perencanaan), memakai aksi setup yang sama. */
+const SUBJECTS_PAGE_ACTIONS = [
+	'subjects',
+	'setup',
+	'planning',
+	'objectiveAdd',
+	'objectiveRemove',
+	'objectiveUpdate'
+] as const;
+export const subjectsPageActions: Actions = Object.fromEntries(
+	SUBJECTS_PAGE_ACTIONS.map((name) => [name, setupActions[name]!])
+);
 
 export const homeroomAttendanceActions: Actions = {
 	save: action<{ data?: SchoolAttendanceInput }>((ctx, b) =>

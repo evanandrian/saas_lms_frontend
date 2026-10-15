@@ -83,6 +83,7 @@ import {
 	updateSchoolClass,
 	updateSchoolExtra,
 	updateSchoolGuardian,
+	updateSchoolObjective,
 	updateSchoolStudent,
 	updateSchoolTeacher,
 	updateSchoolYear,
@@ -114,6 +115,7 @@ import {
 	type SchoolInviteResult,
 	type SchoolLogoInput,
 	type SchoolObjectiveInput,
+	type SchoolObjectiveUpdateInput,
 	type SchoolParsedImport,
 	type SchoolPeriodsInput,
 	type SchoolPlanningView,
@@ -183,6 +185,8 @@ export const setAssignment = (ctx: Ctx, body: SchoolAssignmentInput) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => setSchoolAssignment(body, init));
 export const addObjective = (ctx: Ctx, body: SchoolObjectiveInput) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => addSchoolObjective(body, init));
+export const updateObjective = (ctx: Ctx, id: string, body: SchoolObjectiveUpdateInput) =>
+	callBackend<SchoolPlanningView>(ctx, (init) => updateSchoolObjective(id, body, init));
 export const deleteObjective = (ctx: Ctx, id: string) =>
 	callBackend<SchoolPlanningView>(ctx, (init) => deleteSchoolObjective(id, init));
 export const saveAssessments = (ctx: Ctx, body: SchoolAssessmentsInput) =>

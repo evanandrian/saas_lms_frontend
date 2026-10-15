@@ -29,6 +29,7 @@ export type {
 	SchoolSeatsResult,
 	SchoolSetupState,
 	SchoolStudentsView,
+	SchoolSubjectItem,
 	SchoolSubscriptionView,
 	SchoolTeacherDetail,
 	SchoolTeachersView,

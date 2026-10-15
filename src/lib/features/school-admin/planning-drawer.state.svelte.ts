@@ -55,6 +55,9 @@ export class PlanningDrawerState {
 	objDesc = $state('');
 	exName = $state('');
 	exCoach = $state('');
+	/** Edit TP inline: id TP yang sedang diubah + teksnya. */
+	editObjective = $state<string | null>(null);
+	editObjectiveText = $state('');
 	people = $state<{ name: string; meta: string }[]>([]);
 	peopleStats = $state<{ label: string; value: string | number }[]>([]);
 	/** Pilihan pengguna; getter jatuh ke opsi pertama bila kosong / tidak lagi tersedia. */
@@ -118,7 +121,10 @@ export class PlanningDrawerState {
 	}
 
 	get objSubject() {
-		return this.#objSubject || (this.#planning.subjects[0]?.id ?? '');
+		const { subjects } = this.#planning;
+		return this.#objSubject && subjects.some((s) => s.id === this.#objSubject)
+			? this.#objSubject
+			: (subjects[0]?.id ?? '');
 	}
 	set objSubject(id: string) {
 		this.#objSubject = id;
@@ -240,6 +246,27 @@ export class PlanningDrawerState {
 
 	useDefaultPeriods() {
 		return this.call('periods', { data: { use_default: true } }, this.#t('saved'));
+	}
+
+	startEditObjective(id: string, description: string) {
+		this.editObjective = id;
+		this.editObjectiveText = description;
+	}
+
+	async updateObjective() {
+		const id = this.editObjective;
+		if (!id) return false;
+		if (this.editObjectiveText.trim().length < OBJECTIVE_MIN) {
+			this.#deps.onnotify(this.#t('objective_short'));
+			return false;
+		}
+		const ok = await this.call(
+			'objectiveUpdate',
+			{ id, description: this.editObjectiveText.trim() },
+			this.#t('saved')
+		);
+		if (ok) this.editObjective = null;
+		return ok;
 	}
 
 	removeObjective(id: string) {

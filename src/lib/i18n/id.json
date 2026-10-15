@@ -4431,6 +4431,8 @@
 			"objective_add": "Tambah TP",
 			"objective_ph": "Peserta didik mampu …",
 			"objective_short": "Tulis deskripsi TP minimal 10 karakter",
+			"objective_edit": "Ubah TP",
+			"objective_save": "Simpan TP",
 			"delete": "Hapus",
 			"assess_note": "Bobot dipakai saat guru menghitung nilai akhir. Formatif boleh 0% bila hanya untuk umpan balik.",
 			"assess_default": "Pakai default",
@@ -4761,6 +4763,33 @@
 			},
 			"poll_stopped": "Progres belum bisa dimuat ({message}). Muat ulang halaman untuk melihat status terbaru.",
 			"codes_unavailable": "Kode aktivasi dari proses ini tidak dapat ditampilkan. Hubungi administrator platform."
+		},
+		"subjects": {
+			"eyebrow": "AKADEMIK",
+			"title": "Mapel & TP",
+			"desc": "Mata pelajaran yang diajarkan sekolah, KKTP, dan tujuan pembelajaran per tingkat.",
+			"add": "Tambah mapel",
+			"search": "Cari kode atau nama mapel",
+			"head_subject": "MATA PELAJARAN",
+			"head_kktp": "KKTP",
+			"head_tp": "TP",
+			"head_status": "STATUS",
+			"kktp_value": "KKTP {value}",
+			"objectives_count": "{count} TP",
+			"stat_active": "Mapel aktif",
+			"stat_objectives": "Tujuan pembelajaran",
+			"stat_without_tp": "Mapel tanpa TP",
+			"empty": "Belum ada mata pelajaran.",
+			"foot": "Mapel yang sudah dipakai penugasan, TP, atau nilai tidak bisa dinonaktifkan.",
+			"field_code": "Kode mapel",
+			"field_name": "Nama mapel",
+			"field_kktp": "KKTP",
+			"code_note": "Huruf kapital, angka, atau garis bawah (2–20).",
+			"code_locked": "Kode tidak dapat diubah.",
+			"inactive_note": "Nonaktif = tidak diajarkan. Mapel yang sudah dipakai penugasan, TP, atau nilai tidak bisa dinonaktifkan.",
+			"open_tp": "Kelola tujuan pembelajaran ({count})",
+			"tp_title": "Tujuan pembelajaran",
+			"tp_note": "TP disusun per tingkat; fase mengikuti tingkat kelas."
 		},
 		"audit": {
 			"eyebrow": "ADMIN SEKOLAH",
@@ -5536,6 +5565,19 @@
 				"read_only": "Halaman ini hanya untuk dibaca; riwayat tidak bisa diubah atau dihapus.",
 				"range": "Tanggal awal tidak boleh setelah tanggal akhir.",
 				"system": "Pelaku \"Sistem\" berarti proses otomatis atau pengguna yang saat ini tidak memiliki peran keanggotaan di sekolah, misalnya mantan anggota."
+			}
+		},
+		"school_admin_subjects": {
+			"purpose": "Halaman ini untuk mengatur mata pelajaran yang diajarkan, KKTP, dan tujuan pembelajaran (TP) per tingkat.",
+			"features": {
+				"list": "Melihat mapel aktif dan nonaktif beserta KKTP dan jumlah TP.",
+				"edit": "Menambah mapel sekolah, mengubah nama atau KKTP, serta menonaktifkan mapel.",
+				"tp": "Menambah, mengubah, dan menghapus TP per mapel dan tingkat."
+			},
+			"steps": {
+				"s1": "Klik \"Tambah mapel\" lalu isi kode, nama, dan KKTP.",
+				"s2": "Klik baris mapel untuk mengubah nama, KKTP, atau status.",
+				"s3": "Di drawer mapel, klik \"Kelola tujuan pembelajaran\" untuk menyusun TP per tingkat."
 			}
 		},
 		"school_admin_classes": {

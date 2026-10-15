@@ -4431,6 +4431,8 @@
 			"objective_add": "Add objective",
 			"objective_ph": "Students are able to …",
 			"objective_short": "Write an objective of at least 10 characters",
+			"objective_edit": "Edit learning objective",
+			"objective_save": "Save objective",
 			"delete": "Delete",
 			"assess_note": "Weights are used when teachers compute final grades. Formative may be 0% when used for feedback only.",
 			"assess_default": "Use default",
@@ -4761,6 +4763,33 @@
 			},
 			"poll_stopped": "Progress could not be loaded ({message}). Reload the page to see the latest status.",
 			"codes_unavailable": "Activation codes from this run cannot be displayed. Contact the platform administrator."
+		},
+		"subjects": {
+			"eyebrow": "ACADEMICS",
+			"title": "Subjects & objectives",
+			"desc": "Subjects taught at the school, their KKTP, and learning objectives per grade.",
+			"add": "Add subject",
+			"search": "Search subject code or name",
+			"head_subject": "SUBJECT",
+			"head_kktp": "KKTP",
+			"head_tp": "OBJECTIVES",
+			"head_status": "STATUS",
+			"kktp_value": "KKTP {value}",
+			"objectives_count": "{count} objectives",
+			"stat_active": "Active subjects",
+			"stat_objectives": "Learning objectives",
+			"stat_without_tp": "Subjects without objectives",
+			"empty": "No subjects yet.",
+			"foot": "Subjects already used by assignments, objectives, or grades cannot be disabled.",
+			"field_code": "Subject code",
+			"field_name": "Subject name",
+			"field_kktp": "KKTP",
+			"code_note": "Capital letters, digits, or underscore (2–20).",
+			"code_locked": "The code cannot be changed.",
+			"inactive_note": "Inactive = not taught. Subjects already used by assignments, objectives, or grades cannot be disabled.",
+			"open_tp": "Manage learning objectives ({count})",
+			"tp_title": "Learning objectives",
+			"tp_note": "Objectives are set per grade; the phase follows the class grade."
 		},
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",
@@ -5536,6 +5565,19 @@
 				"read_only": "This page is read-only; history cannot be changed or deleted.",
 				"range": "The start date cannot be after the end date.",
 				"system": "The \"System\" actor means an automated process or a user who currently has no membership role in the school, such as a former member."
+			}
+		},
+		"school_admin_subjects": {
+			"purpose": "Use this page to manage the subjects taught, their KKTP, and learning objectives (TP) per grade.",
+			"features": {
+				"list": "View active and inactive subjects with their KKTP and objective count.",
+				"edit": "Add school subjects, change the name or KKTP, and disable subjects.",
+				"tp": "Add, edit, and delete objectives per subject and grade."
+			},
+			"steps": {
+				"s1": "Click \"Add subject\" and fill in the code, name, and KKTP.",
+				"s2": "Click a subject row to change its name, KKTP, or status.",
+				"s3": "In the subject drawer, click \"Manage learning objectives\" to build objectives per grade."
 			}
 		},
 		"school_admin_classes": {

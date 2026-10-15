@@ -597,6 +597,46 @@ describe('PlanningDrawerState', () => {
 		expect(new PlanningDrawerState({ ...deps, initialSubject: 's2' }).objSubject).toBe('s2');
 		expect(new PlanningDrawerState(deps).objSubject).toBe('s1');
 	});
+
+	it('initialSubject yang tidak ada di daftar mapel → mapel pertama', () => {
+		const planning = {
+			...planningView(40, 1),
+			subjects: [{ id: 's1', name: 'MTK' }]
+		} as unknown as SchoolPlanningView;
+		const state = new PlanningDrawerState({
+			planning: () => planning,
+			key: () => 'objectives',
+			t,
+			onplanning: vi.fn(),
+			onnotify: vi.fn(),
+			initialSubject: 'hilang'
+		});
+		expect(state.objSubject).toBe('s1');
+	});
+
+	it('updateObjective: deskripsi pendek ditolak; valid memanggil objectiveUpdate lalu menutup editor', async () => {
+		const onnotify = vi.fn();
+		const onplanning = vi.fn();
+		const state = new PlanningDrawerState({
+			planning: () => planningView(40, 1) as unknown as SchoolPlanningView,
+			key: () => 'objectives',
+			t,
+			onplanning,
+			onnotify
+		});
+		state.startEditObjective('o1', 'pendek');
+		expect(await state.updateObjective()).toBe(false);
+		expect(action).not.toHaveBeenCalled();
+		state.editObjectiveText = '  Deskripsi TP yang cukup panjang  ';
+		action.mockResolvedValueOnce({ ok: true, data: planningView(40, 1) } as never);
+		expect(await state.updateObjective()).toBe(true);
+		expect(action).toHaveBeenCalledWith('objectiveUpdate', {
+			id: 'o1',
+			description: 'Deskripsi TP yang cukup panjang'
+		});
+		expect(state.editObjective).toBeNull();
+		expect(onplanning).toHaveBeenCalled();
+	});
 });
 
 // ===================================================================== RequiredWizardState
