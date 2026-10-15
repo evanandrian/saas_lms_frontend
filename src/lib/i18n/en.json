@@ -4791,6 +4791,25 @@
 			"tp_title": "Learning objectives",
 			"tp_note": "Objectives are set per grade; the phase follows the class grade."
 		},
+		"assignments": {
+			"eyebrow": "ACADEMIC",
+			"title": "Teaching assignments",
+			"desc": "The teacher of each subject in every class for the active semester.",
+			"view": "View",
+			"per_class": "By class",
+			"per_teacher": "By teacher",
+			"stat_filled": "Subjects assigned",
+			"stat_teachers": "Teachers teaching",
+			"stat_out_of_range": "Load out of range",
+			"load_note": "Weekly periods are calculated from the active semester's lesson schedule. Red: below {min} or above {max} periods.",
+			"head_teacher": "TEACHER",
+			"head_subjects": "SUBJECTS",
+			"head_classes": "CLASSES",
+			"head_jp": "PERIODS/WEEK",
+			"jp_value": "{jp} periods",
+			"empty_teachers": "No teachers have assignments yet.",
+			"no_semester": "There is no active semester. Activate a school year and semester first so teaching assignments can be managed."
+		},
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",
 			"title": "Change history",
@@ -5578,6 +5597,19 @@
 				"s1": "Click \"Add subject\" and fill in the code, name, and KKTP.",
 				"s2": "Click a subject row to change its name, KKTP, or status.",
 				"s3": "In the subject drawer, click \"Manage learning objectives\" to build objectives per grade."
+			}
+		},
+		"school_admin_assignments": {
+			"purpose": "Use this page to set the teacher of each subject in every class for the active semester, and to review each teacher's teaching load.",
+			"features": {
+				"per_class": "By class: pick a teacher for each subject; choices save immediately.",
+				"per_teacher": "By teacher: see each teacher's subjects, classes, and periods per week.",
+				"load": "Load is calculated from the lesson schedule; shown in red below 24 or above 40 periods."
+			},
+			"steps": {
+				"s1": "Choose the \"By class\" view, then pick a class.",
+				"s2": "Pick the teacher for each subject.",
+				"s3": "Open the \"By teacher\" view to check the load; adjust the lesson schedule if periods are off."
 			}
 		},
 		"school_admin_classes": {

@@ -4791,6 +4791,25 @@
 			"tp_title": "Tujuan pembelajaran",
 			"tp_note": "TP disusun per tingkat; fase mengikuti tingkat kelas."
 		},
+		"assignments": {
+			"eyebrow": "AKADEMIK",
+			"title": "Penugasan mengajar",
+			"desc": "Guru pengampu tiap mata pelajaran di setiap kelas untuk semester aktif.",
+			"view": "Tampilan",
+			"per_class": "Per kelas",
+			"per_teacher": "Per guru",
+			"stat_filled": "Mapel terisi",
+			"stat_teachers": "Guru mengajar",
+			"stat_out_of_range": "Beban di luar rentang",
+			"load_note": "JP per minggu dihitung dari jadwal pelajaran semester aktif. Merah: di bawah {min} atau di atas {max} JP.",
+			"head_teacher": "GURU",
+			"head_subjects": "MAPEL",
+			"head_classes": "KELAS",
+			"head_jp": "JP/MINGGU",
+			"jp_value": "{jp} JP",
+			"empty_teachers": "Belum ada guru dengan penugasan.",
+			"no_semester": "Belum ada semester aktif. Aktifkan tahun ajaran dan semester terlebih dahulu agar penugasan mengajar dapat diatur."
+		},
 		"audit": {
 			"eyebrow": "ADMIN SEKOLAH",
 			"title": "Riwayat perubahan",
@@ -5578,6 +5597,19 @@
 				"s1": "Klik \"Tambah mapel\" lalu isi kode, nama, dan KKTP.",
 				"s2": "Klik baris mapel untuk mengubah nama, KKTP, atau status.",
 				"s3": "Di drawer mapel, klik \"Kelola tujuan pembelajaran\" untuk menyusun TP per tingkat."
+			}
+		},
+		"school_admin_assignments": {
+			"purpose": "Halaman ini untuk mengatur guru pengampu setiap mata pelajaran di tiap kelas pada semester aktif, serta melihat beban mengajar per guru.",
+			"features": {
+				"per_class": "Per kelas: memilih guru untuk setiap mapel; pilihan langsung tersimpan.",
+				"per_teacher": "Per guru: melihat mapel, kelas, dan JP per minggu setiap guru.",
+				"load": "Beban JP dihitung dari jadwal pelajaran; merah bila di bawah 24 atau di atas 40 JP."
+			},
+			"steps": {
+				"s1": "Pilih tampilan \"Per kelas\" lalu pilih kelas.",
+				"s2": "Pilih guru pengampu pada setiap mapel.",
+				"s3": "Buka tampilan \"Per guru\" untuk memeriksa beban JP; atur jadwal pelajaran bila JP belum sesuai."
 			}
 		},
 		"school_admin_classes": {

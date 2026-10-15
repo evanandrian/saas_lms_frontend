@@ -509,3 +509,46 @@ export function subjectsPayload(
 	}
 	return { subjects: list };
 }
+
+// ===== Beban mengajar (halaman Penugasan) =====
+/** Beban wajib guru per minggu (referensi: ASN 24–40 JP); di luar rentang ditandai, tidak diblokir. */
+export const TEACHING_LOAD_MIN_JP = 24;
+export const TEACHING_LOAD_MAX_JP = 40;
+
+export interface TeacherLoad {
+	teacher_id: string;
+	name: string;
+	/** JP per minggu = jumlah sel jadwal pelajaran semester aktif. */
+	jp: number;
+	subjects: string[];
+	classes: string[];
+	flag: 'low' | 'ok' | 'high';
+}
+
+export function loadFlag(jp: number): TeacherLoad['flag'] {
+	if (jp < TEACHING_LOAD_MIN_JP) return 'low';
+	return jp > TEACHING_LOAD_MAX_JP ? 'high' : 'ok';
+}
+
+export function teacherLoads(planning: SchoolPlanningView): TeacherLoad[] {
+	const subjectCode = new Map(planning.subjects.map((s) => [s.id, s.code]));
+	const className = new Map(planning.classes.map((c) => [c.id, c.name]));
+	const jp = new Map<string, number>();
+	for (const c of planning.schedule) jp.set(c.teacher_id, (jp.get(c.teacher_id) ?? 0) + 1);
+	return planning.teachers
+		.map((t) => {
+			const mine = planning.assignments.filter((a) => a.teacher_id === t.value);
+			const hours = jp.get(t.value) ?? 0;
+			return {
+				teacher_id: t.value,
+				name: t.label,
+				jp: hours,
+				subjects: [...new Set(mine.map((a) => subjectCode.get(a.subject_id) ?? ''))].filter(
+					Boolean
+				),
+				classes: [...new Set(mine.map((a) => className.get(a.class_id) ?? ''))].filter(Boolean),
+				flag: loadFlag(hours)
+			};
+		})
+		.filter((l) => l.subjects.length || l.jp);
+}

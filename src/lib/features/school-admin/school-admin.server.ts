@@ -407,6 +407,12 @@ export const subjectsPageActions: Actions = Object.fromEntries(
 	SUBJECTS_PAGE_ACTIONS.map((name) => [name, setupActions[name]!])
 );
 
+/** Halaman Penugasan mengajar (per kelas langsung tersimpan). */
+export const assignmentsPageActions: Actions = {
+	planning: setupActions.planning!,
+	assignment: setupActions.assignment!
+};
+
 export const homeroomAttendanceActions: Actions = {
 	save: action<{ data?: SchoolAttendanceInput }>((ctx, b) =>
 		b.data ? api.saveHomeroomAttendanceEntries(ctx, b.data) : null
