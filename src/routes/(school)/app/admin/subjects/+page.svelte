@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
 	import Plus from '@lucide/svelte/icons/plus';
+	import { invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import Drawer from '$lib/components/ui/Drawer.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
@@ -17,8 +18,10 @@
 	import {
 		KKTP_MAX,
 		PREFIX,
+		PROGRESS_DEPENDENCY_KEY,
 		SUBJECT_CODE,
 		SUBJECT_NAME_MIN,
+		parseKktp,
 		inputClass,
 		sectionGap,
 		subjectRows,
@@ -51,7 +54,13 @@
 	// Dibuat sekali (saat pertama dibuka); data perencanaan mengalir lewat getter.
 	let planner = $state<PlanningDrawerState | null>(null);
 
-	type Form = { code: string; name: string; kktp: string; enabled: boolean; custom: boolean };
+	type Form = {
+		code: string;
+		name: string;
+		kktp: string | number | null;
+		enabled: boolean;
+		custom: boolean;
+	};
 	let form = $state<Form>({ code: '', name: '', kktp: '', enabled: true, custom: true });
 
 	const rows = $derived(setup && planning ? subjectRows(setup, planning) : []);
@@ -109,7 +118,10 @@
 			planning: () => planning!,
 			key: () => 'objectives',
 			t: i18n.t,
-			onplanning: (v) => (planning = v),
+			onplanning: (v) => {
+				planning = v;
+				void invalidate(PROGRESS_DEPENDENCY_KEY);
+			},
 			onnotify: (m) => editor.notify(m)
 		});
 		planner.objSubject = subjectId;
@@ -122,18 +134,17 @@
 		if (!setup) return;
 		const e: Record<string, string> = {};
 		const code = form.code.trim().toUpperCase();
-		const kktp = Number(form.kktp);
+		const kktp = parseKktp(form.kktp);
 		if (!editor.editId && (!SUBJECT_CODE.test(code) || rows.some((r) => r.code === code)))
 			e.code = t('errors.code_invalid');
 		if (form.name.trim().length < SUBJECT_NAME_MIN) e.name = t('errors.required');
-		if (!form.kktp.trim() || !Number.isInteger(kktp) || kktp < 0 || kktp > KKTP_MAX)
-			e.kktp = t('errors.kktp_range');
+		if (kktp === null) e.kktp = t('errors.kktp_range');
 		editor.setErrors(e);
 		if (Object.keys(e).length) return;
 		const body = subjectsPayload(setup.subjects, {
 			code: editor.editId ?? code,
 			name: form.name,
-			kktp,
+			kktp: kktp!,
 			enabled: form.enabled,
 			custom: form.custom
 		});
@@ -142,6 +153,7 @@
 		const next = await editor.run<SchoolSetupState>('subjects', { data: body });
 		if (!next) return;
 		setup = next;
+		void invalidate(PROGRESS_DEPENDENCY_KEY);
 		editor.close();
 		editor.notify(t(wasEdit ? 'common.saved' : 'common.added'));
 		const refreshed = await editor.run<SchoolPlanningView>('planning', {});

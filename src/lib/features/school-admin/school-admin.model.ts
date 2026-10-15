@@ -470,6 +470,14 @@ export const SUBJECT_CODE = /^[A-Z0-9_]{2,20}$/;
 export const SUBJECT_NAME_MIN = 2;
 export const KKTP_MAX = 100;
 
+/** KKTP dari input number Svelte (number | null) atau string; null bila kosong/bukan bilangan bulat 0–100. */
+export function parseKktp(raw: string | number | null | undefined): number | null {
+	if (raw === null || raw === undefined) return null;
+	if (typeof raw === 'string' && !raw.trim()) return null;
+	const value = Number(raw);
+	return Number.isInteger(value) && value >= 0 && value <= KKTP_MAX ? value : null;
+}
+
 export interface SubjectRow extends SchoolSubjectItem {
 	/** Id `subject_m` (null bila katalog belum dipakai sekolah). */
 	id: string | null;

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { SchoolPlanningView, SchoolSetupState } from '$lib/api/generated/lms';
-import { subjectRows, subjectsPayload } from '$lib/features/school-admin/school-admin.model';
+import {
+	parseKktp,
+	subjectRows,
+	subjectsPayload
+} from '$lib/features/school-admin/school-admin.model';
 
 const setup = {
 	subjects: [
@@ -58,6 +62,9 @@ describe('subjectsPayload', () => {
 			custom: false
 		});
 		expect(out.subjects).toHaveLength(2);
+		expect(out.subjects?.[1]).toEqual(setup.subjects[1]);
+		expect(setup.subjects[0]?.name).toBe('Matematika');
+		expect(out.subjects?.[0]).not.toBe(setup.subjects[0]);
 	});
 	it('menambah mapel sekolah baru di akhir sebagai custom', () => {
 		const out = subjectsPayload(setup.subjects, {
@@ -74,5 +81,18 @@ describe('subjectsPayload', () => {
 			enabled: true,
 			custom: true
 		});
+	});
+});
+
+describe('parseKktp', () => {
+	it('menerima number dan string bilangan bulat 0–100', () => {
+		expect(parseKktp(75)).toBe(75);
+		expect(parseKktp('80')).toBe(80);
+		expect(parseKktp(0)).toBe(0);
+		expect(parseKktp(100)).toBe(100);
+	});
+	it('menolak null, kosong, NaN, di luar rentang, dan desimal', () => {
+		for (const bad of [null, undefined, '', '  ', 'abc', Number.NaN, 101, -1, 70.5])
+			expect(parseKktp(bad)).toBeNull();
 	});
 });
