@@ -3766,6 +3766,13 @@
 			"objective_exists": "Learning objective already exists.",
 			"weight_range": "Weight 0–100; formative 0%.",
 			"weight_total_100": "Total weight must be 100%.",
+			"too_short": "Too short.",
+			"range": "Value is outside the allowed range.",
+			"before_start": "End time must be after start time.",
+			"time_format": "Time must be HH:MM.",
+			"subject_in_use": "This subject is still used by assignments, objectives, or grades and cannot be deactivated.",
+			"student_invalid": "Student not found or inactive.",
+			"class_invalid": "Class not found in the active academic year.",
 			"assessment_in_use": "Assessment type is used by grades and cannot be removed.",
 			"extra_exists": "Activity already exists.",
 			"not_in_class": "Student is not in this class.",
@@ -4766,7 +4773,7 @@
 				"guardian": "Guardians",
 				"account": "Account invitations",
 				"report": "Report cards",
-				"academic": "Years & classes",
+				"academic": "Academic years, classes & subjects",
 				"planning": "Academic planning",
 				"reminder": "Reminders",
 				"export": "Data exports"
@@ -4843,6 +4850,9 @@
 					"update": "Updated class {subject}",
 					"delete": "Deleted class {subject}"
 				},
+				"subject": {
+					"save": "Updated the subject list"
+				},
 				"planning": {
 					"homeroom": {
 						"save": "Assigned homeroom teacher {subject}",
@@ -4871,6 +4881,10 @@
 					"extra": {
 						"save": "Saved extracurricular {subject}",
 						"delete": "Deleted extracurricular {subject}"
+					},
+					"extra_member": {
+						"save": "Added members to extracurricular {subject}",
+						"delete": "Removed a member from extracurricular {subject}"
 					}
 				},
 				"attendance": {
@@ -5505,7 +5519,7 @@
 			"purpose": "This page shows a trail of important school changes across teacher and student records, guardians, accounts, report cards, academic years and classes, academic planning, reminders, and data exports. Use it to trace who did what and when.",
 			"features": {
 				"timeline": "View change history newest first in a table with time, actor, role, and action.",
-				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years & classes, academic planning, reminders, or data exports.",
+				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years, classes & subjects, academic planning, reminders, or data exports.",
 				"range": "Filter history by date range.",
 				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
 				"more": "Load older history step by step.",

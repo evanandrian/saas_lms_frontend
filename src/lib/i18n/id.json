@@ -3766,6 +3766,13 @@
 			"objective_exists": "Tujuan pembelajaran sudah ada.",
 			"weight_range": "Bobot 0–100; formatif 0%.",
 			"weight_total_100": "Total bobot harus 100%.",
+			"too_short": "Terlalu pendek.",
+			"range": "Nilai di luar rentang yang diizinkan.",
+			"before_start": "Jam selesai harus setelah jam mulai.",
+			"time_format": "Format jam harus JJ:MM.",
+			"subject_in_use": "Mapel masih dipakai penugasan, TP, atau nilai sehingga tidak bisa dinonaktifkan.",
+			"student_invalid": "Murid tidak ditemukan atau tidak aktif.",
+			"class_invalid": "Kelas tidak ditemukan di tahun ajaran aktif.",
 			"assessment_in_use": "Jenis asesmen sudah dipakai nilai dan tidak bisa dihapus.",
 			"extra_exists": "Kegiatan sudah ada.",
 			"not_in_class": "Murid bukan anggota kelas ini.",
@@ -4766,7 +4773,7 @@
 				"guardian": "Wali murid",
 				"account": "Undangan akun",
 				"report": "Rapor",
-				"academic": "Tahun ajaran & kelas",
+				"academic": "Tahun ajaran, kelas & mapel",
 				"planning": "Perencanaan akademik",
 				"reminder": "Pengingat",
 				"export": "Ekspor data"
@@ -4843,6 +4850,9 @@
 					"update": "Mengubah kelas {subject}",
 					"delete": "Menghapus kelas {subject}"
 				},
+				"subject": {
+					"save": "Mengubah daftar mata pelajaran"
+				},
 				"planning": {
 					"homeroom": {
 						"save": "Menetapkan wali kelas {subject}",
@@ -4871,6 +4881,10 @@
 					"extra": {
 						"save": "Menyimpan ekstrakurikuler {subject}",
 						"delete": "Menghapus ekstrakurikuler {subject}"
+					},
+					"extra_member": {
+						"save": "Menambah anggota ekstrakurikuler {subject}",
+						"delete": "Menghapus anggota ekstrakurikuler {subject}"
 					}
 				},
 				"attendance": {
@@ -5505,7 +5519,7 @@
 			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, mulai dari data guru dan murid, wali murid, akun, rapor, tahun ajaran dan kelas, perencanaan akademik, pengingat, hingga ekspor data. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
 			"features": {
 				"timeline": "Melihat riwayat perubahan terbaru lebih dulu dalam tabel berisi waktu, pelaku, peran, dan aksi.",
-				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran & kelas, perencanaan akademik, pengingat, atau ekspor data.",
+				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran, kelas & mapel, perencanaan akademik, pengingat, atau ekspor data.",
 				"range": "Menyaring riwayat berdasarkan rentang tanggal.",
 				"detail": "Melihat detail tambahan seperti NIS/NIP, alasan, dan jumlah undangan terkirim atau gagal.",
 				"more": "Memuat riwayat yang lebih lama secara bertahap.",
