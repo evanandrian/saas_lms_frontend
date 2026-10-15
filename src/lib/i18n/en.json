@@ -36,6 +36,7 @@
 			"unavailable": "{item} is available in a feature phase",
 			"not_available_yet": "not available yet",
 			"badge_pending": "{count} pending",
+			"needs_attention": "Needs attention",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {

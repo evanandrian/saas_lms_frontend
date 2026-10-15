@@ -36,6 +36,7 @@
 			"unavailable": "{item} tersedia pada fase fitur",
 			"not_available_yet": "belum tersedia",
 			"badge_pending": "{count} menunggu",
+			"needs_attention": "Perlu dilengkapi",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {
