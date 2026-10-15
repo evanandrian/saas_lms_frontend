@@ -4124,7 +4124,7 @@
 				"close": "Close",
 				"loading": "Loading unfinished items…",
 				"pending_title": "Unfinished ({count})",
-				"pending_none": "All subject grades are locked; the reminder goes to the selected recipients.",
+				"pending_none": "No subjects with an assigned teacher are waiting for grade locking. Subjects without a teaching assignment are not listed.",
 				"no_teacher": "No teacher assigned",
 				"recipients_title": "Recipients",
 				"recipients_none": "No reachable recipients.",

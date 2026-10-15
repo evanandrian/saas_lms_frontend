@@ -2,6 +2,7 @@ import {
 	GetSchoolAuditCategory,
 	SchoolAuditActorRole,
 	type SchoolRemindOutcome,
+	type SchoolReportRecipient,
 	type SchoolReportRemindInput
 } from '$lib/api/generated/lms';
 import type { BackendIssue } from '$lib/api/backend-call';
@@ -342,6 +343,23 @@ export function remindBody(
 ): SchoolReportRemindInput {
 	const text = message.trim().slice(0, REMIND_MESSAGE_MAX);
 	return { ...(text ? { message: text } : {}), recipient_ids: [...recipientIds] };
+}
+
+/** Pilihan awal dialog pengingat: semua penerima ber-email terpilih, tanpa email tidak pernah. */
+export function defaultRecipientPick(
+	recipients: readonly SchoolReportRecipient[]
+): Record<string, boolean> {
+	return Object.fromEntries(recipients.map((r) => [r.teacher_id, r.has_email]));
+}
+
+/** ID penerima terpilih; penerima tanpa email dikecualikan walau tercentang. Nilai belum ada = false. */
+export function selectedRecipientIds(
+	recipients: readonly SchoolReportRecipient[],
+	picked: Readonly<Record<string, boolean | undefined>>
+): string[] {
+	return recipients
+		.filter((r) => r.has_email && picked[r.teacher_id] === true)
+		.map((r) => r.teacher_id);
 }
 
 // ===== Riwayat perubahan (audit) =====

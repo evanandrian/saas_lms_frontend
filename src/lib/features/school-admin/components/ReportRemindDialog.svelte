@@ -6,7 +6,9 @@
 	import {
 		PREFIX,
 		REMIND_MESSAGE_MAX,
-		remindBody
+		defaultRecipientPick,
+		remindBody,
+		selectedRecipientIds
 	} from '$lib/features/school-admin/school-admin.model';
 	import type { SchoolReportPendingView } from '$lib/features/school-admin/school-admin.types';
 	import { useI18n } from '$lib/i18n';
@@ -29,17 +31,14 @@
 
 	let message = $state('');
 	// Checkbox UI bersama hanya mendukung `bind:checked` → pilihan disimpan per teacher_id.
+	// Terisi lewat $effect setelah render pertama, jadi binding memakai fallback `?? false`.
 	let picked = $state<Record<string, boolean>>({});
-	// Hanya guru ber-email yang dapat dipilih (pengingat dikirim via email).
-	const allIds = $derived(
-		pending?.recipients.filter((r) => r.has_email).map((r) => r.teacher_id) ?? []
-	);
-	const selected = $derived(allIds.filter((id) => picked[id]));
+	const selected = $derived(selectedRecipientIds(pending?.recipients ?? [], picked));
 
 	// Dibuka untuk kelas lain / data pending baru tiba → pilihan awal = semua penerima ber-email.
 	$effect(() => {
 		if (open) {
-			picked = Object.fromEntries(allIds.map((id) => [id, true]));
+			picked = defaultRecipientPick(pending?.recipients ?? []);
 			message = '';
 		}
 	});
@@ -78,7 +77,10 @@
 				{#each pending.recipients as r (r.teacher_id)}
 					<Checkbox
 						name={`recipient-${r.teacher_id}`}
-						bind:checked={picked[r.teacher_id]}
+						bind:checked={
+							() => picked[r.teacher_id] ?? false,
+							(v) => (picked = { ...picked, [r.teacher_id]: v })
+						}
 						disabled={!r.has_email}
 						label={r.has_email
 							? r.homeroom

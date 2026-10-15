@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { afterNavigate, replaceState } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { LucideIcon } from '@lucide/svelte';
@@ -136,8 +136,10 @@
 		editor.notify(auditExportErrorMessage(i18n.t, code), true);
 		const url = new URL(page.url);
 		url.searchParams.delete(AUDIT_EXPORT_ERROR_PARAM);
+		// `replaceState` melempar galat saat muat awal (router belum siap di dalam afterNavigate 'enter');
+		// `goto` menunggu router dan aman. Query sudah dibuang → callback berikutnya langsung return (Toast sekali).
 		// eslint-disable-next-line svelte/no-navigation-without-resolve -- path halaman yang sama, hanya query galat
-		replaceState(url, {});
+		void goto(url, { replaceState: true, noScroll: true, keepFocus: true });
 	});
 
 	const roleLabel = (role: string) => auditRoleLabel(i18n.t, role);

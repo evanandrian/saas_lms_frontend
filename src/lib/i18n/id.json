@@ -4124,7 +4124,7 @@
 				"close": "Tutup",
 				"loading": "Memuat item yang belum selesai…",
 				"pending_title": "Belum selesai ({count})",
-				"pending_none": "Semua nilai mapel sudah terkunci; pengingat ditujukan ke penerima yang dipilih.",
+				"pending_none": "Tidak ada mapel dengan guru pengampu yang menunggu kunci nilai. Mapel tanpa penugasan guru tidak tercantum.",
 				"no_teacher": "Guru belum ditetapkan",
 				"recipients_title": "Penerima",
 				"recipients_none": "Tidak ada penerima yang dapat dihubungi.",
