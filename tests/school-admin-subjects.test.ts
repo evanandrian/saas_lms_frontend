@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { SchoolPlanningView, SchoolSetupState } from '$lib/api/generated/lms';
+import id from '$lib/i18n/id.json';
+import en from '$lib/i18n/en.json';
 import {
+	charCount,
 	intInRange,
+	issueMessage,
+	lengthIssue,
+	lengthMessage,
 	parseKktp,
+	subjectIssueMessage,
 	subjectIssues,
 	subjectRows,
 	subjectsPayload
@@ -116,11 +123,59 @@ describe('subjectIssues', () => {
 		expect(subjectIssues({ code: 'MAT-1', name: 'Mapel' }, existing).code).toBe('code_invalid');
 		expect(subjectIssues({ code: 'mat', name: 'Mapel' }, existing).code).toBe('code_taken');
 	});
-	it('nama < 2 karakter (ter-trim) → required, sama dengan backend', () => {
-		expect(subjectIssues({ code: 'INF', name: ' I ' }, existing).name).toBe('required');
+	it('nama kosong → required; < 2 code point (ter-trim) → too_short, sama dengan backend', () => {
+		expect(subjectIssues({ code: 'INF', name: '   ' }, existing).name).toBe('required');
+		expect(subjectIssues({ code: 'INF', name: ' I ' }, existing).name).toBe('too_short');
 		expect(subjectIssues({ code: 'INF', name: 'IP' }, existing).name).toBeUndefined();
+		// Satu emoji = 1 code point (UTF-16 .length = 2) → tetap terlalu pendek, seperti rune di BE.
+		expect(subjectIssues({ code: 'INF', name: '😀' }, existing).name).toBe('too_short');
+		expect(subjectIssues({ code: 'INF', name: 'Ü😀' }, existing).name).toBeUndefined();
 	});
 	it('existing null (mode ubah, kode terkunci) → kode tidak divalidasi', () => {
 		expect(subjectIssues({ code: 'MAT', name: 'Matematika' }, null)).toEqual({});
+	});
+});
+
+describe('panjang teks (code point Unicode)', () => {
+	const t = (k: string, p?: Readonly<Record<string, string | number>>) =>
+		p ? `${k}${JSON.stringify(p)}` : k;
+	it('charCount menghitung code point, bukan unit UTF-16', () => {
+		expect(charCount('abc')).toBe(3);
+		expect(charCount('😀')).toBe(1);
+		expect(charCount('Bahasa 日本語 🎌')).toBe(12);
+	});
+	it('lengthIssue: kosong/terlalu pendek/terlalu panjang/sah', () => {
+		expect(lengthIssue('  ', 2, 5)).toBe('required');
+		expect(lengthIssue(undefined, 2, 5)).toBe('required');
+		expect(lengthIssue('a', 2, 5)).toBe('too_short');
+		expect(lengthIssue('abcdef', 2, 5)).toBe('too_long');
+		expect(lengthIssue('😀😀😀😀😀', 2, 5)).toBeNull();
+		expect(lengthIssue('😀😀😀😀😀😀', 2, 5)).toBe('too_long');
+	});
+	it('lengthMessage: required → Wajib diisi; selain itu menyebut batas', () => {
+		expect(lengthMessage(t, 'required', 2, 120)).toBe('school_admin.errors.required');
+		expect(lengthMessage(t, 'too_short', 2, 120)).toBe('school_admin.errors.min_chars{"min":2}');
+		expect(lengthMessage(t, 'too_long', 2, 120)).toBe('school_admin.errors.max_chars{"max":120}');
+	});
+	it('subjectIssueMessage: nama pendek → min_chars; kode → errors.<kode>', () => {
+		expect(subjectIssueMessage(t, 'too_short')).toBe('school_admin.errors.min_chars{"min":2}');
+		expect(subjectIssueMessage(t, 'required')).toBe('school_admin.errors.required');
+		expect(subjectIssueMessage(t, 'code_taken')).toBe('school_admin.errors.code_taken');
+		expect(subjectIssueMessage(t, 'code_invalid')).toBe('school_admin.errors.code_invalid');
+	});
+	it('isu server code_taken (BE SaveSubjects) = pesan validasi klien yang sama (id & en)', () => {
+		for (const dict of [id, en]) {
+			const real = (key: string, params?: Readonly<Record<string, string | number>>) => {
+				const v = key
+					.split('.')
+					.reduce<unknown>((o, k) => (o as Record<string, unknown>)?.[k], dict);
+				const s = typeof v === 'string' ? v : key;
+				return s.replace(/\{(\w+)\}/g, (m, n: string) => String(params?.[n] ?? m));
+			};
+			expect(issueMessage(real, 'code_taken')).toBe(subjectIssueMessage(real, 'code_taken'));
+			expect(issueMessage(real, 'code_taken')).not.toBe(real('school_admin.errors.generic'));
+			expect(subjectIssueMessage(real, 'too_short')).toMatch(/2/);
+			expect(lengthMessage(real, 'too_long', 2, 120)).toMatch(/120/);
+		}
 	});
 });

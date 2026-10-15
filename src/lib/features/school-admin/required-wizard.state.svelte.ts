@@ -8,6 +8,7 @@ import {
 	failureMessage,
 	fieldErrors,
 	readFileBase64,
+	subjectIssueMessage,
 	subjectIssues
 } from './school-admin.model';
 
@@ -274,12 +275,14 @@ export class RequiredWizardState {
 			{ code, name },
 			this.subjects.map((s) => s.code)
 		);
-		if (issues.name || issues.code === 'code_invalid') {
+		// Kosong/format kode salah → pesan ringkas; nama terlalu pendek/panjang & kode ganda → pesan spesifik.
+		if (issues.name === 'required' || issues.code === 'code_invalid') {
 			this.errors = { ...this.errors, subjects: t(`${PREFIX}.setup.custom_invalid`) };
 			return;
 		}
-		if (issues.code === 'code_taken') {
-			this.errors = { ...this.errors, subjects: t(`${PREFIX}.errors.code_taken`) };
+		const issue = issues.name ?? issues.code;
+		if (issue) {
+			this.errors = { ...this.errors, subjects: subjectIssueMessage(t, issue) };
 			return;
 		}
 		this.subjects = [

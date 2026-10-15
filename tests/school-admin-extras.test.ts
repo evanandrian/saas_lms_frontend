@@ -47,6 +47,24 @@ describe('extraErrors', () => {
 	});
 	it('nama < 2 karakter ditolak', () =>
 		expect(extraErrors({ ...base, name: 'P' }, t)).toHaveProperty('name'));
+	it('nama: kosong → required; pendek/panjang → pesan batas (code point, emoji = 1)', () => {
+		const tp = (k: string, p?: Readonly<Record<string, string | number>>) =>
+			p ? `${k}${JSON.stringify(p)}` : k;
+		expect(extraErrors({ ...base, name: '  ' }, tp).name).toBe('school_admin.errors.required');
+		expect(extraErrors({ ...base, name: 'P' }, tp).name).toBe(
+			'school_admin.errors.min_chars{"min":2}'
+		);
+		expect(extraErrors({ ...base, name: 'x'.repeat(121) }, tp).name).toBe(
+			'school_admin.errors.max_chars{"max":120}'
+		);
+		// 120 emoji = 240 unit UTF-16 tetapi 120 code point → sah (sama dengan rune di BE).
+		expect(extraErrors({ ...base, name: '😀'.repeat(120) }, tp)).not.toHaveProperty('name');
+		expect(extraErrors({ ...base, name: '😀'.repeat(121) }, tp)).toHaveProperty('name');
+		expect(extraErrors({ ...base, place: '🏟'.repeat(120) }, tp)).not.toHaveProperty('place');
+		expect(extraErrors({ ...base, place: '🏟'.repeat(121) }, tp).place).toBe(
+			'school_admin.errors.max_chars{"max":120}'
+		);
+	});
 	it('nilai input non-string (mis. angka dari select/time) tidak melempar', () => {
 		const odd = { ...base, schedule_day: 5, start_time: undefined } as unknown as ExtraForm;
 		expect(() => extraErrors(odd, t)).not.toThrow();

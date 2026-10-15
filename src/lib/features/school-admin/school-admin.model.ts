@@ -472,6 +472,27 @@ export function auditRoleLabel(t: T, role: string): string {
 /** Nilai input apa pun → string ter-trim (angka/undefined dari binding tidak melempar). */
 const textOf = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 
+/** Jumlah karakter Unicode (code point), sama dengan `utf8.RuneCountInString` di backend. */
+export const charCount = (s: string): number => [...s].length;
+
+/** Masalah panjang teks (ter-trim): kosong → `required`; di bawah/di atas batas → `too_short`/`too_long`. */
+export type LengthIssue = 'required' | 'too_short' | 'too_long';
+
+export function lengthIssue(value: unknown, min: number, max = Infinity): LengthIssue | null {
+	const n = charCount(textOf(value));
+	if (n === 0) return 'required';
+	if (n < min) return 'too_short';
+	if (n > max) return 'too_long';
+	return null;
+}
+
+/** Pesan masalah panjang: `required` → "Wajib diisi"; selain itu menyebut batasnya (min/maks karakter). */
+export function lengthMessage(t: T, issue: LengthIssue, min: number, max = Infinity): string {
+	if (issue === 'too_short') return t(`${PREFIX}.errors.min_chars`, { min });
+	if (issue === 'too_long') return t(`${PREFIX}.errors.max_chars`, { max });
+	return t(`${PREFIX}.errors.required`);
+}
+
 /**
  * Bilangan bulat min–max dari input number Svelte (number | null) atau string; null bila kosong,
  * bukan bilangan bulat, atau di luar rentang. Dasar `parseKktp` & `weightValid`.
@@ -496,12 +517,12 @@ export const KKTP_MAX = 100;
 export const parseKktp = (raw: string | number | null | undefined): number | null =>
 	intInRange(raw, 0, KKTP_MAX);
 
-/** Kode masalah validasi mapel; dipetakan ke `errors.<kode>` (atau pesan ringkas wizard). */
-export type SubjectIssue = 'code_invalid' | 'code_taken' | 'required';
+/** Kode masalah validasi mapel; dipetakan lewat `subjectIssueMessage` (atau pesan ringkas wizard). */
+export type SubjectIssue = 'code_invalid' | 'code_taken' | LengthIssue;
 
 /**
  * Validasi cepat tambah/ubah mapel, dipakai wizard setup & halaman Mapel (cermin `SaveSubjects`
- * backend: kode `RE.code`, nama ≥ 2 karakter). `existing` = kode yang sudah ada; null = kode
+ * backend: kode `RE.code`, nama ≥ 2 code point). `existing` = kode yang sudah ada; null = kode
  * tidak divalidasi (mode ubah, kode terkunci).
  */
 export function subjectIssues(
@@ -514,8 +535,16 @@ export function subjectIssues(
 		if (!RE.code.test(code)) issues.code = 'code_invalid';
 		else if (existing.includes(code)) issues.code = 'code_taken';
 	}
-	if ([...textOf(f.name)].length < SUBJECT_NAME_MIN) issues.name = 'required';
+	const name = lengthIssue(f.name, SUBJECT_NAME_MIN);
+	if (name) issues.name = name;
 	return issues;
+}
+
+/** Pesan masalah mapel; sama dengan pesan isu backend (`code_taken`, `code_invalid`, `required`). */
+export function subjectIssueMessage(t: T, issue: SubjectIssue): string {
+	if (issue === 'too_short' || issue === 'too_long')
+		return lengthMessage(t, issue, SUBJECT_NAME_MIN);
+	return t(`${PREFIX}.errors.${issue}`);
 }
 
 export interface SubjectRow extends SchoolSubjectItem {
@@ -717,17 +746,17 @@ export function extraForm(x: SchoolPlanExtra | null | undefined): ExtraForm {
 /** Validasi cepat ekskul (cermin `parseExtraAttrs` + nama di backend). */
 export function extraErrors(f: ExtraForm, t: T): Record<string, string> {
 	const e: Record<string, string> = {};
-	const name = textOf(f.name);
+	const nameIssue = lengthIssue(f.name, EXTRA_NAME_MIN, EXTRA_NAME_MAX);
 	const start = extraClock(f.start_time);
 	const end = extraClock(f.end_time);
-	if (name.length < EXTRA_NAME_MIN || name.length > EXTRA_NAME_MAX)
-		e.name = t(`${PREFIX}.errors.required`);
+	if (nameIssue) e.name = lengthMessage(t, nameIssue, EXTRA_NAME_MIN, EXTRA_NAME_MAX);
 	if (start && !EXTRA_TIME.test(start)) e.start_time = t(`${PREFIX}.errors.time_format`);
 	if (end && !EXTRA_TIME.test(end)) e.end_time = t(`${PREFIX}.errors.time_format`);
 	if (Boolean(start) !== Boolean(end)) e.start_time ??= t(`${PREFIX}.errors.required`);
 	if (!e.start_time && !e.end_time && start && end && end <= start)
 		e.end_time = t(`${PREFIX}.errors.before_start`);
-	if (textOf(f.place).length > EXTRA_PLACE_MAX) e.place = t(`${PREFIX}.errors.too_long`);
+	if (charCount(textOf(f.place)) > EXTRA_PLACE_MAX)
+		e.place = lengthMessage(t, 'too_long', 0, EXTRA_PLACE_MAX);
 	return e;
 }
 

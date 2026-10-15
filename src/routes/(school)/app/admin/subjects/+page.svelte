@@ -22,6 +22,7 @@
 		parseKktp,
 		inputClass,
 		sectionGap,
+		subjectIssueMessage,
 		subjectIssues,
 		subjectRows,
 		subjectsPayload
@@ -135,7 +136,8 @@
 		const code = form.code.trim().toUpperCase();
 		const kktp = parseKktp(form.kktp);
 		const issues = subjectIssues(form, editor.editId ? null : rows.map((r) => r.code));
-		for (const [field, issue] of Object.entries(issues)) e[field] = t(`errors.${issue}`);
+		for (const [field, issue] of Object.entries(issues))
+			e[field] = subjectIssueMessage(i18n.t, issue);
 		if (kktp === null) e.kktp = t('errors.kktp_range');
 		editor.setErrors(e);
 		if (Object.keys(e).length) return;

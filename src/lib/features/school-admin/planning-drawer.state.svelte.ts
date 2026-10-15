@@ -105,6 +105,8 @@ export class PlanningDrawerState {
 		is_exam: false
 	});
 	exName = $state('');
+	/** Pesan validasi inline nama ekskul baru (kosong = valid). */
+	exNameError = $state('');
 	exCoach = $state('');
 	/** Edit TP inline: id TP yang sedang diubah + teksnya. */
 	editObjective = $state<string | null>(null);
@@ -443,10 +445,8 @@ export class PlanningDrawerState {
 	async addExtra() {
 		// Atribut lengkap (jadwal/tempat/wajib kosong) agar body & validasi sama dengan halaman Ekskul.
 		const form = { ...extraForm(null), name: this.exName, coach_id: this.exCoach };
-		if (extraErrors(form, this.#deps.t).name) {
-			this.#deps.onnotify(this.#t('extra_name_required'));
-			return;
-		}
+		this.exNameError = extraErrors(form, this.#deps.t).name ?? '';
+		if (this.exNameError) return;
 		if (await this.call('extraSave', { id: '', data: extraBody(form) })) this.exName = '';
 	}
 }

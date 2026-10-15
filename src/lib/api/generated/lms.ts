@@ -550,6 +550,7 @@ export interface SchoolDashboardView {
  * PUT replaces the whole extracurricular (omitted attributes become null/false).
  */
 export interface SchoolExtraInput {
+	/** Whitespace-collapsed name, 2–120 Unicode code points; otherwise validation_failed {field: "name", code: "required"}. */
 	name?: string;
 	coach_id?: string;
 	/**
@@ -566,6 +567,7 @@ export interface SchoolExtraInput {
 	/** @nullable */
 	end_time?: string | null;
 	/**
+	 * Counted in Unicode code points; longer → validation_failed {field: "place", code: "too_long"}.
 	 * @maxLength 120
 	 * @nullable
 	 */
@@ -13826,7 +13828,7 @@ export const getSaveSchoolSetupSubjectsUrl = () => {
 };
 
 /**
- * Replace taught subjects + KKTP. A disabled subject still referenced by assignments, objectives, grades, schedule, or report cards yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.
+ * Replace taught subjects + KKTP. Enabled subjects are validated first (validation_failed issues): code not matching the code format → {field: "code", code: "code_invalid"}; a code repeated in the request (case-insensitive) → {field: "code", code: "code_taken"}; trimmed name shorter than 2 Unicode code points → {field: "name", code: "required"}; KKTP outside 0–100 → {field: "kktp", code: "kktp_range"}; no enabled subject → {field: "subjects", code: "subjects_required"}. A disabled subject still referenced by assignments, objectives, grades, schedule, or report cards yields validation_failed issue {field: "subjects.<CODE>", code: "subject_in_use"} and nothing is saved. Audited as subject.save {added, updated, removed}.
  * @summary Step 5 subjects
  */
 export const saveSchoolSetupSubjects = async (

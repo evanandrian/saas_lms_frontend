@@ -6,13 +6,15 @@
 	import { useI18n } from '$lib/i18n';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import type { PlanningDrawerState } from '../../planning-drawer.state.svelte';
-	import { PREFIX, extraDeleteMessage } from '../../school-admin.model';
+	import { EXTRA_NAME_MAX, PREFIX, extraDeleteMessage } from '../../school-admin.model';
 
 	interface Props {
 		planner: PlanningDrawerState;
 		planning: SchoolPlanningView;
 	}
 	let { planner, planning }: Props = $props();
+	const uid = $props.id();
+	const nameErrorId = `${uid}-extra-name-error`;
 
 	const i18n = useI18n();
 	const t = (k: string, params?: Record<string, string | number>) =>
@@ -43,9 +45,16 @@
 </div>
 <div class="flex flex-wrap gap-2">
 	<input
-		class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-10 flex-[1_1_200px] rounded-[10px] px-3 text-sm"
+		class="lms-input lms-focus-ring border-[1.5px] h-10 flex-[1_1_200px] rounded-[10px] px-3 text-sm {planner.exNameError
+			? 'border-lms-danger-text'
+			: 'border-lms-input-border'}"
+		aria-label={t('extra_ph')}
 		placeholder={t('extra_ph')}
+		maxlength={EXTRA_NAME_MAX}
+		aria-invalid={planner.exNameError ? 'true' : undefined}
+		aria-describedby={planner.exNameError ? nameErrorId : undefined}
 		bind:value={planner.exName}
+		oninput={() => (planner.exNameError = '')}
 	/>
 	<select
 		aria-label={t('coach_label')}
@@ -61,6 +70,11 @@
 		disabled={planner.busy}
 		onclick={() => planner.addExtra()}>{t('extra_add')}</button
 	>
+	{#if planner.exNameError}
+		<span id={nameErrorId} class="text-lms-danger-text w-full text-xs leading-[17px]" role="alert"
+			>{planner.exNameError}</span
+		>
+	{/if}
 </div>
 <ConfirmDialog
 	bind:open={

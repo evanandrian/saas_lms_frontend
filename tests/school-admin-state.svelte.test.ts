@@ -570,7 +570,16 @@ describe('PlanningDrawerState', () => {
 		state.exName = ' P ';
 		await state.addExtra();
 		expect(action).not.toHaveBeenCalled();
-		expect(onnotify).toHaveBeenCalledWith('T(school_admin.planning.extra_name_required)');
+		expect(onnotify).not.toHaveBeenCalled();
+		// Pesan inline (bukan toast) & spesifik: terlalu pendek ≠ kosong.
+		expect(state.exNameError).toBe('T(school_admin.errors.min_chars){"min":2}');
+		state.exName = '   ';
+		await state.addExtra();
+		expect(state.exNameError).toBe('T(school_admin.errors.required)');
+		state.exName = 'x'.repeat(121);
+		await state.addExtra();
+		expect(state.exNameError).toBe('T(school_admin.errors.max_chars){"max":120}');
+		expect(action).not.toHaveBeenCalled();
 	});
 
 	it('kode TP berikutnya = max+1 mapel×tingkat terpilih (cermin BE, tahan celah hapus)', () => {
@@ -781,9 +790,13 @@ describe('RequiredWizardState', () => {
 		wizard.newName = 'Duplikat';
 		wizard.addSubject();
 		expect(wizard.errors.subjects).toBe('T(school_admin.errors.code_taken)');
-		// Nama 1 karakter ditolak seperti halaman Mapel & backend (min 2).
+		// Nama 1 karakter ditolak seperti halaman Mapel & backend (min 2), dengan pesan batas minimal.
 		wizard.newCode = 'inf';
 		wizard.newName = 'I';
+		wizard.addSubject();
+		expect(wizard.errors.subjects).toBe('T(school_admin.errors.min_chars){"min":2}');
+		// Nama kosong tetap memakai pesan ringkas wizard.
+		wizard.newName = '  ';
 		wizard.addSubject();
 		expect(wizard.errors.subjects).toBe('T(school_admin.setup.custom_invalid)');
 		expect(wizard.subjects.map((s) => s.code)).toEqual(['MTK']);
