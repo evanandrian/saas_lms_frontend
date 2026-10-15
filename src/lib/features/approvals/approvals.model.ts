@@ -105,3 +105,12 @@ export function ago(iso: string, now: number): Ago {
 	if (h < HOURS_PER_DAY) return { key: 'hours', n: h };
 	return { key: 'days', n: Math.floor(h / HOURS_PER_DAY) };
 }
+
+/** Murid tertaut pemohon orang tua (backend `students[]`), mis. "Rani (X IPA 1), Bima". */
+export function studentsLabel(
+	students: readonly { name: string; class_name: string }[] | undefined
+): string {
+	return (students ?? [])
+		.map((s) => (s.class_name ? `${s.name} (${s.class_name})` : s.name))
+		.join(', ');
+}

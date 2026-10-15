@@ -24,6 +24,7 @@ export type {
 	SchoolHomeroomAttendanceView,
 	SchoolInviteResult,
 	SchoolPlanningView,
+	SchoolReportPendingView,
 	SchoolReportsView,
 	SchoolSeatsResult,
 	SchoolSetupState,

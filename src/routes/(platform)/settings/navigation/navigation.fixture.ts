@@ -11,7 +11,9 @@ export const navigationPreviewFixture: {
 	tenants: {
 		platform: { initials: 'FX', name: 'FLIXARE Console', host: 'console.flixare.id' },
 		school_admin: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' },
+		principal: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' },
 		teacher: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' },
+		homeroom: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' },
 		student: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' },
 		guardian: { initials: 'SN', name: 'SMA Nusantara', host: 'smanusantara.flixare.id' }
 	},

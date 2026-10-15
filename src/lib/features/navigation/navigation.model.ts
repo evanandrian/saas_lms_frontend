@@ -9,11 +9,14 @@ import type {
 import type { LucideIcon } from '@lucide/svelte';
 import Award from '@lucide/svelte/icons/award';
 import Bell from '@lucide/svelte/icons/bell';
+import BookMarked from '@lucide/svelte/icons/book-marked';
 import BookOpen from '@lucide/svelte/icons/book-open';
 import Building2 from '@lucide/svelte/icons/building';
 import CalendarCheck from '@lucide/svelte/icons/calendar-check';
 import CalendarClock from '@lucide/svelte/icons/calendar-clock';
+import CalendarDays from '@lucide/svelte/icons/calendar-days';
 import CalendarRange from '@lucide/svelte/icons/calendar-range';
+import ChartColumn from '@lucide/svelte/icons/chart-column';
 import ChartLine from '@lucide/svelte/icons/chart-line';
 import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
 import ClipboardList from '@lucide/svelte/icons/clipboard-list';
@@ -24,22 +27,33 @@ import FileText from '@lucide/svelte/icons/file-text';
 import Folder from '@lucide/svelte/icons/folder';
 import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import HeartHandshake from '@lucide/svelte/icons/heart-handshake';
+import History from '@lucide/svelte/icons/history';
 import House from '@lucide/svelte/icons/house';
 import Inbox from '@lucide/svelte/icons/inbox';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import Link from '@lucide/svelte/icons/link';
 import ListTree from '@lucide/svelte/icons/list-tree';
 import Megaphone from '@lucide/svelte/icons/megaphone';
+import MessageCircle from '@lucide/svelte/icons/message-circle';
 import MessageSquare from '@lucide/svelte/icons/message-square';
+import Network from '@lucide/svelte/icons/network';
+import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 import Package from '@lucide/svelte/icons/package';
 import Receipt from '@lucide/svelte/icons/receipt';
+import Scale from '@lucide/svelte/icons/scale';
 import School from '@lucide/svelte/icons/school';
 import ScrollText from '@lucide/svelte/icons/scroll-text';
 import Server from '@lucide/svelte/icons/server';
 import Settings from '@lucide/svelte/icons/settings';
+import Stamp from '@lucide/svelte/icons/stamp';
 import Star from '@lucide/svelte/icons/star';
+import Table from '@lucide/svelte/icons/table';
+import Trophy from '@lucide/svelte/icons/trophy';
+import UserCheck from '@lucide/svelte/icons/user-check';
+import UserPlus from '@lucide/svelte/icons/user-plus';
 import Users from '@lucide/svelte/icons/users';
 import Wallet from '@lucide/svelte/icons/wallet';
+import type { Pathname } from '$app/types';
 
 export type {
 	NavigationBadge,
@@ -57,7 +71,9 @@ export type {
 export const NAVIGATION_ROLES: readonly { key: NavigationRole; accent: string }[] = [
 	{ key: 'platform', accent: '#4169E1' },
 	{ key: 'school_admin', accent: '#0B7F82' },
+	{ key: 'principal', accent: '#7A3E9D' },
 	{ key: 'teacher', accent: '#A8620A' },
+	{ key: 'homeroom', accent: '#B4532A' },
 	{ key: 'student', accent: '#6D4AE0' },
 	{ key: 'guardian', accent: '#2A8A5D' }
 ];
@@ -100,6 +116,19 @@ export const NAVIGATION_ICONS = {
 	folder: Folder,
 	bell: Bell,
 	star: Star,
+	'book-marked': BookMarked,
+	network: Network,
+	scale: Scale,
+	trophy: Trophy,
+	'user-plus': UserPlus,
+	'user-check': UserCheck,
+	stamp: Stamp,
+	history: History,
+	'chart-column': ChartColumn,
+	table: Table,
+	'message-circle': MessageCircle,
+	'notebook-pen': NotebookPen,
+	'calendar-days': CalendarDays,
 	link: Link
 } as const satisfies Record<string, LucideIcon>;
 
@@ -113,6 +142,7 @@ export function navigationIcon(key: string): LucideIcon {
 export const NAVIGATION_BADGES: readonly NavigationBadge[] = [
 	'none',
 	'apps',
+	'approvals',
 	'tasks',
 	'msgs',
 	'due'
@@ -121,7 +151,7 @@ export const NAVIGATION_TARGETS: readonly NavigationTarget[] = ['same', 'new'];
 
 export const NAME_MAX_LENGTH = 28;
 const NAME_MIN_LENGTH = 2;
-const ROUTE_PATTERN = /^(\/[a-z0-9\-/]*|https?:\/\/\S+)$/;
+const ROUTE_PATTERN = /^(\/[a-z0-9\-/]*(#[a-z0-9-]+)?|https?:\/\/\S+)$/;
 
 export const NEW_GROUP_DEFAULTS = { name: 'Grup baru', icon: 'folder' } as const;
 export const NEW_ITEM_DEFAULTS = { name: 'Menu baru', icon: 'link' } as const;
@@ -218,5 +248,73 @@ export function toSaveInput(layout: Pick<NavigationLayout, 'groups'>): Navigatio
 			hidden: item.hidden,
 			badge: item.badge
 		}))
+	}));
+}
+
+/** Rute menu dapat menunjuk seksi halaman (`/app/admin/principal#presensi`, cermin `plan.go`). */
+export function splitRoute(route: string): { path: string; hash?: string } {
+	const index = route.indexOf('#');
+	if (index < 0) return { path: route };
+	const path = route.slice(0, index);
+	const hash = route.slice(index + 1);
+	return hash ? { path, hash } : { path };
+}
+
+/**
+ * Bentuk entri sidebar; sengaja dideklarasikan di sini (feature tidak boleh mengimpor komponen layout,
+ * FE-02) dan harus tetap kompatibel struktural dengan `WorkspaceNavItem`/`WorkspaceNavGroup`.
+ */
+export interface WorkspaceNavItem {
+	label: string;
+	icon: LucideIcon;
+	href?: Pathname;
+	externalHref?: string;
+	newTab?: boolean;
+	hash?: string;
+	badge?: number;
+	dot?: boolean;
+}
+export interface WorkspaceNavGroup {
+	label: string;
+	showLabel: boolean;
+	defaultOpen: boolean;
+	items: WorkspaceNavItem[];
+}
+
+export interface WorkspaceNavOptions {
+	/** Angka badge per kode badge backend (`apps`, `approvals`, …); `none` tidak pernah tampil. */
+	badges: Partial<Record<string, number | undefined>>;
+	/** Penanda titik per kode item (mis. data setup belum lengkap). */
+	dots?: Partial<Record<string, boolean>>;
+	/** Rute yang sudah dibangun; rute lain tampil nonaktif (FE-04 D6), bukan menuju 404. */
+	builtPaths: ReadonlySet<string>;
+}
+
+/** Susunan Menu & navigasi (backend) → entri sidebar `WorkspaceShell`. Dipakai semua area. */
+export function toWorkspaceNav(
+	groups: readonly NavigationGroup[],
+	{ badges, dots = {}, builtPaths }: WorkspaceNavOptions
+): WorkspaceNavGroup[] {
+	return groups.map((group) => ({
+		label: group.name,
+		showLabel: group.show_label,
+		defaultOpen: group.default_open,
+		items: group.items.map((item): WorkspaceNavItem => {
+			const external = isExternalRoute(item.route);
+			const { path, hash } = external
+				? { path: item.route, hash: undefined }
+				: splitRoute(item.route);
+			const isBuilt = !external && builtPaths.has(path);
+			return {
+				label: item.name,
+				icon: navigationIcon(item.icon),
+				href: isBuilt ? (path as Pathname) : undefined,
+				hash: isBuilt ? hash : undefined,
+				externalHref: external ? item.route : undefined,
+				newTab: item.target === 'new',
+				badge: item.badge === 'none' ? undefined : badges[item.badge] || undefined,
+				dot: Boolean(dots[item.code])
+			};
+		})
 	}));
 }

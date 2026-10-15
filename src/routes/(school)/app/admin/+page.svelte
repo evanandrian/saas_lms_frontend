@@ -17,7 +17,8 @@
 		REQUIRED_SECTIONS,
 		SEAT_SEGMENTS,
 		attendanceBand,
-		percent
+		percent,
+		storageUsage
 	} from '$lib/features/school-admin/school-admin.model';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
@@ -41,7 +42,6 @@
 	const t = (key: string, params?: Record<string, string | number>) =>
 		i18n.t(`${PREFIX}.dashboard.${key}`, params);
 	const reasonId = $props.id();
-	const BYTES_PER_MB = 1024 * 1024;
 	const REPORT_RANK = { draft: 0, submitted: 1, approved: 2, locked: 3 } as const;
 
 	// svelte-ignore state_referenced_locally
@@ -108,13 +108,15 @@
 	const seatSegments = $derived(
 		view && view.seats.seats ? Math.round((view.seats.used / view.seats.seats) * SEAT_SEGMENTS) : 0
 	);
-	const storageMb = $derived(
-		view
-			? formatNumber(view.usage.storage_bytes / BYTES_PER_MB, i18n.locale, {
-					maximumFractionDigits: 1
-				})
-			: '0'
-	);
+	const storage = $derived(view ? storageUsage(view.usage, i18n.locale) : null);
+	/** Kelas yang sudah diingatkan dari panel kelas pada sesi ini (selain pengingat massal `reminded_at`). */
+	let remindedRooms = $state<string[]>([]);
+	const roomReminded = (classId: string) => reminded || remindedRooms.includes(classId);
+
+	/** Tindak lanjut yang bisa langsung dijalankan di Beranda (tanpa memilih data). */
+	const TODO_INLINE: Record<string, () => Promise<void>> = {
+		attendance: () => remind()
+	};
 
 	/** Tujuan tombol tindak lanjut (path sudah lewat resolve()). */
 	const TODO_LINK: Record<string, string> = {
@@ -123,6 +125,7 @@
 		teachers_invite: resolve(APP_PATHS.SCHOOL_ADMIN_TEACHERS),
 		guardians_invite: resolve(APP_PATHS.SCHOOL_ADMIN_GUARDIANS),
 		report_draft: resolve(APP_PATHS.SCHOOL_ADMIN_REPORTS),
+		teachers_inactive: resolve(APP_PATHS.SCHOOL_ADMIN_TEACHERS),
 		invoice: resolve(APP_PATHS.SCHOOL_ADMIN_BILLING)
 	};
 
@@ -132,10 +135,14 @@
 			? resolve(APP_PATHS.SCHOOL_ADMIN_SETUP)
 			: `${resolve(APP_PATHS.SCHOOL_ADMIN_SETUP)}?section=${key}`;
 
-	async function remind() {
-		const out = await editor.run<SchoolAttendanceView>('remindAttendance', {});
+	async function remind(classId?: string) {
+		const out = await editor.run<SchoolAttendanceView>(
+			'remindAttendance',
+			classId ? { classId } : {}
+		);
 		if (!out) return;
-		editor.notify(t('reminded_toast'));
+		if (classId) remindedRooms = [...remindedRooms, classId];
+		editor.notify(t(classId ? 'reminded_room_toast' : 'reminded_toast'));
 		const fresh = await editor.run<SchoolDashboardView>('dashboard', {});
 		if (fresh) view = fresh;
 	}
@@ -382,7 +389,7 @@
 													>{view.holiday
 														? t('holiday_tile')
 														: r.pct === null || r.pct === undefined
-															? reminded
+															? roomReminded(r.class_id)
 																? i18n.t('dashboard.school.room_reminded')
 																: i18n.t('dashboard.school.room_unfilled')
 															: `${r.pct}%`}</span
@@ -479,14 +486,19 @@
 								type="button"
 								class={[
 									'lms-focus-ring flex h-9.5 items-center justify-center gap-2 rounded-lg text-[0.8125rem] font-semibold disabled:cursor-not-allowed disabled:opacity-60',
-									reminded ? 'bg-lms-progress/12 text-lms-progress-text' : 'lms-action-primary'
+									roomReminded(room.class_id)
+										? 'bg-lms-progress/12 text-lms-progress-text'
+										: 'lms-action-primary'
 								]}
-								disabled={reminded || editor.busy || !room.homeroom}
-								onclick={remind}
+								disabled={roomReminded(room.class_id) || editor.busy || !room.homeroom}
+								onclick={() => remind(room.class_id)}
 							>
-								<Icon icon={reminded ? Check : BellRing} size="sm" />{reminded
+								<Icon
+									icon={roomReminded(room.class_id) ? Check : BellRing}
+									size="sm"
+								/>{roomReminded(room.class_id)
 									? i18n.t('dashboard.school.reminded')
-									: t('remind_all')}
+									: i18n.t('dashboard.school.remind', { name: room.homeroom })}
 							</button>
 						</div>
 					{/if}
@@ -619,7 +631,15 @@
 					</div>
 					<div class="flex justify-between gap-2">
 						<dt class="text-lms-muted">{i18n.t('dashboard.school.storage')}</dt>
-						<dd class="font-semibold tabular-nums">{storageMb} MB</dd>
+						<dd class="font-semibold tabular-nums">
+							{storage?.quota
+								? i18n.t('dashboard.school.storage_of_quota', {
+										used: storage.used,
+										quota: storage.quota,
+										pct: storage.pct ?? 0
+									})
+								: i18n.t('dashboard.school.storage_used', { used: storage?.used ?? '0' })}
+						</dd>
 					</div>
 				</dl>
 			</section>
@@ -653,12 +673,25 @@
 								})}</span
 							>
 						</span>
-						<!-- eslint-disable svelte/no-navigation-without-resolve -- href dibentuk dari path yang sudah lewat resolve(); hanya query -->
-						<a
-							href={TODO_LINK[item.kind] ?? resolve(APP_PATHS.SCHOOL_ADMIN_HOME)}
-							class="text-lms-link mt-0.5 text-xs font-semibold">{t(`todo_${item.kind}_action`)}</a
-						>
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						{#if TODO_INLINE[item.kind]}
+							<button
+								type="button"
+								class="text-lms-link lms-focus-ring mt-0.5 text-xs font-semibold disabled:opacity-50"
+								disabled={editor.busy || reminded}
+								onclick={() => TODO_INLINE[item.kind]?.()}
+								>{reminded
+									? i18n.t('dashboard.school.reminded')
+									: t(`todo_${item.kind}_inline`)}</button
+							>
+						{:else}
+							<!-- eslint-disable svelte/no-navigation-without-resolve -- href dibentuk dari path yang sudah lewat resolve(); hanya query -->
+							<a
+								href={TODO_LINK[item.kind] ?? resolve(APP_PATHS.SCHOOL_ADMIN_HOME)}
+								class="text-lms-link mt-0.5 text-xs font-semibold"
+								>{t(`todo_${item.kind}_action`)}</a
+							>
+							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						{/if}
 					</li>
 				{:else}
 					<li class="text-lms-progress-text flex items-center gap-2 py-3 text-sm">

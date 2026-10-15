@@ -279,6 +279,11 @@ export interface SchoolAttendanceRow {
 	absent: number;
 }
 
+export interface SchoolAttendanceRemindInput {
+	/** Kelas sasaran tunggal (tombol "Ingatkan wali" per kelas). Kosong = semua kelas yang belum mengisi. Cooldown per kelas terpisah dari cooldown global. */
+	class_id?: string;
+}
+
 /**
  * Actual outcome of POST /school/attendance/remind (only present in that response). Emails are enqueued in one transaction (all or none).
  */
@@ -426,6 +431,7 @@ export interface SchoolDashboardFloor {
 }
 
 export interface SchoolDashboardTodo {
+	/** attendance | teachers_invite | teachers_inactive | guardians_invite | homeroom | report_draft | invoice */
 	kind: string;
 	count: number;
 	ref: string;
@@ -444,6 +450,11 @@ export interface SchoolDashboardUsage {
 	teachers_active_7d: number;
 	teachers_total: number;
 	storage_bytes: number;
+	/**
+	 * Kuota storage paket (plan_m.storage_gb x 2^30); null bila paket tanpa batas tercatat.
+	 * @nullable
+	 */
+	storage_quota_bytes: number | null;
 }
 
 export interface SchoolProgress {
@@ -721,11 +732,23 @@ export interface SchoolAuditEntry {
 	id: string;
 	at: string;
 	actor_name: string;
+	/** Kode peran pelaku di tenant (SCHOOL_ADMIN, PRINCIPAL, TEACHER, HOMEROOM_TEACHER, …); SYSTEM untuk aksi sistem. */
+	actor_role: string;
 	action: string;
 	entity_type: string;
 	subject: string;
 	details: SchoolAuditEntryDetails;
 }
+
+export type SchoolAuditActorRole = (typeof SchoolAuditActorRole)[keyof typeof SchoolAuditActorRole];
+
+export const SchoolAuditActorRole = {
+	SCHOOL_ADMIN: 'SCHOOL_ADMIN',
+	PRINCIPAL: 'PRINCIPAL',
+	TEACHER: 'TEACHER',
+	HOMEROOM_TEACHER: 'HOMEROOM_TEACHER',
+	SYSTEM: 'SYSTEM'
+} as const;
 
 export interface SchoolAuditView {
 	items: SchoolAuditEntry[];
@@ -1091,6 +1114,36 @@ export interface SchoolProgressView {
 	sections: SchoolSection[];
 }
 
+export interface SchoolReportRemindInput {
+	/** @maxLength 500 */
+	message?: string;
+	/** teacher_id penerima (teacher_m.id, bukan user_id — guru bisa belum punya akun); kosong = wali kelas saja. */
+	recipient_ids?: string[];
+}
+
+export interface SchoolReportPendingItem {
+	subject_id: string;
+	subject_name: string;
+	teacher_id: string;
+	teacher_name: string;
+	locked: number;
+	students: number;
+}
+
+export interface SchoolReportRecipient {
+	teacher_id: string;
+	name: string;
+	homeroom: boolean;
+	has_email: boolean;
+}
+
+export interface SchoolReportPendingView {
+	class_id: string;
+	class: string;
+	items: SchoolReportPendingItem[];
+	recipients: SchoolReportRecipient[];
+}
+
 export interface SchoolScheduleCellInput {
 	class_id?: string;
 	weekday?: number;
@@ -1343,6 +1396,13 @@ export const RequestViewStatus = {
 	declined: 'declined'
 } as const;
 
+export interface RequestStudent {
+	id: string;
+	name: string;
+	/** Kelas di tahun ajaran aktif; kosong bila belum ditempatkan. */
+	class_name: string;
+}
+
 export interface RequestView {
 	id: string;
 	/** Display number (APV-<number>) */
@@ -1371,6 +1431,8 @@ export interface RequestView {
 	 */
 	effective_at: string | null;
 	log: RequestLogEntry[];
+	/** Murid tertaut ke pemohon orang tua (hanya untuk requester PARENT di Kotak Persetujuan peninjau). */
+	students?: RequestStudent[];
 }
 
 export interface InboxRequester {
@@ -2582,7 +2644,9 @@ export type NavigationRole = (typeof NavigationRole)[keyof typeof NavigationRole
 export const NavigationRole = {
 	platform: 'platform',
 	school_admin: 'school_admin',
+	principal: 'principal',
 	teacher: 'teacher',
+	homeroom: 'homeroom',
 	student: 'student',
 	guardian: 'guardian'
 } as const;
@@ -2601,7 +2665,8 @@ export const NavigationBadge = {
 	apps: 'apps',
 	tasks: 'tasks',
 	msgs: 'msgs',
-	due: 'due'
+	due: 'due',
+	approvals: 'approvals'
 } as const;
 
 export interface NavigationItem {
@@ -2645,7 +2710,10 @@ export interface NavigationItemInput {
 	 */
 	name: string;
 	icon: string;
-	/** @pattern ^(/[a-z0-9\-/]*|https?://\S+)$ */
+	/**
+	 * Internal route may end with one `#section` fragment (sidebar menu that scrolls to a dashboard section).
+	 * @pattern ^(/[a-z0-9\-/]*(#[a-z0-9\-]+)?|https?://\S+)$
+	 */
 	route: string;
 	target: NavigationTarget;
 	hidden: boolean;
@@ -4332,7 +4400,7 @@ export type AuditErrorResponse = AccountErrorResponse;
 export type ClusterErrorResponse = AccountErrorResponse;
 
 /**
- * Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.
+ * Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.
  */
 export type SchoolAdminErrorResponse = AccountErrorResponse;
 
@@ -5219,6 +5287,9 @@ export type GetSchoolInviteJob200 = {
 };
 
 export type GetSchoolAuditParams = {
+	/**
+	 * academic = academic_year.* + class.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*
+	 */
 	category?: GetSchoolAuditCategory;
 	from?: string;
 	to?: string;
@@ -5226,6 +5297,15 @@ export type GetSchoolAuditParams = {
 	 * Kursor opak next_before dari halaman sebelumnya (seq audit); kirim balik apa adanya.
 	 */
 	before?: string;
+	/**
+	 * Cari di aksi, nama pelaku, atau subjek (≤ 100 karakter, literal).
+	 * @maxLength 100
+	 */
+	q?: string;
+	/**
+	 * Peran pelaku; SYSTEM = aksi tanpa keanggotaan tenant (sistem/worker).
+	 */
+	actor_role?: SchoolAuditActorRole;
 };
 
 export type GetSchoolAuditCategory =
@@ -5235,12 +5315,41 @@ export const GetSchoolAuditCategory = {
 	person: 'person',
 	guardian: 'guardian',
 	account: 'account',
-	report: 'report'
+	report: 'report',
+	academic: 'academic',
+	planning: 'planning',
+	reminder: 'reminder',
+	export: 'export'
 } as const;
 
 export type GetSchoolAudit200 = {
 	data: SchoolAuditView;
 };
+
+export type ExportSchoolAuditParams = {
+	category?: ExportSchoolAuditCategory;
+	from?: string;
+	to?: string;
+	/**
+	 * @maxLength 100
+	 */
+	q?: string;
+	actor_role?: SchoolAuditActorRole;
+};
+
+export type ExportSchoolAuditCategory =
+	(typeof ExportSchoolAuditCategory)[keyof typeof ExportSchoolAuditCategory];
+
+export const ExportSchoolAuditCategory = {
+	person: 'person',
+	guardian: 'guardian',
+	account: 'account',
+	report: 'report',
+	academic: 'academic',
+	planning: 'planning',
+	reminder: 'reminder',
+	export: 'export'
+} as const;
 
 export type GetSchoolAttendanceParams = {
 	mode?: string;
@@ -5273,6 +5382,10 @@ export type GetSchoolReports200 = {
 
 export type RemindSchoolReport200 = {
 	data: SchoolReportsView;
+};
+
+export type GetSchoolReportPending200 = {
+	data: SchoolReportPendingView;
 };
 
 export type GetSchoolClassReport200 = {
@@ -6457,7 +6570,7 @@ export type getNavigationLayoutResponse =
 	getNavigationLayoutResponseSuccess | getNavigationLayoutResponseError;
 
 export const getGetNavigationLayoutUrl = (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian'
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian'
 ) => {
 	return `/api/v1/platform/navigation/roles/${role}`;
 };
@@ -6467,7 +6580,7 @@ export const getGetNavigationLayoutUrl = (
  * @summary Load the sidebar layout of a role (Menu & navigasi)
  */
 export const getNavigationLayout = async (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian',
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian',
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<getNavigationLayoutResponse> => {
 	return lmsFetch<getNavigationLayoutResponse>(getGetNavigationLayoutUrl(role), {
@@ -6529,7 +6642,7 @@ export type saveNavigationLayoutResponse =
 	saveNavigationLayoutResponseSuccess | saveNavigationLayoutResponseError;
 
 export const getSaveNavigationLayoutUrl = (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian'
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian'
 ) => {
 	return `/api/v1/platform/navigation/roles/${role}`;
 };
@@ -6539,7 +6652,7 @@ export const getSaveNavigationLayoutUrl = (
  * @summary Save the whole sidebar layout of a role
  */
 export const saveNavigationLayout = async (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian',
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian',
 	saveNavigationLayoutRequest: SaveNavigationLayoutRequest,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<saveNavigationLayoutResponse> => {
@@ -6617,7 +6730,7 @@ export type resetNavigationLayoutResponse =
 	resetNavigationLayoutResponseSuccess | resetNavigationLayoutResponseError;
 
 export const getResetNavigationLayoutUrl = (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian'
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian'
 ) => {
 	return `/api/v1/platform/navigation/roles/${role}/reset`;
 };
@@ -6626,7 +6739,7 @@ export const getResetNavigationLayoutUrl = (
  * @summary Restore the default FLIXARE layout of a role
  */
 export const resetNavigationLayout = async (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian',
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian',
 	resetNavigationLayoutRequest: ResetNavigationLayoutRequest,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<resetNavigationLayoutResponse> => {
@@ -6685,17 +6798,17 @@ export type getNavigationSidebarResponse =
 	getNavigationSidebarResponseSuccess | getNavigationSidebarResponseError;
 
 export const getGetNavigationSidebarUrl = (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian'
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian'
 ) => {
 	return `/api/v1/navigation/sidebar/${role}`;
 };
 
 /**
- * Hidden groups/menus and groups without visible menus are omitted. Requires authentication only; hiding a menu is not an access boundary.
+ * Hidden groups/menus and groups without visible menus are omitted. Requires authentication only; hiding a menu is not an access boundary. `principal` and `homeroom` have their own sidebar although they share access areas with `school_admin` / `teacher`. Badge `approvals` = pending items in the school approval inbox (`GET /api/v1/approvals/summary`).
  * @summary Visible sidebar of a role for the application shell
  */
 export const getNavigationSidebar = async (
-	role: 'platform' | 'school_admin' | 'teacher' | 'student' | 'guardian',
+	role: 'platform' | 'school_admin' | 'principal' | 'teacher' | 'homeroom' | 'student' | 'guardian',
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<getNavigationSidebarResponse> => {
 	return lmsFetch<getNavigationSidebarResponse>(getGetNavigationSidebarUrl(role), {
@@ -15532,6 +15645,55 @@ export const getSchoolAudit = async (
 	});
 };
 
+export type exportSchoolAuditResponse200 = {
+	data: Blob;
+	status: 200;
+};
+
+export type exportSchoolAuditResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type exportSchoolAuditResponseSuccess = exportSchoolAuditResponse200 & {
+	headers: Headers;
+};
+export type exportSchoolAuditResponseError = exportSchoolAuditResponseDefault & {
+	headers: Headers;
+};
+
+export type exportSchoolAuditResponse =
+	exportSchoolAuditResponseSuccess | exportSchoolAuditResponseError;
+
+export const getExportSchoolAuditUrl = (params?: ExportSchoolAuditParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/audit/export?${stringifiedParams}`
+		: `/api/v1/school/audit/export`;
+};
+
+/**
+ * @summary Export tenant audit log as CSV (recorded as export.audit_log)
+ */
+export const exportSchoolAudit = async (
+	params?: ExportSchoolAuditParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<exportSchoolAuditResponse> => {
+	return lmsFetch<exportSchoolAuditResponse>(getExportSchoolAuditUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
 export type getSchoolAttendanceResponse200 = {
 	data: GetSchoolAttendance200;
 	status: 200;
@@ -15610,11 +15772,33 @@ export const getRemindSchoolAttendanceUrl = () => {
  * @summary Remind homeroom teachers
  */
 export const remindSchoolAttendance = async (
+	schoolAttendanceRemindInput?: SchoolAttendanceRemindInput,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<remindSchoolAttendanceResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
 	return lmsFetch<remindSchoolAttendanceResponse>(getRemindSchoolAttendanceUrl(), {
 		...options,
-		method: 'POST'
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAttendanceRemindInput)
 	});
 };
 
@@ -15790,11 +15974,70 @@ export const getRemindSchoolReportUrl = (id: string) => {
  */
 export const remindSchoolReport = async (
 	id: string,
+	schoolReportRemindInput?: SchoolReportRemindInput,
 	options?: Parameters<typeof lmsFetch>[1]
 ): Promise<remindSchoolReportResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
 	return lmsFetch<remindSchoolReportResponse>(getRemindSchoolReportUrl(id), {
 		...options,
-		method: 'POST'
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolReportRemindInput)
+	});
+};
+
+export type getSchoolReportPendingResponse200 = {
+	data: GetSchoolReportPending200;
+	status: 200;
+};
+
+export type getSchoolReportPendingResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolReportPendingResponseSuccess = getSchoolReportPendingResponse200 & {
+	headers: Headers;
+};
+export type getSchoolReportPendingResponseError = getSchoolReportPendingResponseDefault & {
+	headers: Headers;
+};
+
+export type getSchoolReportPendingResponse =
+	getSchoolReportPendingResponseSuccess | getSchoolReportPendingResponseError;
+
+export const getGetSchoolReportPendingUrl = (id: string) => {
+	return `/api/v1/school/reports/${id}/pending`;
+};
+
+/**
+ * @summary Report-card subjects not yet locked and reminder recipients
+ */
+export const getSchoolReportPending = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolReportPendingResponse> => {
+	return lmsFetch<getSchoolReportPendingResponse>(getGetSchoolReportPendingUrl(id), {
+		...options,
+		method: 'GET'
 	});
 };
 

@@ -50,6 +50,7 @@ import {
 	getSchoolImportSpec,
 	getSchoolInvitation,
 	getSchoolPlanning,
+	getSchoolReportPending,
 	getSchoolReports,
 	getSchoolSetup,
 	getSchoolSetupProgress,
@@ -118,6 +119,8 @@ import {
 	type SchoolPlanningView,
 	type SchoolProgressView,
 	type SchoolProfileInput,
+	type SchoolReportPendingView,
+	type SchoolReportRemindInput,
 	type SchoolReportsView,
 	type SchoolScheduleCellInput,
 	type SchoolSeatsResult,
@@ -257,8 +260,10 @@ export const fetchAttendance = (ctx: Ctx, mode: string, date: string) =>
 	callBackend<SchoolAttendanceView>(ctx, (init) =>
 		getSchoolAttendance({ mode: mode || undefined, date: date || undefined }, init)
 	);
-export const remindAttendance = (ctx: Ctx) =>
-	callBackend<SchoolAttendanceView>(ctx, (init) => remindSchoolAttendance(init));
+export const remindAttendance = (ctx: Ctx, classId?: string) =>
+	callBackend<SchoolAttendanceView>(ctx, (init) =>
+		remindSchoolAttendance(classId ? { class_id: classId } : undefined, init)
+	);
 export const fetchHomeroomAttendance = (ctx: Ctx, date: string) =>
 	callBackend<SchoolHomeroomAttendanceView>(ctx, (init) =>
 		getHomeroomAttendance({ date: date || undefined }, init)
@@ -267,8 +272,10 @@ export const saveHomeroomAttendanceEntries = (ctx: Ctx, body: SchoolAttendanceIn
 	callBackend<SchoolHomeroomAttendanceView>(ctx, (init) => saveHomeroomAttendance(body, init));
 export const fetchReports = (ctx: Ctx) =>
 	callBackend<SchoolReportsView>(ctx, (init) => getSchoolReports(init));
-export const remindReport = (ctx: Ctx, classId: string) =>
-	callBackend<SchoolReportsView>(ctx, (init) => remindSchoolReport(classId, init));
+export const fetchReportPending = (ctx: Ctx, classId: string) =>
+	callBackend<SchoolReportPendingView>(ctx, (init) => getSchoolReportPending(classId, init));
+export const remindReport = (ctx: Ctx, classId: string, body?: SchoolReportRemindInput) =>
+	callBackend<SchoolReportsView>(ctx, (init) => remindSchoolReport(classId, body, init));
 
 // ===== Alur rapor =====
 export const fetchClassReport = (ctx: Ctx, classId: string) =>
@@ -312,6 +319,9 @@ export const fetchInviteJob = (ctx: Ctx, jobId: string) =>
 	callBackend<SchoolInviteJob>(ctx, (init) => getSchoolInviteJob(jobId, init));
 export const fetchAudit = (ctx: Ctx, params: GetSchoolAuditParams) =>
 	callBackend<SchoolAuditView>(ctx, (init) => getSchoolAudit(params, init));
+/** CSV riwayat (stream); dibaca mentah karena generated client mem-parse JSON. */
+export const fetchAuditExport = (ctx: Ctx, query: URLSearchParams) =>
+	fetchBackendFile(ctx, `/api/v1/school/audit/export?${query}`);
 export const fetchSubscription = (ctx: Ctx) =>
 	callBackend<SchoolSubscriptionView>(ctx, (init) => getSchoolSubscription(init));
 export const fetchActivation = (ctx: Ctx) =>

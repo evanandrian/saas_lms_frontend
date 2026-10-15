@@ -52,6 +52,8 @@ export const APP_PATHS = {
 	SCHOOL_ADMIN_REPORT_PDF: '/app/admin/reports/pdf',
 	/** Riwayat perubahan data orang, undangan, dan rapor (audit tenant). */
 	SCHOOL_ADMIN_AUDIT: '/app/admin/audit',
+	/** Unduh CSV riwayat perubahan (proxy server; tidak muncul di sidebar). */
+	SCHOOL_ADMIN_AUDIT_EXPORT: '/app/admin/audit/export',
 	/** Dashboard kepala sekolah (peran PRINCIPAL, toggle Kepala sekolah ↔ Admin sekolah). */
 	PRINCIPAL_HOME: '/app/admin/principal',
 	TEACHER_HOME: '/app/teacher',

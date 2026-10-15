@@ -25,6 +25,10 @@
 		badge?: number;
 		/** Teks badge untuk pembaca layar, mis. "9 menunggu". */
 		badgeLabel?: string;
+		/** Titik penanda perlu perhatian (tanpa angka). Diabaikan bila `badge` terisi. */
+		dot?: boolean;
+		/** Teks titik untuk pembaca layar. */
+		dotLabel?: string;
 		labelVisibility?: LabelVisibility;
 		/** Tooltip native saat label tersembunyi (rail). Nama aksesibel tetap dari label sr-only. */
 		tooltip?: string;
@@ -39,6 +43,8 @@
 		icon,
 		badge,
 		badgeLabel,
+		dot = false,
+		dotLabel,
 		labelVisibility = 'always',
 		tooltip
 	}: Props = $props();
@@ -93,6 +99,16 @@
 			<span aria-hidden="true">{badge}</span>
 			{#if badgeLabel}<span class="sr-only">{badgeLabel}</span>{/if}
 		</span>
+	{/if}
+	{#if dot && !badge}
+		<span
+			class={[
+				'bg-lms-danger-text size-2 shrink-0 rounded-full',
+				labelVisibility !== 'always' && 'absolute top-1 right-1'
+			]}
+			aria-hidden="true"
+		></span>
+		{#if dotLabel}<span class="sr-only">{dotLabel}</span>{/if}
 	{/if}
 </a>
 <!-- eslint-enable svelte/no-navigation-without-resolve -->

@@ -36,6 +36,7 @@
 			"unavailable": "{item} tersedia pada fase fitur",
 			"not_available_yet": "belum tersedia",
 			"badge_pending": "{count} menunggu",
+			"needs_attention": "Perlu dilengkapi",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {
@@ -541,6 +542,8 @@
 			"active_students": "Murid aktif 7 hari",
 			"active_teachers": "Guru aktif 7 hari",
 			"teachers_value": "{active} dari {total}",
+			"storage_used": "{used} MB",
+			"storage_of_quota": "{used} MB dari {quota} GB · {pct}%",
 			"storage": "Penyimpanan",
 			"follow_up": "Perlu ditindaklanjuti",
 			"follow_up_left": "{count} tersisa",
@@ -1052,7 +1055,9 @@
 		"roles": {
 			"platform": "Platform",
 			"school_admin": "Admin sekolah",
-			"teacher": "Guru",
+			"principal": "Kepala sekolah",
+			"teacher": "Guru mapel",
+			"homeroom": "Wali kelas",
 			"student": "Murid",
 			"guardian": "Orang tua"
 		},
@@ -1117,6 +1122,7 @@
 		"badges": {
 			"none": "Tidak ada",
 			"apps": "Pengajuan menunggu",
+			"approvals": "Persetujuan menunggu",
 			"tasks": "Tugas belum dinilai",
 			"msgs": "Pesan belum dibaca",
 			"due": "Tenggat dekat"
@@ -2323,6 +2329,7 @@
 	},
 	"approvals": {
 		"head_title": "Kotak persetujuan",
+		"students": "Orang tua dari {names}",
 		"eyebrow": "PERSETUJUAN · {role}",
 		"title": "Kotak persetujuan",
 		"role_tag": {
@@ -3735,6 +3742,11 @@
 			"semester_required": "Belum ada semester aktif.",
 			"class_exists": "Nama kelas sudah dipakai.",
 			"class_not_found": "Kelas tidak ada.",
+			"already_filled": "Presensi/rapor kelas ini sudah terisi lengkap.",
+			"no_contact": "Penerima belum memiliki kontak email.",
+			"no_homeroom_contact": "Wali kelas belum memiliki kontak email.",
+			"recipient_invalid": "Penerima pengingat tidak valid untuk rapor ini.",
+			"audit_export_range_invalid": "Rentang ekspor maksimal 90 hari dan tanggal awal tidak boleh setelah tanggal akhir.",
 			"capacity_range": "Harus 1–60.",
 			"homeroom_taken": "Guru ini sudah menjadi wali kelas lain.",
 			"grade_not_in_level": "Tingkat tidak ada di jenjang sekolah.",
@@ -4106,8 +4118,23 @@
 			"no_homeroom": "Wali kelas belum ditetapkan",
 			"remind": "Ingatkan",
 			"reminded_label": "Diingatkan",
-			"reminded": "Pengingat dikirim ke {name}",
-			"homeroom_fallback": "wali kelas",
+			"reminded": "Pengingat terkirim ke {count} guru",
+			"remind_dialog": {
+				"title": "Ingatkan rapor {class}",
+				"close": "Tutup",
+				"loading": "Memuat item yang belum selesai…",
+				"pending_title": "Belum selesai ({count})",
+				"pending_none": "Tidak ada mapel dengan guru pengampu yang menunggu kunci nilai. Mapel tanpa penugasan guru tidak tercantum.",
+				"no_teacher": "Guru belum ditetapkan",
+				"recipients_title": "Penerima",
+				"recipients_none": "Tidak ada penerima yang dapat dihubungi.",
+				"recipient_homeroom": "{name} (wali kelas)",
+				"recipient_no_email": "{name} — belum ada email",
+				"message_label": "Pesan tambahan (opsional)",
+				"message_placeholder": "Kosongkan untuk memakai pesan bawaan.",
+				"channel_email": "Dikirim lewat email.",
+				"send": "Kirim ke {count} penerima"
+			},
 			"download": "Unduh PDF",
 			"view": "Lihat",
 			"empty": "Belum ada kelas pada tahun ajaran aktif.",
@@ -4310,6 +4337,11 @@
 			"no_homeroom": "Wali kelas belum ditetapkan",
 			"remind_all": "Ingatkan wali kelas",
 			"reminded_toast": "Pengingat presensi terkirim ke wali kelas.",
+			"reminded_room_toast": "Pengingat terkirim ke wali kelas.",
+			"todo_attendance_inline": "Ingatkan semua",
+			"todo_teachers_inactive_title": "{count} guru belum aktif 7 hari",
+			"todo_teachers_inactive_sub": "Belum masuk ke FLIXARE dalam 7 hari terakhir.",
+			"todo_teachers_inactive_action": "Lihat guru",
 			"report_title": "Alur rapor {term}",
 			"report_meta": "{classes} kelas · dihitung dari status rapor semester aktif",
 			"step_locked_subjects": "Nilai semua mapel terkunci",
@@ -4726,22 +4758,41 @@
 		"audit": {
 			"eyebrow": "ADMIN SEKOLAH",
 			"title": "Riwayat perubahan",
-			"desc": "Jejak perubahan penting di sekolah: penghapusan dan penonaktifan data, undangan akun, serta alur rapor.",
+			"desc": "Jejak perubahan penting di sekolah: data guru, murid, wali, tahun ajaran, kelas, perencanaan akademik, undangan, pengingat, rapor, dan ekspor.",
 			"category_label": "Kategori riwayat",
 			"category": {
 				"all": "Semua",
 				"person": "Data guru & murid",
 				"guardian": "Wali murid",
 				"account": "Undangan akun",
-				"report": "Rapor"
+				"report": "Rapor",
+				"academic": "Tahun ajaran & kelas",
+				"planning": "Perencanaan akademik",
+				"reminder": "Pengingat",
+				"export": "Ekspor data"
 			},
 			"from": "Dari tanggal",
 			"to": "Sampai tanggal",
 			"reset": "Atur ulang filter",
 			"range_invalid": "Tanggal awal tidak boleh setelah tanggal akhir.",
-			"today": "Hari ini",
-			"yesterday": "Kemarin",
-			"by": "Oleh {actor} · {time}",
+			"search": "Cari",
+			"search_placeholder": "Cari aksi, pelaku, atau data…",
+			"role_label": "Peran pelaku",
+			"role_all": "Semua peran",
+			"export": "Ekspor CSV",
+			"export_failed": "Riwayat belum bisa diekspor. Coba lagi beberapa saat.",
+			"head_time": "WAKTU",
+			"head_actor": "PELAKU",
+			"head_role": "PERAN",
+			"head_action": "AKSI",
+			"role": {
+				"SCHOOL_ADMIN": "Admin sekolah",
+				"PRINCIPAL": "Kepala sekolah",
+				"TEACHER": "Guru mapel",
+				"HOMEROOM_TEACHER": "Wali kelas",
+				"SYSTEM": "Sistem",
+				"other": "Lainnya"
+			},
 			"system": "Sistem",
 			"load_more": "Muat lebih banyak",
 			"loading": "Memuat…",
@@ -4749,7 +4800,7 @@
 			"empty_title": "Belum ada riwayat perubahan",
 			"empty_desc": "Perubahan penting seperti penghapusan data, undangan akun, dan proses rapor akan tercatat di sini.",
 			"empty_filtered_title": "Tidak ada riwayat yang cocok",
-			"empty_filtered_desc": "Ubah kategori atau rentang tanggal untuk melihat riwayat lainnya.",
+			"empty_filtered_desc": "Ubah kategori, rentang tanggal, kata kunci, atau peran pelaku untuk melihat riwayat lainnya.",
 			"entity": {
 				"teacher": "guru",
 				"student": "murid",
@@ -4779,7 +4830,54 @@
 					"return": "Mengembalikan rapor kelas {subject} untuk diperbaiki",
 					"lock": "Mengunci rapor kelas {subject}",
 					"unlock": "Membuka kunci rapor kelas {subject}",
-					"notify_failed": "Notifikasi rapor kelas {subject} gagal terkirim"
+					"notify_failed": "Notifikasi rapor kelas {subject} gagal terkirim",
+					"remind": "Mengirim pengingat rapor {subject}"
+				},
+				"academic_year": {
+					"create": "Menambah tahun ajaran {subject}",
+					"update": "Mengubah tahun ajaran {subject}",
+					"delete": "Menghapus tahun ajaran {subject}"
+				},
+				"class": {
+					"create": "Menambah kelas {subject}",
+					"update": "Mengubah kelas {subject}",
+					"delete": "Menghapus kelas {subject}"
+				},
+				"planning": {
+					"homeroom": {
+						"save": "Menetapkan wali kelas {subject}",
+						"delete": "Melepas wali kelas {subject}"
+					},
+					"assignment": {
+						"save": "Menyimpan penugasan mengajar {subject}",
+						"delete": "Menghapus penugasan mengajar {subject}"
+					},
+					"objective": {
+						"save": "Menyimpan tujuan pembelajaran {subject}",
+						"delete": "Menghapus tujuan pembelajaran {subject}"
+					},
+					"assessment": {
+						"save": "Menyimpan jenis asesmen & bobot",
+						"delete": "Menghapus jenis asesmen {subject}"
+					},
+					"period": {
+						"save": "Menyimpan jam pelajaran",
+						"delete": "Menghapus jam pelajaran {subject}"
+					},
+					"schedule": {
+						"save": "Mengubah jadwal {subject}",
+						"delete": "Menghapus jadwal {subject}"
+					},
+					"extra": {
+						"save": "Menyimpan ekstrakurikuler {subject}",
+						"delete": "Menghapus ekstrakurikuler {subject}"
+					}
+				},
+				"attendance": {
+					"remind": "Mengirim pengingat presensi {subject}"
+				},
+				"export": {
+					"audit_log": "Mengekspor riwayat perubahan"
 				},
 				"generic": "Aktivitas {action} pada {subject}"
 			},
@@ -5404,25 +5502,26 @@
 			}
 		},
 		"school_admin_audit": {
-			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, seperti penghapusan dan penonaktifan data, undangan akun, serta alur rapor. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
+			"purpose": "Halaman ini menampilkan jejak perubahan penting di sekolah, mulai dari data guru dan murid, wali murid, akun, rapor, tahun ajaran dan kelas, perencanaan akademik, pengingat, hingga ekspor data. Gunakan untuk menelusuri siapa melakukan apa dan kapan.",
 			"features": {
-				"timeline": "Melihat riwayat perubahan terbaru lebih dulu, dikelompokkan per hari, lengkap dengan pelaku dan jamnya.",
-				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, undangan akun, atau rapor.",
+				"timeline": "Melihat riwayat perubahan terbaru lebih dulu dalam tabel berisi waktu, pelaku, peran, dan aksi.",
+				"category": "Menyaring riwayat per kategori: data guru & murid, wali murid, akun, rapor, tahun ajaran & kelas, perencanaan akademik, pengingat, atau ekspor data.",
 				"range": "Menyaring riwayat berdasarkan rentang tanggal.",
 				"detail": "Melihat detail tambahan seperti NIS/NIP, alasan, dan jumlah undangan terkirim atau gagal.",
-				"more": "Memuat riwayat yang lebih lama secara bertahap."
+				"more": "Memuat riwayat yang lebih lama secara bertahap.",
+				"search_export": "Mencari berdasarkan kata kunci, menyaring berdasarkan peran pelaku, dan mengekspor riwayat sesuai filter ke CSV (rentang maksimal 90 hari)."
 			},
 			"steps": {
 				"s1": "Pilih kategori pada tab, misalnya \"Undangan akun\" atau \"Rapor\".",
 				"s2": "Isi \"Dari tanggal\" dan \"Sampai tanggal\" untuk membatasi rentang waktu.",
-				"s3": "Baca setiap entri beserta pelaku dan jamnya pada baris \"Oleh …\".",
+				"s3": "Baca setiap baris tabel: waktu, pelaku, peran, dan aksi beserta detailnya.",
 				"s4": "Klik \"Muat lebih banyak\" untuk melihat riwayat yang lebih lama.",
 				"s5": "Klik \"Atur ulang filter\" untuk kembali menampilkan semua riwayat."
 			},
 			"tips": {
 				"read_only": "Halaman ini hanya untuk dibaca; riwayat tidak bisa diubah atau dihapus.",
 				"range": "Tanggal awal tidak boleh setelah tanggal akhir.",
-				"system": "Entri dengan pelaku \"Sistem\" berasal dari proses otomatis, bukan dari pengguna."
+				"system": "Pelaku \"Sistem\" berarti proses otomatis atau pengguna yang saat ini tidak memiliki peran keanggotaan di sekolah, misalnya mantan anggota."
 			}
 		},
 		"school_admin_classes": {

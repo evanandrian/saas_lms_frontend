@@ -36,6 +36,7 @@
 			"unavailable": "{item} is available in a feature phase",
 			"not_available_yet": "not available yet",
 			"badge_pending": "{count} pending",
+			"needs_attention": "Needs attention",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {
@@ -541,6 +542,8 @@
 			"active_students": "Active students (7 days)",
 			"active_teachers": "Active teachers (7 days)",
 			"teachers_value": "{active} of {total}",
+			"storage_used": "{used} MB",
+			"storage_of_quota": "{used} MB of {quota} GB · {pct}%",
 			"storage": "Storage",
 			"follow_up": "Needs follow-up",
 			"follow_up_left": "{count} left",
@@ -1052,7 +1055,9 @@
 		"roles": {
 			"platform": "Platform",
 			"school_admin": "School admin",
-			"teacher": "Teacher",
+			"principal": "Principal",
+			"teacher": "Subject teacher",
+			"homeroom": "Homeroom teacher",
 			"student": "Student",
 			"guardian": "Parent"
 		},
@@ -1117,6 +1122,7 @@
 		"badges": {
 			"none": "None",
 			"apps": "Pending applications",
+			"approvals": "Pending approvals",
 			"tasks": "Ungraded tasks",
 			"msgs": "Unread messages",
 			"due": "Due soon"
@@ -2323,6 +2329,7 @@
 	},
 	"approvals": {
 		"head_title": "Approvals inbox",
+		"students": "Parent of {names}",
 		"eyebrow": "APPROVALS · {role}",
 		"title": "Approvals inbox",
 		"role_tag": {
@@ -3735,6 +3742,11 @@
 			"semester_required": "There is no active semester.",
 			"class_exists": "Class name is already used.",
 			"class_not_found": "Class does not exist.",
+			"already_filled": "This class is already fully filled in.",
+			"no_contact": "The recipient has no email contact.",
+			"no_homeroom_contact": "The homeroom teacher has no email contact.",
+			"recipient_invalid": "The reminder recipient is not valid for this report card.",
+			"audit_export_range_invalid": "The export range is at most 90 days and the start date cannot be after the end date.",
 			"capacity_range": "Must be 1–60.",
 			"homeroom_taken": "This teacher is already a homeroom teacher of another class.",
 			"grade_not_in_level": "Grade is not part of the school level.",
@@ -4106,8 +4118,23 @@
 			"no_homeroom": "Homeroom teacher not assigned",
 			"remind": "Remind",
 			"reminded_label": "Reminded",
-			"reminded": "Reminder sent to {name}",
-			"homeroom_fallback": "homeroom teacher",
+			"reminded": "Reminder sent to {count} teachers",
+			"remind_dialog": {
+				"title": "Remind {class} report card",
+				"close": "Close",
+				"loading": "Loading unfinished items…",
+				"pending_title": "Unfinished ({count})",
+				"pending_none": "No subjects with an assigned teacher are waiting for grade locking. Subjects without a teaching assignment are not listed.",
+				"no_teacher": "No teacher assigned",
+				"recipients_title": "Recipients",
+				"recipients_none": "No reachable recipients.",
+				"recipient_homeroom": "{name} (homeroom teacher)",
+				"recipient_no_email": "{name} — no email yet",
+				"message_label": "Additional message (optional)",
+				"message_placeholder": "Leave empty to use the default message.",
+				"channel_email": "Sent by email.",
+				"send": "Send to {count} recipients"
+			},
 			"download": "Download PDF",
 			"view": "View",
 			"empty": "No classes in the active academic year.",
@@ -4310,6 +4337,11 @@
 			"no_homeroom": "Homeroom teacher not assigned",
 			"remind_all": "Remind homeroom teachers",
 			"reminded_toast": "Attendance reminder sent to homeroom teachers.",
+			"reminded_room_toast": "Reminder sent to the homeroom teacher.",
+			"todo_attendance_inline": "Remind all",
+			"todo_teachers_inactive_title": "{count} teachers inactive for 7 days",
+			"todo_teachers_inactive_sub": "Have not signed in to FLIXARE in the last 7 days.",
+			"todo_teachers_inactive_action": "View teachers",
 			"report_title": "Report card flow · {term}",
 			"report_meta": "{classes} classes · computed from active semester report status",
 			"step_locked_subjects": "All subject grades locked",
@@ -4726,22 +4758,41 @@
 		"audit": {
 			"eyebrow": "SCHOOL ADMIN",
 			"title": "Change history",
-			"desc": "A trail of important school changes: deleted and deactivated records, account invitations, and report card workflow.",
+			"desc": "A trail of important school changes: teachers, students, guardians, years, classes, academic planning, invitations, reminders, report cards, and exports.",
 			"category_label": "History category",
 			"category": {
 				"all": "All",
 				"person": "Teachers & students",
 				"guardian": "Guardians",
 				"account": "Account invitations",
-				"report": "Report cards"
+				"report": "Report cards",
+				"academic": "Years & classes",
+				"planning": "Academic planning",
+				"reminder": "Reminders",
+				"export": "Data exports"
 			},
 			"from": "From date",
 			"to": "To date",
 			"reset": "Reset filters",
 			"range_invalid": "The start date cannot be after the end date.",
-			"today": "Today",
-			"yesterday": "Yesterday",
-			"by": "By {actor} · {time}",
+			"search": "Search",
+			"search_placeholder": "Search action, actor, or record…",
+			"role_label": "Actor role",
+			"role_all": "All roles",
+			"export": "Export CSV",
+			"export_failed": "The history could not be exported. Try again shortly.",
+			"head_time": "TIME",
+			"head_actor": "ACTOR",
+			"head_role": "ROLE",
+			"head_action": "ACTION",
+			"role": {
+				"SCHOOL_ADMIN": "School admin",
+				"PRINCIPAL": "Principal",
+				"TEACHER": "Subject teacher",
+				"HOMEROOM_TEACHER": "Homeroom teacher",
+				"SYSTEM": "System",
+				"other": "Other"
+			},
 			"system": "System",
 			"load_more": "Load more",
 			"loading": "Loading…",
@@ -4749,7 +4800,7 @@
 			"empty_title": "No change history yet",
 			"empty_desc": "Important changes such as deleted records, account invitations, and report card steps will be recorded here.",
 			"empty_filtered_title": "No matching history",
-			"empty_filtered_desc": "Change the category or date range to see other entries.",
+			"empty_filtered_desc": "Change the category, date range, search keyword, or actor role to see other entries.",
 			"entity": {
 				"teacher": "teacher",
 				"student": "student",
@@ -4779,7 +4830,54 @@
 					"return": "Returned report cards for class {subject} for revision",
 					"lock": "Locked report cards for class {subject}",
 					"unlock": "Unlocked report cards for class {subject}",
-					"notify_failed": "Report card notification for class {subject} failed to send"
+					"notify_failed": "Report card notification for class {subject} failed to send",
+					"remind": "Sent report card reminder {subject}"
+				},
+				"academic_year": {
+					"create": "Added academic year {subject}",
+					"update": "Updated academic year {subject}",
+					"delete": "Deleted academic year {subject}"
+				},
+				"class": {
+					"create": "Added class {subject}",
+					"update": "Updated class {subject}",
+					"delete": "Deleted class {subject}"
+				},
+				"planning": {
+					"homeroom": {
+						"save": "Assigned homeroom teacher {subject}",
+						"delete": "Removed homeroom teacher {subject}"
+					},
+					"assignment": {
+						"save": "Saved teaching assignment {subject}",
+						"delete": "Deleted teaching assignment {subject}"
+					},
+					"objective": {
+						"save": "Saved learning objective {subject}",
+						"delete": "Deleted learning objective {subject}"
+					},
+					"assessment": {
+						"save": "Saved assessment types & weights",
+						"delete": "Deleted assessment type {subject}"
+					},
+					"period": {
+						"save": "Saved lesson periods",
+						"delete": "Deleted lesson period {subject}"
+					},
+					"schedule": {
+						"save": "Updated schedule {subject}",
+						"delete": "Deleted schedule {subject}"
+					},
+					"extra": {
+						"save": "Saved extracurricular {subject}",
+						"delete": "Deleted extracurricular {subject}"
+					}
+				},
+				"attendance": {
+					"remind": "Sent attendance reminder {subject}"
+				},
+				"export": {
+					"audit_log": "Exported change history"
 				},
 				"generic": "Activity {action} on {subject}"
 			},
@@ -5404,25 +5502,26 @@
 			}
 		},
 		"school_admin_audit": {
-			"purpose": "This page shows a trail of important school changes, such as deleted and deactivated records, account invitations, and the report card workflow. Use it to trace who did what and when.",
+			"purpose": "This page shows a trail of important school changes across teacher and student records, guardians, accounts, report cards, academic years and classes, academic planning, reminders, and data exports. Use it to trace who did what and when.",
 			"features": {
-				"timeline": "View change history newest first, grouped by day, with the actor and time.",
-				"category": "Filter history by category: teachers & students, guardians, account invitations, or report cards.",
+				"timeline": "View change history newest first in a table with time, actor, role, and action.",
+				"category": "Filter history by category: teachers & students, guardians, accounts, report cards, years & classes, academic planning, reminders, or data exports.",
 				"range": "Filter history by date range.",
 				"detail": "See extra details such as NIS/NIP, reasons, and the number of invitations sent or failed.",
-				"more": "Load older history step by step."
+				"more": "Load older history step by step.",
+				"search_export": "Search by keyword, filter by actor role, and export the filtered history to CSV (up to a 90-day range)."
 			},
 			"steps": {
 				"s1": "Select a category tab, for example \"Account invitations\" or \"Report cards\".",
 				"s2": "Fill in \"From date\" and \"To date\" to limit the time range.",
-				"s3": "Read each entry along with its actor and time on the \"By …\" line.",
+				"s3": "Read each table row: time, actor, role, and the action with its details.",
 				"s4": "Click \"Load more\" to see older history.",
 				"s5": "Click \"Reset filters\" to show all history again."
 			},
 			"tips": {
 				"read_only": "This page is read-only; history cannot be changed or deleted.",
 				"range": "The start date cannot be after the end date.",
-				"system": "Entries with \"System\" as the actor come from automated processes, not from a user."
+				"system": "The \"System\" actor means an automated process or a user who currently has no membership role in the school, such as a former member."
 			}
 		},
 		"school_admin_classes": {

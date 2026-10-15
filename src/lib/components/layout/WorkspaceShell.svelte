@@ -13,6 +13,8 @@
 		/** Bagian dalam halaman `href` (mis. seksi dashboard yang dituju menu sidebar referensi). */
 		hash?: string;
 		badge?: number;
+		/** Penanda perlu perhatian (mis. data setup belum lengkap); tanpa angka. */
+		dot?: boolean;
 	}
 
 	/** Grup sidebar dari Menu & navigasi (referensi MenuMaster): judul kecil opsional, bisa tertutup. */
@@ -162,6 +164,8 @@
 			badgeLabel={item.badge
 				? i18n.t('common.workspace.badge_pending', { count: item.badge })
 				: undefined}
+			dot={item.dot}
+			dotLabel={item.dot ? i18n.t('common.workspace.needs_attention') : undefined}
 			{labelVisibility}
 			tooltip={item.label}
 		>

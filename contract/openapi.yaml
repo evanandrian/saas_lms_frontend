@@ -481,7 +481,7 @@ paths:
       tags:
       - navigation
       summary: Visible sidebar of a role for the application shell
-      description: Hidden groups/menus and groups without visible menus are omitted. Requires authentication only; hiding a menu is not an access boundary.
+      description: Hidden groups/menus and groups without visible menus are omitted. Requires authentication only; hiding a menu is not an access boundary. `principal` and `homeroom` have their own sidebar although they share access areas with `school_admin` / `teacher`. Badge `approvals` = pending items in the school approval inbox (`GET /api/v1/approvals/summary`).
       security:
       - bearerAuth: []
       responses:
@@ -4649,6 +4649,7 @@ paths:
       parameters:
       - in: query
         name: category
+        description: 'academic = academic_year.* + class.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*'
         schema:
           type: string
           enum:
@@ -4656,6 +4657,10 @@ paths:
           - guardian
           - account
           - report
+          - academic
+          - planning
+          - reminder
+          - export
       - in: query
         name: from
         schema:
@@ -4671,6 +4676,17 @@ paths:
         description: Kursor opak next_before dari halaman sebelumnya (seq audit); kirim balik apa adanya.
         schema:
           type: string
+      - in: query
+        name: q
+        description: Cari di aksi, nama pelaku, atau subjek (≤ 100 karakter, literal).
+        schema:
+          type: string
+          maxLength: 100
+      - in: query
+        name: actor_role
+        description: Peran pelaku; SYSTEM = aksi tanpa keanggotaan tenant (sistem/worker).
+        schema:
+          $ref: '#/components/schemas/SchoolAuditActorRole'
       responses:
         '200':
           content:
@@ -4688,6 +4704,57 @@ paths:
       security:
       - bearerAuth: []
       summary: Tenant change history (delete/deactivate people, invitations, report cards)
+      tags:
+      - school-admin
+  /api/v1/school/audit/export:
+    get:
+      operationId: exportSchoolAudit
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum:
+          - person
+          - guardian
+          - account
+          - report
+          - academic
+          - planning
+          - reminder
+          - export
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: q
+        schema:
+          type: string
+          maxLength: 100
+      - in: query
+        name: actor_role
+        schema:
+          $ref: '#/components/schemas/SchoolAuditActorRole'
+      responses:
+        '200':
+          description: CSV (default 90 hari terakhir; rentang maksimal 90 hari)
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Export tenant audit log as CSV (recorded as export.audit_log)
       tags:
       - school-admin
   /api/v1/school/attendance:
@@ -4726,6 +4793,12 @@ paths:
   /api/v1/school/attendance/remind:
     post:
       operationId: remindSchoolAttendance
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAttendanceRemindInput'
       responses:
         '200':
           content:
@@ -4832,6 +4905,12 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolReportRemindInput'
       responses:
         '200':
           content:
@@ -4849,6 +4928,35 @@ paths:
       security:
       - bearerAuth: []
       summary: Remind homeroom about draft report
+      tags:
+      - school-admin
+  /api/v1/school/reports/{id}/pending:
+    get:
+      operationId: getSchoolReportPending
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: class_id (kelas tahun ajaran aktif)
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolReportPendingView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Report-card subjects not yet locked and reminder recipients
       tags:
       - school-admin
   /api/v1/school/reports/{id}:
@@ -6046,7 +6154,7 @@ components:
           schema:
             $ref: '#/components/schemas/AccountErrorResponse'
     SchoolAdminError:
-      description: 'Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.'
+      description: 'Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.'
       content:
         application/json:
           schema:
@@ -6663,6 +6771,12 @@ components:
           type: integer
         absent:
           type: integer
+    SchoolAttendanceRemindInput:
+      type: object
+      properties:
+        class_id:
+          type: string
+          description: Kelas sasaran tunggal (tombol "Ingatkan wali" per kelas). Kosong = semua kelas yang belum mengisi. Cooldown per kelas terpisah dari cooldown global.
     SchoolAttendanceView:
       type: object
       required:
@@ -6975,6 +7089,7 @@ components:
       properties:
         kind:
           type: string
+          description: attendance | teachers_invite | teachers_inactive | guardians_invite | homeroom | report_draft | invoice
         count:
           type: integer
         ref:
@@ -7004,6 +7119,7 @@ components:
       - teachers_active_7d
       - teachers_total
       - storage_bytes
+      - storage_quota_bytes
       properties:
         students_active_7d:
           type: integer
@@ -7016,6 +7132,11 @@ components:
         storage_bytes:
           format: int64
           type: integer
+        storage_quota_bytes:
+          type: integer
+          format: int64
+          nullable: true
+          description: Kuota storage paket (plan_m.storage_gb x 2^30); null bila paket tanpa batas tercatat.
     SchoolDashboardView:
       type: object
       required:
@@ -7560,6 +7681,7 @@ components:
       - id
       - at
       - actor_name
+      - actor_role
       - action
       - entity_type
       - subject
@@ -7572,6 +7694,9 @@ components:
           format: date-time
         actor_name:
           type: string
+        actor_role:
+          type: string
+          description: Kode peran pelaku di tenant (SCHOOL_ADMIN, PRINCIPAL, TEACHER, HOMEROOM_TEACHER, …); SYSTEM untuk aksi sistem.
         action:
           type: string
         entity_type:
@@ -7581,6 +7706,14 @@ components:
         details:
           type: object
           additionalProperties: true
+    SchoolAuditActorRole:
+      type: string
+      enum:
+      - SCHOOL_ADMIN
+      - PRINCIPAL
+      - TEACHER
+      - HOMEROOM_TEACHER
+      - SYSTEM
     SchoolAuditView:
       type: object
       required:
@@ -8436,6 +8569,76 @@ components:
           type: integer
         submitted:
           type: integer
+    SchoolReportRemindInput:
+      type: object
+      properties:
+        message:
+          type: string
+          maxLength: 500
+        recipient_ids:
+          type: array
+          description: teacher_id penerima (teacher_m.id, bukan user_id — guru bisa belum punya akun); kosong = wali kelas saja.
+          items:
+            type: string
+            format: uuid
+    SchoolReportPendingItem:
+      type: object
+      required:
+      - subject_id
+      - subject_name
+      - teacher_id
+      - teacher_name
+      - locked
+      - students
+      properties:
+        subject_id:
+          type: string
+        subject_name:
+          type: string
+        teacher_id:
+          type: string
+        teacher_name:
+          type: string
+        locked:
+          type: integer
+        students:
+          type: integer
+    SchoolReportRecipient:
+      type: object
+      required:
+      - teacher_id
+      - name
+      - homeroom
+      - has_email
+      properties:
+        teacher_id:
+          type: string
+        name:
+          type: string
+        homeroom:
+          type: boolean
+        has_email:
+          type: boolean
+    SchoolReportPendingView:
+      type: object
+      required:
+      - class_id
+      - class
+      - items
+      - recipients
+      properties:
+        class_id:
+          type: string
+        class:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolReportPendingItem'
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolReportRecipient'
     SchoolReportsView:
       type: object
       required:
@@ -9132,6 +9335,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestLogEntry'
+        students:
+          type: array
+          description: Murid tertaut ke pemohon orang tua (hanya untuk requester PARENT di Kotak Persetujuan peninjau).
+          items:
+            $ref: '#/components/schemas/RequestStudent'
+    RequestStudent:
+      type: object
+      required:
+      - id
+      - name
+      - class_name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        class_name:
+          type: string
+          description: Kelas di tahun ajaran aktif; kosong bila belum ditempatkan.
     InboxRequester:
       type: object
       required:
@@ -10900,7 +11122,9 @@ components:
       enum:
       - platform
       - school_admin
+      - principal
       - teacher
+      - homeroom
       - student
       - guardian
     NavigationTarget:
@@ -10916,6 +11140,7 @@ components:
       - tasks
       - msgs
       - due
+      - approvals
     NavigationLayout:
       type: object
       required:
@@ -11077,7 +11302,8 @@ components:
           type: string
         route:
           type: string
-          pattern: ^(/[a-z0-9\-/]*|https?://\S+)$
+          pattern: ^(/[a-z0-9\-/]*(#[a-z0-9\-]+)?|https?://\S+)$
+          description: Internal route may end with one `#section` fragment (sidebar menu that scrolls to a dashboard section).
         target:
           $ref: '#/components/schemas/NavigationTarget'
         hidden:
