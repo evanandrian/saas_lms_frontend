@@ -5024,7 +5024,8 @@
 			"search_students": "Search name or NIS",
 			"no_candidates": "No students available to add.",
 			"add_selected": "Add {count} students",
-			"delete_title": "Delete activity?"
+			"delete_title": "Delete activity?",
+			"selected_hidden": "{count} selected students are hidden by the search but will still be added."
 		}
 	},
 	"payments": {

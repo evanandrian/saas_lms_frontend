@@ -7,7 +7,11 @@ import {
 	extraDeleteMessage,
 	extraErrors,
 	extraForm,
+	emptyPicks,
 	memberCandidates,
+	pickedIds,
+	picksFor,
+	togglePick,
 	type ExtraForm
 } from '$lib/features/school-admin/school-admin.model';
 
@@ -190,5 +194,41 @@ describe('extraDeleteMessage', () => {
 		);
 		expect(extraDeleteMessage(tp, 0)).toBe('school_admin.planning.extra_delete_empty');
 		expect(extraDeleteMessage(tp, null)).toBe('school_admin.planning.extra_delete_empty');
+	});
+});
+
+describe('pilihan anggota (pickedIds/picksFor/togglePick)', () => {
+	const s = (id: string, name: string, active = true) =>
+		({
+			id,
+			name,
+			nis: id,
+			class_id: 'c',
+			class_name: 'X-A',
+			active
+		}) as unknown as SchoolStudentRow;
+	const students = [s('1', 'Andi'), s('2', 'Budi'), s('3', 'Cici'), s('4', 'Dodi', false)];
+
+	it('centang A, ganti pencarian, centang B → keduanya dikirim', () => {
+		let picks = emptyPicks('e1');
+		// pencarian "andi": hanya A tampil, dicentang
+		expect(memberCandidates(students, [], 'andi').map((x) => x.id)).toEqual(['1']);
+		picks = togglePick(picks, '1', true);
+		// pencarian "budi": A tersembunyi, B dicentang
+		expect(memberCandidates(students, [], 'budi').map((x) => x.id)).toEqual(['2']);
+		picks = togglePick(picks, '2', true);
+		expect(pickedIds(picks, students, [])).toEqual(['1', '2']);
+	});
+	it('anggota yang sudah ada, murid nonaktif, dan centang yang dilepas tidak dikirim', () => {
+		let picks = emptyPicks('e1');
+		for (const id of ['1', '2', '3', '4']) picks = togglePick(picks, id, true);
+		picks = togglePick(picks, '3', false);
+		expect(pickedIds(picks, students, [{ student_id: '2' }])).toEqual(['1']);
+	});
+	it('ganti ekskul → pilihan kosong; ekskul sama → dipertahankan', () => {
+		const picks = togglePick(emptyPicks('e1'), '1', true);
+		expect(picksFor(picks, 'e1')).toBe(picks);
+		expect(picksFor(picks, 'e2')).toEqual(emptyPicks('e2'));
+		expect(pickedIds(picksFor(picks, 'e2'), students, [])).toEqual([]);
 	});
 });

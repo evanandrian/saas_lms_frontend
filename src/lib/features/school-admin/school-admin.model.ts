@@ -748,3 +748,34 @@ export function extraDeleteMessage(t: T, members: number | null | undefined): st
 		? t(`${PREFIX}.planning.extra_delete_members`, { count })
 		: t(`${PREFIX}.planning.extra_delete_empty`);
 }
+
+/** Pilihan murid calon anggota, terikat ke satu ekskul (ganti ekskul → pilihan kosong). */
+export interface MemberPicks {
+	extraId: string;
+	ids: Readonly<Record<string, boolean>>;
+}
+
+export const emptyPicks = (extraId = ''): MemberPicks => ({ extraId, ids: {} });
+
+/** Pilihan untuk ekskul `extraId`: dipertahankan bila ekskul sama, selain itu kosong. */
+export function picksFor(picks: MemberPicks, extraId: string): MemberPicks {
+	return picks.extraId === extraId ? picks : emptyPicks(extraId);
+}
+
+export function togglePick(picks: MemberPicks, studentId: string, on: boolean): MemberPicks {
+	return { extraId: picks.extraId, ids: { ...picks.ids, [studentId]: on } };
+}
+
+/**
+ * Id murid tercentang yang dikirim: tidak bergantung pada kueri pencarian (pilihan bertahan saat
+ * dicari ulang), tetap hanya murid aktif yang belum menjadi anggota.
+ */
+export function pickedIds(
+	picks: MemberPicks,
+	students: readonly SchoolStudentRow[],
+	members: readonly { student_id: string }[]
+): string[] {
+	return memberCandidates(students, members, '')
+		.filter((s) => picks.ids[s.id] === true)
+		.map((s) => s.id);
+}

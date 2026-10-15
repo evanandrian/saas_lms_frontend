@@ -5024,7 +5024,8 @@
 			"search_students": "Cari nama atau NIS",
 			"no_candidates": "Tidak ada murid yang bisa ditambahkan.",
 			"add_selected": "Tambah {count} murid",
-			"delete_title": "Hapus ekskul?"
+			"delete_title": "Hapus ekskul?",
+			"selected_hidden": "{count} murid terpilih tidak tampil karena pencarian, tetapi tetap ikut ditambahkan."
 		}
 	},
 	"payments": {

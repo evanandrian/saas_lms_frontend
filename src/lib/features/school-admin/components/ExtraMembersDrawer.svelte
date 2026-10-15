@@ -6,7 +6,14 @@
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import { useI18n } from '$lib/i18n';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
-	import { PREFIX, memberCandidates } from '../school-admin.model';
+	import {
+		PREFIX,
+		emptyPicks,
+		memberCandidates,
+		pickedIds,
+		picksFor,
+		togglePick
+	} from '../school-admin.model';
 	import type { SchoolExtraMembersView, SchoolStudentRow } from '../school-admin.types';
 
 	interface Props {
@@ -30,15 +37,21 @@
 	const t = (k: string, p?: Record<string, string | number>) => i18n.t(`${PREFIX}.extras.${k}`, p);
 
 	let query = $state('');
-	let picked = $state<Record<string, boolean>>({});
+	let picks = $state(emptyPicks());
 	let classId = $state('');
+	const extraId = $derived(view?.extra_id ?? '');
+	/** Pilihan ekskul ini (ganti ekskul → kosong); bertahan saat pencarian berubah. */
+	const current = $derived(picksFor(picks, extraId));
 	const candidates = $derived(view ? memberCandidates(students, view.members, query) : []);
-	const selected = $derived(candidates.filter((s) => picked[s.id] === true).map((s) => s.id));
+	const selected = $derived(view ? pickedIds(current, students, view.members) : []);
+	const hiddenSelected = $derived(
+		selected.length - candidates.filter((s) => current.ids[s.id] === true).length
+	);
 
-	// Data anggota baru (setelah tambah/hapus/ganti ekskul) → reset pilihan.
+	// Data anggota baru (setelah tambah/hapus/ganti ekskul) → reset pilihan kelas. Pilihan murid
+	// yang baru ditambahkan otomatis gugur karena sudah menjadi anggota.
 	$effect(() => {
 		void view;
-		picked = {};
 		classId = '';
 	});
 	// Ganti ekskul / drawer ditutup → kosongkan pencarian.
@@ -119,10 +132,15 @@
 							name={`member-${s.id}`}
 							label={`${s.name} · ${s.class_name || '—'} · ${s.nis}`}
 							disabled={busy}
-							bind:checked={() => picked[s.id] ?? false, (v) => (picked = { ...picked, [s.id]: v })}
+							bind:checked={
+								() => current.ids[s.id] ?? false, (v) => (picks = togglePick(current, s.id, v))
+							}
 						/>
 					{:else}<p class="text-lms-muted p-2 text-sm">{t('no_candidates')}</p>{/each}
 				</div>
+				{#if hiddenSelected > 0}
+					<p class="text-lms-muted text-xs">{t('selected_hidden', { count: hiddenSelected })}</p>
+				{/if}
 				<button
 					type="button"
 					class="lms-action-primary lms-focus-ring h-10 self-start rounded-[10px] px-4 text-sm font-semibold disabled:opacity-50"

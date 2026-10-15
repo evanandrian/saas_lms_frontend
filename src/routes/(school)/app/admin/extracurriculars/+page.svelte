@@ -25,6 +25,7 @@
 		extraDeleteMessage,
 		extraErrors,
 		extraForm,
+		failureMessage,
 		inputClass,
 		sectionGap,
 		type ExtraForm
@@ -38,6 +39,7 @@
 	} from '$lib/features/school-admin/school-admin.types';
 	import { useI18n } from '$lib/i18n';
 	import { APP_PATHS } from '$lib/utils/app-paths';
+	import { runPageAction } from '$lib/utils/page-action';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -56,6 +58,9 @@
 	let membersOf = $state<SchoolPlanExtra | null>(null);
 	let members = $state<SchoolExtraMembersView | null>(null);
 	let students = $state<SchoolStudentRow[]>([]);
+	/** Permintaan drawer anggota yang sedang berjalan (terpisah dari editor form ekskul). */
+	let membersPending = $state(0);
+	const membersBusy = $derived(membersPending > 0);
 
 	const extras = $derived(planning?.extras ?? []);
 	const current = $derived(extras.find((x) => x.id === editor.editId) ?? null);
@@ -121,12 +126,28 @@
 		editor.notify(t('common.deleted'));
 	}
 
+	/**
+	 * Runner drawer anggota: busy berbasis hitungan (aman untuk Promise.all) dan galat hanya sebagai
+	 * toast — tidak menulis `errors` form ekskul milik editor.
+	 */
+	async function runMembers<R>(name: string, body: unknown): Promise<R | null> {
+		membersPending++;
+		try {
+			const out = await runPageAction<R>(name, body);
+			if (out.ok) return out.data;
+			editor.notify(failureMessage(i18n.t, out), true);
+			return null;
+		} finally {
+			membersPending--;
+		}
+	}
+
 	async function openMembers(x: SchoolPlanExtra) {
 		membersOf = x;
 		members = null;
 		const [m, s] = await Promise.all([
-			editor.run<SchoolExtraMembersView>('extraMembers', { id: x.id }),
-			students.length ? Promise.resolve(null) : editor.run<SchoolStudentsView>('students', {})
+			runMembers<SchoolExtraMembersView>('extraMembers', { id: x.id }),
+			students.length ? Promise.resolve(null) : runMembers<SchoolStudentsView>('students', {})
 		]);
 		if (s) students = s.items;
 		if (membersOf?.id !== x.id) return; // respons basi (drawer ditutup / ekskul lain dibuka)
@@ -140,12 +161,12 @@
 	async function membersCall(name: string, body: Record<string, unknown>) {
 		const target = membersOf;
 		if (!target) return;
-		const m = await editor.run<SchoolExtraMembersView>(name, { id: target.id, ...body });
+		const m = await runMembers<SchoolExtraMembersView>(name, { id: target.id, ...body });
 		if (!m) return;
 		if (membersOf?.id === target.id) members = m;
 		editor.notify(t('common.saved'));
 		// member_count di kartu & statistik.
-		const p = await editor.run<SchoolPlanningView>('planning', {});
+		const p = await runMembers<SchoolPlanningView>('planning', {});
 		if (p) planning = p;
 	}
 </script>
@@ -326,7 +347,7 @@
 		view={members}
 		{students}
 		classes={planning.classes}
-		busy={editor.busy}
+		busy={membersBusy}
 		onclose={() => {
 			membersOf = null;
 			members = null;
