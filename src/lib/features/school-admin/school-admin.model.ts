@@ -1,4 +1,4 @@
-import type { SchoolRemindOutcome } from '$lib/api/generated/lms';
+import type { SchoolRemindOutcome, SchoolReportRemindInput } from '$lib/api/generated/lms';
 import { formatNumber } from '$lib/utils/format';
 import { initialsOf } from '$lib/utils/initials';
 import type { PageActionOutcome } from '$lib/utils/page-action';
@@ -320,4 +320,20 @@ export function guardianContact(t: T, row: PhoneRow & { email: string }): string
 /** Catatan field telepon di formulir: telepon tak terbaca dipertahankan bila field dibiarkan kosong. */
 export function phoneFieldNote(t: T, row: PhoneRow | null): string {
 	return t(`${PREFIX}.fields.${row?.phone_unavailable ? 'phone_unavailable_note' : 'encrypted'}`);
+}
+
+/** Batas pesan pengingat rapor (cermin OpenAPI `SchoolReportRemindInput.message` maxLength). */
+export const REMIND_MESSAGE_MAX = 500;
+
+/**
+ * Body pengingat rapor. `recipient_ids` SELALU eksplisit (pilihan pengguna): bila dihilangkan,
+ * backend hanya mengirim ke wali kelas sehingga penerima akan menyempit diam-diam. Pesan kosong =
+ * templat backend.
+ */
+export function remindBody(
+	message: string,
+	recipientIds: readonly string[]
+): SchoolReportRemindInput {
+	const text = message.trim().slice(0, REMIND_MESSAGE_MAX);
+	return { ...(text ? { message: text } : {}), recipient_ids: [...recipientIds] };
 }

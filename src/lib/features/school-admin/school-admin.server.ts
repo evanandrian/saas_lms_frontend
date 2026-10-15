@@ -230,8 +230,23 @@ export const attendanceActions: Actions = {
 	remind: remindAttendanceAction
 };
 
+type RemindReportBody = WithId & { message?: string; recipientIds?: string[] };
+
 export const reportsActions: Actions = {
-	remind: action<WithId>((ctx, b) => (validId(b.id) ? api.remindReport(ctx, b.id) : null))
+	pending: action<WithId>((ctx, b) => (validId(b.id) ? api.fetchReportPending(ctx, b.id) : null)),
+	remind: action<RemindReportBody>((ctx, b) => {
+		if (!validId(b.id)) return null;
+		if (b.message !== undefined && typeof b.message !== 'string') return null;
+		if (
+			b.recipientIds !== undefined &&
+			!(Array.isArray(b.recipientIds) && b.recipientIds.every((id) => validId(id)))
+		)
+			return null;
+		return api.remindReport(ctx, b.id, {
+			...(b.message ? { message: b.message } : {}),
+			...(b.recipientIds ? { recipient_ids: b.recipientIds } : {})
+		});
+	})
 };
 
 type ReasonBody = WithId & { reason?: string };

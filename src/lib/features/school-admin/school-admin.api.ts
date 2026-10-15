@@ -50,6 +50,7 @@ import {
 	getSchoolImportSpec,
 	getSchoolInvitation,
 	getSchoolPlanning,
+	getSchoolReportPending,
 	getSchoolReports,
 	getSchoolSetup,
 	getSchoolSetupProgress,
@@ -118,6 +119,8 @@ import {
 	type SchoolPlanningView,
 	type SchoolProgressView,
 	type SchoolProfileInput,
+	type SchoolReportPendingView,
+	type SchoolReportRemindInput,
 	type SchoolReportsView,
 	type SchoolScheduleCellInput,
 	type SchoolSeatsResult,
@@ -269,8 +272,10 @@ export const saveHomeroomAttendanceEntries = (ctx: Ctx, body: SchoolAttendanceIn
 	callBackend<SchoolHomeroomAttendanceView>(ctx, (init) => saveHomeroomAttendance(body, init));
 export const fetchReports = (ctx: Ctx) =>
 	callBackend<SchoolReportsView>(ctx, (init) => getSchoolReports(init));
-export const remindReport = (ctx: Ctx, classId: string) =>
-	callBackend<SchoolReportsView>(ctx, (init) => remindSchoolReport(classId, undefined, init));
+export const fetchReportPending = (ctx: Ctx, classId: string) =>
+	callBackend<SchoolReportPendingView>(ctx, (init) => getSchoolReportPending(classId, init));
+export const remindReport = (ctx: Ctx, classId: string, body?: SchoolReportRemindInput) =>
+	callBackend<SchoolReportsView>(ctx, (init) => remindSchoolReport(classId, body, init));
 
 // ===== Alur rapor =====
 export const fetchClassReport = (ctx: Ctx, classId: string) =>

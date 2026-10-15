@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
-	import type { SchoolReportsView } from '$lib/features/school-admin/school-admin.types';
+	import type {
+		SchoolReportPendingView,
+		SchoolReportsView
+	} from '$lib/features/school-admin/school-admin.types';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import ReportRemindDialog from '$lib/features/school-admin/components/ReportRemindDialog.svelte';
 	import ModuleShell from '$lib/features/school-admin/components/ModuleShell.svelte';
 	import StatusPill from '$lib/features/school-admin/components/StatusPill.svelte';
 	import TabBar from '$lib/features/school-admin/components/TabBar.svelte';
@@ -64,12 +68,31 @@
 		}))
 	]);
 
-	async function remind(classId: string, homeroom: string) {
-		const out = await editor.run<SchoolReportsView>('remind', { id: classId });
-		if (out) {
-			view = out;
-			editor.notify(t('reports.reminded', { name: homeroom || t('reports.homeroom_fallback') }));
-		}
+	let remindTarget = $state<{ classId: string; name: string; homeroom: string } | null>(null);
+	let remindOpen = $state(false);
+	let pending = $state<SchoolReportPendingView | null>(null);
+
+	async function openRemind(classId: string, name: string, homeroom: string) {
+		remindTarget = { classId, name, homeroom };
+		pending = null;
+		remindOpen = true;
+		pending = await editor.run<SchoolReportPendingView>('pending', { id: classId });
+		if (!pending) remindOpen = false;
+	}
+
+	async function sendRemind(body: { message?: string; recipient_ids?: string[] }) {
+		if (!remindTarget) return;
+		const out = await editor.run<SchoolReportsView>('remind', {
+			id: remindTarget.classId,
+			message: body.message,
+			recipientIds: body.recipient_ids
+		});
+		if (!out) return;
+		view = out;
+		editor.notify(
+			t('reports.reminded', { name: remindTarget.homeroom || t('reports.homeroom_fallback') })
+		);
+		remindOpen = false;
 	}
 
 	const classPdfHref = (classId: string) =>
@@ -152,7 +175,7 @@
 									class="lms-action-secondary lms-focus-ring inline-flex h-8 items-center gap-1.5 justify-self-end rounded-lg px-3 text-xs font-semibold disabled:opacity-50"
 									disabled={reminded || editor.busy || !r.homeroom}
 									title={r.homeroom ? '' : t('reports.no_homeroom')}
-									onclick={() => remind(r.class_id, r.homeroom)}
+									onclick={() => openRemind(r.class_id, r.name, r.homeroom)}
 									><Icon icon={reminded ? Check : BellRing} size="sm" />{reminded
 										? t('reports.reminded_label')
 										: t('reports.remind')}</button
@@ -187,5 +210,12 @@
 			<div class="text-lms-muted px-4 py-2.5 text-xs">{t('reports.foot')}</div>
 		</div>
 	</ModuleShell>
+	<ReportRemindDialog
+		bind:open={remindOpen}
+		className={remindTarget?.name ?? ''}
+		{pending}
+		busy={editor.busy}
+		onsend={sendRemind}
+	/>
 	<Toast message={editor.toast} icon={editor.toastError ? CircleAlert : undefined} />
 {/if}
