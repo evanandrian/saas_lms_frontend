@@ -221,8 +221,13 @@ export const guardiansActions: Actions = {
 	refresh: action((ctx) => api.fetchGuardians(ctx))
 };
 
+type RemindBody = { classId?: string };
+const remindAttendanceAction = action<RemindBody>((ctx, b) =>
+	b.classId === undefined || validId(b.classId) ? api.remindAttendance(ctx, b.classId) : null
+);
+
 export const attendanceActions: Actions = {
-	remind: action((ctx) => api.remindAttendance(ctx))
+	remind: remindAttendanceAction
 };
 
 export const reportsActions: Actions = {
@@ -291,7 +296,7 @@ export const activationActions: Actions = {
 };
 
 export const dashboardActions: Actions = {
-	remindAttendance: action((ctx) => api.remindAttendance(ctx)),
+	remindAttendance: remindAttendanceAction,
 	dashboard: action((ctx) => api.fetchDashboard(ctx))
 };
 

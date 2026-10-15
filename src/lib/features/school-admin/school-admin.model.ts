@@ -1,4 +1,5 @@
 import type { SchoolRemindOutcome } from '$lib/api/generated/lms';
+import { formatNumber } from '$lib/utils/format';
 import { initialsOf } from '$lib/utils/initials';
 import type { PageActionOutcome } from '$lib/utils/page-action';
 
@@ -70,6 +71,27 @@ export const initials = (name: string) => initialsOf(name.replace(HONORIFIC_PREF
 
 export const percent = (part: number, total: number) =>
 	total > 0 ? Math.round((part / total) * 100) : 0;
+
+const BYTES_PER_MB = 1024 * 1024;
+const BYTES_PER_GB = 1024 * BYTES_PER_MB;
+
+/** Pemakaian penyimpanan (MB) terhadap kuota paket (GB); kuota null/0 = tampilkan pemakaian saja. */
+export function storageUsage(
+	usage: { storage_bytes: number; storage_quota_bytes?: number | null },
+	locale: string
+): { used: string; quota: string | null; pct: number | null } {
+	const used = formatNumber(usage.storage_bytes / BYTES_PER_MB, locale, {
+		maximumFractionDigits: 1
+	});
+	if (!usage.storage_quota_bytes) return { used, quota: null, pct: null };
+	return {
+		used,
+		quota: formatNumber(usage.storage_quota_bytes / BYTES_PER_GB, locale, {
+			maximumFractionDigits: 1
+		}),
+		pct: percent(usage.storage_bytes, usage.storage_quota_bytes)
+	};
+}
 
 export function attendanceBand(pct: number | null): 'high' | 'mid' | 'low' | 'unfilled' {
 	if (pct === null) return 'unfilled';

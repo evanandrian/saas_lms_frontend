@@ -257,8 +257,10 @@ export const fetchAttendance = (ctx: Ctx, mode: string, date: string) =>
 	callBackend<SchoolAttendanceView>(ctx, (init) =>
 		getSchoolAttendance({ mode: mode || undefined, date: date || undefined }, init)
 	);
-export const remindAttendance = (ctx: Ctx) =>
-	callBackend<SchoolAttendanceView>(ctx, (init) => remindSchoolAttendance(undefined, init));
+export const remindAttendance = (ctx: Ctx, classId?: string) =>
+	callBackend<SchoolAttendanceView>(ctx, (init) =>
+		remindSchoolAttendance(classId ? { class_id: classId } : undefined, init)
+	);
 export const fetchHomeroomAttendance = (ctx: Ctx, date: string) =>
 	callBackend<SchoolHomeroomAttendanceView>(ctx, (init) =>
 		getHomeroomAttendance({ date: date || undefined }, init)
