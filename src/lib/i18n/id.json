@@ -359,40 +359,15 @@
 		},
 		"teacher": {
 			"area": "Ruang Guru",
-			"home": "Beranda",
-			"classes": "Kelas",
-			"materials": "Materi",
-			"assignments": "Tugas",
-			"assessments": "Assessment",
-			"exam_schedule": "Jadwal Ujian",
-			"progress": "Progres",
-			"messages": "Pesan",
-			"settings": "Pengaturan",
 			"search": "Cari kelas, murid, materi…",
-			"billing": "Tagihan",
-			"grades": "Nilai akhir"
+			"billing": "Tagihan"
 		},
 		"student": {
 			"area": "Ruang Belajar",
-			"home": "Beranda",
-			"materials": "Materi",
-			"assignments": "Tugas",
-			"assessments": "Ujian",
-			"grades": "Nilai & rapor",
-			"attendance": "Presensi",
-			"messages": "Pesan",
 			"search": "Cari materi, tugas…"
 		},
 		"guardian": {
 			"area": "Portal Orang Tua",
-			"home": "Beranda",
-			"grades": "Nilai",
-			"attendance": "Presensi",
-			"assignments": "Tugas anak",
-			"report_cards": "Rapor",
-			"announcements": "Pengumuman",
-			"messages": "Pesan",
-			"settings": "Pengaturan",
 			"search": "Cari nilai, tugas, pengumuman…"
 		},
 		"principal": {
@@ -411,19 +386,8 @@
 		},
 		"homeroom": {
 			"area": "Ruang Wali Kelas",
-			"home": "Beranda",
-			"attendance": "Presensi kelas",
-			"approvals": "Persetujuan",
-			"liaison": "Buku penghubung",
-			"grades": "Rekap nilai",
-			"students": "Murid kelas",
-			"report_cards": "Rapor",
-			"schedule": "Jadwal kelas",
-			"behavior": "Catatan perilaku",
-			"settings": "Pengaturan",
 			"search": "Cari murid {class}, pesan…",
-			"search_any": "Cari murid, pesan…",
-			"final_grades": "Nilai akhir mapel"
+			"search_any": "Cari murid, pesan…"
 		}
 	},
 	"brand": {

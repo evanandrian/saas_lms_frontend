@@ -359,40 +359,15 @@
 		},
 		"teacher": {
 			"area": "Teacher Workspace",
-			"home": "Home",
-			"classes": "Classes",
-			"materials": "Materials",
-			"assignments": "Assignments",
-			"assessments": "Assessments",
-			"exam_schedule": "Exam schedule",
-			"progress": "Progress",
-			"messages": "Messages",
-			"settings": "Settings",
 			"search": "Search classes, students, materials…",
-			"billing": "Billing",
-			"grades": "Final grades"
+			"billing": "Billing"
 		},
 		"student": {
 			"area": "Learning Space",
-			"home": "Home",
-			"materials": "Materials",
-			"assignments": "Assignments",
-			"assessments": "Exams",
-			"grades": "Grades & reports",
-			"attendance": "Attendance",
-			"messages": "Messages",
 			"search": "Search materials, assignments…"
 		},
 		"guardian": {
 			"area": "Guardian Portal",
-			"home": "Home",
-			"grades": "Grades",
-			"attendance": "Attendance",
-			"assignments": "Child's assignments",
-			"report_cards": "Report cards",
-			"announcements": "Announcements",
-			"messages": "Messages",
-			"settings": "Settings",
 			"search": "Search grades, assignments, announcements…"
 		},
 		"principal": {
@@ -411,19 +386,8 @@
 		},
 		"homeroom": {
 			"area": "Homeroom Workspace",
-			"home": "Home",
-			"attendance": "Class attendance",
-			"approvals": "Approvals",
-			"liaison": "Liaison book",
-			"grades": "Grade recap",
-			"students": "Class students",
-			"report_cards": "Report cards",
-			"schedule": "Class schedule",
-			"behavior": "Behavior notes",
-			"settings": "Settings",
 			"search": "Search {class} students, messages…",
-			"search_any": "Search students, messages…",
-			"final_grades": "Subject final grades"
+			"search_any": "Search students, messages…"
 		}
 	},
 	"brand": {
