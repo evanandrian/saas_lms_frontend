@@ -1,7 +1,5 @@
 import { enforceRouteAccess } from '$lib/auth/dashboard-routing';
-import { loadNavigationSidebar } from '$lib/features/navigation/navigation.api';
-import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
-import { visibleGroups } from '$lib/features/navigation/navigation.model';
+import { loadSidebarGroups } from '$lib/features/navigation/navigation.sidebar';
 import { loadWorkspace } from '$lib/features/workspace/workspace.server';
 import { assertHostKind } from '$lib/utils/host-context';
 import type { LayoutServerLoad } from './$types';
@@ -17,16 +15,11 @@ export const load: LayoutServerLoad = async (event) => {
 	depends('app:navigation');
 	// Badge menu (Pengajuan) diperbarui setelah keputusan peninjau → `invalidate('app:workspace')`.
 	depends('app:workspace');
-	const [sidebar, workspace] = await Promise.all([
-		loadNavigationSidebar({ fetch, cookies }, SIDEBAR_ROLE),
+	const [navigation, workspace] = await Promise.all([
+		// Backend tak terjangkau/belum masuk lewat backend → susunan bawaan FLIXARE agar sidebar tetap tampil.
+		loadSidebarGroups({ fetch, cookies }, SIDEBAR_ROLE),
 		// Kartu lembaga/user, sapaan, dan badge menu (mis. Pengajuan) dari backend.
 		loadWorkspace(event, 'platform')
 	]);
-	return {
-		// Backend tak terjangkau/belum masuk lewat backend → susunan bawaan FLIXARE agar sidebar tetap tampil.
-		navigation: sidebar.ok
-			? sidebar.layout.groups
-			: visibleGroups(defaultNavigationLayout(SIDEBAR_ROLE).groups),
-		workspace
-	};
+	return { navigation, workspace };
 };

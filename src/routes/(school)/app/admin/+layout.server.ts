@@ -3,9 +3,8 @@ import { combinedPending } from '$lib/features/announcements/announcements.model
 import { loadPendingAnnouncements } from '$lib/features/announcements/announcements.server';
 import { pendingApprovals, type ApprovalArea } from '$lib/features/approvals/approvals.server';
 import { loadAreaViews } from '$lib/features/dashboards/dashboards.server';
-import { loadNavigationSidebar } from '$lib/features/navigation/navigation.api';
-import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
-import { visibleGroups, type NavigationRole } from '$lib/features/navigation/navigation.model';
+import type { NavigationRole } from '$lib/features/navigation/navigation.model';
+import { loadSidebarGroups } from '$lib/features/navigation/navigation.sidebar';
 import { loadProgress } from '$lib/features/school-admin/school-admin.server';
 import { loadWorkspace } from '$lib/features/workspace/workspace.server';
 import { APP_PATHS } from '$lib/utils/app-paths';
@@ -32,8 +31,9 @@ export const load: LayoutServerLoad = async (event) => {
 	// Susunan sidebar mengikuti tampilan aktif: kepala sekolah punya area menu sendiri.
 	const sidebarRole: NavigationRole =
 		areaViews.activeView === 'principal' ? 'principal' : 'school_admin';
-	const [sidebar, pending, announcements, workspace, schoolProgress] = await Promise.all([
-		loadNavigationSidebar({ fetch: event.fetch, cookies: event.cookies }, sidebarRole),
+	const [navigation, pending, announcements, workspace, schoolProgress] = await Promise.all([
+		// Backend tak terjangkau -> susunan bawaan FLIXARE agar sidebar tetap tampil.
+		loadSidebarGroups({ fetch: event.fetch, cookies: event.cookies }, sidebarRole),
 		pendingApprovals(event, APPROVALS_AREA),
 		loadPendingAnnouncements(event, areaViews.views.includes('principal')),
 		// Kartu lembaga/user & sapaan dashboard dari backend.
@@ -42,10 +42,7 @@ export const load: LayoutServerLoad = async (event) => {
 		loadProgress(event)
 	]);
 	return {
-		// Backend tak terjangkau -> susunan bawaan FLIXARE agar sidebar tetap tampil.
-		navigation: sidebar.ok
-			? sidebar.layout.groups
-			: visibleGroups(defaultNavigationLayout(sidebarRole).groups),
+		navigation,
 		workspace,
 		schoolProgress,
 		pendingApprovals: combinedPending(pending, announcements?.length ?? null),

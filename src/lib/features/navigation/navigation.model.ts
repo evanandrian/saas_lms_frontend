@@ -2,6 +2,7 @@ import type {
 	NavigationBadge,
 	NavigationGroup,
 	NavigationGroupInput,
+	NavigationItem,
 	NavigationLayout,
 	NavigationRole,
 	NavigationTarget
@@ -260,6 +261,46 @@ export function toSaveInput(layout: Pick<NavigationLayout, 'groups'>): Navigatio
 			badge: item.badge
 		}))
 	}));
+}
+
+/** Kode grup Akun pada susunan bawaan (`defaults.go`): tempat menu bersyarat di luar data Menu & navigasi. */
+export const ACCOUNT_GROUP_CODE = 'grp-akun';
+const SETTINGS_ITEM_CODE = 'pengaturan';
+
+/**
+ * Sisipkan menu bersyarat yang bukan bagian data Menu & navigasi (mis. "Tagihan" pemilik tenant guru pribadi)
+ * ke grup `groupCode`, tepat sebelum menu Pengaturan. Grup itu dihapus/diganti owner → grup terakhir;
+ * susunan kosong → satu grup tanpa judul. Masukan tidak diubah.
+ */
+export function insertNavigationItem(
+	groups: readonly NavigationGroup[],
+	groupCode: string,
+	item: NavigationItem
+): NavigationGroup[] {
+	if (groups.length === 0) {
+		return [
+			{
+				id: item.id,
+				code: groupCode,
+				name: '',
+				icon: item.icon,
+				route: '',
+				show_label: false,
+				default_open: true,
+				clickable: false,
+				hidden: false,
+				items: [item]
+			}
+		];
+	}
+	const found = groups.findIndex((g) => g.code === groupCode);
+	const target = found >= 0 ? found : groups.length - 1;
+	return groups.map((group, index) => {
+		if (index !== target) return group;
+		const settings = group.items.findIndex((i) => i.code === SETTINGS_ITEM_CODE);
+		const at = settings >= 0 ? settings : group.items.length;
+		return { ...group, items: [...group.items.slice(0, at), item, ...group.items.slice(at)] };
+	});
 }
 
 /** Rute menu dapat menunjuk seksi halaman (`/app/admin/principal#presensi`, cermin `plan.go`). */
