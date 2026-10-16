@@ -36,7 +36,7 @@
 			"unavailable": "{item} is available in a feature phase",
 			"not_available_yet": "not available yet",
 			"badge_pending": "{count} pending",
-			"needs_attention": "Needs attention",
+			"needs_attention": "Needs setup: this section's data is incomplete",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {
@@ -1787,7 +1787,8 @@
 		"eyebrow": "SETTINGS · MY ACCOUNT",
 		"title": "Settings",
 		"subtitle": "Manage the details and security of the account you use to sign in.",
-		"attention": "Needs attention",
+		"attention_profile": "Needs attention: an email change or data request needs your action",
+		"attention_security": "Needs attention: two-step verification is not enabled",
 		"unknown_device": "Unknown device",
 		"tabs": {
 			"profile": "My profile",

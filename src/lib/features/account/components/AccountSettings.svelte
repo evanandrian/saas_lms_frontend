@@ -188,14 +188,21 @@
 		pageState.confirm = null;
 	}
 
-	const hasDot = (tab: AccountTab) =>
-		pageState !== null &&
-		((tab === 'security' && !pageState.overview.security.two_factor_enabled) ||
-			(tab === 'profile' &&
-				(Boolean(pageState.overview.pending_email) ||
-					pageState.overview.requests.some(
-						(r) => r.status === 'need_docs' || r.status === 'declined'
-					))));
+	/** Alasan titik "perlu perhatian" per tab (tooltip + pembaca layar); null = tanpa titik. */
+	const dotHint = (tab: AccountTab): string | null => {
+		if (pageState === null) return null;
+		if (tab === 'security' && !pageState.overview.security.two_factor_enabled)
+			return t('attention_security');
+		if (
+			tab === 'profile' &&
+			(Boolean(pageState.overview.pending_email) ||
+				pageState.overview.requests.some(
+					(r) => r.status === 'need_docs' || r.status === 'declined'
+				))
+		)
+			return t('attention_profile');
+		return null;
+	};
 </script>
 
 <svelte:head>
@@ -248,6 +255,7 @@
 			>
 				{#each ACCOUNT_TABS as tab (tab)}
 					{@const active = pageState.tab === tab}
+					{@const hint = dotHint(tab)}
 					<button
 						type="button"
 						aria-current={active ? 'page' : undefined}
@@ -260,10 +268,9 @@
 							><Icon icon={TAB_ICON[tab]} size="sm" /></span
 						>
 						<span class="flex-1">{t(`tabs.${tab}`)}</span>
-						{#if hasDot(tab)}<span
-								class="bg-lms-warning-text size-2 rounded-full"
-								aria-label={t('attention')}
-							></span>{/if}
+						{#if hint}<span class="-m-1 p-1" title={hint} aria-hidden="true"
+								><span class="bg-lms-warning-text block size-2 rounded-full"></span></span
+							><span class="sr-only">{hint}</span>{/if}
 					</button>
 				{/each}
 			</nav>

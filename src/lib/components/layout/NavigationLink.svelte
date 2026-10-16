@@ -27,7 +27,7 @@
 		badgeLabel?: string;
 		/** Titik penanda perlu perhatian (tanpa angka). Diabaikan bila `badge` terisi. */
 		dot?: boolean;
-		/** Teks titik untuk pembaca layar. */
+		/** Teks titik untuk pembaca layar sekaligus tooltip saat titik disorot. */
 		dotLabel?: string;
 		labelVisibility?: LabelVisibility;
 		/** Tooltip native saat label tersembunyi (rail). Nama aksesibel tetap dari label sr-only. */
@@ -102,12 +102,10 @@
 	{/if}
 	{#if dot && !badge}
 		<span
-			class={[
-				'bg-lms-danger-text size-2 shrink-0 rounded-full',
-				labelVisibility !== 'always' && 'absolute top-1 right-1'
-			]}
-			aria-hidden="true"
-		></span>
+			class={['-m-1 shrink-0 p-1', labelVisibility !== 'always' && 'absolute top-0 right-0']}
+			title={dotLabel}
+			aria-hidden="true"><span class="bg-lms-danger-text block size-2 rounded-full"></span></span
+		>
 		{#if dotLabel}<span class="sr-only">{dotLabel}</span>{/if}
 	{/if}
 </a>
