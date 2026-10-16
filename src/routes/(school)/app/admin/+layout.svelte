@@ -6,7 +6,7 @@
 	import { toWorkspaceNav } from '$lib/features/navigation/navigation.model';
 	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
-	import { APP_PATHS } from '$lib/utils/app-paths';
+	import { APP_PATHS, BUILT_APP_PATHS } from '$lib/utils/app-paths';
 	import Briefcase from '@lucide/svelte/icons/briefcase';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
 	import type { LayoutProps } from './$types';
@@ -18,8 +18,6 @@
 	const isPrincipalView = $derived(data.activeView === 'principal');
 	const approvalsBadge = $derived(data.pendingApprovals ?? undefined);
 
-	// Rute yang sudah dibangun; menu fase berikut tanpa halaman tampil nonaktif (FE-04 D6).
-	const BUILT_PATHS: ReadonlySet<string> = new Set(Object.values(APP_PATHS));
 	// Item menu -> bagian data sekolah (backend `setup.sections[].key`) untuk titik "perlu dilengkapi".
 	const SCHOOL_DOT_SECTIONS: Readonly<Record<string, string>> = {
 		'tahun-ajaran': 'year',
@@ -47,7 +45,7 @@
 		toWorkspaceNav(data.navigation, {
 			badges: { approvals: approvalsBadge },
 			dots,
-			builtPaths: BUILT_PATHS
+			builtPaths: BUILT_APP_PATHS
 		})
 	);
 

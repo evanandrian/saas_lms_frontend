@@ -1,7 +1,5 @@
-import { loadWorkspace } from '$lib/features/workspace/workspace.server';
+import { loadRoleShell } from '$lib/features/navigation/role-shell.server';
 import type { LayoutServerLoad } from './$types';
 
-// Kartu lembaga/user, sapaan dashboard, dan badge menu dari backend.
-export const load: LayoutServerLoad = async (event) => ({
-	workspace: await loadWorkspace(event, 'student')
-});
+export const load: LayoutServerLoad = (event) =>
+	loadRoleShell(event, { sidebarRole: 'student', area: 'student' });

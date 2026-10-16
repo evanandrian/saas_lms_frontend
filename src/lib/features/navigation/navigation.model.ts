@@ -1,11 +1,14 @@
 import type {
+	AccountWorkspace,
 	NavigationBadge,
 	NavigationGroup,
 	NavigationGroupInput,
+	NavigationItem,
 	NavigationLayout,
 	NavigationRole,
 	NavigationTarget
 } from '$lib/api/generated/lms';
+import { BUILT_APP_PATHS } from '$lib/utils/app-paths';
 import type { LucideIcon } from '@lucide/svelte';
 import Award from '@lucide/svelte/icons/award';
 import Bell from '@lucide/svelte/icons/bell';
@@ -18,10 +21,12 @@ import CalendarDays from '@lucide/svelte/icons/calendar-days';
 import CalendarRange from '@lucide/svelte/icons/calendar-range';
 import ChartColumn from '@lucide/svelte/icons/chart-column';
 import ChartLine from '@lucide/svelte/icons/chart-line';
+import ChartNoAxesColumn from '@lucide/svelte/icons/chart-no-axes-column';
 import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
 import ClipboardList from '@lucide/svelte/icons/clipboard-list';
 import CreditCard from '@lucide/svelte/icons/credit-card';
 import Database from '@lucide/svelte/icons/database';
+import FilePenLine from '@lucide/svelte/icons/file-pen-line';
 import FileQuestion from '@lucide/svelte/icons/file-question-mark';
 import FileText from '@lucide/svelte/icons/file-text';
 import Folder from '@lucide/svelte/icons/folder';
@@ -31,6 +36,7 @@ import History from '@lucide/svelte/icons/history';
 import House from '@lucide/svelte/icons/house';
 import Inbox from '@lucide/svelte/icons/inbox';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+import Library from '@lucide/svelte/icons/library';
 import Link from '@lucide/svelte/icons/link';
 import ListTree from '@lucide/svelte/icons/list-tree';
 import Megaphone from '@lucide/svelte/icons/megaphone';
@@ -41,10 +47,12 @@ import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 import Package from '@lucide/svelte/icons/package';
 import Receipt from '@lucide/svelte/icons/receipt';
 import Scale from '@lucide/svelte/icons/scale';
+import ScanQrCode from '@lucide/svelte/icons/scan-qr-code';
 import School from '@lucide/svelte/icons/school';
 import ScrollText from '@lucide/svelte/icons/scroll-text';
 import Server from '@lucide/svelte/icons/server';
 import Settings from '@lucide/svelte/icons/settings';
+import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Stamp from '@lucide/svelte/icons/stamp';
 import Star from '@lucide/svelte/icons/star';
 import Table from '@lucide/svelte/icons/table';
@@ -129,6 +137,12 @@ export const NAVIGATION_ICONS = {
 	'message-circle': MessageCircle,
 	'notebook-pen': NotebookPen,
 	'calendar-days': CalendarDays,
+	// Guru, wali kelas, murid, orang tua (referensi FLIXARE App v5).
+	library: Library,
+	'file-pen-line': FilePenLine,
+	'chart-no-axes-column': ChartNoAxesColumn,
+	'scan-qr-code': ScanQrCode,
+	'shield-alert': ShieldAlert,
 	link: Link
 } as const satisfies Record<string, LucideIcon>;
 
@@ -251,6 +265,46 @@ export function toSaveInput(layout: Pick<NavigationLayout, 'groups'>): Navigatio
 	}));
 }
 
+/** Kode grup Akun pada susunan bawaan (`defaults.go`): tempat menu bersyarat di luar data Menu & navigasi. */
+export const ACCOUNT_GROUP_CODE = 'grp-akun';
+const SETTINGS_ITEM_CODE = 'pengaturan';
+
+/**
+ * Sisipkan menu bersyarat yang bukan bagian data Menu & navigasi (mis. "Tagihan" pemilik tenant guru pribadi)
+ * ke grup `groupCode`, tepat sebelum menu Pengaturan. Grup itu dihapus/diganti owner → grup terakhir;
+ * susunan kosong → satu grup tanpa judul. Masukan tidak diubah.
+ */
+export function insertNavigationItem(
+	groups: readonly NavigationGroup[],
+	groupCode: string,
+	item: NavigationItem
+): NavigationGroup[] {
+	if (groups.length === 0) {
+		return [
+			{
+				id: item.id,
+				code: groupCode,
+				name: '',
+				icon: item.icon,
+				route: '',
+				show_label: false,
+				default_open: true,
+				clickable: false,
+				hidden: false,
+				items: [item]
+			}
+		];
+	}
+	const found = groups.findIndex((g) => g.code === groupCode);
+	const target = found >= 0 ? found : groups.length - 1;
+	return groups.map((group, index) => {
+		if (index !== target) return group;
+		const settings = group.items.findIndex((i) => i.code === SETTINGS_ITEM_CODE);
+		const at = settings >= 0 ? settings : group.items.length;
+		return { ...group, items: [...group.items.slice(0, at), item, ...group.items.slice(at)] };
+	});
+}
+
 /** Rute menu dapat menunjuk seksi halaman (`/app/admin/principal#presensi`, cermin `plan.go`). */
 export function splitRoute(route: string): { path: string; hash?: string } {
 	const index = route.indexOf('#');
@@ -317,4 +371,12 @@ export function toWorkspaceNav(
 			};
 		})
 	}));
+}
+
+/** `toWorkspaceNav` dengan badge dari workspace (kosong bila belum termuat) dan rute yang sudah dibangun. */
+export function workspaceNav(
+	groups: readonly NavigationGroup[],
+	workspace: AccountWorkspace | null
+): WorkspaceNavGroup[] {
+	return toWorkspaceNav(groups, { badges: workspace?.badges ?? {}, builtPaths: BUILT_APP_PATHS });
 }

@@ -177,6 +177,8 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			]
 		]
 	],
+	// Guru mapel, wali kelas, murid, orang tua: referensi FLIXARE App v5, dikelompokkan (spec 16 Okt 2026).
+	// "Tagihan" guru (PERSONAL_OWNER) bukan data menu — ditambahkan layout guru secara bersyarat.
 	teacher: [
 		['grp-utama', 'Utama', 'house', false, [['beranda', 'Beranda', 'house', '/app/teacher']]],
 		[
@@ -185,12 +187,70 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'book-open',
 			true,
 			[
-				['kelas', 'Kelas', 'school', '/guru/kelas'],
-				['materi', 'Materi', 'book-open', '/guru/materi'],
-				['tugas', 'Tugas', 'clipboard-list', '/guru/tugas', 'tasks'],
-				['assessment', 'Assessment', 'file-question', '/guru/assessment'],
-				['jadwal-ujian', 'Jadwal Ujian', 'calendar-clock', '/guru/jadwal-ujian'],
-				['progres', 'Progres', 'chart-line', '/guru/progres']
+				['kelas', 'Kelas', 'school', '/app/teacher/classes', 'none', LATER],
+				['materi', 'Materi', 'book-open', '/app/teacher/materials', 'none', LATER],
+				['tugas', 'Tugas', 'clipboard-list', '/app/teacher/tasks', 'tasks', LATER],
+				['bank-soal', 'Bank soal', 'library', '/app/teacher/question-bank', 'none', LATER],
+				['assessment', 'Assessment', 'file-question', '/app/teacher/assessments', 'none', LATER],
+				[
+					'jadwal-ujian',
+					'Jadwal Ujian',
+					'calendar-clock',
+					'/app/teacher/exam-schedule',
+					'none',
+					LATER
+				]
+			]
+		],
+		[
+			'grp-penilaian',
+			'Penilaian',
+			'award',
+			true,
+			[
+				['nilai-akhir', 'Nilai akhir rapor', 'table', '/app/teacher/grades'],
+				['progres', 'Progres', 'chart-line', '/app/teacher/progress', 'none', LATER],
+				[
+					'deskripsi-rapor',
+					'Deskripsi rapor',
+					'file-pen-line',
+					'/app/teacher/report-descriptions',
+					'none',
+					LATER
+				],
+				[
+					'analisis-capaian',
+					'Analisis capaian',
+					'chart-no-axes-column',
+					'/app/teacher/achievement-analysis',
+					'none',
+					LATER
+				]
+			]
+		],
+		[
+			'grp-presensi',
+			'Presensi',
+			'calendar-check',
+			true,
+			[
+				[
+					'presensi-mapel',
+					'Presensi mapel',
+					'scan-qr-code',
+					'/app/teacher/subject-attendance',
+					'none',
+					LATER
+				],
+				[
+					'presensi-saya',
+					'Presensi saya',
+					'user-check',
+					'/app/teacher/my-attendance',
+					'none',
+					LATER
+				],
+				['piket', 'Piket hari ini', 'shield-alert', '/app/teacher/duty', 'none', LATER]
 			]
 		],
 		[
@@ -198,7 +258,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'Komunikasi',
 			'message-square',
 			true,
-			[['pesan', 'Pesan', 'message-square', '/guru/pesan']]
+			[['pesan', 'Pesan', 'message-square', '/app/teacher/messages', 'none', LATER]]
 		],
 		[
 			'grp-akun',
@@ -216,22 +276,60 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			false,
 			[
 				['beranda', 'Beranda', 'house', '/app/teacher/homeroom'],
-				['presensi-kelas', 'Presensi kelas', 'calendar-check', '/app/teacher/homeroom/attendance'],
-				['persetujuan', 'Persetujuan', 'inbox', '/app/teacher/homeroom#persetujuan'],
+				['persetujuan', 'Persetujuan', 'inbox', '/app/teacher/homeroom#persetujuan', 'approvals']
+			]
+		],
+		[
+			'grp-perwalian',
+			'Kelas perwalian',
+			'users',
+			true,
+			[
+				['murid-kelas', 'Murid kelas', 'users', '/app/teacher/homeroom#murid'],
+				['jadwal-kelas', 'Jadwal kelas', 'calendar-days', '/app/teacher/homeroom#jadwal'],
+				['catatan-perilaku', 'Catatan perilaku', 'notebook-pen', '/app/teacher/homeroom#catatan'],
 				[
 					'buku-penghubung',
 					'Buku penghubung',
 					'message-circle',
 					'/app/teacher/homeroom#buku-penghubung'
-				],
-				['rekap-nilai', 'Rekap nilai', 'table', '/app/teacher/homeroom#rekap-nilai'],
-				['murid-kelas', 'Murid kelas', 'users', '/app/teacher/homeroom#murid'],
-				['rapor', 'Rapor', 'file-text', '/app/teacher/homeroom/report'],
-				['nilai-akhir', 'Nilai akhir mapel', 'clipboard-list', '/app/teacher/grades'],
-				['jadwal-kelas', 'Jadwal kelas', 'calendar-days', '/app/teacher/homeroom#jadwal'],
-				['catatan-perilaku', 'Catatan perilaku', 'notebook-pen', '/app/teacher/homeroom#catatan'],
-				['pengaturan', 'Pengaturan', 'settings', '/app/teacher/settings']
+				]
 			]
+		],
+		[
+			'grp-presensi',
+			'Presensi',
+			'calendar-check',
+			true,
+			[
+				['presensi-kelas', 'Presensi kelas', 'calendar-check', '/app/teacher/homeroom/attendance'],
+				[
+					'presensi-per-mapel',
+					'Presensi per mapel',
+					'scan-qr-code',
+					'/app/teacher/homeroom/subject-attendance',
+					'none',
+					LATER
+				]
+			]
+		],
+		[
+			'grp-penilaian',
+			'Penilaian & rapor',
+			'file-text',
+			true,
+			[
+				['rekap-nilai', 'Rekap nilai', 'table', '/app/teacher/homeroom#rekap-nilai'],
+				['rapor', 'Rapor', 'file-text', '/app/teacher/homeroom/report'],
+				['nilai-akhir', 'Nilai akhir mapel', 'clipboard-list', '/app/teacher/grades']
+			]
+		],
+		[
+			'grp-akun',
+			'Akun',
+			'settings',
+			true,
+			[['pengaturan', 'Pengaturan', 'settings', '/app/teacher/settings']]
 		]
 	],
 	student: [
@@ -242,11 +340,19 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'book-open',
 			true,
 			[
-				['materi', 'Materi', 'book-open', '/murid/materi'],
-				['tugas', 'Tugas', 'clipboard-list', '/murid/tugas', 'due'],
-				['ujian', 'Ujian', 'clipboard-check', '/murid/ujian'],
-				['nilai', 'Nilai & rapor', 'award', '/murid/nilai'],
-				['presensi', 'Presensi', 'calendar-check', '/murid/presensi']
+				['materi', 'Materi', 'book-open', '/app/student/materials'],
+				['tugas', 'Tugas', 'clipboard-list', '/app/student/tasks', 'due'],
+				['ujian', 'Ujian', 'clipboard-check', '/app/student/assessments']
+			]
+		],
+		[
+			'grp-hasil',
+			'Hasil belajar',
+			'award',
+			true,
+			[
+				['nilai', 'Nilai & rapor', 'award', '/app/student/grades'],
+				['presensi', 'Presensi', 'calendar-check', '/app/student/attendance']
 			]
 		],
 		[
@@ -254,7 +360,14 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'Komunikasi',
 			'message-square',
 			true,
-			[['pesan', 'Pesan', 'message-square', '/murid/pesan']]
+			[['pesan', 'Pesan', 'message-square', '/app/student/messages']]
+		],
+		[
+			'grp-akun',
+			'Akun',
+			'settings',
+			true,
+			[['pengaturan', 'Pengaturan', 'settings', '/app/student/settings']]
 		]
 	],
 	guardian: [
@@ -265,10 +378,10 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'graduation-cap',
 			true,
 			[
-				['nilai', 'Nilai', 'award', '/orang-tua/nilai'],
-				['presensi', 'Presensi', 'calendar-check', '/orang-tua/presensi'],
-				['tugas-anak', 'Tugas anak', 'clipboard-list', '/orang-tua/tugas'],
-				['rapor', 'Rapor', 'file-text', '/orang-tua/rapor']
+				['nilai', 'Nilai', 'award', '/app/guardian/grades', 'none', LATER],
+				['presensi', 'Presensi', 'calendar-check', '/app/guardian/attendance', 'none', LATER],
+				['tugas-anak', 'Tugas anak', 'clipboard-list', '/app/guardian/tasks', 'none', LATER],
+				['rapor', 'Rapor', 'file-text', '/app/guardian/report']
 			]
 		],
 		[
@@ -278,8 +391,16 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			true,
 			[
 				['pengumuman', 'Pengumuman', 'megaphone', '/app/guardian/announcements'],
-				['pesan', 'Pesan', 'message-square', '/orang-tua/pesan', 'msgs']
+				['pesan', 'Pesan', 'message-square', '/app/guardian/messages', 'msgs', LATER],
+				['notifikasi', 'Notifikasi', 'bell', '/app/guardian/notifications', 'none', LATER]
 			]
+		],
+		[
+			'grp-keuangan',
+			'Keuangan',
+			'wallet',
+			true,
+			[['tagihan-spp', 'Tagihan & SPP', 'wallet', '/app/guardian/billing', 'none', LATER]]
 		],
 		[
 			'grp-akun',

@@ -52,7 +52,3 @@ export function workspaceGreeting(workspace: AccountWorkspace | null, t: Transla
 	const { name, honorific } = greetingParts(workspace.user);
 	return honorific ? t(`dashboard.honorific.${honorific}`, { name }) : name;
 }
-
-/** Angka badge menu; `undefined` bila backend tidak mengirim kode itu (sumber data belum ada). */
-export const workspaceBadge = (workspace: AccountWorkspace | null, code: string) =>
-	workspace?.badges[code] ?? undefined;

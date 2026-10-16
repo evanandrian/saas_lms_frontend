@@ -104,6 +104,9 @@ export const APP_PATHS = {
 	OAUTH_CALLBACK: '/oauth/callback'
 } as const;
 
+/** Himpunan path yang sudah dibangun; menu tanpa halaman (mis. dari backend) tampil nonaktif, bukan menuju 404. */
+export const BUILT_APP_PATHS: ReadonlySet<string> = new Set(Object.values(APP_PATHS));
+
 /**
  * Parameter `mode` halaman masuk (FE-06), dipakai halaman "Anda telah keluar":
  * `reauth` mengisi email terakhir dari cookie HttpOnly, `other` mengosongkannya. Email tidak pernah di URL.
