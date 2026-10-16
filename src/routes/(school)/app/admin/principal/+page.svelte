@@ -4,6 +4,7 @@
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import AnnouncementFeedList from '$lib/features/announcements/components/AnnouncementFeedList.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
 	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
 	import { REPORT_STATUSES } from '$lib/features/school-admin/school-admin.model';
@@ -1209,19 +1210,31 @@
 					i18n.t('dashboard.principal.agenda_announcements')
 				)}
 			</div>
-			<ul>
-				{#each agendaTab === 'agenda' ? sample.agenda : sample.announcements as item (item.title)}
-					<li class="border-lms-border flex items-start gap-3 border-t py-2.5">
-						<span class="text-lms-interactive w-14 flex-none pt-0.5 font-mono text-xs font-semibold"
-							>{item.date}</span
-						>
-						<span class="flex min-w-0 flex-col gap-0.5">
-							<span class="text-sm font-semibold">{item.title}</span>
-							<span class="text-lms-muted text-xs leading-4.5">{item.detail}</span>
-						</span>
-					</li>
-				{/each}
-			</ul>
+			{#if agendaTab === 'agenda'}
+				<ul>
+					{#each sample.agenda as item (item.title)}
+						<li class="border-lms-border flex items-start gap-3 border-t py-2.5">
+							<span
+								class="text-lms-interactive w-14 flex-none pt-0.5 font-mono text-xs font-semibold"
+								>{item.date}</span
+							>
+							<span class="flex min-w-0 flex-col gap-0.5">
+								<span class="text-sm font-semibold">{item.title}</span>
+								<span class="text-lms-muted text-xs leading-4.5">{item.detail}</span>
+							</span>
+						</li>
+					{/each}
+				</ul>
+			{:else if !live?.announcements}
+				<!-- Pengumuman nyata (3 terbit terbaru); gagal dimuat → galat, bukan data contoh. -->
+				<p class="text-lms-danger-text text-[13px]" role="alert">
+					{i18n.t('announcements.load_failed')}
+				</p>
+			{:else if live.announcements.length === 0}
+				<p class="text-lms-muted text-[13px]">{i18n.t('announcements.empty')}</p>
+			{:else}
+				<AnnouncementFeedList items={live.announcements} />
+			{/if}
 			<p class="text-lms-muted mt-auto flex items-center gap-1.5 text-xs">
 				<Icon icon={Lock} size="sm" />{i18n.t('dashboard.principal.announcements_by_admin')}
 			</p>
