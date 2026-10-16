@@ -169,6 +169,33 @@ describe('menu Tagihan bersyarat (PERSONAL_OWNER)', () => {
 		});
 		expect(groups).toBe(homeroom);
 	});
+
+	it.each([
+		['kode tagihan', { code: 'tagihan', route: '/app/teacher/lain' }],
+		['rute Tagihan', { code: 'tagihan-saya', route: '/app/teacher/tagihan' }]
+	])('owner sudah menaruh menu dengan %s di grup lain: Tagihan tidak digandakan', (_, existing) => {
+		const custom: NavigationItem = {
+			id: 'custom',
+			name: 'Tagihan',
+			icon: 'receipt',
+			target: 'same',
+			hidden: false,
+			badge: 'none',
+			...existing
+		};
+		const withBilling = teacherGroups.map((g) =>
+			g.code === 'grp-utama' ? { ...g, items: [...g.items, custom] } : g
+		);
+		const groups = teacherSidebarGroups(withBilling, {
+			...options,
+			roleCode: PERSONAL_OWNER_ROLE
+		});
+		expect(groups).toBe(withBilling);
+		const billingItems = groups
+			.flatMap((g) => g.items)
+			.filter((i) => i.code === 'tagihan' || i.route === '/app/teacher/tagihan');
+		expect(billingItems).toHaveLength(1);
+	});
 });
 
 describe('insertNavigationItem', () => {

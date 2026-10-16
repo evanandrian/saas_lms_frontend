@@ -361,6 +361,7 @@ describe('defaultNavigationLayout peran sekolah berkelompok (cermin defaults.go)
 				badges: {},
 				builtPaths: BUILT_PATHS
 			});
+			expect(nav.length).toBeGreaterThan(0);
 			for (const navItem of nav.flatMap((g) => g.items)) expect(navItem.href).toBeDefined();
 		}
 	);

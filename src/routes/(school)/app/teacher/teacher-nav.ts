@@ -31,6 +31,11 @@ export function teacherSidebarGroups(
 	{ homeroomView, roleCode, billingLabel }: TeacherSidebarOptions
 ): readonly NavigationGroup[] {
 	if (homeroomView || roleCode !== PERSONAL_OWNER_ROLE) return groups;
+	// Owner sudah menaruh menu Tagihan sendiri (kode atau rute sama, grup mana pun) → jangan digandakan.
+	const hasBillingItem = groups.some((g) =>
+		g.items.some((i) => i.code === BILLING_ITEM_CODE || i.route === APP_PATHS.TEACHER_BILLING)
+	);
+	if (hasBillingItem) return groups;
 	return insertNavigationItem(groups, ACCOUNT_GROUP_CODE, {
 		id: `teacher:${BILLING_ITEM_CODE}`,
 		code: BILLING_ITEM_CODE,
