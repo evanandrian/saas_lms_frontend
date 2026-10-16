@@ -18,10 +18,12 @@ import CalendarDays from '@lucide/svelte/icons/calendar-days';
 import CalendarRange from '@lucide/svelte/icons/calendar-range';
 import ChartColumn from '@lucide/svelte/icons/chart-column';
 import ChartLine from '@lucide/svelte/icons/chart-line';
+import ChartNoAxesColumn from '@lucide/svelte/icons/chart-no-axes-column';
 import ClipboardCheck from '@lucide/svelte/icons/clipboard-check';
 import ClipboardList from '@lucide/svelte/icons/clipboard-list';
 import CreditCard from '@lucide/svelte/icons/credit-card';
 import Database from '@lucide/svelte/icons/database';
+import FilePenLine from '@lucide/svelte/icons/file-pen-line';
 import FileQuestion from '@lucide/svelte/icons/file-question-mark';
 import FileText from '@lucide/svelte/icons/file-text';
 import Folder from '@lucide/svelte/icons/folder';
@@ -31,6 +33,7 @@ import History from '@lucide/svelte/icons/history';
 import House from '@lucide/svelte/icons/house';
 import Inbox from '@lucide/svelte/icons/inbox';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+import Library from '@lucide/svelte/icons/library';
 import Link from '@lucide/svelte/icons/link';
 import ListTree from '@lucide/svelte/icons/list-tree';
 import Megaphone from '@lucide/svelte/icons/megaphone';
@@ -41,10 +44,12 @@ import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 import Package from '@lucide/svelte/icons/package';
 import Receipt from '@lucide/svelte/icons/receipt';
 import Scale from '@lucide/svelte/icons/scale';
+import ScanQrCode from '@lucide/svelte/icons/scan-qr-code';
 import School from '@lucide/svelte/icons/school';
 import ScrollText from '@lucide/svelte/icons/scroll-text';
 import Server from '@lucide/svelte/icons/server';
 import Settings from '@lucide/svelte/icons/settings';
+import ShieldAlert from '@lucide/svelte/icons/shield-alert';
 import Stamp from '@lucide/svelte/icons/stamp';
 import Star from '@lucide/svelte/icons/star';
 import Table from '@lucide/svelte/icons/table';
@@ -129,6 +134,12 @@ export const NAVIGATION_ICONS = {
 	'message-circle': MessageCircle,
 	'notebook-pen': NotebookPen,
 	'calendar-days': CalendarDays,
+	// Guru, wali kelas, murid, orang tua (referensi FLIXARE App v5).
+	library: Library,
+	'file-pen-line': FilePenLine,
+	'chart-no-axes-column': ChartNoAxesColumn,
+	'scan-qr-code': ScanQrCode,
+	'shield-alert': ShieldAlert,
 	link: Link
 } as const satisfies Record<string, LucideIcon>;
 
