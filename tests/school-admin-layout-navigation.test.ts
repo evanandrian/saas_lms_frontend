@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
+import type { NavigationGroup } from '$lib/features/navigation/navigation.model';
 
 const mocks = vi.hoisted(() => ({
 	loadNavigationSidebar: vi.fn(),
@@ -29,7 +29,11 @@ vi.mock('$lib/features/announcements/announcements.server', () => ({
 }));
 
 import { load } from '../src/routes/(school)/app/admin/+layout.server';
-import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
+import {
+	backendGroups,
+	lastRequestedRole,
+	layoutEvent
+} from './helpers/navigation-layout-fixtures';
 
 const { event } = layoutEvent('/app/admin');
 
@@ -41,7 +45,7 @@ async function runLoad() {
 	};
 }
 
-const requestedRole = (): NavigationRole => mocks.loadNavigationSidebar.mock.calls.at(-1)![1];
+const requestedRole = () => lastRequestedRole(mocks.loadNavigationSidebar);
 
 describe('layout admin sekolah: sidebar dinamis', () => {
 	beforeEach(() => {

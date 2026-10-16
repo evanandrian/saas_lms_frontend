@@ -1,6 +1,6 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { vi } from 'vitest';
-import type { NavigationGroup } from '$lib/features/navigation/navigation.model';
+import { vi, type Mock } from 'vitest';
+import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
 
 /** Susunan sidebar palsu dari backend; dipakai tes untuk memastikan layout meneruskannya apa adanya. */
 export const backendGroups: NavigationGroup[] = [
@@ -29,3 +29,11 @@ export function layoutEvent(path: string) {
 	} as unknown as RequestEvent;
 	return { event, depends };
 }
+
+/** Peran terakhir yang diminta ke API sidebar (argumen ke-2 panggilan terakhir mock). */
+export const lastRequestedRole = (loadNavigationSidebar: Mock): NavigationRole =>
+	loadNavigationSidebar.mock.calls.at(-1)![1];
+
+/** Ringkas susunan sidebar menjadi pasangan [kode grup, kode item]. */
+export const codes = (groups: readonly NavigationGroup[]) =>
+	groups.map((g) => [g.code, g.items.map((i) => i.code)]);

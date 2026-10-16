@@ -4,8 +4,7 @@ import {
 	insertNavigationItem,
 	visibleGroups,
 	type NavigationGroup,
-	type NavigationItem,
-	type NavigationRole
+	type NavigationItem
 } from '$lib/features/navigation/navigation.model';
 
 const mocks = vi.hoisted(() => ({
@@ -31,7 +30,12 @@ import {
 	teacherSidebarGroups,
 	teacherSidebarRole
 } from '../src/routes/(school)/app/teacher/teacher-nav';
-import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
+import {
+	backendGroups,
+	codes,
+	lastRequestedRole,
+	layoutEvent
+} from './helpers/navigation-layout-fixtures';
 
 const { event, depends } = layoutEvent('/app/teacher');
 
@@ -42,9 +46,7 @@ async function runLoad() {
 	};
 }
 
-const requestedRole = (): NavigationRole => mocks.loadNavigationSidebar.mock.calls.at(-1)![1];
-const codes = (groups: readonly NavigationGroup[]) =>
-	groups.map((g) => [g.code, g.items.map((i) => i.code)]);
+const requestedRole = () => lastRequestedRole(mocks.loadNavigationSidebar);
 
 describe('layout guru: sidebar dinamis', () => {
 	beforeEach(() => {

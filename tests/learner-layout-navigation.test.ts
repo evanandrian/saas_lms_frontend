@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
+import type { NavigationGroup } from '$lib/features/navigation/navigation.model';
 
 const mocks = vi.hoisted(() => ({
 	loadNavigationSidebar: vi.fn(),
@@ -15,13 +15,16 @@ vi.mock('$lib/features/workspace/workspace.server', () => ({
 
 import { load as loadStudent } from '../src/routes/(school)/app/student/+layout.server';
 import { load as loadGuardian } from '../src/routes/(school)/app/guardian/+layout.server';
-import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
+import {
+	backendGroups,
+	codes,
+	lastRequestedRole,
+	layoutEvent
+} from './helpers/navigation-layout-fixtures';
 
 const { event, depends } = layoutEvent('/app');
 
-const requestedRole = (): NavigationRole => mocks.loadNavigationSidebar.mock.calls.at(-1)![1];
-const codes = (groups: readonly NavigationGroup[]) =>
-	groups.map((g) => [g.code, g.items.map((i) => i.code)]);
+const requestedRole = () => lastRequestedRole(mocks.loadNavigationSidebar);
 
 const LEARNER_CASES = [
 	{

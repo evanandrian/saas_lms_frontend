@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import WorkspaceShell from '$lib/components/layout/WorkspaceShell.svelte';
-	import type { RoleShellArea } from '$lib/features/navigation/role-shell.server';
+	import type { RoleShellArea } from '$lib/features/navigation/role-shell';
 	import { toWorkspaceNav, type NavigationGroup } from '$lib/features/navigation/navigation.model';
 	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
