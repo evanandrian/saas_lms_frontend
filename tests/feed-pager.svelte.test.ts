@@ -69,6 +69,18 @@ describe('createFeedPager', () => {
 		expect(pager.failed).toBe(false);
 	});
 
+	it('status gagal di-reset saat halaman pertama berganti (mis. setelah Retry/invalidateAll)', async () => {
+		let base = $state.raw(feed(['a'], 'c1'));
+		const pager = createFeedPager(
+			() => base,
+			async () => fail
+		);
+		expect(await pager.loadMore()).toBe(false);
+		expect(pager.failed).toBe(true);
+		base = feed(['a', 'b'], 'c2');
+		expect(pager.failed).toBe(false);
+	});
+
 	it('membuang hasil basi dan tidak menggabung halaman feed lama ke feed baru', async () => {
 		let base = $state.raw(feed(['a'], 'c1'));
 		let release: (o: PageActionOutcome<AnnouncementFeed>) => void = () => {};

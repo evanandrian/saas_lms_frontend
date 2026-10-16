@@ -32,7 +32,7 @@
 			<span class="text-lms-muted text-xs"
 				>{t('item_meta', {
 					audience: audienceText(i18n.t, item),
-					time: formatAnnouncementTime(item.published_at),
+					time: formatAnnouncementTime(item.published_at, i18n.locale),
 					author: item.author_name || '—'
 				})}</span
 			>

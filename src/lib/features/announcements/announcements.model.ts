@@ -12,6 +12,7 @@ import {
 	lengthIssue,
 	lengthMessage
 } from '$lib/features/school-admin/school-admin.model';
+import { formatDateTime } from '$lib/utils/format';
 
 /**
  * Model UX Pengumuman (Admin Sekolah Fase 3): batas & perapian teks (cermin `announcement_model.go`, dihitung
@@ -23,12 +24,12 @@ type T = (key: string, params?: Readonly<Record<string, string | number>>) => st
 
 export const PREFIX = 'announcements';
 
-export const TITLE_MIN = 5;
+const TITLE_MIN = 5;
 export const TITLE_MAX = 80;
-export const BODY_MIN = 20;
+const BODY_MIN = 20;
 export const BODY_MAX = 1000;
 export const NOTE_MAX = 500;
-export const ARCHIVE_REASON_MIN = 5;
+const ARCHIVE_REASON_MIN = 5;
 export const ARCHIVE_REASON_MAX = 200;
 /** Item feed yang tampil di kartu beranda/widget sebelum "Muat lebih banyak". */
 export const FEED_PREVIEW = 3;
@@ -69,7 +70,7 @@ export interface AnnouncementForm {
 	class_id: string;
 }
 
-export type AnnouncementField = 'title' | 'body' | 'audience' | 'grade_level_id' | 'class_id';
+type AnnouncementField = 'title' | 'body' | 'audience' | 'grade_level_id' | 'class_id';
 
 export const emptyForm = (): AnnouncementForm => ({
 	title: '',
@@ -208,18 +209,25 @@ export function combinedPending(accounts: number | null, announcements: number |
 	return (accounts ?? 0) + (announcements ?? 0);
 }
 
-const TIME_ZONE = 'Asia/Jakarta';
-
-/** "16 Okt 2026, 08.30" (WIB). */
-export const formatAnnouncementTime = (iso: string, locale = 'id-ID') =>
-	new Intl.DateTimeFormat(locale, {
+/**
+ * "16 Okt 2026, 08.30" / "16 Oct 2026, 08:30" (WIB, `APP_TIME_ZONE`). `locale` = locale UI (`i18n.locale`);
+ * bawaan Indonesia hanya sebagai cadangan.
+ */
+export const formatAnnouncementTime = (iso: string, locale = 'id') =>
+	formatDateTime(iso, locale, {
 		day: 'numeric',
 		month: 'short',
 		year: 'numeric',
 		hour: '2-digit',
-		minute: '2-digit',
-		timeZone: TIME_ZONE
-	}).format(new Date(iso));
+		minute: '2-digit'
+	});
+
+/** Anchor menu "Pengumuman" kepala sekolah (`/app/admin/principal#pengumuman`). */
+export const PRINCIPAL_ANNOUNCEMENTS_ANCHOR = 'pengumuman';
+
+/** Hash menu "Pengumuman" membuka tab Pengumuman di kartu "Agenda & pengumuman"; hash lain tidak mengubah tab. */
+export const opensAnnouncementsTab = (hash: string) =>
+	hash === `#${PRINCIPAL_ANNOUNCEMENTS_ANCHOR}`;
 
 /** Gabung halaman feed berikutnya tanpa duplikat (id sama diabaikan). */
 export function appendUnique<X extends { id: string }>(

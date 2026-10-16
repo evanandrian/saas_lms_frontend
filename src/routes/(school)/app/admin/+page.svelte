@@ -40,7 +40,8 @@
 	const i18n = useI18n();
 	const t = (key: string, params?: Record<string, string | number>) =>
 		i18n.t(`${PREFIX}.dashboard.${key}`, params);
-	const reasonId = $props.id();
+	/** Prefiks id heading section (`aria-labelledby`). */
+	const sectionId = $props.id();
 	const REPORT_RANK = { draft: 0, submitted: 1, approved: 2, locked: 3 } as const;
 
 	// svelte-ignore state_referenced_locally
@@ -335,11 +336,11 @@
 		<div class="grid gap-4 xl:grid-cols-3">
 			<section
 				class="lms-card flex min-w-0 flex-col gap-4 rounded-xl! p-5 shadow-none! xl:col-span-2"
-				aria-labelledby="{reasonId}-attendance"
+				aria-labelledby="{sectionId}-attendance"
 			>
 				<div class="flex flex-wrap items-start justify-between gap-3">
 					<div>
-						<h2 id="{reasonId}-attendance" class="text-base font-bold">
+						<h2 id="{sectionId}-attendance" class="text-base font-bold">
 							{i18n.t('dashboard.school.attendance')}
 						</h2>
 						<p class="text-lms-muted text-[0.8125rem]">
@@ -413,7 +414,7 @@
 			{#if room}
 				<section
 					class="lms-card flex min-w-0 flex-col gap-3.5 rounded-xl! p-5 shadow-none!"
-					aria-labelledby="{reasonId}-room"
+					aria-labelledby="{sectionId}-room"
 					aria-live="polite"
 				>
 					<div class="flex items-start justify-between gap-3">
@@ -421,7 +422,7 @@
 							<span class="text-lms-muted font-mono text-[11px] tracking-[0.14em]"
 								>{i18n.t('dashboard.school.class')}</span
 							>
-							<h2 id="{reasonId}-room" class="text-[1.625rem] leading-tight font-bold">
+							<h2 id="{sectionId}-room" class="text-[1.625rem] leading-tight font-bold">
 								{room.name}
 							</h2>
 							<p class="text-lms-muted text-[0.8125rem]">
@@ -513,10 +514,10 @@
 		<div class="grid gap-4 xl:grid-cols-3">
 			<section
 				class="lms-card flex min-w-0 flex-col gap-4 rounded-xl! p-5 shadow-none! xl:col-span-2"
-				aria-labelledby="{reasonId}-report"
+				aria-labelledby="{sectionId}-report"
 			>
 				<div>
-					<h2 id="{reasonId}-report" class="text-base font-bold">
+					<h2 id="{sectionId}-report" class="text-base font-bold">
 						{t('report_title', { term: view.term === 2 ? t('term_even') : t('term_odd') })}
 					</h2>
 					<p class="text-lms-muted text-[0.8125rem]">
@@ -563,11 +564,11 @@
 
 			<section
 				class="lms-card flex min-w-0 flex-col gap-4 rounded-xl! p-5 shadow-none!"
-				aria-labelledby="{reasonId}-seats"
+				aria-labelledby="{sectionId}-seats"
 			>
 				<div class="flex items-start justify-between gap-3">
 					<div>
-						<h2 id="{reasonId}-seats" class="text-base font-bold">
+						<h2 id="{sectionId}-seats" class="text-base font-bold">
 							{i18n.t('dashboard.school.seats')}
 						</h2>
 						<p class="text-lms-muted text-[0.8125rem]">
@@ -646,10 +647,10 @@
 
 		<section
 			class="lms-card flex min-w-0 flex-col gap-1 rounded-xl! p-5 shadow-none!"
-			aria-labelledby="{reasonId}-follow-up"
+			aria-labelledby="{sectionId}-follow-up"
 		>
 			<div class="mb-2 flex items-baseline justify-between">
-				<h2 id="{reasonId}-follow-up" class="text-base font-bold">
+				<h2 id="{sectionId}-follow-up" class="text-base font-bold">
 					{i18n.t('dashboard.school.follow_up')}
 				</h2>
 				<span class="text-lms-muted text-xs"

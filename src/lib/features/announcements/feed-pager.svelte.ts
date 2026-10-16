@@ -17,7 +17,8 @@ export function createFeedPager(getBase: () => AnnouncementFeed | null, fetchPag
 	// raw: identitas `base` dibandingkan dengan `getBase()`, tidak boleh dibungkus proxy.
 	let extra = $state.raw<{ base: AnnouncementFeed | null; page: AnnouncementFeed } | null>(null);
 	let busy = $state(false);
-	let failed = $state(false);
+	// Gagal terikat ke halaman pertama asalnya: feed dimuat ulang (Retry/invalidateAll) → pesan gagal hilang.
+	let failure = $state.raw<{ base: AnnouncementFeed | null } | null>(null);
 
 	const view = $derived(feedView(getBase(), extra && extra.base === getBase() ? extra.page : null));
 
@@ -30,7 +31,7 @@ export function createFeedPager(getBase: () => AnnouncementFeed | null, fetchPag
 		busy = false;
 		// Hasil basi (feed sudah dimuat ulang selama menunggu) dibuang.
 		if (base !== getBase()) return false;
-		failed = !out.ok;
+		failure = out.ok ? null : { base };
 		if (!out.ok) return false;
 		extra = { base, page: appendFeedPage(extra?.base === base ? extra.page : null, out.data) };
 		return true;
@@ -47,7 +48,7 @@ export function createFeedPager(getBase: () => AnnouncementFeed | null, fetchPag
 			return busy;
 		},
 		get failed() {
-			return failed;
+			return failure !== null && failure.base === getBase();
 		},
 		loadMore
 	};

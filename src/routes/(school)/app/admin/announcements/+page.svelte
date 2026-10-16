@@ -246,14 +246,14 @@
 						<span class="text-lms-muted text-xs"
 							>{t('admin.meta', {
 								audience: audienceText(i18n.t, item),
-								time: formatAnnouncementTime(item.created_at),
+								time: formatAnnouncementTime(item.created_at, i18n.locale),
 								author: item.author_name || '—'
 							})}</span
 						>
 						{#if item.published_at}
 							<span class="text-lms-muted text-xs"
 								>{t('admin.published_meta', {
-									time: formatAnnouncementTime(item.published_at),
+									time: formatAnnouncementTime(item.published_at, i18n.locale),
 									reviewer: item.reviewer_name || '—'
 								})}</span
 							>

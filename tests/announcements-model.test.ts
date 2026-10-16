@@ -23,6 +23,7 @@ import {
 	feedView,
 	formOf,
 	formatAnnouncementTime,
+	opensAnnouncementsTab,
 	rejectErrors,
 	statusActions,
 	type AnnouncementForm
@@ -245,6 +246,16 @@ describe('utilitas', () => {
 		const text = formatAnnouncementTime('2026-10-16T23:30:00Z');
 		expect(text).toContain('17');
 		expect(text).toContain('06');
+	});
+	it('waktu terbit mengikuti locale UI (default Indonesia)', () => {
+		expect(formatAnnouncementTime('2026-10-16T23:30:00Z')).toContain('17 Okt 2026');
+		expect(formatAnnouncementTime('2026-10-16T23:30:00Z', 'id')).toContain('17 Okt 2026');
+		expect(formatAnnouncementTime('2026-10-16T23:30:00Z', 'en')).toContain('17 Oct 2026');
+	});
+	it('hash menu "Pengumuman" kepala sekolah membuka tab Pengumuman', () => {
+		expect(opensAnnouncementsTab('#pengumuman')).toBe(true);
+		expect(opensAnnouncementsTab('#presensi')).toBe(false);
+		expect(opensAnnouncementsTab('')).toBe(false);
 	});
 	it('isi berisi tag HTML dipertahankan apa adanya (dirender sebagai teks, bukan HTML)', () =>
 		expect(cleanMultiline('<b>Tebal</b>\n<script>x</script>')).toBe(

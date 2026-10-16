@@ -1,10 +1,15 @@
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import Button from '$lib/components/ui/Button.svelte';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import AnnouncementFeedList from '$lib/features/announcements/components/AnnouncementFeedList.svelte';
+	import {
+		PRINCIPAL_ANNOUNCEMENTS_ANCHOR,
+		opensAnnouncementsTab
+	} from '$lib/features/announcements/announcements.model';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
 	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
 	import { REPORT_STATUSES } from '$lib/features/school-admin/school-admin.model';
@@ -94,6 +99,11 @@
 	let riskOpen = $state(0);
 	let asked = $state<string[]>([]);
 	let agendaTab = $state<'agenda' | 'announcements'>('agenda');
+	/** Menu "Pengumuman" (`#pengumuman`) membuka tab Pengumuman: saat muat, navigasi, dan pergantian hash. */
+	function openAnnouncementsFromHash(hash: string) {
+		if (opensAnnouncementsTab(hash)) agendaTab = 'announcements';
+	}
+	afterNavigate(({ to }) => openAnnouncementsFromHash(to?.url.hash ?? ''));
 	let toast = $state<{ message: string; icon: LucideIcon; until: number } | null>(null);
 
 	const live = $derived(data.live);
@@ -320,6 +330,8 @@
 		);
 	}
 </script>
+
+<svelte:window onhashchange={() => openAnnouncementsFromHash(location.hash)} />
 
 {#snippet segmented<T extends string>(
 	options: readonly { key: T; label: string }[],
@@ -1195,7 +1207,7 @@
 			</ul>
 		</section>
 		<section
-			id="pengumuman"
+			id={PRINCIPAL_ANNOUNCEMENTS_ANCHOR}
 			class="lms-card flex scroll-mt-21 flex-col gap-3 rounded-xl! p-5 shadow-none!"
 		>
 			<div class="flex flex-wrap items-center justify-between gap-2.5">

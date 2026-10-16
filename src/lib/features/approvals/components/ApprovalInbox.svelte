@@ -475,6 +475,7 @@
 				<AnnouncementReviewList
 					items={visibleAnnouncements}
 					onchange={(next) => (announcements = next)}
+					onremove={(id) => (announcements = announcements?.filter((x) => x.id !== id) ?? null)}
 					notify={(message, error) => say(message, error ? CircleX : CircleCheck)}
 				/>
 			{/if}

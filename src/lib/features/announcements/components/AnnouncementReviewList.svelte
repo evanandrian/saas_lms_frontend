@@ -28,13 +28,16 @@
 	import type { SchoolAnnouncement, SchoolAnnouncementPendingView } from '../announcements.types';
 
 	interface Props {
+		/** Item yang ditampilkan (boleh subset terfilter milik pemanggil). */
 		items: readonly SchoolAnnouncement[];
-		/** Daftar menunggu terbaru setelah keputusan (atau setelah 409/404). */
+		/** Daftar menunggu LENGKAP dari server setelah keputusan (atau setelah 409/404). */
 		onchange: (items: SchoolAnnouncement[]) => void;
+		/** Hapus satu pengumuman yang sudah diputuskan dari daftar lengkap milik pemanggil. */
+		onremove: (id: string) => void;
 		notify: (message: string, error: boolean) => void;
 	}
 
-	let { items, onchange, notify }: Props = $props();
+	let { items, onchange, onremove, notify }: Props = $props();
 
 	const i18n = useI18n();
 	const t = (key: string, params?: Record<string, string | number>) =>
@@ -49,6 +52,8 @@
 	let note = $state('');
 	let errors = $state<Record<string, string>>({});
 	let confirmOpen = $state(false);
+	/** Penanda penyegaran terbaru: respons penyegaran lama yang datang belakangan dibuang. */
+	let refreshRequest = 0;
 
 	const opened = $derived(items.find((x) => x.id === openId) ?? null);
 
@@ -72,8 +77,9 @@
 	}
 
 	async function refresh() {
+		const request = ++refreshRequest;
 		const out = await runPageAction<SchoolAnnouncementPendingView>('announcementsPending', {});
-		if (out.ok) onchange(out.data.items);
+		if (out.ok && request === refreshRequest) onchange(out.data.items);
 		void invalidate(APPROVALS_DEPENDENCY);
 	}
 
@@ -93,8 +99,9 @@
 		}
 		notify(t(decision === 'approve' ? 'toast_approved' : 'toast_rejected'), false);
 		openId = null;
-		// Hapus segera: bila penyegaran gagal, pengumuman yang sudah diputuskan tidak tetap tampil.
-		onchange(items.filter((item) => item.id !== x.id));
+		// Hapus segera (hanya id ini, dari daftar lengkap): bila penyegaran gagal, pengumuman yang sudah
+		// diputuskan tidak tetap tampil dan pengumuman yang tersembunyi filter tidak ikut hilang.
+		onremove(x.id);
 		await refresh();
 	}
 </script>
@@ -123,7 +130,7 @@
 					<span class="text-sm font-bold [overflow-wrap:anywhere]">{x.title}</span>
 					<span class="text-lms-muted text-xs"
 						>{t('audience', { audience: audienceText(i18n.t, x) })} · {t('submitted', {
-							time: x.submitted_at ? formatAnnouncementTime(x.submitted_at) : '—',
+							time: x.submitted_at ? formatAnnouncementTime(x.submitted_at, i18n.locale) : '—',
 							author: x.author_name || '—'
 						})}</span
 					>

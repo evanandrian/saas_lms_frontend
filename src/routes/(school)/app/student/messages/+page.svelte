@@ -24,6 +24,8 @@
 	} from '$lib/features/announcements/announcements.model';
 	import { createFeedPager } from '$lib/features/announcements/feed-pager.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { page } from '$app/state';
+	import { messageTabFromUrl, type MessageTab } from './messages.model';
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
@@ -35,7 +37,8 @@
 	// svelte-ignore state_referenced_locally
 	let selectedChannelId = $state<string>(data.messagesData.channels[0]?.id ?? 'ch-homeroom');
 	let searchContactQuery = $state<string>('');
-	let selectedTab = $state<'all' | 'teachers' | 'announcements'>('all');
+	// Tab awal dari `?tab=` (tautan email pengumuman membuka tab Pengumuman).
+	let selectedTab = $state<MessageTab>(messageTabFromUrl(page.url));
 	let draftMessage = $state<string>('');
 	let chatContainer = $state<HTMLDivElement | null>(null);
 	const ta = (key: string) => i18n.t(`${ANNOUNCEMENT_PREFIX}.${key}`);
@@ -247,7 +250,10 @@
 							>
 								<span class="text-xs font-bold [overflow-wrap:anywhere]">{a.title}</span>
 								<span class="text-lms-muted text-[10px]"
-									>{formatAnnouncementTime(a.published_at)} · {audienceText(i18n.t, a)}</span
+									>{formatAnnouncementTime(a.published_at, i18n.locale)} · {audienceText(
+										i18n.t,
+										a
+									)}</span
 								>
 							</button>
 						{/each}
