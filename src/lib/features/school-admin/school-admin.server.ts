@@ -115,8 +115,8 @@ const invalidBody = () =>
 		retryAt: null
 	});
 
-/** Aksi generik: validasi bentuk minimal di sini, aturan bisnis di backend. */
-function action<B extends object>(
+/** Aksi generik: validasi bentuk minimal di sini, aturan bisnis di backend (dipakai juga feature pengumuman). */
+export function action<B extends object>(
 	run: (ctx: BackendContext, body: B) => Promise<BackendResult<unknown>> | null
 ) {
 	return async (event: RequestEvent) => {

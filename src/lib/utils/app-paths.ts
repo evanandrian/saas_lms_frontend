@@ -42,6 +42,8 @@ export const APP_PATHS = {
 	SCHOOL_ADMIN_ASSIGNMENTS: '/app/admin/assignments',
 	SCHOOL_ADMIN_ASSESSMENTS: '/app/admin/assessments',
 	SCHOOL_ADMIN_EXTRACURRICULARS: '/app/admin/extracurriculars',
+	/** Pengumuman sekolah (Fase 3): tulis, ajukan ke kepala sekolah, arsipkan. */
+	SCHOOL_ADMIN_ANNOUNCEMENTS: '/app/admin/announcements',
 	SCHOOL_ADMIN_TEACHERS: '/app/admin/teachers',
 	SCHOOL_ADMIN_STUDENTS: '/app/admin/students',
 	SCHOOL_ADMIN_GUARDIANS: '/app/admin/guardians',
@@ -83,6 +85,8 @@ export const APP_PATHS = {
 	GUARDIAN_REPORTS: '/app/guardian/report',
 	/** Unduh PDF rapor terbit anak (`?id=<reportId>`). */
 	GUARDIAN_REPORT_PDF: '/app/guardian/report/pdf',
+	/** Pengumuman sekolah yang ditujukan ke orang tua (feed). */
+	GUARDIAN_ANNOUNCEMENTS: '/app/guardian/announcements',
 	SCHOOL_ADMIN_ACCOUNT: '/app/admin/settings',
 	SCHOOL_ADMIN_APPROVALS: '/app/admin/approvals',
 	TEACHER_ACCOUNT: '/app/teacher/settings',
