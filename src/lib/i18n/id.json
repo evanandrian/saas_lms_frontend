@@ -36,7 +36,7 @@
 			"unavailable": "{item} tersedia pada fase fitur",
 			"not_available_yet": "belum tersedia",
 			"badge_pending": "{count} menunggu",
-			"needs_attention": "Perlu dilengkapi",
+			"needs_attention": "Perlu dilengkapi: data di menu ini belum lengkap",
 			"platform_detail": "Platform · {code}"
 		},
 		"state": {
@@ -1787,7 +1787,8 @@
 		"eyebrow": "PENGATURAN · AKUN SAYA",
 		"title": "Pengaturan",
 		"subtitle": "Kelola data dan keamanan akun yang sedang Anda pakai untuk masuk.",
-		"attention": "Perlu perhatian",
+		"attention_profile": "Perlu perhatian: ada perubahan email atau pengajuan data yang perlu ditindaklanjuti",
+		"attention_security": "Perlu perhatian: verifikasi 2 langkah belum aktif",
 		"unknown_device": "Perangkat tidak dikenal",
 		"tabs": {
 			"profile": "Profil saya",
