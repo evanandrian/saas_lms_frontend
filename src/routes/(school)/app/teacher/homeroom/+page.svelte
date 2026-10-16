@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import Button from '$lib/components/ui/Button.svelte';
+	import AnnouncementFeedCard from '$lib/features/announcements/components/AnnouncementFeedCard.svelte';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
@@ -1131,6 +1132,8 @@
 			</ul>
 		</section>
 	</div>
+
+	<AnnouncementFeedCard feed={data.feed} />
 
 	<Toast message={visibleToast?.message ?? null} icon={visibleToast?.icon} />
 </div>

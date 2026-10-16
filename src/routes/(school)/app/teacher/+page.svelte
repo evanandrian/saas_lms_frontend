@@ -5,6 +5,7 @@
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
+	import AnnouncementFeedCard from '$lib/features/announcements/components/AnnouncementFeedCard.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
 	import { semesterKey } from '$lib/features/dashboards/dashboards.model';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
@@ -593,6 +594,8 @@
 			</section>
 		{/if}
 
+		<AnnouncementFeedCard feed={data.feed} />
+
 		{#if data.panels}
 			<TeacherPanels panels={data.panels} notify={showToast} />
 		{/if}
@@ -604,5 +607,6 @@
 			title={i18n.t('common.state.no_data_title')}
 			description={i18n.t('common.state.no_data_description')}
 		/>
+		<AnnouncementFeedCard feed={data.feed} />
 	{/if}
 </div>

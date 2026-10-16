@@ -1,5 +1,9 @@
 import { dev } from '$app/environment';
 import { throwIfTenantMaintenance } from '$lib/api/tenant-maintenance';
+import {
+	announcementFeedActions,
+	loadFeed
+} from '$lib/features/announcements/announcements.server';
 import { loadTeacher } from '$lib/features/dashboards/dashboards.api';
 import { dashboardsContext, homeRedirect } from '$lib/features/dashboards/dashboards.server';
 import { DEFAULT_LOCALE, translate } from '$lib/i18n';
@@ -7,7 +11,7 @@ import { APP_PATHS } from '$lib/utils/app-paths';
 import { jakartaSecondsOfDay } from '$lib/utils/clock';
 import { redirect } from '@sveltejs/kit';
 import { teacherDashboardFromApi, type AgendaKind } from './teacher-dashboard';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const SECONDS_PER_MINUTE = 60;
 const JAKARTA_TIME_ZONE = 'Asia/Jakarta';
@@ -34,7 +38,11 @@ export const load: PageServerLoad = async (event) => {
 	);
 	if (target) redirect(303, target);
 
-	const result = await loadTeacher(dashboardsContext(event));
+	// Kartu "Pengumuman": feed nyata (3 terbaru + muat lebih banyak), terpisah dari data dashboard.
+	const [result, { feed }] = await Promise.all([
+		loadTeacher(dashboardsContext(event)),
+		loadFeed(event)
+	]);
 	throwIfTenantMaintenance(result);
 	const live = result.ok ? result.data : null;
 	// Panel mapel (jadwal pekan, RPP, bank soal, analisis butir) belum punya modul backend: contoh di dev saja.
@@ -60,7 +68,8 @@ export const load: PageServerLoad = async (event) => {
 			panels,
 			classCount: new Set((live.gradebook ?? []).map((item) => item.class_name)).size,
 			sample: false,
-			canSimulate: false
+			canSimulate: false,
+			feed
 		};
 	}
 
@@ -73,6 +82,9 @@ export const load: PageServerLoad = async (event) => {
 		classCount: panels?.classCount ?? 0,
 		sample: fixture !== null,
 		// Aksi pada data contoh (lobi, penilaian, remedial) disimulasikan lokal.
-		canSimulate: fixture !== null
+		canSimulate: fixture !== null,
+		feed
 	};
 };
+
+export const actions: Actions = announcementFeedActions;
