@@ -22,7 +22,11 @@
 
 	/** Halaman feed berikutnya dimuat lewat pager (terikat ke `feed` asalnya, halaman basi dibuang). */
 	const pager = createFeedPager(() => feed);
-	let visible = $state(FEED_PREVIEW);
+	/** Jumlah tampil: kembali ke 3 terbaru setiap kali halaman pertama feed berganti (mis. invalidateAll). */
+	let visible = $derived.by(() => {
+		void feed;
+		return FEED_PREVIEW;
+	});
 
 	const hasMore = $derived(visible < pager.items.length || pager.cursor !== '');
 

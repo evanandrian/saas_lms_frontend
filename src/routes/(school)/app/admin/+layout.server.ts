@@ -49,6 +49,8 @@ export const load: LayoutServerLoad = async (event) => {
 		workspace,
 		schoolProgress,
 		pendingApprovals: combinedPending(pending, announcements?.length ?? null),
+		// Daftar pengumuman menunggu (kepala sekolah) dipakai ulang Kotak Persetujuan — tanpa ambil ulang.
+		pendingAnnouncements: announcements,
 		...areaViews
 	};
 };

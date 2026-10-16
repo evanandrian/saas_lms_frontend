@@ -56,6 +56,7 @@ async function runLoad() {
 	return (await load(event as never)) as unknown as {
 		navigation: NavigationGroup[];
 		pendingApprovals: number | null;
+		pendingAnnouncements: { id: string }[] | null;
 	};
 }
 
@@ -126,6 +127,8 @@ describe('layout admin sekolah: sidebar dinamis', () => {
 		const data = await runLoad();
 		expect(mocks.loadPendingAnnouncements.mock.calls.at(-1)?.[1]).toBe(true);
 		expect(data.pendingApprovals).toBe(5);
+		// Daftarnya ikut diteruskan agar Kotak Persetujuan tidak mengambil ulang.
+		expect(data.pendingAnnouncements).toEqual([{ id: 'a' }, { id: 'b' }]);
 	});
 
 	it('admin sekolah (bukan kepala sekolah) tidak memuat pengumuman menunggu', async () => {
@@ -134,5 +137,6 @@ describe('layout admin sekolah: sidebar dinamis', () => {
 		const data = await runLoad();
 		expect(mocks.loadPendingAnnouncements.mock.calls.at(-1)?.[1]).toBe(false);
 		expect(data.pendingApprovals).toBe(3);
+		expect(data.pendingAnnouncements).toBeNull();
 	});
 });

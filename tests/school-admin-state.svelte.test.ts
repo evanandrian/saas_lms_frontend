@@ -511,7 +511,7 @@ describe('PlanningDrawerState', () => {
 		});
 		state.classId = 'hilang';
 		expect(state.classId).toBe('c1');
-		planning = { ...planning, classes: [] };
+		planning = { ...planningView(40, 1), classes: [] };
 		expect(state.classId).toBe('');
 	});
 

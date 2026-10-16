@@ -1,7 +1,4 @@
-import {
-	announcementReviewActions,
-	loadPendingAnnouncements
-} from '$lib/features/announcements/announcements.server';
+import { announcementReviewActions } from '$lib/features/announcements/announcements.server';
 import {
 	approvalsActions,
 	loadApprovalsPage,
@@ -16,12 +13,12 @@ import type { Actions, PageServerLoad } from './$types';
 const AREA: ApprovalArea = 'school_admin';
 
 export const load: PageServerLoad = async (event) => {
-	const { views } = await event.parent();
-	const [page, announcements] = await Promise.all([
+	// Paralel dengan layout; pengumuman menunggu (kepala sekolah) sudah dimuat layout → dipakai ulang.
+	const [page, { pendingAnnouncements }] = await Promise.all([
 		loadApprovalsPage(event, AREA),
-		loadPendingAnnouncements(event, views.includes('principal'))
+		event.parent()
 	]);
-	return { ...page, announcements };
+	return { ...page, announcements: pendingAnnouncements };
 };
 
 export const actions: Actions = { ...approvalsActions(AREA), ...announcementReviewActions };

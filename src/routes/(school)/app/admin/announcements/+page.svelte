@@ -68,6 +68,10 @@
 	let archiveReason = $state('');
 	let archiveTouched = $state(false);
 	let loadingMore = $state(false);
+	/** Ganti tab/muat ulang sedang berjalan (muat-lebih-banyak dinonaktifkan). */
+	let switching = $state(false);
+	/** Nomor permintaan daftar terakhir: respons permintaan lama (tab/urutan basi) dibuang. */
+	let listRequest = 0;
 	/** Pengumuman yang sedang diubah/diperbaiki (null = pengumuman baru). */
 	let editing = $state<SchoolAnnouncement | null>(null);
 	const editor = createRecordEditor<SchoolAnnouncementsView>(i18n.t, (v) => (view = v));
@@ -81,23 +85,31 @@
 	]);
 
 	async function reload(nextTab: StatusTab = tab) {
+		const request = ++listRequest;
+		switching = true;
 		const out = await editor.run<SchoolAnnouncementsView>('list', {
 			status: nextTab === 'all' ? '' : nextTab
 		});
+		if (request !== listRequest) return; // sudah ada klik tab/muat ulang yang lebih baru
+		switching = false;
 		if (!out) return;
 		tab = nextTab;
 		view = out;
 	}
 
 	async function loadMore() {
-		if (!view?.next_cursor) return;
+		if (!view?.next_cursor || switching) return;
+		const request = listRequest;
+		const forTab = tab;
 		loadingMore = true;
 		const out = await editor.run<SchoolAnnouncementsView>('list', {
-			status: tab === 'all' ? '' : tab,
+			status: forTab === 'all' ? '' : forTab,
 			cursor: view.next_cursor
 		});
 		loadingMore = false;
-		if (out && view) view = { ...out, items: appendUnique(view.items, out.items) };
+		// Tab berganti/daftar dimuat ulang selama memuat: halaman lanjutan milik daftar lama → buang.
+		if (!out || !view || request !== listRequest || forTab !== tab) return;
+		view = { ...out, items: appendUnique(view.items, out.items) };
 	}
 
 	function resetForm() {
@@ -113,9 +125,14 @@
 		editor.show(item.id);
 	}
 
-	/** Gagal: galat field dari editor.run; 409/404 → daftar dimuat ulang. */
-	async function afterFailure() {
-		if (RELOAD_CODES.has(editor.lastCode)) await reload();
+	/**
+	 * Gagal: galat field dari editor.run; 409/404 → daftar dimuat ulang dan formulir ditutup bila
+	 * pengumuman yang gagal (`id`) sedang diubah (statusnya sudah berubah, simpan berikutnya pasti 409).
+	 */
+	async function afterFailure(id: string | null) {
+		if (!RELOAD_CODES.has(editor.lastCode)) return;
+		await reload();
+		if (id && editor.editId === id) resetForm();
 	}
 
 	async function save(submit: boolean) {
@@ -126,12 +143,14 @@
 			id: editor.editId ?? '',
 			data: announcementBody(form)
 		});
-		if (!saved) return afterFailure();
+		if (!saved) return afterFailure(editor.editId);
 		// Simpan berikutnya = ubah draf ini (tanpa duplikat bila pengajuan gagal).
 		editing = saved;
 		editor.show(saved.id);
 		if (submit && !(await editor.run<SchoolAnnouncement>('submit', { id: saved.id }))) {
+			const stale = RELOAD_CODES.has(editor.lastCode);
 			await reload();
+			if (stale) resetForm();
 			return;
 		}
 		resetForm();
@@ -148,7 +167,9 @@
 			return;
 		}
 		const out = await editor.run<SchoolAnnouncement>(action, { id: item.id });
-		if (!out) return afterFailure();
+		if (!out) return afterFailure(item.id);
+		// Diajukan/ditarik dari kartunya saat sedang diubah: formulir lama basi → tutup.
+		if (editor.editId === item.id) resetForm();
 		await reload();
 		editor.notify(t(action === 'submit' ? 'admin.toast.submitted' : 'admin.toast.withdrawn'));
 	}
@@ -161,7 +182,7 @@
 				? await editor.run('remove', { id: item.id })
 				: await editor.run('archive', { id: item.id, reason: cleanLine(archiveReason) });
 		confirm = null;
-		if (ok === null) return afterFailure();
+		if (ok === null) return afterFailure(item.id);
 		if (editor.editId === item.id) resetForm();
 		await reload();
 		editor.notify(t(kind === 'delete' ? 'admin.toast.deleted' : 'admin.toast.archived'));
@@ -275,7 +296,7 @@
 				{#if view.next_cursor}
 					<button
 						type="button"
-						disabled={loadingMore}
+						disabled={loadingMore || switching}
 						class="lms-action-secondary lms-focus-ring h-10 self-center rounded-lg px-4 text-[13px] font-semibold disabled:opacity-60"
 						onclick={loadMore}>{loadingMore ? t('loading') : t('load_more')}</button
 					>

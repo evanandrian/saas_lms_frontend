@@ -93,6 +93,8 @@
 		}
 		notify(t(decision === 'approve' ? 'toast_approved' : 'toast_rejected'), false);
 		openId = null;
+		// Hapus segera: bila penyegaran gagal, pengumuman yang sudah diputuskan tidak tetap tampil.
+		onchange(items.filter((item) => item.id !== x.id));
 		await refresh();
 	}
 </script>
