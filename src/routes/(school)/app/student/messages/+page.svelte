@@ -16,6 +16,16 @@
 	import X from '@lucide/svelte/icons/x';
 	import type { PageProps } from './$types';
 	import type { ConversationChannel } from './messages.types';
+	import AnnouncementFeedList from '$lib/features/announcements/components/AnnouncementFeedList.svelte';
+	import {
+		PREFIX as ANNOUNCEMENT_PREFIX,
+		appendFeedPage,
+		audienceText,
+		feedView,
+		formatAnnouncementTime
+	} from '$lib/features/announcements/announcements.model';
+	import type { AnnouncementFeed } from '$lib/features/announcements/announcements.types';
+	import { runPageAction } from '$lib/utils/page-action';
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
@@ -30,6 +40,42 @@
 	let selectedTab = $state<'all' | 'teachers' | 'announcements'>('all');
 	let draftMessage = $state<string>('');
 	let chatContainer = $state<HTMLDivElement | null>(null);
+	const ta = (key: string) => i18n.t(`${ANNOUNCEMENT_PREFIX}.${key}`);
+	/** Tab "Pengumuman": halaman pertama dari load server; berikutnya lewat aksi `feedMore`, terikat ke feed asalnya. */
+	let moreAnnouncements = $state<{ base: AnnouncementFeed | null; page: AnnouncementFeed } | null>(
+		null
+	);
+	let selectedAnnouncementId = $state<string | null>(null);
+	let feedBusy = $state(false);
+	let feedLoadFailed = $state(false);
+	// Halaman tambahan milik feed lama (setelah muat ulang) tidak pernah digabung ke tampilan baru.
+	const announcementView = $derived(
+		feedView(data.feed, moreAnnouncements?.base === data.feed ? moreAnnouncements.page : null)
+	);
+	const selectedAnnouncement = $derived(
+		announcementView.items.find((a) => a.id === selectedAnnouncementId) ?? null
+	);
+
+	async function loadMoreAnnouncements() {
+		if (!announcementView.cursor || feedBusy) return;
+		const base = data.feed;
+		feedBusy = true;
+		const out = await runPageAction<AnnouncementFeed>('feedMore', {
+			cursor: announcementView.cursor
+		});
+		feedBusy = false;
+		// Hasil basi (feed sudah dimuat ulang selama menunggu) dibuang.
+		if (base !== data.feed) return;
+		feedLoadFailed = !out.ok;
+		if (out.ok)
+			moreAnnouncements = {
+				base,
+				page: appendFeedPage(
+					moreAnnouncements?.base === base ? moreAnnouncements.page : null,
+					out.data
+				)
+			};
+	}
 
 	const channels = $derived(data.messagesData.channels);
 	const defaultChannel: ConversationChannel = {
@@ -50,9 +96,6 @@
 
 	const filteredChannels = $derived(
 		channels.filter((c) => {
-			if (selectedTab === 'teachers' && c.id === 'ch-announcement') return false;
-			if (selectedTab === 'announcements' && c.id !== 'ch-announcement') return false;
-
 			const query = searchContactQuery.toLowerCase().trim();
 			return (
 				!query ||
@@ -205,7 +248,44 @@
 
 			<!-- List Kontak Guru (Scrollable) -->
 			<div class="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-lms-border/30">
-				{#if filteredChannels.length === 0}
+				{#if selectedTab === 'announcements'}
+					<!-- Pengumuman sekolah (feed backend): pilih untuk membaca di panel kanan. -->
+					{#if !data.feed}
+						<p class="text-lms-danger-text p-4 text-xs" role="alert">{ta('load_failed')}</p>
+					{:else if announcementView.items.length === 0}
+						<p class="text-lms-muted p-4 text-center text-xs">{ta('empty')}</p>
+					{:else}
+						{#each announcementView.items as a (a.id)}
+							<button
+								type="button"
+								class={[
+									'lms-focus-ring flex w-full flex-col gap-0.5 rounded-2xl p-3 text-left',
+									selectedAnnouncementId === a.id
+										? 'bg-lms-interactive-subtle border-lms-interactive/40 border'
+										: 'hover:bg-lms-surface-muted border border-transparent'
+								]}
+								aria-pressed={selectedAnnouncementId === a.id}
+								onclick={() => (selectedAnnouncementId = a.id)}
+							>
+								<span class="text-xs font-bold [overflow-wrap:anywhere]">{a.title}</span>
+								<span class="text-lms-muted text-[10px]"
+									>{formatAnnouncementTime(a.published_at)} · {audienceText(i18n.t, a)}</span
+								>
+							</button>
+						{/each}
+						{#if feedLoadFailed}
+							<p class="text-lms-danger-text p-2 text-xs" role="alert">{ta('load_failed')}</p>
+						{/if}
+						{#if announcementView.cursor}
+							<button
+								type="button"
+								disabled={feedBusy}
+								class="lms-action-secondary lms-focus-ring mt-2 h-9 w-full rounded-lg text-xs font-semibold disabled:opacity-60"
+								onclick={loadMoreAnnouncements}>{feedBusy ? ta('loading') : ta('load_more')}</button
+							>
+						{/if}
+					{/if}
+				{:else if filteredChannels.length === 0}
 					<div
 						class="flex flex-col items-center justify-center p-8 text-center text-lms-muted gap-2"
 					>
@@ -278,179 +358,191 @@
 		<main
 			class="flex-1 min-w-0 flex flex-col h-full bg-lms-surface-muted/15 relative overflow-hidden"
 		>
-			<!-- Header Chat Kanan -->
-			<header
-				class="flex items-center justify-between border-b border-lms-border bg-lms-surface px-5 py-3.5 shadow-xs z-10"
-			>
-				<div class="flex items-center gap-3.5">
-					<div class="relative">
-						<Avatar initials={activeChannel.avatarInitials} size="md" tone="brand" />
-						{#if activeChannel.isOnline}
-							<span
-								class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface"
-							></span>
-						{/if}
-					</div>
-					<div class="flex flex-col">
-						<h3 class="text-sm font-bold text-lms-foreground flex items-center gap-2">
-							{activeChannel.name}
-						</h3>
-						<span class="text-lms-muted text-[11px] flex items-center gap-1.5">
-							<span class="font-semibold text-lms-interactive">{activeChannel.roleLabel}</span>
-							<span>·</span>
-							<span
-								class={activeChannel.isOnline ? 'text-success-500 font-medium' : 'text-lms-muted'}
-							>
-								{activeChannel.isOnline ? '● Online' : 'Offline'}
+			{#if selectedTab === 'announcements'}
+				<section class="flex-1 overflow-y-auto p-5 sm:p-6" aria-live="polite">
+					{#if selectedAnnouncement}
+						<AnnouncementFeedList items={[selectedAnnouncement]} full />
+					{:else}
+						<p class="text-lms-muted text-center text-xs">{ta('student.pick')}</p>
+					{/if}
+				</section>
+			{:else}
+				<!-- Header Chat Kanan -->
+				<header
+					class="flex items-center justify-between border-b border-lms-border bg-lms-surface px-5 py-3.5 shadow-xs z-10"
+				>
+					<div class="flex items-center gap-3.5">
+						<div class="relative">
+							<Avatar initials={activeChannel.avatarInitials} size="md" tone="brand" />
+							{#if activeChannel.isOnline}
+								<span
+									class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-success-400 border-2 border-lms-surface"
+								></span>
+							{/if}
+						</div>
+						<div class="flex flex-col">
+							<h3 class="text-sm font-bold text-lms-foreground flex items-center gap-2">
+								{activeChannel.name}
+							</h3>
+							<span class="text-lms-muted text-[11px] flex items-center gap-1.5">
+								<span class="font-semibold text-lms-interactive">{activeChannel.roleLabel}</span>
+								<span>·</span>
+								<span
+									class={activeChannel.isOnline ? 'text-success-500 font-medium' : 'text-lms-muted'}
+								>
+									{activeChannel.isOnline ? '● Online' : 'Offline'}
+								</span>
 							</span>
+						</div>
+					</div>
+
+					<!-- Quick Header Actions -->
+					<div class="flex items-center gap-1 text-lms-muted">
+						<button
+							type="button"
+							class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
+							title="Konsultasi Audio"
+							aria-label="Konsultasi Audio"
+						>
+							<Icon icon={Phone} size="sm" />
+						</button>
+						<button
+							type="button"
+							class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
+							title="Video Meeting Guru"
+							aria-label="Video Meeting Guru"
+						>
+							<Icon icon={Video} size="sm" />
+						</button>
+						<button
+							type="button"
+							class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
+							title="Informasi Kontak"
+							aria-label="Informasi Kontak"
+						>
+							<Icon icon={Info} size="sm" />
+						</button>
+					</div>
+				</header>
+
+				<!-- Canvas Messages Bubble Container -->
+				<div
+					bind:this={chatContainer}
+					class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 flex flex-col justify-start"
+				>
+					<!-- Date Separator Badge -->
+					<div class="flex justify-center my-2">
+						<span
+							class="bg-lms-surface border border-lms-border text-lms-muted text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-xs"
+						>
+							Hari ini
 						</span>
 					</div>
-				</div>
 
-				<!-- Quick Header Actions -->
-				<div class="flex items-center gap-1 text-lms-muted">
-					<button
-						type="button"
-						class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
-						title="Konsultasi Audio"
-						aria-label="Konsultasi Audio"
-					>
-						<Icon icon={Phone} size="sm" />
-					</button>
-					<button
-						type="button"
-						class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
-						title="Video Meeting Guru"
-						aria-label="Video Meeting Guru"
-					>
-						<Icon icon={Video} size="sm" />
-					</button>
-					<button
-						type="button"
-						class="hover:text-lms-foreground hover:bg-lms-surface-muted flex size-9 items-center justify-center rounded-xl transition-colors"
-						title="Informasi Kontak"
-						aria-label="Informasi Kontak"
-					>
-						<Icon icon={Info} size="sm" />
-					</button>
-				</div>
-			</header>
+					{#each activeChannel.messages as msg (msg.id)}
+						{@const isMe = msg.sender === 'student'}
+						{@const isSystem = msg.sender === 'system'}
 
-			<!-- Canvas Messages Bubble Container -->
-			<div
-				bind:this={chatContainer}
-				class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 flex flex-col justify-start"
-			>
-				<!-- Date Separator Badge -->
-				<div class="flex justify-center my-2">
-					<span
-						class="bg-lms-surface border border-lms-border text-lms-muted text-[10px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-xs"
-					>
-						Hari ini
-					</span>
-				</div>
-
-				{#each activeChannel.messages as msg (msg.id)}
-					{@const isMe = msg.sender === 'student'}
-					{@const isSystem = msg.sender === 'system'}
-
-					{#if isSystem}
-						<!-- System Broadcast Announcement Bubble -->
-						<div class="flex justify-center my-3">
-							<div
-								class="bg-warning-400/10 border border-warning-400/30 text-warning-500 rounded-2xl p-4 text-xs max-w-lg text-center shadow-xs"
-							>
-								<div class="flex items-center justify-center gap-1.5 font-bold mb-1">
-									<Icon icon={ShieldAlert} size="sm" />
-									{msg.senderName}
+						{#if isSystem}
+							<!-- System Broadcast Announcement Bubble -->
+							<div class="flex justify-center my-3">
+								<div
+									class="bg-warning-400/10 border border-warning-400/30 text-warning-500 rounded-2xl p-4 text-xs max-w-lg text-center shadow-xs"
+								>
+									<div class="flex items-center justify-center gap-1.5 font-bold mb-1">
+										<Icon icon={ShieldAlert} size="sm" />
+										{msg.senderName}
+									</div>
+									<p class="text-xs text-lms-foreground leading-relaxed">{msg.text}</p>
+									<span class="text-[10px] text-lms-muted block mt-2">{msg.timestamp} WIB</span>
 								</div>
-								<p class="text-xs text-lms-foreground leading-relaxed">{msg.text}</p>
-								<span class="text-[10px] text-lms-muted block mt-2">{msg.timestamp} WIB</span>
 							</div>
-						</div>
-					{:else}
-						<!-- Chat Bubble Item -->
-						<div class={['flex items-end gap-2.5 w-full', isMe ? 'justify-end' : 'justify-start']}>
-							{#if !isMe}
-								<Avatar initials={activeChannel.avatarInitials} size="sm" tone="subtle" />
-							{/if}
-
+						{:else}
+							<!-- Chat Bubble Item -->
 							<div
-								class={[
-									'flex flex-col gap-1 max-w-[82%] sm:max-w-md rounded-2xl p-3.5 text-xs shadow-sm transition-all',
-									isMe
-										? 'bg-lms-interactive text-lms-on-interactive rounded-br-xs'
-										: 'bg-lms-surface border border-lms-border text-lms-foreground rounded-bl-xs'
-								]}
+								class={['flex items-end gap-2.5 w-full', isMe ? 'justify-end' : 'justify-start']}
 							>
 								{#if !isMe}
-									<span class="text-[10px] font-bold text-lms-interactive">{msg.senderName}</span>
-								{/if}
-
-								<p class="leading-relaxed whitespace-pre-wrap text-[13px]">{msg.text}</p>
-
-								{#if msg.attachmentName}
-									<div
-										class="bg-lms-surface-muted/50 border border-lms-border rounded-xl p-2.5 flex items-center gap-2 mt-1"
-									>
-										<Icon icon={FileText} size="sm" />
-										<span class="font-bold truncate">{msg.attachmentName}</span>
-									</div>
+									<Avatar initials={activeChannel.avatarInitials} size="sm" tone="subtle" />
 								{/if}
 
 								<div
 									class={[
-										'flex items-center gap-1 text-[10px] mt-1',
-										isMe ? 'text-lms-on-interactive/70 justify-end' : 'text-lms-muted justify-end'
+										'flex flex-col gap-1 max-w-[82%] sm:max-w-md rounded-2xl p-3.5 text-xs shadow-sm transition-all',
+										isMe
+											? 'bg-lms-interactive text-lms-on-interactive rounded-br-xs'
+											: 'bg-lms-surface border border-lms-border text-lms-foreground rounded-bl-xs'
 									]}
 								>
-									<span>{msg.timestamp}</span>
-									{#if isMe}
-										<Icon icon={CheckCheck} size="sm" />
+									{#if !isMe}
+										<span class="text-[10px] font-bold text-lms-interactive">{msg.senderName}</span>
 									{/if}
+
+									<p class="leading-relaxed whitespace-pre-wrap text-[13px]">{msg.text}</p>
+
+									{#if msg.attachmentName}
+										<div
+											class="bg-lms-surface-muted/50 border border-lms-border rounded-xl p-2.5 flex items-center gap-2 mt-1"
+										>
+											<Icon icon={FileText} size="sm" />
+											<span class="font-bold truncate">{msg.attachmentName}</span>
+										</div>
+									{/if}
+
+									<div
+										class={[
+											'flex items-center gap-1 text-[10px] mt-1',
+											isMe ? 'text-lms-on-interactive/70 justify-end' : 'text-lms-muted justify-end'
+										]}
+									>
+										<span>{msg.timestamp}</span>
+										{#if isMe}
+											<Icon icon={CheckCheck} size="sm" />
+										{/if}
+									</div>
 								</div>
 							</div>
-						</div>
-					{/if}
-				{/each}
-			</div>
+						{/if}
+					{/each}
+				</div>
 
-			<!-- Input Bar Bawah (Desktop Style) -->
-			<footer class="border-t border-lms-border bg-lms-surface p-3.5 sm:p-4 z-10">
-				<form
-					class="flex items-center gap-2.5 bg-lms-surface-muted/50 border border-lms-border focus-within:border-lms-interactive rounded-2xl p-1.5 pl-3 transition-colors"
-					onsubmit={(e) => {
-						e.preventDefault();
-						sendMessage();
-					}}
-				>
-					<button
-						type="button"
-						class="text-lms-muted hover:text-lms-foreground flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-lms-surface-muted"
-						title="Lampirkan Dokumen"
-						aria-label="Lampirkan Dokumen"
+				<!-- Input Bar Bawah (Desktop Style) -->
+				<footer class="border-t border-lms-border bg-lms-surface p-3.5 sm:p-4 z-10">
+					<form
+						class="flex items-center gap-2.5 bg-lms-surface-muted/50 border border-lms-border focus-within:border-lms-interactive rounded-2xl p-1.5 pl-3 transition-colors"
+						onsubmit={(e) => {
+							e.preventDefault();
+							sendMessage();
+						}}
 					>
-						<Icon icon={Paperclip} size="sm" />
-					</button>
+						<button
+							type="button"
+							class="text-lms-muted hover:text-lms-foreground flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-lms-surface-muted"
+							title="Lampirkan Dokumen"
+							aria-label="Lampirkan Dokumen"
+						>
+							<Icon icon={Paperclip} size="sm" />
+						</button>
 
-					<input
-						type="text"
-						bind:value={draftMessage}
-						onkeydown={handleKeyDown}
-						placeholder="Ketik pesan kepada {activeChannel.name}..."
-						class="bg-transparent focus:outline-none h-10 flex-1 text-xs text-lms-foreground placeholder:text-lms-muted"
-					/>
+						<input
+							type="text"
+							bind:value={draftMessage}
+							onkeydown={handleKeyDown}
+							placeholder="Ketik pesan kepada {activeChannel.name}..."
+							class="bg-transparent focus:outline-none h-10 flex-1 text-xs text-lms-foreground placeholder:text-lms-muted"
+						/>
 
-					<button
-						type="submit"
-						class="lms-action-primary flex size-10 items-center justify-center rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-						disabled={!draftMessage.trim()}
-						aria-label="Kirim Pesan"
-					>
-						<Icon icon={Send} size="sm" />
-					</button>
-				</form>
-			</footer>
+						<button
+							type="submit"
+							class="lms-action-primary flex size-10 items-center justify-center rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+							disabled={!draftMessage.trim()}
+							aria-label="Kirim Pesan"
+						>
+							<Icon icon={Send} size="sm" />
+						</button>
+					</form>
+				</footer>
+			{/if}
 		</main>
 	</div>
 </div>
