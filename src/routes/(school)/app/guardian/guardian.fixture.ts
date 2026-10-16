@@ -2,7 +2,7 @@ import type { GuardianDashboardData } from './guardian-dashboard';
 
 /**
  * DATA CONTOH dashboard orang tua — hanya dimuat saat `dev` (FE-04 D2), dipakai bila data asli belum ada.
- * Isi sama persis dengan `FLIXARE App v3.html` layar 08 (konstanta CH, sepDays, announce).
+ * Isi sama persis dengan `FLIXARE App v3.html` layar 08 (konstanta CH, sepDays).
  * Jam contoh 16.00 agar sapaan "Selamat sore" sama dengan referensi.
  */
 export const guardianDashboardFixture: GuardianDashboardData = {
@@ -130,20 +130,6 @@ export const guardianDashboardFixture: GuardianDashboardData = {
 					detail: 'Matematika · 15 soal'
 				}
 			]
-		}
-	],
-	announcements: [
-		{
-			id: 'pertemuan-ortu',
-			date: '2026-10-17',
-			title: 'Pertemuan orang tua & wali kelas',
-			detail: '09.00 WIB · Aula'
-		},
-		{
-			id: 'asesmen-sumatif',
-			date: '2026-11-16',
-			title: 'Pekan asesmen sumatif',
-			detail: '16–20 Nov 2026 · jadwal menyusul'
 		}
 	]
 };
