@@ -3817,7 +3817,10 @@
 			"invoice_partially_paid": "Invoice aktivasi sebelumnya sudah menerima pembayaran sehingga tidak bisa diganti. Selesaikan invoice tersebut atau hubungi tim FLIXARE.",
 			"duplicate_no": "Nomor baris impor ganda. Unggah ulang berkas lalu coba lagi.",
 			"rate_limited": "Terlalu banyak percobaan. Coba lagi dalam {minutes} menit.",
-			"rate_limited_later": "Terlalu banyak percobaan. Coba lagi beberapa saat lagi."
+			"rate_limited_later": "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.",
+			"announcement_invalid_transition": "Status pengumuman sudah berubah. Muat ulang halaman.",
+			"announcement_self_review": "Anda tidak bisa meninjau pengumuman yang Anda tulis sendiri.",
+			"announcement_not_found": "Pengumuman tidak ditemukan. Muat ulang halaman."
 		},
 		"gap": {
 			"title": "{section} belum lengkap.",
@@ -4849,7 +4852,8 @@
 				"academic": "Tahun ajaran, kelas & mapel",
 				"planning": "Perencanaan akademik",
 				"reminder": "Pengingat",
-				"export": "Ekspor data"
+				"export": "Ekspor data",
+				"announcement": "Pengumuman"
 			},
 			"from": "Dari tanggal",
 			"to": "Sampai tanggal",
@@ -4889,6 +4893,7 @@
 				"students": "murid",
 				"guardians": "wali murid",
 				"class": "kelas",
+				"announcement": "pengumuman",
 				"generic": "data"
 			},
 			"action": {
@@ -4966,7 +4971,17 @@
 				"export": {
 					"audit_log": "Mengekspor riwayat perubahan"
 				},
-				"generic": "Aktivitas {action} pada {subject}"
+				"generic": "Aktivitas {action} pada {subject}",
+				"announcement": {
+					"create": "Membuat pengumuman {subject}",
+					"update": "Mengubah pengumuman {subject}",
+					"delete": "Menghapus draf pengumuman {subject}",
+					"submit": "Mengajukan pengumuman {subject}",
+					"withdraw": "Menarik pengajuan pengumuman {subject}",
+					"approve": "Menyetujui pengumuman {subject}",
+					"reject": "Menolak pengumuman {subject}",
+					"archive": "Mengarsipkan pengumuman {subject}"
+				}
 			},
 			"detail": {
 				"nip": "NIP {value}",
@@ -5591,7 +5606,8 @@
 				"remind": "Mengingatkan wali kelas yang belum mengisi presensi hari ini.",
 				"reports": "Memantau alur rapor semester aktif, dari nilai terkunci hingga PDF terbit.",
 				"seats": "Memantau pemakaian kursi murid, murid dan guru aktif 7 hari, serta penyimpanan.",
-				"follow_up": "Membuka langsung halaman terkait dari daftar \"Perlu ditindaklanjuti\"."
+				"follow_up": "Membuka langsung halaman terkait dari daftar \"Perlu ditindaklanjuti\".",
+				"announce": "Membuka halaman \"Pengumuman\" lewat tombol di banner untuk menulis dan mengajukan pengumuman sekolah."
 			},
 			"steps": {
 				"s1": "Bila muncul kartu kelengkapan data, klik \"Lanjutkan data wajib\" atau \"Lanjutkan pengisian\", atau klik nama bagian yang belum diisi.",
@@ -5730,7 +5746,8 @@
 				"decide": "Melihat jumlah hal yang perlu keputusan Anda, seperti rapor kelas yang diajukan wali kelas dan perubahan data admin sekolah.",
 				"approvals": "Membuka kotak persetujuan untuk meninjau pengajuan perubahan data.",
 				"reports": "Memantau status rapor semester aktif per tahap dan membuka rapor kelas yang menunggu persetujuan atau siap dikunci.",
-				"subscription": "Melihat paket, status langganan, dan pemakaian kuota kursi murid."
+				"subscription": "Melihat paket, status langganan, dan pemakaian kuota kursi murid.",
+				"announcements": "Melihat tiga pengumuman terbit terbaru di tab \"Pengumuman\" pada kartu \"Agenda & pengumuman\"; pengumuman yang menunggu persetujuan Anda ikut dihitung di kotak persetujuan."
 			},
 			"steps": {
 				"s1": "Periksa \"Perlu keputusan Anda\" di banner dan klik baris yang ingin ditindaklanjuti.",
@@ -5892,7 +5909,8 @@
 				"filter": "Menyaring pengajuan berdasarkan jenis (\"Nama lengkap\", \"Nomor identitas\", \"Hapus akun\") dan mencari nama pemohon.",
 				"review": "Membuka rincian pengajuan: data saat ini, perubahan yang diajukan, alasan pemohon, lampiran, dan riwayat.",
 				"decide": "Menyetujui, menolak dengan alasan, atau meminta dokumen tambahan kepada pemohon.",
-				"bulk": "Menyetujui beberapa pengajuan sekaligus dari tab \"Menunggu\"."
+				"bulk": "Menyetujui beberapa pengajuan sekaligus dari tab \"Menunggu\".",
+				"announcements": "Kepala sekolah: meninjau pengumuman yang diajukan admin sekolah (jenis \"Pengumuman\") di tab \"Menunggu\", lalu menyetujui dengan catatan opsional atau menolak dengan alasan."
 			},
 			"steps": {
 				"s1": "Buka tab \"Menunggu\" dan dahulukan pengajuan yang mendekati atau melewati batas waktu.",
@@ -5963,7 +5981,8 @@
 				"overview": "Melihat sapaan, tanggal, dan semester aktif di bagian atas halaman.",
 				"preview": "Melihat \"Agenda hari ini\" dari jadwal pelajaran sekolah dan \"Buku nilai\" berisi nilai akhir murid serta KKTP tiap mapel. Tumpukan koreksi dan sesi ujian tampil setelah modulnya tersedia.",
 				"grades": "Membuka menu \"Nilai akhir\" di sidebar untuk mengisi dan mengunci nilai akhir rapor.",
-				"role": "Beralih ke tampilan wali kelas melalui tombol peran di bagian atas layar, bila Anda juga ditugaskan sebagai wali kelas."
+				"role": "Beralih ke tampilan wali kelas melalui tombol peran di bagian atas layar, bila Anda juga ditugaskan sebagai wali kelas.",
+				"announcements": "Membaca pengumuman sekolah untuk guru dan kelas perwalian Anda di kartu \"Pengumuman\"; klik \"Muat lebih banyak\" untuk pengumuman sebelumnya."
 			},
 			"steps": {
 				"s1": "Periksa tanggal dan semester aktif di bagian atas halaman.",
@@ -6007,7 +6026,8 @@
 				"open_report": "Membuka halaman rapor kelas melalui tombol \"Buka rapor kelas\" atau \"Lihat rapor kelas\".",
 				"attendance": "Mengisi presensi harian murid yang tersimpan melalui menu \"Presensi kelas\" di sidebar.",
 				"preview": "Mengenal tampilan presensi harian, \"Pengajuan orang tua\", \"Buku penghubung\", \"Rekap nilai semua mapel\", \"Murid perlu perhatian\", jadwal kelas, dan \"Catatan perilaku & konseling\" dalam bentuk data contoh.",
-				"role": "Beralih kembali ke tampilan guru mapel melalui tombol peran di bagian atas layar."
+				"role": "Beralih kembali ke tampilan guru mapel melalui tombol peran di bagian atas layar.",
+				"announcements": "Membaca pengumuman sekolah untuk guru dan kelas perwalian Anda di kartu \"Pengumuman\"."
 			},
 			"steps": {
 				"s1": "Periksa nama kelas perwalian dan tanggal di bagian atas halaman.",
@@ -6069,11 +6089,12 @@
 			}
 		},
 		"guardian_dashboard": {
-			"purpose": "Beranda Portal Orang Tua dirancang untuk merangkum kegiatan, nilai, kehadiran, dan pesan wali kelas untuk anak Anda. Saat ini seluruh isinya masih berupa data contoh karena layanan datanya belum terhubung.",
+			"purpose": "Beranda Portal Orang Tua dirancang untuk merangkum kegiatan, nilai, kehadiran, dan pesan wali kelas untuk anak Anda. Sebagian besar isinya masih berupa data contoh karena layanan datanya belum terhubung; kartu \"Pengumuman\" sudah memakai data nyata dari sekolah.",
 			"features": {
 				"child": "Berpindah antaranak melalui tombol nama anak di bagian atas halaman.",
 				"preview": "Mengenal tampilan \"Buku penghubung\", \"Nilai semester ini\", kehadiran bulanan, dan \"Agenda mendatang\" dalam bentuk data contoh.",
-				"report": "Membuka menu \"Rapor\" di sidebar untuk melihat rapor resmi anak yang sudah diterbitkan sekolah."
+				"report": "Membuka menu \"Rapor\" di sidebar untuk melihat rapor resmi anak yang sudah diterbitkan sekolah.",
+				"announcements": "Membaca tiga pengumuman sekolah terbaru di kartu \"Pengumuman\" (data nyata dari sekolah) dan membuka semuanya lewat \"Lihat semua pengumuman\"."
 			},
 			"steps": {
 				"s1": "Pilih anak melalui tombol nama di bagian atas halaman bila Anda memiliki lebih dari satu anak.",
@@ -6217,15 +6238,15 @@
 			"purpose": "Halaman ini adalah ruang pesan dengan wali kelas, guru mata pelajaran, dan saluran pengumuman kelasmu.",
 			"features": {
 				"contacts": "Melihat \"Daftar Guru & Saluran\" beserta pesan terakhir dan jumlah pesan belum dibaca.",
-				"filter": "Menyaring kontak dengan tab \"Semua\", \"Guru\", atau \"Pengumuman\".",
+				"filter": "Menyaring kontak dengan tab \"Semua\" atau \"Guru\", dan membaca pengumuman resmi sekolah di tab \"Pengumuman\".",
 				"search": "Mencari guru berdasarkan nama, peran, atau isi pesan terakhir.",
-				"read": "Membaca riwayat percakapan dan pengumuman sekolah.",
+				"read": "Membaca riwayat percakapan, dan isi lengkap pengumuman sekolah yang ditujukan kepadamu atau kelasmu.",
 				"compose": "Menulis pesan di kolom ketik bagian bawah ruang chat."
 			},
 			"steps": {
 				"s1": "Pilih tab atau cari nama guru di panel kiri.",
 				"s2": "Klik kontak untuk membuka percakapannya.",
-				"s3": "Baca pesan dan pengumuman di ruang chat sebelah kanan.",
+				"s3": "Baca pesan di ruang chat sebelah kanan; di tab \"Pengumuman\", klik judul pengumuman untuk membaca isinya.",
 				"s4": "Untuk membalas, ketik pesan di kolom bawah lalu tekan Enter atau klik tombol kirim; ingat, pesan belum benar-benar terkirim (lihat catatan)."
 			},
 			"tips": {
@@ -6446,6 +6467,39 @@
 				"s1": "Klik \"Tambah ekskul\", isi nama dan (opsional) pembina, jadwal, serta tempat, lalu simpan.",
 				"s2": "Klik \"Anggota\" pada kartu ekskul untuk menambahkan murid atau seluruh kelas.",
 				"s3": "Klik \"Ubah\" untuk memperbarui data ekskul atau menghapusnya."
+			}
+		},
+		"school_admin_announcements": {
+			"purpose": "Halaman ini untuk menulis pengumuman sekolah dan mengajukannya ke kepala sekolah. Pengumuman baru tampil untuk penerima setelah disetujui kepala sekolah.",
+			"features": {
+				"write": "Tulis judul (5–80 karakter), isi (20–1000 karakter), dan pilih penerima: semua warga sekolah, guru, murid, orang tua, orang tua satu tingkat, atau satu kelas pada tahun ajaran aktif.",
+				"status": "Pantau pengumuman per tab status: \"Draf\", \"Menunggu\", \"Terbit\", \"Ditolak\", dan \"Diarsipkan\".",
+				"fix": "Baca \"Catatan kepala sekolah\" pada pengumuman yang ditolak, lalu klik \"Perbaiki & ajukan ulang\".",
+				"archive": "Arsipkan pengumuman terbit yang keliru atau kedaluwarsa dengan alasan; pengumuman arsip hilang dari beranda penerima."
+			},
+			"steps": {
+				"s1": "Isi \"Judul\", \"Isi\", dan \"Penerima\" pada formulir di sebelah kanan.",
+				"s2": "Klik \"Simpan draf\" untuk menyimpan dulu, atau \"Ajukan ke kepala sekolah\" untuk langsung mengajukan.",
+				"s3": "Selama status \"Menunggu\", klik \"Tarik pengajuan\" bila masih perlu diubah.",
+				"s4": "Setelah terbit, pengumuman tampil di beranda penerima dan dikirim lewat email sesuai preferensi notifikasi mereka."
+			},
+			"tips": {
+				"approval": "Hanya kepala sekolah yang dapat menyetujui atau menolak pengumuman.",
+				"archive": "Pengumuman yang sudah diarsipkan tidak bisa diterbitkan kembali; hanya draf yang bisa dihapus."
+			}
+		},
+		"guardian_announcements": {
+			"purpose": "Halaman ini menampilkan pengumuman resmi sekolah yang ditujukan untuk Anda: pengumuman umum, pengumuman untuk tingkat anak, dan pengumuman untuk kelas anak.",
+			"features": {
+				"read": "Membaca isi lengkap pengumuman beserta sasaran, waktu terbit, dan penulisnya.",
+				"more": "Memuat pengumuman yang lebih lama dengan \"Muat lebih banyak\"."
+			},
+			"steps": {
+				"s1": "Baca pengumuman terbaru di bagian atas daftar.",
+				"s2": "Klik \"Muat lebih banyak\" untuk melihat pengumuman sebelumnya."
+			},
+			"tips": {
+				"email": "Pengumuman juga dikirim lewat email bila notifikasi \"Pengumuman sekolah\" aktif di Pengaturan akun."
 			}
 		}
 	},
@@ -6945,6 +6999,116 @@
 			"title": "Pesan & Buku Penghubung",
 			"desc": "Konsultasi belajar kelas {class} dengan wali kelas & guru mata pelajaran",
 			"academic_year": "Tahun Ajaran {year}"
+		}
+	},
+	"announcements": {
+		"audience": {
+			"all": "Semua warga sekolah",
+			"teacher": "Guru",
+			"student": "Murid",
+			"guardian": "Orang tua",
+			"guardian_grade_of": "Orang tua {label}",
+			"class_of": "Kelas {label}"
+		},
+		"status": {
+			"all": "Semua",
+			"draft": "Draf",
+			"pending": "Menunggu",
+			"published": "Terbit",
+			"rejected": "Ditolak",
+			"archived": "Diarsipkan"
+		},
+		"reject_reason": {
+			"content": "Isi perlu diperbaiki",
+			"audience": "Sasaran penerima kurang tepat",
+			"other": "Lainnya"
+		},
+		"empty": "Belum ada pengumuman",
+		"load_more": "Muat lebih banyak",
+		"loading": "Memuat…",
+		"load_failed": "Pengumuman belum bisa dimuat.",
+		"retry": "Coba lagi",
+		"item_meta": "Untuk {audience} · {time} · {author}",
+		"feed": {
+			"title": "Pengumuman",
+			"see_all": "Lihat semua pengumuman"
+		},
+		"admin": {
+			"eyebrow": "KEGIATAN · PENGUMUMAN",
+			"title": "Pengumuman",
+			"desc": "Tulis pengumuman untuk guru, murid, orang tua, tingkat, atau kelas. Pengumuman terbit setelah disetujui kepala sekolah.",
+			"stat_pending": "Menunggu persetujuan",
+			"stat_published": "Terbit",
+			"stat_draft": "Draf",
+			"tab": "{label} · {n}",
+			"meta": "Untuk {audience} · dibuat {time} oleh {author}",
+			"published_meta": "Terbit {time}, disetujui {reviewer}",
+			"review_note": "Catatan kepala sekolah",
+			"archive_reason": "Alasan arsip",
+			"empty_tab": "Belum ada pengumuman dengan status ini.",
+			"form_new": "Pengumuman baru",
+			"form_edit": "Ubah pengumuman",
+			"form_fix": "Perbaiki pengumuman",
+			"field_title": "Judul",
+			"field_body": "Isi",
+			"field_audience": "Penerima",
+			"audience_placeholder": "Pilih penerima",
+			"group_general": "Umum",
+			"group_grades": "Orang tua per tingkat",
+			"group_classes": "Kelas",
+			"counter": "{n}/{max} karakter",
+			"save_draft": "Simpan draf",
+			"submit": "Ajukan ke kepala sekolah",
+			"cancel_edit": "Batal",
+			"action": {
+				"edit": "Ubah",
+				"submit": "Ajukan",
+				"delete": "Hapus",
+				"withdraw": "Tarik pengajuan",
+				"fix": "Perbaiki & ajukan ulang",
+				"archive": "Arsipkan"
+			},
+			"toast": {
+				"saved": "Draf pengumuman tersimpan.",
+				"submitted": "Pengumuman diajukan ke kepala sekolah.",
+				"withdrawn": "Pengajuan ditarik kembali menjadi draf.",
+				"deleted": "Draf pengumuman dihapus.",
+				"archived": "Pengumuman diarsipkan."
+			},
+			"delete_title": "Hapus draf \"{title}\"?",
+			"delete_message": "Draf yang dihapus tidak bisa dikembalikan.",
+			"archive_title": "Arsipkan \"{title}\"?",
+			"archive_message": "Pengumuman hilang dari beranda guru, murid, dan orang tua. Arsip tidak bisa dibatalkan.",
+			"archive_reason_label": "Alasan mengarsipkan",
+			"archiving": "Mengarsipkan…"
+		},
+		"review": {
+			"kind": "Pengumuman",
+			"section": "PENGUMUMAN MENUNGGU · {n}",
+			"audience": "Untuk {audience}",
+			"submitted": "diajukan {time} oleh {author}",
+			"approve": "Setujui",
+			"reject": "Tolak",
+			"reason_label": "Alasan penolakan",
+			"note_label": "Catatan untuk admin sekolah",
+			"optional": "(opsional)",
+			"required": "(wajib)",
+			"confirm_approve_title": "Terbitkan \"{title}\"?",
+			"confirm_approve_message": "Pengumuman langsung tampil untuk penerima dan dikirim lewat email sesuai preferensi notifikasi mereka.",
+			"confirm_reject_title": "Tolak \"{title}\"?",
+			"confirm_reject_message": "Admin sekolah dapat memperbaiki pengumuman lalu mengajukannya ulang.",
+			"busy": "Memproses…",
+			"cancel": "Batal",
+			"toast_approved": "Pengumuman diterbitkan.",
+			"toast_rejected": "Pengumuman ditolak."
+		},
+		"guardian": {
+			"eyebrow": "PORTAL ORANG TUA · PENGUMUMAN",
+			"title": "Pengumuman sekolah",
+			"desc": "Pengumuman resmi sekolah untuk Anda, tingkat, dan kelas anak-anak Anda."
+		},
+		"student": {
+			"pick": "Pilih pengumuman di panel kiri untuk membaca isinya."
 		}
 	}
 }

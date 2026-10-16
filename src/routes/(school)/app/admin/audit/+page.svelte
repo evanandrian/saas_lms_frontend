@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { LucideIcon } from '@lucide/svelte';
+	import Archive from '@lucide/svelte/icons/archive';
 	import BellOff from '@lucide/svelte/icons/bell-off';
 	import BellRing from '@lucide/svelte/icons/bell-ring';
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
@@ -15,6 +16,7 @@
 	import History from '@lucide/svelte/icons/history';
 	import Lock from '@lucide/svelte/icons/lock';
 	import LockOpen from '@lucide/svelte/icons/lock-open';
+	import Megaphone from '@lucide/svelte/icons/megaphone';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import School from '@lucide/svelte/icons/school';
 	import Search from '@lucide/svelte/icons/search';
@@ -84,7 +86,15 @@
 		'class.delete': { icon: Trash2, tone: 'danger' },
 		'attendance.remind': { icon: BellRing, tone: 'info' },
 		'report.remind': { icon: BellRing, tone: 'info' },
-		'export.audit_log': { icon: FileDown, tone: 'warning' }
+		'export.audit_log': { icon: FileDown, tone: 'warning' },
+		'announcement.create': { icon: Megaphone, tone: 'info' },
+		'announcement.update': { icon: Megaphone, tone: 'info' },
+		'announcement.delete': { icon: Trash2, tone: 'danger' },
+		'announcement.submit': { icon: Send, tone: 'info' },
+		'announcement.withdraw': { icon: Undo2, tone: 'info' },
+		'announcement.approve': { icon: CircleCheck, tone: 'success' },
+		'announcement.reject': { icon: Undo2, tone: 'warning' },
+		'announcement.archive': { icon: Archive, tone: 'warning' }
 	};
 	const FALLBACK_STYLE = { icon: History, tone: 'info' as Tone };
 	const TONE_CLASS: Record<Tone, string> = {
@@ -93,7 +103,16 @@
 		success: 'lms-tone-success',
 		info: 'lms-tone-info'
 	};
-	const ENTITIES = ['teacher', 'student', 'guardian', 'teachers', 'students', 'guardians', 'class'];
+	const ENTITIES = [
+		'teacher',
+		'student',
+		'guardian',
+		'teachers',
+		'students',
+		'guardians',
+		'class',
+		'announcement'
+	];
 	/** Detail angka undangan yang ditampilkan sebagai chip (urutan tampil). */
 	const INVITE_COUNTS = ['sent', 'linked', 'codes', 'skipped', 'failed'] as const;
 	const SEARCH_DEBOUNCE_MS = 300;

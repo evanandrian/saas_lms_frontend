@@ -21,7 +21,8 @@ describe('audit filter', () => {
 			'academic',
 			'planning',
 			'reminder',
-			'export'
+			'export',
+			'announcement'
 		]);
 		expect(AUDIT_ACTOR_ROLES).toEqual([
 			'SCHOOL_ADMIN',

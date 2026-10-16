@@ -4035,6 +4035,348 @@ paths:
       summary: Remove a member from an extracurricular (active academic year)
       tags:
       - school-admin
+  /api/v1/school/announcements:
+    get:
+      operationId: listSchoolAnnouncements
+      parameters:
+      - in: query
+        name: status
+        description: Filter status; kosong = semua.
+        schema:
+          $ref: '#/components/schemas/SchoolAnnouncementStatus'
+      - in: query
+        name: cursor
+        description: Kursor opak next_cursor dari halaman sebelumnya; kirim balik apa adanya.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncementsView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Announcements of the school (SCHOOL_ADMIN; 20 per page, newest first) with counts per status
+      tags:
+      - school-admin
+    post:
+      operationId: createSchoolAnnouncement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAnnouncementInput'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: Created (draft)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Create a draft announcement (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/audience-options:
+    get:
+      operationId: getSchoolAnnouncementAudienceOptions
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncementAudienceOptions'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Grades and classes of the active academic year for announcement targeting (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/pending:
+    get:
+      operationId: listPendingSchoolAnnouncements
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncementPendingView'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Announcements waiting for the principal (PRINCIPAL; oldest first, max 200, own announcements excluded)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}:
+    put:
+      operationId: updateSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAnnouncementInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (draft; a rejected announcement returns to draft)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Edit a draft or rejected announcement (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+    delete:
+      operationId: deleteSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Deleted
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Delete a draft announcement (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}/submit:
+    post:
+      operationId: submitSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (pending)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Submit a draft to the principal (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}/withdraw:
+    post:
+      operationId: withdrawSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (draft)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Withdraw a pending announcement back to draft (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}/archive:
+    post:
+      operationId: archiveSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAnnouncementArchiveInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (archived; hidden from every feed)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Archive a published announcement with a reason (SCHOOL_ADMIN)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}/approve:
+    post:
+      operationId: approveSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAnnouncementApproveInput'
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (published; email job queued)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Approve and publish a pending announcement (PRINCIPAL, not the author)
+      tags:
+      - school-admin
+  /api/v1/school/announcements/{id}/reject:
+    post:
+      operationId: rejectSchoolAnnouncement
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolAnnouncementRejectInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SchoolAnnouncement'
+                required:
+                - data
+                type: object
+          description: OK (rejected)
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Reject a pending announcement with a reason (PRINCIPAL, not the author)
+      tags:
+      - school-admin
+  /api/v1/announcements/feed:
+    get:
+      operationId: getAnnouncementFeed
+      parameters:
+      - in: query
+        name: cursor
+        description: Kursor opak next_cursor dari halaman sebelumnya; kirim balik apa adanya.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnnouncementFeed'
+                required:
+                - data
+                type: object
+          description: OK
+        default:
+          $ref: '#/components/responses/SchoolAdminError'
+      security:
+      - bearerAuth: []
+      summary: Published announcements addressed to the caller (any tenant member; 20 per page, newest first)
+      tags:
+      - school-admin
   /api/v1/school/years:
     get:
       operationId: listSchoolYears
@@ -4786,7 +5128,7 @@ paths:
       parameters:
       - in: query
         name: category
-        description: 'academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*'
+        description: 'academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*; announcement = announcement.*'
         schema:
           type: string
           enum:
@@ -4798,6 +5140,7 @@ paths:
           - planning
           - reminder
           - export
+          - announcement
       - in: query
         name: from
         schema:
@@ -4861,6 +5204,7 @@ paths:
           - planning
           - reminder
           - export
+          - announcement
       - in: query
         name: from
         schema:
@@ -6292,7 +6636,7 @@ components:
           schema:
             $ref: '#/components/schemas/AccountErrorResponse'
     SchoolAdminError:
-      description: 'Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.'
+      description: 'Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `announcement_invalid_transition` (409, announcement status changed or action not allowed in its status), `announcement_self_review` (403, author cannot approve/reject own announcement), `announcement_not_found` (404), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.'
       content:
         application/json:
           schema:
@@ -7405,6 +7749,271 @@ components:
           type: string
         class_name:
           type: string
+    SchoolAnnouncementStatus:
+      type: string
+      enum:
+      - draft
+      - pending
+      - published
+      - rejected
+      - archived
+    SchoolAnnouncementAudience:
+      type: string
+      description: all/teacher/student/guardian = umum; guardian_grade butuh grade_level_id; class butuh class_id (tahun ajaran aktif).
+      enum:
+      - all
+      - teacher
+      - student
+      - guardian
+      - guardian_grade
+      - class
+    SchoolAnnouncementRejectReason:
+      type: string
+      enum:
+      - content
+      - audience
+      - other
+    SchoolAnnouncementInput:
+      type: object
+      description: 'Judul 5–80 & isi 20–1000 karakter (code point setelah whitespace dirapikan; isi mempertahankan baris baru). Isu validasi: title/body `required`, `min_chars:<n>`, `max_chars:<n>`; audience `required`/`invalid`; grade_level_id & class_id `required`/`not_found`.'
+      required:
+      - title
+      - body
+      - audience
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        audience:
+          $ref: '#/components/schemas/SchoolAnnouncementAudience'
+        grade_level_id:
+          type: string
+        class_id:
+          type: string
+    SchoolAnnouncementArchiveInput:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          description: 5–200 karakter (isu `required`, `min_chars:5`, `max_chars:200`).
+    SchoolAnnouncementApproveInput:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Opsional, ≤ 500 karakter (isu `max_chars:500`).
+    SchoolAnnouncementRejectInput:
+      type: object
+      required:
+      - reason_code
+      properties:
+        reason_code:
+          $ref: '#/components/schemas/SchoolAnnouncementRejectReason'
+        note:
+          type: string
+          description: Wajib bila reason_code = other; ≤ 500 karakter.
+    SchoolAnnouncement:
+      type: object
+      required:
+      - id
+      - title
+      - body
+      - audience
+      - grade_level_id
+      - class_id
+      - audience_label
+      - status
+      - author_name
+      - created_at
+      - updated_at
+      - submitted_at
+      - reviewed_at
+      - reviewer_name
+      - review_reason
+      - review_note
+      - published_at
+      - archived_at
+      - archive_reason
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        audience:
+          $ref: '#/components/schemas/SchoolAnnouncementAudience'
+        grade_level_id:
+          type: string
+          nullable: true
+        class_id:
+          type: string
+          nullable: true
+        audience_label:
+          type: string
+          description: Nama tingkat/kelas sasaran; kosong untuk sasaran umum.
+        status:
+          $ref: '#/components/schemas/SchoolAnnouncementStatus'
+        author_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewer_name:
+          type: string
+        review_reason:
+          type: string
+          nullable: true
+          description: content | audience | other (alasan penolakan terakhir); null bila belum pernah ditolak.
+        review_note:
+          type: string
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        archive_reason:
+          type: string
+          nullable: true
+    SchoolAnnouncementCounts:
+      type: object
+      required:
+      - all
+      - draft
+      - pending
+      - published
+      - rejected
+      - archived
+      properties:
+        all:
+          type: integer
+        draft:
+          type: integer
+        pending:
+          type: integer
+        published:
+          type: integer
+        rejected:
+          type: integer
+        archived:
+          type: integer
+    SchoolAnnouncementsView:
+      type: object
+      required:
+      - items
+      - next_cursor
+      - counts
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolAnnouncement'
+        next_cursor:
+          type: string
+          description: Kosong bila tidak ada halaman berikutnya.
+        counts:
+          $ref: '#/components/schemas/SchoolAnnouncementCounts'
+    SchoolAnnouncementPendingView:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolAnnouncement'
+    SchoolAnnouncementAudienceOptions:
+      type: object
+      required:
+      - grades
+      - classes
+      properties:
+        grades:
+          type: array
+          items:
+            type: object
+            required:
+            - id
+            - label
+            properties:
+              id:
+                type: string
+              label:
+                type: string
+        classes:
+          type: array
+          items:
+            type: object
+            required:
+            - id
+            - label
+            - grade_level_id
+            properties:
+              id:
+                type: string
+              label:
+                type: string
+              grade_level_id:
+                type: string
+    AnnouncementFeedItem:
+      type: object
+      required:
+      - id
+      - title
+      - body
+      - audience
+      - audience_label
+      - published_at
+      - author_name
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+          description: Teks biasa (tampilkan sebagai teks; baris baru dipertahankan, tanpa HTML).
+        audience:
+          $ref: '#/components/schemas/SchoolAnnouncementAudience'
+        audience_label:
+          type: string
+          description: Nama tingkat/kelas sasaran; kosong untuk sasaran umum.
+        published_at:
+          type: string
+          format: date-time
+        author_name:
+          type: string
+    AnnouncementFeed:
+      type: object
+      required:
+      - items
+      - next_cursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnouncementFeedItem'
+        next_cursor:
+          type: string
+          description: Kosong bila tidak ada halaman berikutnya.
     SchoolExtraMembersInput:
       type: object
       properties:
@@ -11732,6 +12341,7 @@ components:
         pending_approvals:
           type: integer
           format: int64
+          description: Pending account requests plus pending announcements for this principal (own items excluded).
         counts:
           type: object
           required:
@@ -11817,10 +12427,9 @@ components:
         announcements:
           type: array
           nullable: true
-          description: Null until the backing module exists; the UI then shows labelled sample data.
+          description: 3 latest published announcements (all audiences); null when the tenant database is unavailable.
           items:
-            type: object
-            additionalProperties: true
+            $ref: '#/components/schemas/AnnouncementFeedItem'
     HomeroomDashboard:
       type: object
       required:
