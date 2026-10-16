@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import type { SchoolAnnouncement } from '$lib/api/generated/lms';
+import type {
+	AnnouncementFeed,
+	AnnouncementFeedItem,
+	SchoolAnnouncement
+} from '$lib/api/generated/lms';
 import {
 	BODY_MAX,
 	TITLE_MAX,
 	announcementBody,
 	announcementErrors,
+	appendFeedPage,
 	appendUnique,
 	approveNoteError,
 	archiveReasonError,
@@ -15,6 +20,7 @@ import {
 	cleanMultiline,
 	combinedPending,
 	emptyForm,
+	feedView,
 	formOf,
 	formatAnnouncementTime,
 	rejectErrors,
@@ -254,4 +260,36 @@ describe('utilitas', () => {
 		expect(
 			appendUnique([{ id: 'a' }, { id: 'b' }], [{ id: 'b' }, { id: 'c' }]).map((x) => x.id)
 		).toEqual(['a', 'b', 'c']));
+
+	describe('feed "muat lebih banyak"', () => {
+		const item = (id: string) => ({ id }) as AnnouncementFeedItem;
+		const page = (ids: string[], next_cursor: string): AnnouncementFeed => ({
+			items: ids.map(item),
+			next_cursor
+		});
+
+		it('feedView tanpa halaman tambahan memakai item & kursor halaman pertama', () => {
+			const v = feedView(page(['a', 'b'], 'c1'), null);
+			expect(v.items.map((x) => x.id)).toEqual(['a', 'b']);
+			expect(v.cursor).toBe('c1');
+		});
+
+		it('feedView menggabung tanpa duplikat dan memakai kursor halaman tambahan', () => {
+			const v = feedView(page(['a', 'b'], 'c1'), page(['b', 'c'], ''));
+			expect(v.items.map((x) => x.id)).toEqual(['a', 'b', 'c']);
+			expect(v.cursor).toBe('');
+		});
+
+		it('feedView aman untuk feed null (gagal muat)', () => {
+			expect(feedView(null, null)).toEqual({ items: [], cursor: '' });
+		});
+
+		it('appendFeedPage menambah halaman ke yang sudah dimuat dan membawa kursor terbaru', () => {
+			const first = appendFeedPage(null, page(['a'], 'c1'));
+			expect(first).toEqual(page(['a'], 'c1'));
+			const second = appendFeedPage(first, page(['b'], 'c2'));
+			expect(second.items.map((x) => x.id)).toEqual(['a', 'b']);
+			expect(second.next_cursor).toBe('c2');
+		});
+	});
 });

@@ -2,6 +2,7 @@ import {
 	SchoolAnnouncementAudience,
 	SchoolAnnouncementRejectReason,
 	SchoolAnnouncementStatus,
+	type AnnouncementFeed,
 	type AnnouncementFeedItem,
 	type SchoolAnnouncement,
 	type SchoolAnnouncementInput
@@ -228,3 +229,26 @@ export function appendUnique<X extends { id: string }>(
 	const seen = new Set(list.map((x) => x.id));
 	return [...list, ...next.filter((x) => !seen.has(x.id))];
 }
+
+/**
+ * Tampilan feed "Muat lebih banyak": halaman pertama dari load server (`base`) + halaman tambahan yang
+ * sudah dimuat klien (`more`). Item unik per id; kursor berikutnya milik halaman terakhir yang dimuat.
+ */
+export function feedView(
+	base: AnnouncementFeed | null,
+	more: AnnouncementFeed | null
+): { items: AnnouncementFeedItem[]; cursor: string } {
+	return {
+		items: appendUnique(base?.items ?? [], more?.items ?? []),
+		cursor: more ? more.next_cursor : (base?.next_cursor ?? '')
+	};
+}
+
+/** Tambahkan halaman feed yang baru diambil ke halaman tambahan yang sudah dimuat (`null` = belum ada). */
+export const appendFeedPage = (
+	more: AnnouncementFeed | null,
+	page: AnnouncementFeed
+): AnnouncementFeed => ({
+	items: [...(more?.items ?? []), ...page.items],
+	next_cursor: page.next_cursor
+});
