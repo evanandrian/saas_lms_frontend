@@ -168,7 +168,7 @@ describe('validateTree rute ber-fragmen', () => {
 });
 
 describe('defaultNavigationLayout (cermin defaults.go)', () => {
-	it('school_admin: 6 grup, 22 item, 6 tersembunyi', () => {
+	it('school_admin: 6 grup, 22 item, 5 tersembunyi', () => {
 		const layout = defaultNavigationLayout('school_admin');
 		expect(layout.groups.map((g) => g.code)).toEqual([
 			'grp-utama',
@@ -182,7 +182,6 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 		expect(items).toHaveLength(22);
 		expect(items.filter((i) => i.hidden).map((i) => i.code)).toEqual([
 			'presensi-guru',
-			'pengumuman',
 			'pendaftaran',
 			'spp-iuran',
 			'kwitansi',
@@ -194,11 +193,11 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 
 	it('sidebar cadangan menyembunyikan menu fase berikut', () => {
 		const groups = visibleGroups(defaultNavigationLayout('school_admin').groups);
-		expect(groups.flatMap((g) => g.items)).toHaveLength(16);
+		expect(groups.flatMap((g) => g.items)).toHaveLength(17);
 		expect(groups.map((g) => g.code)).not.toContain('grp-keuangan');
 	});
 
-	it('menu fase 2 ber-href karena rutenya sudah dibangun', () => {
+	it('menu fase 2 & 3 ber-href karena rutenya sudah dibangun', () => {
 		const built = new Set(Object.values(APP_PATHS));
 		const groups = toWorkspaceNav(visibleGroups(defaultNavigationLayout('school_admin').groups), {
 			badges: {},
@@ -209,9 +208,15 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 			'/app/admin/subjects',
 			'/app/admin/assignments',
 			'/app/admin/assessments',
-			'/app/admin/extracurriculars'
+			'/app/admin/extracurriculars',
+			'/app/admin/announcements'
 		])
 			expect(hrefs).toContain(r);
+	});
+
+	it('menu orang tua Pengumuman menunjuk halaman Fase 3', () => {
+		const items = defaultNavigationLayout('guardian').groups.flatMap((g) => g.items);
+		expect(items.find((i) => i.code === 'pengumuman')?.route).toBe('/app/guardian/announcements');
 	});
 
 	it('principal & homeroom tersedia', () => {

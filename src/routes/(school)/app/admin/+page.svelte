@@ -4,7 +4,6 @@
 		SchoolAttendanceView,
 		SchoolDashboardView
 	} from '$lib/features/school-admin/school-admin.types';
-	import Button from '$lib/components/ui/Button.svelte';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
@@ -158,8 +157,6 @@
 			description={i18n.t(`${PREFIX}.failure.${data.failure}`)}
 		/>
 	{:else}
-		<p id={reasonId} class="sr-only">{i18n.t('common.state.action_unavailable')}</p>
-
 		{#if setup && setup.done < setup.total}
 			<section
 				aria-label={t('setup_label')}
@@ -257,8 +254,10 @@
 					class="lms-focus-ring inline-flex h-10 items-center gap-2 btn-base border-lms-on-hero/25 text-lms-on-hero hover:bg-lms-on-hero/10 rounded-[10px] border px-4 text-[13px] font-semibold"
 					><Icon icon={UserPlus} size="sm" />{i18n.t('dashboard.school.invite_teacher')}</a
 				>
-				<Button variant="on-hero-outline" disabled aria-describedby={reasonId}
-					><Icon icon={Megaphone} size="sm" />{i18n.t('dashboard.school.announcement')}</Button
+				<a
+					href={resolve(APP_PATHS.SCHOOL_ADMIN_ANNOUNCEMENTS)}
+					class="lms-focus-ring inline-flex h-10 items-center gap-2 btn-base border-lms-on-hero/25 text-lms-on-hero hover:bg-lms-on-hero/10 rounded-[10px] border px-4 text-[13px] font-semibold"
+					><Icon icon={Megaphone} size="sm" />{i18n.t('dashboard.school.announcement')}</a
 				>
 			{/snippet}
 			{#snippet aside()}

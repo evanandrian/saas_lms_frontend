@@ -123,7 +123,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 				],
 				['rapor', 'Rapor', 'file-text', '/app/admin/reports'],
 				['ekstrakurikuler', 'Ekstrakurikuler', 'trophy', '/app/admin/extracurriculars'],
-				['pengumuman', 'Pengumuman', 'megaphone', '/app/admin/announcements', 'none', LATER]
+				['pengumuman', 'Pengumuman', 'megaphone', '/app/admin/announcements']
 			]
 		],
 		[
@@ -277,7 +277,7 @@ const SEEDS: Record<NavigationRole, GroupSeed[]> = {
 			'message-square',
 			true,
 			[
-				['pengumuman', 'Pengumuman', 'megaphone', '/orang-tua/pengumuman'],
+				['pengumuman', 'Pengumuman', 'megaphone', '/app/guardian/announcements'],
 				['pesan', 'Pesan', 'message-square', '/orang-tua/pesan', 'msgs']
 			]
 		],
