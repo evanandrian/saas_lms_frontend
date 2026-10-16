@@ -14,6 +14,7 @@ import {
 	emptyPicks,
 	gradeMembersConfirm,
 	gradeMembersPayload,
+	gradeMembersSnapshot,
 	gradesWithClasses,
 	membersAdded,
 	inputMaxLength,
@@ -331,6 +332,21 @@ describe('tambah anggota per tingkat (ekskul wajib)', () => {
 			all_students: true
 		});
 		expect(gradeMembersPayload({ gradeLevelIds: [], allStudents: false })).toBeNull();
+	});
+
+	it('gradeMembersSnapshot: salinan lepas untuk ConfirmDialog (reset pilihan tidak mengubahnya); kosong → null', () => {
+		const ids = ['g7', 'g8'];
+		const snap = gradeMembersSnapshot({ gradeLevelIds: ids, allStudents: false });
+		ids.length = 0; // pilihan drawer di-reset setelah anggota diperbarui
+		expect(snap).toEqual({ gradeLevelIds: ['g7', 'g8'], allStudents: false });
+		expect(gradeMembersConfirm(tp, snap!, [G7, G8, G9], 'Pramuka')).toBe(
+			'school_admin.extras.add_grades_confirm|{"grades":"7, 8","name":"Pramuka"}'
+		);
+		expect(gradeMembersSnapshot({ gradeLevelIds: [], allStudents: false })).toBeNull();
+		expect(gradeMembersSnapshot({ gradeLevelIds: [], allStudents: true })).toEqual({
+			gradeLevelIds: [],
+			allStudents: true
+		});
 	});
 
 	it('gradesWithClasses: hanya tingkat yang punya kelas tahun aktif, urutan data dipertahankan', () => {

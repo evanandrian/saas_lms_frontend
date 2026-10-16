@@ -13,6 +13,7 @@
 		emptyPicks,
 		gradeMembersConfirm,
 		gradeMembersPayload,
+		gradeMembersSnapshot,
 		memberCandidates,
 		pickedIds,
 		picksFor,
@@ -69,7 +70,8 @@
 	let classId = $state('');
 	let gradePicks = $state<Record<string, boolean>>({});
 	let allStudents = $state(false);
-	let confirmGrades = $state(false);
+	/** Salinan pilihan saat "Tambahkan" diklik; dialog konfirmasi terbuka selama terisi. */
+	let pendingGrades = $state<GradeMembersSelection | null>(null);
 	const gradeSelection = $derived<GradeMembersSelection>({
 		gradeLevelIds: grades.filter((g) => gradePicks[g.id] === true).map((g) => g.id),
 		allStudents
@@ -162,7 +164,8 @@
 						type="button"
 						class="lms-action-secondary lms-focus-ring h-9 self-start rounded-lg px-3 text-xs font-semibold disabled:opacity-50"
 						disabled={busy || !gradeMembersPayload(gradeSelection)}
-						onclick={() => (confirmGrades = true)}>{t('add_grades')}</button
+						onclick={() => (pendingGrades = gradeMembersSnapshot(gradeSelection))}
+						>{t('add_grades')}</button
 					>
 				</section>
 			{/if}
@@ -224,13 +227,18 @@
 </Drawer>
 
 <ConfirmDialog
-	bind:open={confirmGrades}
+	bind:open={
+		() => pendingGrades !== null,
+		(v) => {
+			if (!v) pendingGrades = null;
+		}
+	}
 	tone="primary"
 	icon={UserPlus}
 	title={t('add_grades_confirm_title')}
-	message={gradeMembersConfirm(i18n.t, gradeSelection, grades, name)}
+	message={pendingGrades ? gradeMembersConfirm(i18n.t, pendingGrades, grades, name) : ''}
 	confirmLabel={t('add_grades')}
 	busyLabel={t('adding')}
 	cancelLabel={i18n.t(`${PREFIX}.common.cancel`)}
-	onconfirm={() => onaddgrades(gradeSelection)}
+	onconfirm={() => (pendingGrades ? onaddgrades(pendingGrades) : undefined)}
 />

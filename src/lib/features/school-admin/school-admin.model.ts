@@ -886,6 +886,17 @@ export function gradeMembersPayload(
 	return ids.length ? { grade_level_ids: ids } : null;
 }
 
+/**
+ * Salinan lepas pilihan saat "Tambahkan" diklik: ConfirmDialog & kiriman memakai salinan ini, jadi
+ * reset pilihan drawer (data anggota diperbarui sebelum dialog tertutup) tidak mengubah pesannya.
+ * Tanpa pilihan → null.
+ */
+export function gradeMembersSnapshot(sel: GradeMembersSelection): GradeMembersSelection | null {
+	return gradeMembersPayload(sel)
+		? { gradeLevelIds: [...sel.gradeLevelIds], allStudents: sel.allStudents }
+		: null;
+}
+
 /** Tingkat yang punya kelas di tahun ajaran aktif (tingkat tanpa kelas ditolak backend `not_found`). */
 export function gradesWithClasses(
 	grades: readonly SchoolGradeOption[],
