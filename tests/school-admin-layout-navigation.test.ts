@@ -1,4 +1,3 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
 
@@ -30,27 +29,9 @@ vi.mock('$lib/features/announcements/announcements.server', () => ({
 }));
 
 import { load } from '../src/routes/(school)/app/admin/+layout.server';
+import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
 
-const backendGroups: NavigationGroup[] = [
-	{
-		id: 'g1',
-		code: 'grp-backend',
-		name: 'Dari backend',
-		icon: 'house',
-		route: '',
-		show_label: false,
-		default_open: true,
-		clickable: false,
-		hidden: false,
-		items: []
-	}
-];
-
-const event = {
-	depends: vi.fn(),
-	fetch: vi.fn(),
-	cookies: { get: vi.fn(), set: vi.fn() }
-} as unknown as RequestEvent;
+const { event } = layoutEvent('/app/admin');
 
 async function runLoad() {
 	return (await load(event as never)) as unknown as {

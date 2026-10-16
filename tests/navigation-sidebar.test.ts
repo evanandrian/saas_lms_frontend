@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
-import { visibleGroups, type NavigationGroup } from '$lib/features/navigation/navigation.model';
+import { visibleGroups } from '$lib/features/navigation/navigation.model';
 
 const mocks = vi.hoisted(() => ({ loadNavigationSidebar: vi.fn() }));
 
@@ -9,23 +9,9 @@ vi.mock('$lib/features/navigation/navigation.api', () => ({
 }));
 
 import { loadSidebarGroups } from '$lib/features/navigation/navigation.sidebar';
+import { backendGroups } from './helpers/navigation-layout-fixtures';
 
 const ctx = { fetch: vi.fn(), cookies: {} } as never;
-
-const backendGroups: NavigationGroup[] = [
-	{
-		id: 'g1',
-		code: 'grp-backend',
-		name: 'Dari backend',
-		icon: 'house',
-		route: '',
-		show_label: false,
-		default_open: true,
-		clickable: false,
-		hidden: false,
-		items: []
-	}
-];
 
 describe('loadSidebarGroups', () => {
 	beforeEach(() => mocks.loadNavigationSidebar.mockReset());

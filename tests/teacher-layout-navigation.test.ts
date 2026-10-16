@@ -1,4 +1,3 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
@@ -32,29 +31,9 @@ import {
 	teacherSidebarGroups,
 	teacherSidebarRole
 } from '../src/routes/(school)/app/teacher/teacher-nav';
+import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
 
-const backendGroups: NavigationGroup[] = [
-	{
-		id: 'g1',
-		code: 'grp-backend',
-		name: 'Dari backend',
-		icon: 'house',
-		route: '',
-		show_label: false,
-		default_open: true,
-		clickable: false,
-		hidden: false,
-		items: []
-	}
-];
-
-const depends = vi.fn();
-const event = {
-	depends,
-	fetch: vi.fn(),
-	cookies: { get: vi.fn(), set: vi.fn() },
-	url: new URL('http://localhost/app/teacher')
-} as unknown as RequestEvent;
+const { event, depends } = layoutEvent('/app/teacher');
 
 async function runLoad() {
 	return (await load(event as never)) as unknown as {
@@ -69,6 +48,7 @@ const codes = (groups: readonly NavigationGroup[]) =>
 
 describe('layout guru: sidebar dinamis', () => {
 	beforeEach(() => {
+		depends.mockReset();
 		mocks.loadNavigationSidebar.mockReset();
 		mocks.loadAreaViews.mockReset();
 		mocks.loadWorkspace.mockReset();

@@ -1,4 +1,3 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/navigation.model';
 
@@ -16,28 +15,9 @@ vi.mock('$lib/features/workspace/workspace.server', () => ({
 
 import { load as loadStudent } from '../src/routes/(school)/app/student/+layout.server';
 import { load as loadGuardian } from '../src/routes/(school)/app/guardian/+layout.server';
+import { backendGroups, layoutEvent } from './helpers/navigation-layout-fixtures';
 
-const backendGroups: NavigationGroup[] = [
-	{
-		id: 'g1',
-		code: 'grp-backend',
-		name: 'Dari backend',
-		icon: 'house',
-		route: '',
-		show_label: false,
-		default_open: true,
-		clickable: false,
-		hidden: false,
-		items: []
-	}
-];
-
-const depends = vi.fn();
-const event = {
-	depends,
-	fetch: vi.fn(),
-	cookies: { get: vi.fn(), set: vi.fn() }
-} as unknown as RequestEvent;
+const { event, depends } = layoutEvent('/app');
 
 const requestedRole = (): NavigationRole => mocks.loadNavigationSidebar.mock.calls.at(-1)![1];
 const codes = (groups: readonly NavigationGroup[]) =>
