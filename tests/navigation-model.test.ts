@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import type { AccountWorkspace } from '$lib/api/generated/lms';
 import { BUILT_APP_PATHS } from '$lib/utils/app-paths';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
@@ -9,6 +10,7 @@ import {
 	splitRoute,
 	toWorkspaceNav,
 	validateTree,
+	workspaceNav,
 	visibleGroups,
 	type NavigationGroup
 } from '$lib/features/navigation/navigation.model';
@@ -105,6 +107,32 @@ describe('toWorkspaceNav', () => {
 			externalHref: 'https://docs.flixare.id',
 			newTab: true
 		});
+	});
+});
+
+describe('workspaceNav', () => {
+	const groups = [
+		group([
+			item('persetujuan', '/app/admin/approvals', { badge: 'approvals' }),
+			item('belum', '/app/belum-ada-halamannya')
+		])
+	];
+
+	it('workspace null: tanpa badge', () => {
+		const [g] = workspaceNav(groups, null);
+		expect(g!.items[0]!.badge).toBeUndefined();
+	});
+
+	it('badge workspace diteruskan', () => {
+		const workspace = { badges: { approvals: 4 } } as unknown as AccountWorkspace;
+		const [g] = workspaceNav(groups, workspace);
+		expect(g!.items[0]!.badge).toBe(4);
+	});
+
+	it('rute belum dibangun: tanpa href', () => {
+		const [g] = workspaceNav(groups, null);
+		expect(g!.items[0]!.href).toBe('/app/admin/approvals');
+		expect(g!.items[1]!.href).toBeUndefined();
 	});
 });
 

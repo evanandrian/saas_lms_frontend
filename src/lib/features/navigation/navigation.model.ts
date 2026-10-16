@@ -1,4 +1,5 @@
 import type {
+	AccountWorkspace,
 	NavigationBadge,
 	NavigationGroup,
 	NavigationGroupInput,
@@ -7,6 +8,7 @@ import type {
 	NavigationRole,
 	NavigationTarget
 } from '$lib/api/generated/lms';
+import { BUILT_APP_PATHS } from '$lib/utils/app-paths';
 import type { LucideIcon } from '@lucide/svelte';
 import Award from '@lucide/svelte/icons/award';
 import Bell from '@lucide/svelte/icons/bell';
@@ -369,4 +371,12 @@ export function toWorkspaceNav(
 			};
 		})
 	}));
+}
+
+/** `toWorkspaceNav` dengan badge dari workspace (kosong bila belum termuat) dan rute yang sudah dibangun. */
+export function workspaceNav(
+	groups: readonly NavigationGroup[],
+	workspace: AccountWorkspace | null
+): WorkspaceNavGroup[] {
+	return toWorkspaceNav(groups, { badges: workspace?.badges ?? {}, builtPaths: BUILT_APP_PATHS });
 }

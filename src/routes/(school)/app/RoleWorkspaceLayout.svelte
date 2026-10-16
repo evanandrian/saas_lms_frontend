@@ -2,10 +2,9 @@
 	import type { Snippet } from 'svelte';
 	import WorkspaceShell from '$lib/components/layout/WorkspaceShell.svelte';
 	import type { RoleShellArea } from '$lib/features/navigation/role-shell';
-	import { toWorkspaceNav, type NavigationGroup } from '$lib/features/navigation/navigation.model';
+	import { workspaceNav, type NavigationGroup } from '$lib/features/navigation/navigation.model';
 	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
-	import { BUILT_APP_PATHS } from '$lib/utils/app-paths';
 
 	type Props = {
 		/** Hasil `loadRoleShell` dari `+layout.server.ts` area. */
@@ -30,12 +29,7 @@
 
 	// Arsitektur informasi = susunan Menu & navigasi peran area (backend; cadangan: bawaan FLIXARE).
 	// Badge hanya bila backend mengirim angkanya.
-	const navItems = $derived(
-		toWorkspaceNav(data.navigation, {
-			badges: data.workspace?.badges ?? {},
-			builtPaths: BUILT_APP_PATHS
-		})
-	);
+	const navItems = $derived(workspaceNav(data.navigation, data.workspace));
 </script>
 
 <WorkspaceShell
