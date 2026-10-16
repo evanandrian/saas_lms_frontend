@@ -40,13 +40,18 @@
 </div>
 <div class="border-lms-border flex flex-col rounded-xl border">
 	{#each planning.subjects as s (s.id)}
-		<div class="border-lms-border flex items-center gap-3 border-t px-4 py-2 first:border-t-0">
-			<span class="flex flex-1 items-center gap-2 text-sm"
-				><span class="text-lms-muted w-14 font-mono text-xs">{s.code}</span>{s.name}</span
+		<div
+			class="border-lms-border flex flex-wrap items-center gap-x-3 gap-y-2 border-t px-4 py-2 first:border-t-0"
+		>
+			<span class="flex min-w-0 flex-[1_1_14rem] items-center gap-2 text-sm"
+				><span
+					class="text-lms-muted max-w-40 min-w-14 shrink-0 truncate font-mono text-xs"
+					title={s.code}>{s.code}</span
+				><span class="min-w-0 break-words">{s.name}</span></span
 			>
 			<select
 				aria-label={t('teacher_of', { subject: s.name })}
-				class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 w-56 rounded-lg px-2 text-sm"
+				class="lms-input lms-focus-ring border-[1.5px] border-lms-input-border h-9 w-56 max-w-full rounded-lg px-2 text-sm"
 				value={planner.assignmentOf(s.id)}
 				disabled={planner.busy || !planning.semester_id}
 				onchange={(e) => planner.setAssignment(s.id, e.currentTarget.value)}

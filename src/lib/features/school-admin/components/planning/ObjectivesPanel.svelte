@@ -42,9 +42,12 @@
 <div class="border-lms-border flex flex-col rounded-xl border">
 	{#each planner.objectives as o (o.id)}
 		<div class="border-lms-border flex items-start gap-3 border-t px-4 py-2.5 first:border-t-0">
-			<span class="text-lms-interactive w-16 font-mono text-xs font-bold">{o.code}</span>
+			<span
+				class="text-lms-interactive max-w-40 min-w-16 shrink-0 truncate font-mono text-xs font-bold"
+				title={o.code}>{o.code}</span
+			>
 			{#if planner.editObjective === o.id}
-				<span class="flex flex-1 flex-col gap-1.5">
+				<span class="flex min-w-0 flex-1 flex-col gap-1.5">
 					<textarea
 						rows="2"
 						aria-label={t('objective_edit')}
@@ -68,7 +71,7 @@
 			{:else}
 				<button
 					type="button"
-					class="lms-focus-ring flex-1 rounded-md text-left text-[13px] hover:underline"
+					class="lms-focus-ring min-w-0 flex-1 rounded-md text-left text-[13px] break-words hover:underline"
 					aria-label={t('objective_edit')}
 					onclick={() => planner.startEditObjective(o.id, o.description)}>{o.description}</button
 				>
@@ -76,7 +79,7 @@
 			<button
 				type="button"
 				aria-label={t('delete')}
-				class="lms-action-ghost lms-focus-ring flex size-7 items-center justify-center rounded-md"
+				class="lms-action-ghost lms-focus-ring flex size-7 shrink-0 items-center justify-center rounded-md"
 				disabled={planner.busy}
 				onclick={() => planner.removeObjective(o.id)}><Icon icon={Trash2} size="sm" /></button
 			>
