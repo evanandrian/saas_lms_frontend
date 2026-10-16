@@ -19,13 +19,11 @@
 	import AnnouncementFeedList from '$lib/features/announcements/components/AnnouncementFeedList.svelte';
 	import {
 		PREFIX as ANNOUNCEMENT_PREFIX,
-		appendFeedPage,
 		audienceText,
-		feedView,
 		formatAnnouncementTime
 	} from '$lib/features/announcements/announcements.model';
-	import type { AnnouncementFeed } from '$lib/features/announcements/announcements.types';
-	import { runPageAction } from '$lib/utils/page-action';
+	import { createFeedPager } from '$lib/features/announcements/feed-pager.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 	const i18n = useI18n();
@@ -41,41 +39,12 @@
 	let draftMessage = $state<string>('');
 	let chatContainer = $state<HTMLDivElement | null>(null);
 	const ta = (key: string) => i18n.t(`${ANNOUNCEMENT_PREFIX}.${key}`);
-	/** Tab "Pengumuman": halaman pertama dari load server; berikutnya lewat aksi `feedMore`, terikat ke feed asalnya. */
-	let moreAnnouncements = $state<{ base: AnnouncementFeed | null; page: AnnouncementFeed } | null>(
-		null
-	);
+	/** Tab "Pengumuman": halaman pertama dari load server; berikutnya lewat aksi `feedMore`. */
+	const pager = createFeedPager(() => data.feed);
 	let selectedAnnouncementId = $state<string | null>(null);
-	let feedBusy = $state(false);
-	let feedLoadFailed = $state(false);
-	// Halaman tambahan milik feed lama (setelah muat ulang) tidak pernah digabung ke tampilan baru.
-	const announcementView = $derived(
-		feedView(data.feed, moreAnnouncements?.base === data.feed ? moreAnnouncements.page : null)
-	);
 	const selectedAnnouncement = $derived(
-		announcementView.items.find((a) => a.id === selectedAnnouncementId) ?? null
+		pager.items.find((a) => a.id === selectedAnnouncementId) ?? null
 	);
-
-	async function loadMoreAnnouncements() {
-		if (!announcementView.cursor || feedBusy) return;
-		const base = data.feed;
-		feedBusy = true;
-		const out = await runPageAction<AnnouncementFeed>('feedMore', {
-			cursor: announcementView.cursor
-		});
-		feedBusy = false;
-		// Hasil basi (feed sudah dimuat ulang selama menunggu) dibuang.
-		if (base !== data.feed) return;
-		feedLoadFailed = !out.ok;
-		if (out.ok)
-			moreAnnouncements = {
-				base,
-				page: appendFeedPage(
-					moreAnnouncements?.base === base ? moreAnnouncements.page : null,
-					out.data
-				)
-			};
-	}
 
 	const channels = $derived(data.messagesData.channels);
 	const defaultChannel: ConversationChannel = {
@@ -182,28 +151,30 @@
 					</span>
 				</div>
 
-				<!-- Search Bar Guru -->
-				<div class="relative flex items-center">
-					<span class="text-lms-muted pointer-events-none absolute left-3">
-						<Icon icon={Search} size="sm" />
-					</span>
-					<input
-						type="text"
-						bind:value={searchContactQuery}
-						placeholder="Cari guru atau mata pelajaran..."
-						class="lms-input bg-lms-surface-muted border-transparent focus:border-lms-interactive h-9.5 w-full rounded-xl pl-9 pr-3 text-xs"
-					/>
-					{#if searchContactQuery}
-						<button
-							type="button"
-							class="text-lms-muted hover:text-lms-foreground absolute right-2.5 p-0.5"
-							onclick={() => (searchContactQuery = '')}
-							aria-label="Hapus pencarian"
-						>
-							<Icon icon={X} size="sm" />
-						</button>
-					{/if}
-				</div>
+				{#if selectedTab !== 'announcements'}
+					<!-- Search Bar Guru -->
+					<div class="relative flex items-center">
+						<span class="text-lms-muted pointer-events-none absolute left-3">
+							<Icon icon={Search} size="sm" />
+						</span>
+						<input
+							type="text"
+							bind:value={searchContactQuery}
+							placeholder="Cari guru atau mata pelajaran..."
+							class="lms-input bg-lms-surface-muted border-transparent focus:border-lms-interactive h-9.5 w-full rounded-xl pl-9 pr-3 text-xs"
+						/>
+						{#if searchContactQuery}
+							<button
+								type="button"
+								class="text-lms-muted hover:text-lms-foreground absolute right-2.5 p-0.5"
+								onclick={() => (searchContactQuery = '')}
+								aria-label="Hapus pencarian"
+							>
+								<Icon icon={X} size="sm" />
+							</button>
+						{/if}
+					</div>
+				{/if}
 
 				<!-- Quick Filter Tabs -->
 				<div class="flex items-center gap-1">
@@ -251,11 +222,18 @@
 				{#if selectedTab === 'announcements'}
 					<!-- Pengumuman sekolah (feed backend): pilih untuk membaca di panel kanan. -->
 					{#if !data.feed}
-						<p class="text-lms-danger-text p-4 text-xs" role="alert">{ta('load_failed')}</p>
-					{:else if announcementView.items.length === 0}
+						<div class="flex flex-col items-start gap-2 p-4">
+							<p class="text-lms-danger-text text-xs" role="alert">{ta('load_failed')}</p>
+							<button
+								type="button"
+								class="lms-action-secondary lms-focus-ring h-9 rounded-lg px-3 text-xs font-semibold"
+								onclick={() => invalidateAll()}>{ta('retry')}</button
+							>
+						</div>
+					{:else if pager.items.length === 0}
 						<p class="text-lms-muted p-4 text-center text-xs">{ta('empty')}</p>
 					{:else}
-						{#each announcementView.items as a (a.id)}
+						{#each pager.items as a (a.id)}
 							<button
 								type="button"
 								class={[
@@ -273,15 +251,15 @@
 								>
 							</button>
 						{/each}
-						{#if feedLoadFailed}
+						{#if pager.failed}
 							<p class="text-lms-danger-text p-2 text-xs" role="alert">{ta('load_failed')}</p>
 						{/if}
-						{#if announcementView.cursor}
+						{#if pager.cursor}
 							<button
 								type="button"
-								disabled={feedBusy}
+								disabled={pager.busy}
 								class="lms-action-secondary lms-focus-ring mt-2 h-9 w-full rounded-lg text-xs font-semibold disabled:opacity-60"
-								onclick={loadMoreAnnouncements}>{feedBusy ? ta('loading') : ta('load_more')}</button
+								onclick={pager.loadMore}>{pager.busy ? ta('loading') : ta('load_more')}</button
 							>
 						{/if}
 					{/if}

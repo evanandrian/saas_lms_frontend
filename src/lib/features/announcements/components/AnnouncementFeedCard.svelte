@@ -1,16 +1,10 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { useI18n } from '$lib/i18n';
-	import { runPageAction } from '$lib/utils/page-action';
 	import type { Snippet } from 'svelte';
-	import {
-		FEED_PAGE,
-		FEED_PREVIEW,
-		PREFIX,
-		appendFeedPage,
-		feedView
-	} from '../announcements.model';
+	import { FEED_PAGE, FEED_PREVIEW, PREFIX } from '../announcements.model';
 	import type { AnnouncementFeed } from '../announcements.types';
+	import { createFeedPager } from '../feed-pager.svelte';
 	import AnnouncementFeedList from './AnnouncementFeedList.svelte';
 
 	interface Props {
@@ -26,28 +20,19 @@
 	const t = (key: string) => i18n.t(`${PREFIX}.${key}`);
 	const headingId = $props.id();
 
-	/** Halaman feed berikutnya yang dimuat di kartu (halaman pertama selalu dari `feed`). */
-	let more = $state<AnnouncementFeed | null>(null);
+	/** Halaman feed berikutnya dimuat lewat pager (terikat ke `feed` asalnya, halaman basi dibuang). */
+	const pager = createFeedPager(() => feed);
 	let visible = $state(FEED_PREVIEW);
-	let busy = $state(false);
-	let failed = $state(false);
 
-	const view = $derived(feedView(feed, more));
-	const hasMore = $derived(visible < view.items.length || view.cursor !== '');
+	const hasMore = $derived(visible < pager.items.length || pager.cursor !== '');
 
 	/** Kartu: 3 terbaru dulu; berikutnya per halaman feed (keyset backend lewat aksi `feedMore`). */
 	async function loadMore() {
-		if (visible < view.items.length) {
+		if (visible < pager.items.length) {
 			visible += FEED_PAGE;
 			return;
 		}
-		busy = true;
-		const out = await runPageAction<AnnouncementFeed>('feedMore', { cursor: view.cursor });
-		busy = false;
-		failed = !out.ok;
-		if (!out.ok) return;
-		more = appendFeedPage(more, out.data);
-		visible += FEED_PAGE;
+		if (await pager.loadMore()) visible += FEED_PAGE;
 	}
 </script>
 
@@ -63,11 +48,13 @@
 			class="lms-action-secondary lms-focus-ring h-9 self-start rounded-lg px-3 text-xs font-semibold"
 			onclick={() => invalidateAll()}>{t('retry')}</button
 		>
-	{:else if view.items.length === 0}
+		{@render footer?.()}
+	{:else if pager.items.length === 0}
 		<p class="text-lms-muted text-[13px]">{t('empty')}</p>
+		{@render footer?.()}
 	{:else}
-		<AnnouncementFeedList items={view.items.slice(0, visible)} />
-		{#if failed}
+		<AnnouncementFeedList items={pager.items.slice(0, visible)} />
+		{#if pager.failed}
 			<p class="text-lms-danger-text text-xs" role="alert">{t('load_failed')}</p>
 		{/if}
 		{#if footer}
@@ -75,9 +62,9 @@
 		{:else if hasMore}
 			<button
 				type="button"
-				disabled={busy}
+				disabled={pager.busy}
 				class="lms-action-secondary lms-focus-ring h-9 self-start rounded-lg px-3 text-xs font-semibold disabled:opacity-60"
-				onclick={loadMore}>{busy ? t('loading') : t('load_more')}</button
+				onclick={loadMore}>{pager.busy ? t('loading') : t('load_more')}</button
 			>
 		{/if}
 	{/if}
