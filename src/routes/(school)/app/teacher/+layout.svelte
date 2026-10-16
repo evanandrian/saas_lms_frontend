@@ -6,7 +6,7 @@
 	import { toWorkspaceNav } from '$lib/features/navigation/navigation.model';
 	import { workspaceIdentity } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
-	import { APP_PATHS } from '$lib/utils/app-paths';
+	import { APP_PATHS, BUILT_APP_PATHS } from '$lib/utils/app-paths';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Users from '@lucide/svelte/icons/users';
 	import type { LayoutProps } from './$types';
@@ -18,9 +18,6 @@
 
 	const isHomeroomView = $derived(data.activeView === 'homeroom');
 
-	// Rute yang sudah dibangun; menu tanpa halaman (mis. ditampilkan owner) tampil nonaktif, bukan menuju 404.
-	const BUILT_PATHS: ReadonlySet<string> = new Set(Object.values(APP_PATHS));
-
 	// Arsitektur informasi = susunan Menu & navigasi tampilan aktif (backend; cadangan: bawaan FLIXARE)
 	// + "Tagihan" bersyarat untuk pemilik tenant guru pribadi. Badge hanya bila backend mengirim angkanya.
 	const navItems = $derived(
@@ -30,7 +27,7 @@
 				roleCode: data.workspace?.user.role_code,
 				billingLabel: i18n.t('nav.teacher.billing')
 			}),
-			{ badges: data.workspace?.badges ?? {}, builtPaths: BUILT_PATHS }
+			{ badges: data.workspace?.badges ?? {}, builtPaths: BUILT_APP_PATHS }
 		)
 	);
 

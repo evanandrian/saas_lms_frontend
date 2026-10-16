@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { APP_PATHS } from '$lib/utils/app-paths';
+import { BUILT_APP_PATHS } from '$lib/utils/app-paths';
 import { defaultNavigationLayout } from '$lib/features/navigation/navigation.defaults';
 import {
 	NAVIGATION_BADGES,
@@ -237,10 +237,9 @@ describe('defaultNavigationLayout (cermin defaults.go)', () => {
 	});
 
 	it('menu fase 2 & 3 ber-href karena rutenya sudah dibangun', () => {
-		const built = new Set(Object.values(APP_PATHS));
 		const groups = toWorkspaceNav(visibleGroups(defaultNavigationLayout('school_admin').groups), {
 			badges: {},
-			builtPaths: built
+			builtPaths: BUILT_APP_PATHS
 		});
 		const hrefs = groups.flatMap((g) => g.items).map((i) => i.href);
 		for (const r of [
@@ -337,7 +336,6 @@ const ROLE_VISIBLE_GROUPS: Record<keyof typeof ROLE_SIDEBAR_SPEC, string[]> = {
 };
 
 const SCHOOL_ROLES = Object.keys(ROLE_SIDEBAR_SPEC) as (keyof typeof ROLE_SIDEBAR_SPEC)[];
-const BUILT_PATHS = new Set<string>(Object.values(APP_PATHS));
 
 describe('defaultNavigationLayout peran sekolah berkelompok (cermin defaults.go)', () => {
 	it.each(SCHOOL_ROLES)('%s: grup, kode, tersembunyi, badge, rute identik backend', (role) => {
@@ -359,7 +357,7 @@ describe('defaultNavigationLayout peran sekolah berkelompok (cermin defaults.go)
 		(role) => {
 			const nav = toWorkspaceNav(visibleGroups(defaultNavigationLayout(role).groups), {
 				badges: {},
-				builtPaths: BUILT_PATHS
+				builtPaths: BUILT_APP_PATHS
 			});
 			expect(nav.length).toBeGreaterThan(0);
 			for (const navItem of nav.flatMap((g) => g.items)) expect(navItem.href).toBeDefined();
@@ -371,7 +369,7 @@ describe('defaultNavigationLayout peran sekolah berkelompok (cermin defaults.go)
 			...g,
 			items: g.items.map((i) => ({ ...i, hidden: false }))
 		}));
-		const items = toWorkspaceNav(shown, { badges: {}, builtPaths: BUILT_PATHS }).flatMap(
+		const items = toWorkspaceNav(shown, { badges: {}, builtPaths: BUILT_APP_PATHS }).flatMap(
 			(g) => g.items
 		);
 		expect(items.find((i) => i.label === 'Kelas')?.href).toBeUndefined();
@@ -380,8 +378,8 @@ describe('defaultNavigationLayout peran sekolah berkelompok (cermin defaults.go)
 
 	it('badge hanya tampil bila backend mengirim angkanya', () => {
 		const groups = defaultNavigationLayout('student').groups;
-		const withoutCount = toWorkspaceNav(groups, { badges: {}, builtPaths: BUILT_PATHS });
-		const withCount = toWorkspaceNav(groups, { badges: { due: 2 }, builtPaths: BUILT_PATHS });
+		const withoutCount = toWorkspaceNav(groups, { badges: {}, builtPaths: BUILT_APP_PATHS });
+		const withCount = toWorkspaceNav(groups, { badges: { due: 2 }, builtPaths: BUILT_APP_PATHS });
 		const tugas = (nav: typeof withCount) =>
 			nav.flatMap((g) => g.items).find((i) => i.label === 'Tugas');
 		expect(tugas(withoutCount)?.badge).toBeUndefined();
