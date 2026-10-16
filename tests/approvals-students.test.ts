@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { studentsLabel } from '$lib/features/approvals/approvals.model';
+import { showAccountTable, studentsLabel } from '$lib/features/approvals/approvals.model';
 
 describe('studentsLabel', () => {
 	it('menggabungkan nama & kelas', () => {
@@ -13,5 +13,18 @@ describe('studentsLabel', () => {
 	it('kosong → string kosong', () => {
 		expect(studentsLabel(undefined)).toBe('');
 		expect(studentsLabel([])).toBe('');
+	});
+});
+
+describe('showAccountTable', () => {
+	it('tampil bila ada pengajuan akun', () => {
+		expect(showAccountTable(2, 0)).toBe(true);
+		expect(showAccountTable(2, 1)).toBe(true);
+	});
+	it('tersembunyi bila pengajuan akun kosong tetapi ada pengumuman', () => {
+		expect(showAccountTable(0, 1)).toBe(false);
+	});
+	it('kosong total tetap tampil (empty state)', () => {
+		expect(showAccountTable(0, 0)).toBe(true);
 	});
 });

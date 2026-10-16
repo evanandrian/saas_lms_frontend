@@ -50,6 +50,11 @@ export type DeadlineChip =
 	| { key: 'approved' | 'declined' | 'waiting' | 'self'; tone: string }
 	| { key: 'overdue_days' | 'overdue_hours' | 'left_hours' | 'left_days'; tone: string; n: number };
 
+/** Tabel pengajuan akun disembunyikan bila kosong tetapi grup pengumuman tampil; kosong total tetap menampilkan empty state. */
+export function showAccountTable(accountCount: number, announcementCount: number): boolean {
+	return accountCount > 0 || announcementCount === 0;
+}
+
 export function deadlineChip(x: InboxItem, now: number): DeadlineChip {
 	if (x.status === 'approved') return { key: 'approved', tone: 'lms-tone-success' };
 	if (x.status === 'declined') return { key: 'declined', tone: 'lms-tone-danger' };

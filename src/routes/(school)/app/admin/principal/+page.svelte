@@ -1199,7 +1199,11 @@
 			class="lms-card flex scroll-mt-21 flex-col gap-3 rounded-xl! p-5 shadow-none!"
 		>
 			<div class="flex flex-wrap items-center justify-between gap-2.5">
-				{@render sectionHead(i18n.t('dashboard.principal.agenda_announcements'))}
+				{@render sectionHead(
+					i18n.t('dashboard.principal.agenda_announcements'),
+					undefined,
+					agendaTab === 'agenda'
+				)}
 				{@render segmented(
 					[
 						{ key: 'agenda', label: i18n.t('dashboard.principal.tab_agenda') },
