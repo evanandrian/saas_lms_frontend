@@ -586,6 +586,157 @@ export interface SchoolExtraMember {
 	class_name: string;
 }
 
+export type SchoolAnnouncementStatus =
+	(typeof SchoolAnnouncementStatus)[keyof typeof SchoolAnnouncementStatus];
+
+export const SchoolAnnouncementStatus = {
+	draft: 'draft',
+	pending: 'pending',
+	published: 'published',
+	rejected: 'rejected',
+	archived: 'archived'
+} as const;
+
+/**
+ * all/teacher/student/guardian = umum; guardian_grade butuh grade_level_id; class butuh class_id (tahun ajaran aktif).
+ */
+export type SchoolAnnouncementAudience =
+	(typeof SchoolAnnouncementAudience)[keyof typeof SchoolAnnouncementAudience];
+
+export const SchoolAnnouncementAudience = {
+	all: 'all',
+	teacher: 'teacher',
+	student: 'student',
+	guardian: 'guardian',
+	guardian_grade: 'guardian_grade',
+	class: 'class'
+} as const;
+
+export type SchoolAnnouncementRejectReason =
+	(typeof SchoolAnnouncementRejectReason)[keyof typeof SchoolAnnouncementRejectReason];
+
+export const SchoolAnnouncementRejectReason = {
+	content: 'content',
+	audience: 'audience',
+	other: 'other'
+} as const;
+
+/**
+ * Judul 5–80 & isi 20–1000 karakter (code point setelah whitespace dirapikan; isi mempertahankan baris baru). Isu validasi: title/body `required`, `min_chars:<n>`, `max_chars:<n>`; audience `required`/`invalid`; grade_level_id & class_id `required`/`not_found`.
+ */
+export interface SchoolAnnouncementInput {
+	title: string;
+	body: string;
+	audience: SchoolAnnouncementAudience;
+	grade_level_id?: string;
+	class_id?: string;
+}
+
+export interface SchoolAnnouncementArchiveInput {
+	/** 5–200 karakter (isu `required`, `min_chars:5`, `max_chars:200`). */
+	reason: string;
+}
+
+export interface SchoolAnnouncementApproveInput {
+	/** Opsional, ≤ 500 karakter (isu `max_chars:500`). */
+	note?: string;
+}
+
+export interface SchoolAnnouncementRejectInput {
+	reason_code: SchoolAnnouncementRejectReason;
+	/** Wajib bila reason_code = other; ≤ 500 karakter. */
+	note?: string;
+}
+
+export interface SchoolAnnouncement {
+	id: string;
+	title: string;
+	body: string;
+	audience: SchoolAnnouncementAudience;
+	/** @nullable */
+	grade_level_id: string | null;
+	/** @nullable */
+	class_id: string | null;
+	/** Nama tingkat/kelas sasaran; kosong untuk sasaran umum. */
+	audience_label: string;
+	status: SchoolAnnouncementStatus;
+	author_name: string;
+	created_at: string;
+	updated_at: string;
+	/** @nullable */
+	submitted_at: string | null;
+	/** @nullable */
+	reviewed_at: string | null;
+	reviewer_name: string;
+	/**
+	 * content | audience | other (alasan penolakan terakhir); null bila belum pernah ditolak.
+	 * @nullable
+	 */
+	review_reason: string | null;
+	/** @nullable */
+	review_note: string | null;
+	/** @nullable */
+	published_at: string | null;
+	/** @nullable */
+	archived_at: string | null;
+	/** @nullable */
+	archive_reason: string | null;
+}
+
+export interface SchoolAnnouncementCounts {
+	all: number;
+	draft: number;
+	pending: number;
+	published: number;
+	rejected: number;
+	archived: number;
+}
+
+export interface SchoolAnnouncementsView {
+	items: SchoolAnnouncement[];
+	/** Kosong bila tidak ada halaman berikutnya. */
+	next_cursor: string;
+	counts: SchoolAnnouncementCounts;
+}
+
+export interface SchoolAnnouncementPendingView {
+	items: SchoolAnnouncement[];
+}
+
+export type SchoolAnnouncementAudienceOptionsGradesItem = {
+	id: string;
+	label: string;
+};
+
+export type SchoolAnnouncementAudienceOptionsClassesItem = {
+	id: string;
+	label: string;
+	grade_level_id: string;
+};
+
+export interface SchoolAnnouncementAudienceOptions {
+	grades: SchoolAnnouncementAudienceOptionsGradesItem[];
+	classes: SchoolAnnouncementAudienceOptionsClassesItem[];
+}
+
+export interface AnnouncementFeedItem {
+	id: string;
+	title: string;
+	/** Teks biasa (tampilkan sebagai teks; baris baru dipertahankan, tanpa HTML). */
+	body: string;
+	audience: SchoolAnnouncementAudience;
+	/** Nama tingkat/kelas sasaran; kosong untuk sasaran umum. */
+	audience_label: string;
+	published_at: string;
+	author_name: string;
+}
+
+export interface AnnouncementFeed {
+	items: AnnouncementFeedItem[];
+	/** Kosong bila tidak ada halaman berikutnya. */
+	next_cursor: string;
+}
+
 export interface SchoolExtraMembersInput {
 	student_ids?: string[];
 	class_id?: string;
@@ -2954,12 +3105,11 @@ export type PrincipalDashboardStudentsAtRiskItem = { [key: string]: unknown };
 
 export type PrincipalDashboardAgendaItem = { [key: string]: unknown };
 
-export type PrincipalDashboardAnnouncementsItem = { [key: string]: unknown };
-
 export interface PrincipalDashboard {
 	viewer: DashboardViewer;
 	tenant_name: string;
 	period: DashboardPeriod;
+	/** Pending account requests plus pending announcements for this principal (own items excluded). */
 	pending_approvals: number;
 	counts: PrincipalDashboardCounts;
 	subscription: DashboardSubscription | null;
@@ -3009,10 +3159,10 @@ export interface PrincipalDashboard {
 	 */
 	agenda?: PrincipalDashboardAgendaItem[] | null;
 	/**
-	 * Null until the backing module exists; the UI then shows labelled sample data.
+	 * 3 latest published announcements (all audiences); null when the tenant database is unavailable.
 	 * @nullable
 	 */
-	announcements?: PrincipalDashboardAnnouncementsItem[] | null;
+	announcements?: AnnouncementFeedItem[] | null;
 }
 
 export type HomeroomDashboardStudentsItem = { [key: string]: unknown };
@@ -4487,7 +4637,7 @@ export type AuditErrorResponse = AccountErrorResponse;
 export type ClusterErrorResponse = AccountErrorResponse;
 
 /**
- * Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.
+ * Error envelope. School admin codes: `validation_failed` (details = [{field, code}]), `quota_students_exceeded` (402), `not_found`, `class_not_found` (404, class absent/outside active year/other tenant), `recipient_invalid` (422, reminder recipient not valid for the class), `audit_export_range_invalid` (422, export range > 90 days or from > to), `in_use` (409), `invalid_transition` (409), `announcement_invalid_transition` (409, announcement status changed or action not allowed in its status), `announcement_self_review` (403, author cannot approve/reject own announcement), `announcement_not_found` (404), `invoice_partially_paid` (409, previous activation invoice already has succeeded payments), `invitation_invalid` (410), `forbidden`, `tenant_terminated` (403, tenant lifecycle terminated), `tenant_read_only` (423, tenant suspended/trial_expired — write methods rejected, GET allowed; POST /school/subscription/activation is exempt), `not_ready`, `tenant_maintenance` (503, cluster under maintenance), `rate_limited` (429, public invitation/activation endpoints; see SchoolRateLimited), `invalid_request`, `internal_error`. Import: `validation_failed` rows:too_many_rows / rows:duplicate_no.
  */
 export type SchoolAdminErrorResponse = AccountErrorResponse;
 
@@ -5281,6 +5431,68 @@ export type RemoveSchoolExtraMember200 = {
 	data: SchoolExtraMembersView;
 };
 
+export type ListSchoolAnnouncementsParams = {
+	/**
+	 * Filter status; kosong = semua.
+	 */
+	status?: SchoolAnnouncementStatus;
+	/**
+	 * Kursor opak next_cursor dari halaman sebelumnya; kirim balik apa adanya.
+	 */
+	cursor?: string;
+};
+
+export type ListSchoolAnnouncements200 = {
+	data: SchoolAnnouncementsView;
+};
+
+export type CreateSchoolAnnouncement201 = {
+	data: SchoolAnnouncement;
+};
+
+export type GetSchoolAnnouncementAudienceOptions200 = {
+	data: SchoolAnnouncementAudienceOptions;
+};
+
+export type ListPendingSchoolAnnouncements200 = {
+	data: SchoolAnnouncementPendingView;
+};
+
+export type UpdateSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type SubmitSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type WithdrawSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type ArchiveSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type ApproveSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type RejectSchoolAnnouncement200 = {
+	data: SchoolAnnouncement;
+};
+
+export type GetAnnouncementFeedParams = {
+	/**
+	 * Kursor opak next_cursor dari halaman sebelumnya; kirim balik apa adanya.
+	 */
+	cursor?: string;
+};
+
+export type GetAnnouncementFeed200 = {
+	data: AnnouncementFeed;
+};
+
 export type ListSchoolYears200 = {
 	data: SchoolYearsView;
 };
@@ -5391,7 +5603,7 @@ export type GetSchoolInviteJob200 = {
 
 export type GetSchoolAuditParams = {
 	/**
-	 * academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*
+	 * academic = academic_year.* + class.* + subject.*; planning = planning.*; reminder = attendance.remind + report.remind; export = export.*; announcement = announcement.*
 	 */
 	category?: GetSchoolAuditCategory;
 	from?: string;
@@ -5422,7 +5634,8 @@ export const GetSchoolAuditCategory = {
 	academic: 'academic',
 	planning: 'planning',
 	reminder: 'reminder',
-	export: 'export'
+	export: 'export',
+	announcement: 'announcement'
 } as const;
 
 export type GetSchoolAudit200 = {
@@ -5454,7 +5667,8 @@ export const ExportSchoolAuditCategory = {
 	academic: 'academic',
 	planning: 'planning',
 	reminder: 'reminder',
-	export: 'export'
+	export: 'export',
+	announcement: 'announcement'
 } as const;
 
 export type GetSchoolAttendanceParams = {
@@ -14668,6 +14882,589 @@ export const removeSchoolExtraMember = async (
 	return lmsFetch<removeSchoolExtraMemberResponse>(getRemoveSchoolExtraMemberUrl(id, studentID), {
 		...options,
 		method: 'DELETE'
+	});
+};
+
+export type listSchoolAnnouncementsResponse200 = {
+	data: ListSchoolAnnouncements200;
+	status: 200;
+};
+
+export type listSchoolAnnouncementsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listSchoolAnnouncementsResponseSuccess = listSchoolAnnouncementsResponse200 & {
+	headers: Headers;
+};
+export type listSchoolAnnouncementsResponseError = listSchoolAnnouncementsResponseDefault & {
+	headers: Headers;
+};
+
+export type listSchoolAnnouncementsResponse =
+	listSchoolAnnouncementsResponseSuccess | listSchoolAnnouncementsResponseError;
+
+export const getListSchoolAnnouncementsUrl = (params?: ListSchoolAnnouncementsParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/school/announcements?${stringifiedParams}`
+		: `/api/v1/school/announcements`;
+};
+
+/**
+ * @summary Announcements of the school (SCHOOL_ADMIN; 20 per page, newest first) with counts per status
+ */
+export const listSchoolAnnouncements = async (
+	params?: ListSchoolAnnouncementsParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listSchoolAnnouncementsResponse> => {
+	return lmsFetch<listSchoolAnnouncementsResponse>(getListSchoolAnnouncementsUrl(params), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type createSchoolAnnouncementResponse201 = {
+	data: CreateSchoolAnnouncement201;
+	status: 201;
+};
+
+export type createSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 201>;
+};
+
+export type createSchoolAnnouncementResponseSuccess = createSchoolAnnouncementResponse201 & {
+	headers: Headers;
+};
+export type createSchoolAnnouncementResponseError = createSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type createSchoolAnnouncementResponse =
+	createSchoolAnnouncementResponseSuccess | createSchoolAnnouncementResponseError;
+
+export const getCreateSchoolAnnouncementUrl = () => {
+	return `/api/v1/school/announcements`;
+};
+
+/**
+ * @summary Create a draft announcement (SCHOOL_ADMIN)
+ */
+export const createSchoolAnnouncement = async (
+	schoolAnnouncementInput: SchoolAnnouncementInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<createSchoolAnnouncementResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<createSchoolAnnouncementResponse>(getCreateSchoolAnnouncementUrl(), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAnnouncementInput)
+	});
+};
+
+export type getSchoolAnnouncementAudienceOptionsResponse200 = {
+	data: GetSchoolAnnouncementAudienceOptions200;
+	status: 200;
+};
+
+export type getSchoolAnnouncementAudienceOptionsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getSchoolAnnouncementAudienceOptionsResponseSuccess =
+	getSchoolAnnouncementAudienceOptionsResponse200 & {
+		headers: Headers;
+	};
+export type getSchoolAnnouncementAudienceOptionsResponseError =
+	getSchoolAnnouncementAudienceOptionsResponseDefault & {
+		headers: Headers;
+	};
+
+export type getSchoolAnnouncementAudienceOptionsResponse =
+	| getSchoolAnnouncementAudienceOptionsResponseSuccess
+	| getSchoolAnnouncementAudienceOptionsResponseError;
+
+export const getGetSchoolAnnouncementAudienceOptionsUrl = () => {
+	return `/api/v1/school/announcements/audience-options`;
+};
+
+/**
+ * @summary Grades and classes of the active academic year for announcement targeting (SCHOOL_ADMIN)
+ */
+export const getSchoolAnnouncementAudienceOptions = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getSchoolAnnouncementAudienceOptionsResponse> => {
+	return lmsFetch<getSchoolAnnouncementAudienceOptionsResponse>(
+		getGetSchoolAnnouncementAudienceOptionsUrl(),
+		{
+			...options,
+			method: 'GET'
+		}
+	);
+};
+
+export type listPendingSchoolAnnouncementsResponse200 = {
+	data: ListPendingSchoolAnnouncements200;
+	status: 200;
+};
+
+export type listPendingSchoolAnnouncementsResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type listPendingSchoolAnnouncementsResponseSuccess =
+	listPendingSchoolAnnouncementsResponse200 & {
+		headers: Headers;
+	};
+export type listPendingSchoolAnnouncementsResponseError =
+	listPendingSchoolAnnouncementsResponseDefault & {
+		headers: Headers;
+	};
+
+export type listPendingSchoolAnnouncementsResponse =
+	listPendingSchoolAnnouncementsResponseSuccess | listPendingSchoolAnnouncementsResponseError;
+
+export const getListPendingSchoolAnnouncementsUrl = () => {
+	return `/api/v1/school/announcements/pending`;
+};
+
+/**
+ * @summary Announcements waiting for the principal (PRINCIPAL; oldest first, max 200, own announcements excluded)
+ */
+export const listPendingSchoolAnnouncements = async (
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<listPendingSchoolAnnouncementsResponse> => {
+	return lmsFetch<listPendingSchoolAnnouncementsResponse>(getListPendingSchoolAnnouncementsUrl(), {
+		...options,
+		method: 'GET'
+	});
+};
+
+export type updateSchoolAnnouncementResponse200 = {
+	data: UpdateSchoolAnnouncement200;
+	status: 200;
+};
+
+export type updateSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type updateSchoolAnnouncementResponseSuccess = updateSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type updateSchoolAnnouncementResponseError = updateSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type updateSchoolAnnouncementResponse =
+	updateSchoolAnnouncementResponseSuccess | updateSchoolAnnouncementResponseError;
+
+export const getUpdateSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}`;
+};
+
+/**
+ * @summary Edit a draft or rejected announcement (SCHOOL_ADMIN)
+ */
+export const updateSchoolAnnouncement = async (
+	id: string,
+	schoolAnnouncementInput: SchoolAnnouncementInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<updateSchoolAnnouncementResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<updateSchoolAnnouncementResponse>(getUpdateSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAnnouncementInput)
+	});
+};
+
+export type deleteSchoolAnnouncementResponse204 = {
+	data: void;
+	status: 204;
+};
+
+export type deleteSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 204>;
+};
+
+export type deleteSchoolAnnouncementResponseSuccess = deleteSchoolAnnouncementResponse204 & {
+	headers: Headers;
+};
+export type deleteSchoolAnnouncementResponseError = deleteSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type deleteSchoolAnnouncementResponse =
+	deleteSchoolAnnouncementResponseSuccess | deleteSchoolAnnouncementResponseError;
+
+export const getDeleteSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}`;
+};
+
+/**
+ * @summary Delete a draft announcement (SCHOOL_ADMIN)
+ */
+export const deleteSchoolAnnouncement = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<deleteSchoolAnnouncementResponse> => {
+	return lmsFetch<deleteSchoolAnnouncementResponse>(getDeleteSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'DELETE'
+	});
+};
+
+export type submitSchoolAnnouncementResponse200 = {
+	data: SubmitSchoolAnnouncement200;
+	status: 200;
+};
+
+export type submitSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type submitSchoolAnnouncementResponseSuccess = submitSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type submitSchoolAnnouncementResponseError = submitSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type submitSchoolAnnouncementResponse =
+	submitSchoolAnnouncementResponseSuccess | submitSchoolAnnouncementResponseError;
+
+export const getSubmitSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}/submit`;
+};
+
+/**
+ * @summary Submit a draft to the principal (SCHOOL_ADMIN)
+ */
+export const submitSchoolAnnouncement = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<submitSchoolAnnouncementResponse> => {
+	return lmsFetch<submitSchoolAnnouncementResponse>(getSubmitSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type withdrawSchoolAnnouncementResponse200 = {
+	data: WithdrawSchoolAnnouncement200;
+	status: 200;
+};
+
+export type withdrawSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type withdrawSchoolAnnouncementResponseSuccess = withdrawSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type withdrawSchoolAnnouncementResponseError = withdrawSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type withdrawSchoolAnnouncementResponse =
+	withdrawSchoolAnnouncementResponseSuccess | withdrawSchoolAnnouncementResponseError;
+
+export const getWithdrawSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}/withdraw`;
+};
+
+/**
+ * @summary Withdraw a pending announcement back to draft (SCHOOL_ADMIN)
+ */
+export const withdrawSchoolAnnouncement = async (
+	id: string,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<withdrawSchoolAnnouncementResponse> => {
+	return lmsFetch<withdrawSchoolAnnouncementResponse>(getWithdrawSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'POST'
+	});
+};
+
+export type archiveSchoolAnnouncementResponse200 = {
+	data: ArchiveSchoolAnnouncement200;
+	status: 200;
+};
+
+export type archiveSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type archiveSchoolAnnouncementResponseSuccess = archiveSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type archiveSchoolAnnouncementResponseError = archiveSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type archiveSchoolAnnouncementResponse =
+	archiveSchoolAnnouncementResponseSuccess | archiveSchoolAnnouncementResponseError;
+
+export const getArchiveSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}/archive`;
+};
+
+/**
+ * @summary Archive a published announcement with a reason (SCHOOL_ADMIN)
+ */
+export const archiveSchoolAnnouncement = async (
+	id: string,
+	schoolAnnouncementArchiveInput: SchoolAnnouncementArchiveInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<archiveSchoolAnnouncementResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<archiveSchoolAnnouncementResponse>(getArchiveSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAnnouncementArchiveInput)
+	});
+};
+
+export type approveSchoolAnnouncementResponse200 = {
+	data: ApproveSchoolAnnouncement200;
+	status: 200;
+};
+
+export type approveSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type approveSchoolAnnouncementResponseSuccess = approveSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type approveSchoolAnnouncementResponseError = approveSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type approveSchoolAnnouncementResponse =
+	approveSchoolAnnouncementResponseSuccess | approveSchoolAnnouncementResponseError;
+
+export const getApproveSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}/approve`;
+};
+
+/**
+ * @summary Approve and publish a pending announcement (PRINCIPAL, not the author)
+ */
+export const approveSchoolAnnouncement = async (
+	id: string,
+	schoolAnnouncementApproveInput?: SchoolAnnouncementApproveInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<approveSchoolAnnouncementResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<approveSchoolAnnouncementResponse>(getApproveSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAnnouncementApproveInput)
+	});
+};
+
+export type rejectSchoolAnnouncementResponse200 = {
+	data: RejectSchoolAnnouncement200;
+	status: 200;
+};
+
+export type rejectSchoolAnnouncementResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type rejectSchoolAnnouncementResponseSuccess = rejectSchoolAnnouncementResponse200 & {
+	headers: Headers;
+};
+export type rejectSchoolAnnouncementResponseError = rejectSchoolAnnouncementResponseDefault & {
+	headers: Headers;
+};
+
+export type rejectSchoolAnnouncementResponse =
+	rejectSchoolAnnouncementResponseSuccess | rejectSchoolAnnouncementResponseError;
+
+export const getRejectSchoolAnnouncementUrl = (id: string) => {
+	return `/api/v1/school/announcements/${id}/reject`;
+};
+
+/**
+ * @summary Reject a pending announcement with a reason (PRINCIPAL, not the author)
+ */
+export const rejectSchoolAnnouncement = async (
+	id: string,
+	schoolAnnouncementRejectInput: SchoolAnnouncementRejectInput,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<rejectSchoolAnnouncementResponse> => {
+	const getHeaders = (
+		h?: NonNullable<RequestInit['headers']>
+	): Record<string, string | readonly string[]> => {
+		if (!h) return {};
+		if (h instanceof Headers) return Object.fromEntries(h.entries());
+		if (Symbol.iterator in h) {
+			return Object.fromEntries(
+				Array.from(
+					h as Iterable<Iterable<string>>,
+					(entry) => Array.from(entry) as [string, string]
+				)
+			);
+		}
+		const headers: Record<string, string | readonly string[]> = {};
+		for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+			if (value !== undefined) headers[name] = value;
+		}
+		return headers;
+	};
+	return lmsFetch<rejectSchoolAnnouncementResponse>(getRejectSchoolAnnouncementUrl(id), {
+		...options,
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+		body: JSON.stringify(schoolAnnouncementRejectInput)
+	});
+};
+
+export type getAnnouncementFeedResponse200 = {
+	data: GetAnnouncementFeed200;
+	status: 200;
+};
+
+export type getAnnouncementFeedResponseDefault = {
+	data: SchoolAdminErrorResponse;
+	status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type getAnnouncementFeedResponseSuccess = getAnnouncementFeedResponse200 & {
+	headers: Headers;
+};
+export type getAnnouncementFeedResponseError = getAnnouncementFeedResponseDefault & {
+	headers: Headers;
+};
+
+export type getAnnouncementFeedResponse =
+	getAnnouncementFeedResponseSuccess | getAnnouncementFeedResponseError;
+
+export const getGetAnnouncementFeedUrl = (params?: GetAnnouncementFeedParams) => {
+	const normalizedParams = new URLSearchParams();
+
+	Object.entries(params || {}).forEach(([key, value]) => {
+		if (value !== undefined) {
+			normalizedParams.append(key, value === null ? 'null' : String(value));
+		}
+	});
+
+	const stringifiedParams = normalizedParams.toString();
+
+	return stringifiedParams.length > 0
+		? `/api/v1/announcements/feed?${stringifiedParams}`
+		: `/api/v1/announcements/feed`;
+};
+
+/**
+ * @summary Published announcements addressed to the caller (any tenant member; 20 per page, newest first)
+ */
+export const getAnnouncementFeed = async (
+	params?: GetAnnouncementFeedParams,
+	options?: Parameters<typeof lmsFetch>[1]
+): Promise<getAnnouncementFeedResponse> => {
+	return lmsFetch<getAnnouncementFeedResponse>(getGetAnnouncementFeedUrl(params), {
+		...options,
+		method: 'GET'
 	});
 };
 

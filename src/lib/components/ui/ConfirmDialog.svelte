@@ -39,6 +39,8 @@
 		action?: string;
 		/** Alternatif `action`: konfirmasi memanggil fungsi ini (tanpa navigasi), lalu dialog ditutup. */
 		onconfirm?: () => void | Promise<void>;
+		/** Tombol konfirmasi nonaktif (mis. isian wajib di `options` belum sah). */
+		confirmDisabled?: boolean;
 	}
 
 	let {
@@ -56,7 +58,8 @@
 		cancelLabel,
 		keyHint,
 		action,
-		onconfirm
+		onconfirm,
+		confirmDisabled = false
 	}: Props = $props();
 
 	const titleId = $props.id();
@@ -75,6 +78,10 @@
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
+		if (confirmDisabled) {
+			event.preventDefault();
+			return;
+		}
 		isBusy = true;
 		if (!onconfirm) return;
 		event.preventDefault();
@@ -157,6 +164,7 @@
 					tone === 'primary' ? 'lms-action-primary' : 'lms-action-destructive'
 				]}
 				aria-busy={isBusy}
+				disabled={confirmDisabled}
 				autofocus
 			>
 				{#if confirmIcon}<Icon icon={confirmIcon} size="sm" />{/if}

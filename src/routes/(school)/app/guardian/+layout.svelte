@@ -31,7 +31,11 @@
 			icon: FileText,
 			href: APP_PATHS.GUARDIAN_REPORTS
 		},
-		{ label: i18n.t('nav.guardian.announcements'), icon: Megaphone },
+		{
+			label: i18n.t('nav.guardian.announcements'),
+			icon: Megaphone,
+			href: APP_PATHS.GUARDIAN_ANNOUNCEMENTS
+		},
 		{
 			label: i18n.t('nav.guardian.messages'),
 			icon: MessageSquare,

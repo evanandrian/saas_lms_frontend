@@ -387,22 +387,5 @@ export const principalSample = {
 		{ date: '17 Okt', title: 'Pertemuan orang tua & wali kelas', detail: '09.00 WIB · Aula' },
 		{ date: '16 Nov', title: 'Pekan asesmen sumatif', detail: '16–20 Nov 2026' },
 		{ date: '18 Des', title: 'Tenggat persetujuan rapor', detail: 'Seluruh kelas' }
-	] satisfies DatedItem[],
-	announcements: [
-		{
-			date: '2 Okt',
-			title: 'Jadwal asesmen tengah semester',
-			detail: 'Ahmad Fauzi · dikirim ke guru, murid, dan orang tua'
-		},
-		{
-			date: '30 Sep',
-			title: 'Libur Maulid Nabi',
-			detail: 'Ahmad Fauzi · dikirim ke semua pengguna'
-		},
-		{
-			date: '25 Sep',
-			title: 'Pembaruan tata tertib seragam',
-			detail: 'Dewi Anggraini · dikirim ke murid dan orang tua'
-		}
 	] satisfies DatedItem[]
 };

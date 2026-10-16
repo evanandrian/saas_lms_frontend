@@ -20,6 +20,7 @@
 	import FileUp from '@lucide/svelte/icons/file-up';
 	import IdCard from '@lucide/svelte/icons/id-card';
 	import Inbox from '@lucide/svelte/icons/inbox';
+	import Megaphone from '@lucide/svelte/icons/megaphone';
 	import Info from '@lucide/svelte/icons/info';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import Paperclip from '@lucide/svelte/icons/paperclip';
@@ -33,6 +34,8 @@
 	import X from '@lucide/svelte/icons/x';
 	import { onMount, untrack } from 'svelte';
 	import type { BulkApproveResult } from '$lib/api/generated/lms';
+	import AnnouncementReviewList from '$lib/features/announcements/components/AnnouncementReviewList.svelte';
+	import type { SchoolAnnouncement } from '$lib/features/announcements/announcements.types';
 	import {
 		DECISIONS,
 		DOCUMENT_OPTIONS,
@@ -43,6 +46,7 @@
 		REQUEST_KINDS,
 		ago,
 		deadlineChip,
+		showAccountTable,
 		hoursLeft,
 		inTab,
 		initials,
@@ -62,6 +66,8 @@
 		area: 'platform' | 'school_admin';
 		inbox: InboxData | null;
 		failure: string | null;
+		/** Pengumuman menunggu (hanya kepala sekolah; selain itu null/tidak ada). */
+		announcements?: SchoolAnnouncement[] | null;
 	}
 
 	interface Props {
@@ -96,9 +102,16 @@
 	const APPROVALS_DEPENDENCY = 'app:approvals';
 	const TICK_MS = 60_000;
 
+	/** Filter jenis: pengajuan akun + "Pengumuman" (kepala sekolah). */
+	const ANNOUNCEMENT_KIND = 'announcement';
+	type FilterKind = RequestKind | typeof ANNOUNCEMENT_KIND;
+
 	let inbox = $state<InboxData | null>(untrack(() => data.inbox));
+	let announcements = $state<SchoolAnnouncement[] | null>(
+		untrack(() => data.announcements ?? null)
+	);
 	let tab = $state<InboxTab>('pending');
-	let types = $state<RequestKind[]>([]);
+	let types = $state<FilterKind[]>([]);
 	let query = $state('');
 	let openId = $state<string | null>(null);
 	let decision = $state<Decision>('approve');
@@ -131,6 +144,18 @@
 	const role = $derived(inbox?.approver_role ?? 'school_admin');
 	const items = $derived(inbox?.items ?? []);
 	const pending = $derived(items.filter((x) => x.status === 'pending'));
+	const filterKinds = $derived<FilterKind[]>(
+		announcements ? [...REQUEST_KINDS, ANNOUNCEMENT_KIND] : [...REQUEST_KINDS]
+	);
+	/** Pengumuman tampil di tab Menunggu saja (tanpa tab Dokumen & tanpa setujui massal). */
+	const visibleAnnouncements = $derived.by(() => {
+		if (tab !== 'pending' || !announcements) return [];
+		if (types.length && !types.includes(ANNOUNCEMENT_KIND)) return [];
+		const q = query.trim().toLowerCase();
+		return announcements.filter(
+			(a) => !q || a.title.toLowerCase().includes(q) || a.author_name.toLowerCase().includes(q)
+		);
+	});
 	const waitingDocs = $derived(items.filter((x) => x.status === 'need_docs'));
 	const done = $derived(items.filter(isDone));
 	const overdue = $derived(pending.filter((x) => !x.self && hoursLeft(x, now) < 0).length);
@@ -364,7 +389,7 @@
 		>
 			{#snippet actions()}
 				<dl class="flex flex-wrap gap-5">
-					{#each [['pending', pending.filter((x) => !x.self).length], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
+					{#each [['pending', pending.filter((x) => !x.self).length + (announcements?.length ?? 0)], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
 						<div
 							class="flex flex-col gap-0.5 border-lms-on-hero/14 bg-lms-on-hero/8 rounded-lg p-3 border"
 						>
@@ -392,7 +417,7 @@
 					{#each INBOX_TABS as key (key)}
 						{@const count =
 							key === 'pending'
-								? pending.length
+								? pending.length + (announcements?.length ?? 0)
 								: key === 'docs'
 									? waitingDocs.length
 									: done.length}
@@ -413,7 +438,7 @@
 					{/each}
 				</div>
 				<div class="flex flex-wrap gap-1.5">
-					{#each REQUEST_KINDS as kind (kind)}
+					{#each filterKinds as kind (kind)}
 						{@const on = types.includes(kind)}
 						<button
 							type="button"
@@ -422,7 +447,12 @@
 								? 'border-lms-interactive bg-lms-interactive-subtle text-lms-foreground'
 								: 'border-lms-border-strong bg-lms-surface text-lms-muted'}"
 							onclick={() => (types = on ? types.filter((k) => k !== kind) : [...types, kind])}
-							><Icon icon={KIND_ICON[kind]} size="sm" />{kindLabel(kind)}</button
+							><Icon
+								icon={kind === ANNOUNCEMENT_KIND ? Megaphone : KIND_ICON[kind]}
+								size="sm"
+							/>{kind === ANNOUNCEMENT_KIND
+								? i18n.t('announcements.review.kind')
+								: kindLabel(kind)}</button
 						>
 					{/each}
 				</div>
@@ -441,368 +471,385 @@
 				</label>
 			</div>
 
-			<div class="overflow-x-auto">
-				<div class="min-w-[860px]" role="table" aria-label={t('title')}>
-					<div
-						class="bg-lms-background border-lms-border text-lms-muted grid grid-cols-[44px_minmax(180px,1.3fr)_150px_minmax(200px,1.6fr)_110px_130px_36px] items-center gap-3 border-b px-4 py-2.5 font-mono text-[11px] tracking-[0.08em]"
-						role="row"
-					>
-						<span role="columnheader">
-							{#if tab === 'pending' && selectable.length}
-								<button
-									type="button"
-									role="checkbox"
-									aria-checked={allOn}
-									aria-label={t('select_all')}
-									class="lms-focus-ring text-lms-on-interactive flex size-5 items-center justify-center rounded-[5px] border-[1.5px] {allOn
-										? 'bg-lms-interactive border-lms-interactive'
-										: 'border-lms-border-strong'}"
-									onclick={() => (selected = allOn ? [] : selectable.map((x) => x.id))}
-									><span class={allOn ? '' : 'opacity-0'}><Icon icon={Check} size="sm" /></span
-									></button
-								>
-							{/if}
-						</span>
-						<span role="columnheader">{t('col.requester')}</span>
-						<span role="columnheader">{t('col.kind')}</span>
-						<span role="columnheader">{t('col.change')}</span>
-						<span role="columnheader">{t('col.submitted')}</span>
-						<span role="columnheader">{tab === 'done' ? t('col.decision') : t('col.deadline')}</span
-						>
-						<span role="columnheader"></span>
-					</div>
+			{#if visibleAnnouncements.length}
+				<AnnouncementReviewList
+					items={visibleAnnouncements}
+					onchange={(next) => (announcements = next)}
+					onremove={(id) => (announcements = announcements?.filter((x) => x.id !== id) ?? null)}
+					notify={(message, error) => say(message, error ? CircleX : CircleCheck)}
+				/>
+			{/if}
 
-					{#each list as x (x.id)}
-						{@const isOpen = openId === x.id}
-						{@const on = selected.includes(x.id)}
-						{@const chip = deadlineChip(x, now)}
+			{#if showAccountTable(list.length, visibleAnnouncements.length)}
+				<div class="overflow-x-auto">
+					<div class="min-w-[860px]" role="table" aria-label={t('title')}>
 						<div
-							class="border-lms-border border-b {isOpen
-								? 'bg-lms-interactive-subtle/40 shadow-[inset_3px_0_0_var(--color-lms-interactive)]'
-								: on
-									? 'bg-lms-interactive-subtle/60'
-									: ''}"
-							role="rowgroup"
+							class="bg-lms-background border-lms-border text-lms-muted grid grid-cols-[44px_minmax(180px,1.3fr)_150px_minmax(200px,1.6fr)_110px_130px_36px] items-center gap-3 border-b px-4 py-2.5 font-mono text-[11px] tracking-[0.08em]"
+							role="row"
 						>
-							<div
-								class="grid grid-cols-[44px_minmax(180px,1.3fr)_150px_minmax(200px,1.6fr)_110px_130px_36px] items-center gap-3 px-4 py-3"
-								role="row"
-							>
-								<span class="flex" role="cell">
-									{#if tab === 'pending' && !x.self}
-										<button
-											type="button"
-											role="checkbox"
-											aria-checked={on}
-											aria-label={t('select', { name: x.requester.name })}
-											class="lms-focus-ring text-lms-on-interactive flex size-5 items-center justify-center rounded-[5px] border-[1.5px] {on
-												? 'bg-lms-interactive border-lms-interactive'
-												: 'border-lms-border-strong'}"
-											onclick={() =>
-												(selected = on ? selected.filter((y) => y !== x.id) : [...selected, x.id])}
-											><span class={on ? '' : 'opacity-0'}><Icon icon={Check} size="sm" /></span
-											></button
-										>
-									{/if}
-								</span>
-								<button
-									type="button"
-									class="lms-focus-ring flex min-w-0 items-center gap-2.5 text-start"
-									aria-expanded={isOpen}
-									onclick={() => toggle(x.id)}
-								>
-									<span
-										class="bg-lms-interactive text-lms-on-interactive flex size-8 flex-none items-center justify-center rounded-full text-[11px] font-bold"
-										aria-hidden="true">{initials(x.requester.name)}</span
+							<span role="columnheader">
+								{#if tab === 'pending' && selectable.length}
+									<button
+										type="button"
+										role="checkbox"
+										aria-checked={allOn}
+										aria-label={t('select_all')}
+										class="lms-focus-ring text-lms-on-interactive flex size-5 items-center justify-center rounded-[5px] border-[1.5px] {allOn
+											? 'bg-lms-interactive border-lms-interactive'
+											: 'border-lms-border-strong'}"
+										onclick={() => (selected = allOn ? [] : selectable.map((x) => x.id))}
+										><span class={allOn ? '' : 'opacity-0'}><Icon icon={Check} size="sm" /></span
+										></button
 									>
-									<span class="flex min-w-0 flex-col gap-0.5">
-										<span class="flex flex-wrap items-center gap-1.5 text-sm font-bold"
-											>{x.requester.name}
-											{#if isNew(x, now)}<span
-													class="bg-lms-interactive text-lms-on-interactive rounded-full px-1.5 py-px text-[9px] font-bold"
-													>{t('new')}</span
-												>{/if}</span
-										>
-										<span class="text-lms-muted truncate text-xs"
-											>{x.requester.role_name} · APV-{x.number}</span
-										>
-										{#if studentsLabel(x.students)}
-											<span class="text-lms-muted truncate text-xs"
-												>{t('students', { names: studentsLabel(x.students) })}</span
+								{/if}
+							</span>
+							<span role="columnheader">{t('col.requester')}</span>
+							<span role="columnheader">{t('col.kind')}</span>
+							<span role="columnheader">{t('col.change')}</span>
+							<span role="columnheader">{t('col.submitted')}</span>
+							<span role="columnheader"
+								>{tab === 'done' ? t('col.decision') : t('col.deadline')}</span
+							>
+							<span role="columnheader"></span>
+						</div>
+
+						{#each list as x (x.id)}
+							{@const isOpen = openId === x.id}
+							{@const on = selected.includes(x.id)}
+							{@const chip = deadlineChip(x, now)}
+							<div
+								class="border-lms-border border-b {isOpen
+									? 'bg-lms-interactive-subtle/40 shadow-[inset_3px_0_0_var(--color-lms-interactive)]'
+									: on
+										? 'bg-lms-interactive-subtle/60'
+										: ''}"
+								role="rowgroup"
+							>
+								<div
+									class="grid grid-cols-[44px_minmax(180px,1.3fr)_150px_minmax(200px,1.6fr)_110px_130px_36px] items-center gap-3 px-4 py-3"
+									role="row"
+								>
+									<span class="flex" role="cell">
+										{#if tab === 'pending' && !x.self}
+											<button
+												type="button"
+												role="checkbox"
+												aria-checked={on}
+												aria-label={t('select', { name: x.requester.name })}
+												class="lms-focus-ring text-lms-on-interactive flex size-5 items-center justify-center rounded-[5px] border-[1.5px] {on
+													? 'bg-lms-interactive border-lms-interactive'
+													: 'border-lms-border-strong'}"
+												onclick={() =>
+													(selected = on
+														? selected.filter((y) => y !== x.id)
+														: [...selected, x.id])}
+												><span class={on ? '' : 'opacity-0'}><Icon icon={Check} size="sm" /></span
+												></button
 											>
 										{/if}
 									</span>
-								</button>
-								<span class="flex" role="cell"
-									><span
-										class="bg-lms-surface-muted flex items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[11px] font-bold whitespace-nowrap"
-										><Icon icon={KIND_ICON[x.kind as RequestKind]} size="sm" />{kindLabel(
-											x.kind
-										)}</span
-									></span
-								>
-								<span class="flex min-w-0 flex-col gap-0.5 text-[13px]" role="cell">
-									<span class="text-lms-muted text-xs">{fieldLabel(x)}</span>
-									<span class="truncate"
-										><span class="text-lms-muted line-through">{fromValue(x)}</span>
-										<span class="text-lms-muted">→</span> <b>{toValue(x)}</b></span
+									<button
+										type="button"
+										class="lms-focus-ring flex min-w-0 items-center gap-2.5 text-start"
+										aria-expanded={isOpen}
+										onclick={() => toggle(x.id)}
 									>
-								</span>
-								<span class="flex flex-col gap-0.5 text-xs" role="cell">
-									<span>{agoLabel(x.created_at)}</span>
-									{#if x.documents.length}
-										<span class="text-lms-muted flex items-center gap-1"
-											><Icon icon={Paperclip} size="sm" />{t('attachments', {
-												n: x.documents.length
-											})}</span
+										<span
+											class="bg-lms-interactive text-lms-on-interactive flex size-8 flex-none items-center justify-center rounded-full text-[11px] font-bold"
+											aria-hidden="true">{initials(x.requester.name)}</span
 										>
-									{/if}
-								</span>
-								<span class="flex" role="cell"
-									><span
-										class="flex items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[11px] font-bold whitespace-nowrap {chip.tone}"
-										><Icon icon={CHIP_ICON[chip.key] ?? Timer} size="sm" />{chipLabel(x)}</span
-									></span
-								>
-								<button
-									type="button"
-									aria-label={t('details')}
-									aria-expanded={isOpen}
-									class="lms-focus-ring border-lms-border-strong bg-lms-surface text-lms-muted flex size-8 items-center justify-center rounded-lg border"
-									onclick={() => toggle(x.id)}
-									><Icon icon={isOpen ? ChevronUp : ChevronDown} size="sm" /></button
-								>
-							</div>
-
-							{#if isOpen && opened}
-								<div class="flex flex-wrap items-start gap-5 ps-[72px] pe-4 pt-1 pb-[18px]">
-									<div class="flex min-w-0 flex-[1_1_320px] flex-col gap-3">
-										<div
-											class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-2.5"
-										>
-											<div class="lms-tone-danger flex flex-col gap-1 rounded-lg px-3 py-2.5">
-												<span class="font-mono text-[10px] tracking-[0.08em]">{t('current')}</span>
-												<span class="text-lms-foreground text-sm [overflow-wrap:anywhere]"
-													>{fromValue(x)}</span
-												>
-											</div>
-											<div class="lms-tone-success flex flex-col gap-1 rounded-lg px-3 py-2.5">
-												<span class="font-mono text-[10px] tracking-[0.08em]">{t('proposed')}</span>
-												<span
-													class="text-lms-foreground text-sm font-semibold [overflow-wrap:anywhere]"
-													>{toValue(x)}</span
-												>
-											</div>
-										</div>
-										<div class="flex flex-col gap-1">
-											<span class="text-lms-muted text-xs font-semibold">{t('reason')}</span>
-											<span class="text-sm leading-[21px]">{x.reason || '—'}</span>
-										</div>
-										<div class="flex flex-wrap items-center gap-2">
-											<span class="text-lms-muted text-xs font-semibold"
-												>{t('attachments_label')}</span
+										<span class="flex min-w-0 flex-col gap-0.5">
+											<span class="flex flex-wrap items-center gap-1.5 text-sm font-bold"
+												>{x.requester.name}
+												{#if isNew(x, now)}<span
+														class="bg-lms-interactive text-lms-on-interactive rounded-full px-1.5 py-px text-[9px] font-bold"
+														>{t('new')}</span
+													>{/if}</span
 											>
-											{#each x.documents as d (d.id)}
-												<button
-													type="button"
-													class="lms-focus-ring border-lms-border bg-lms-background flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs"
-													onclick={() =>
-														(preview = { id: d.id, name: d.file_name, type: d.content_type })}
-													><span class="text-lms-link"
-														><Icon
-															icon={d.content_type === 'application/pdf' ? FileText : FileImage}
-															size="sm"
-														/></span
-													>{d.file_name}</button
+											<span class="text-lms-muted truncate text-xs"
+												>{x.requester.role_name} · APV-{x.number}</span
+											>
+											{#if studentsLabel(x.students)}
+												<span class="text-lms-muted truncate text-xs"
+													>{t('students', { names: studentsLabel(x.students) })}</span
 												>
-											{:else}
-												<span class="text-lms-muted text-xs">{t('no_attachments')}</span>
-											{/each}
-										</div>
-										<span class="text-lms-muted flex items-start gap-1.5 text-xs leading-[18px]"
-											><span class="mt-0.5"><Icon icon={Info} size="sm" /></span>{t(
-												`effect.${x.kind}`
-											)}{x.status === 'need_docs'
-												? ' ' + t('requested', { docs: x.docs_requested.join(', ') })
-												: ''}</span
-										>
-										<div class="border-lms-border flex flex-col gap-1.5 border-t pt-2.5">
-											<span class="text-lms-muted text-xs font-semibold">{t('history')}</span>
-											{#each x.log as l, i (i)}
-												<span class="flex items-baseline gap-2 text-xs"
-													><span class="text-lms-muted min-w-24 font-mono"
-														>{logTime(l.created_at)}</span
-													><span><b>{l.actor}</b> · {logLabel(l.action, l.detail)}</span></span
-												>
-											{/each}
-										</div>
-									</div>
-
-									<div
-										class="bg-lms-surface border-lms-border flex min-w-0 flex-[1_1_300px] flex-col gap-3 rounded-xl border p-4"
+											{/if}
+										</span>
+									</button>
+									<span class="flex" role="cell"
+										><span
+											class="bg-lms-surface-muted flex items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[11px] font-bold whitespace-nowrap"
+											><Icon icon={KIND_ICON[x.kind as RequestKind]} size="sm" />{kindLabel(
+												x.kind
+											)}</span
+										></span
 									>
-										{#if x.self}
-											<span class="text-lms-muted text-[13px] leading-5">{t('self_note')}</span>
-										{:else if isDone(x)}
-											<span class="flex flex-col gap-1">
-												<span
-													class="text-sm font-bold {x.status === 'approved'
-														? 'text-lms-success-text'
-														: 'text-lms-danger-text'}"
-													>{t(`done.${x.status}`, { name: x.decided_by })}</span
-												>
-												<span class="text-lms-muted text-[13px]"
-													>{x.decided_at ? logTime(x.decided_at) : ''}{x.decision_note
-														? ' · ' + x.decision_note
-														: ''}</span
-												>
-											</span>
-										{:else if x.status === 'need_docs'}
-											<span class="text-lms-muted text-[13px] leading-5"
-												>{t('waiting_docs', { docs: x.docs_requested.join(', ') })}</span
+									<span class="flex min-w-0 flex-col gap-0.5 text-[13px]" role="cell">
+										<span class="text-lms-muted text-xs">{fieldLabel(x)}</span>
+										<span class="truncate"
+											><span class="text-lms-muted line-through">{fromValue(x)}</span>
+											<span class="text-lms-muted">→</span> <b>{toValue(x)}</b></span
+										>
+									</span>
+									<span class="flex flex-col gap-0.5 text-xs" role="cell">
+										<span>{agoLabel(x.created_at)}</span>
+										{#if x.documents.length}
+											<span class="text-lms-muted flex items-center gap-1"
+												><Icon icon={Paperclip} size="sm" />{t('attachments', {
+													n: x.documents.length
+												})}</span
 											>
-										{:else}
+										{/if}
+									</span>
+									<span class="flex" role="cell"
+										><span
+											class="flex items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[11px] font-bold whitespace-nowrap {chip.tone}"
+											><Icon icon={CHIP_ICON[chip.key] ?? Timer} size="sm" />{chipLabel(x)}</span
+										></span
+									>
+									<button
+										type="button"
+										aria-label={t('details')}
+										aria-expanded={isOpen}
+										class="lms-focus-ring border-lms-border-strong bg-lms-surface text-lms-muted flex size-8 items-center justify-center rounded-lg border"
+										onclick={() => toggle(x.id)}
+										><Icon icon={isOpen ? ChevronUp : ChevronDown} size="sm" /></button
+									>
+								</div>
+
+								{#if isOpen && opened}
+									<div class="flex flex-wrap items-start gap-5 ps-[72px] pe-4 pt-1 pb-[18px]">
+										<div class="flex min-w-0 flex-[1_1_320px] flex-col gap-3">
 											<div
-												class="bg-lms-surface-muted grid grid-cols-3 gap-0.5 rounded-[10px] p-[3px]"
-												role="radiogroup"
+												class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-2.5"
 											>
-												{#each DECISIONS as d (d)}
+												<div class="lms-tone-danger flex flex-col gap-1 rounded-lg px-3 py-2.5">
+													<span class="font-mono text-[10px] tracking-[0.08em]">{t('current')}</span
+													>
+													<span class="text-lms-foreground text-sm [overflow-wrap:anywhere]"
+														>{fromValue(x)}</span
+													>
+												</div>
+												<div class="lms-tone-success flex flex-col gap-1 rounded-lg px-3 py-2.5">
+													<span class="font-mono text-[10px] tracking-[0.08em]"
+														>{t('proposed')}</span
+													>
+													<span
+														class="text-lms-foreground text-sm font-semibold [overflow-wrap:anywhere]"
+														>{toValue(x)}</span
+													>
+												</div>
+											</div>
+											<div class="flex flex-col gap-1">
+												<span class="text-lms-muted text-xs font-semibold">{t('reason')}</span>
+												<span class="text-sm leading-[21px]">{x.reason || '—'}</span>
+											</div>
+											<div class="flex flex-wrap items-center gap-2">
+												<span class="text-lms-muted text-xs font-semibold"
+													>{t('attachments_label')}</span
+												>
+												{#each x.documents as d (d.id)}
 													<button
 														type="button"
-														role="radio"
-														aria-checked={decision === d}
-														class="lms-focus-ring min-h-9 rounded-lg p-1 text-xs leading-tight font-semibold {decision ===
-														d
-															? 'bg-lms-surface text-lms-foreground shadow-sm'
-															: 'text-lms-muted'}"
-														onclick={() => {
-															decision = d;
-															tried = false;
-														}}>{t(`decision.${d}`)}</button
+														class="lms-focus-ring border-lms-border bg-lms-background flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs"
+														onclick={() =>
+															(preview = { id: d.id, name: d.file_name, type: d.content_type })}
+														><span class="text-lms-link"
+															><Icon
+																icon={d.content_type === 'application/pdf' ? FileText : FileImage}
+																size="sm"
+															/></span
+														>{d.file_name}</button
+													>
+												{:else}
+													<span class="text-lms-muted text-xs">{t('no_attachments')}</span>
+												{/each}
+											</div>
+											<span class="text-lms-muted flex items-start gap-1.5 text-xs leading-[18px]"
+												><span class="mt-0.5"><Icon icon={Info} size="sm" /></span>{t(
+													`effect.${x.kind}`
+												)}{x.status === 'need_docs'
+													? ' ' + t('requested', { docs: x.docs_requested.join(', ') })
+													: ''}</span
+											>
+											<div class="border-lms-border flex flex-col gap-1.5 border-t pt-2.5">
+												<span class="text-lms-muted text-xs font-semibold">{t('history')}</span>
+												{#each x.log as l, i (i)}
+													<span class="flex items-baseline gap-2 text-xs"
+														><span class="text-lms-muted min-w-24 font-mono"
+															>{logTime(l.created_at)}</span
+														><span><b>{l.actor}</b> · {logLabel(l.action, l.detail)}</span></span
 													>
 												{/each}
 											</div>
-											{#if decision === 'approve'}
-												<label class="flex flex-col gap-1.5">
-													<span class="text-[13px] font-semibold"
-														>{t('note_label')}
-														<span class="text-lms-muted font-normal">{t('optional')}</span></span
-													>
-													<textarea
-														rows="2"
-														class="bg-lms-surface border-lms-border-strong lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm"
-														bind:value={note}></textarea>
-												</label>
-											{:else if decision === 'reject'}
-												<div class="flex flex-col gap-2">
-													<span class="text-[13px] font-semibold">{t('reject_label')}</span>
-													<div class="flex flex-wrap gap-1.5">
-														{#each REJECT_OPTIONS[x.kind as RequestKind] as r (r)}
-															<button
-																type="button"
-																aria-pressed={rejectKey === r}
-																class="lms-focus-ring h-8 rounded-full border-[1.5px] px-2.5 text-xs font-semibold {rejectKey ===
-																r
-																	? 'border-lms-danger-text bg-lms-danger-subtle'
-																	: 'border-lms-border-strong bg-lms-surface'}"
-																onclick={() => (rejectKey = r)}>{rejectLabel(r)}</button
-															>
-														{/each}
-													</div>
-												</div>
-												<label class="flex flex-col gap-1.5">
-													<span class="text-[13px] font-semibold"
-														>{t('explain')}
-														<span class="text-lms-muted font-normal"
-															>{rejectKey === OTHER_REASON ? t('required') : t('optional')}</span
-														></span
-													>
-													<textarea
-														rows="2"
-														placeholder={t('explain_placeholder')}
-														class="bg-lms-surface lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm {tried &&
-														rejectKey === OTHER_REASON &&
-														note.trim().length < OTHER_REASON_MIN
-															? 'border-lms-danger-text'
-															: 'border-lms-border-strong'}"
-														bind:value={note}></textarea>
-												</label>
-											{:else}
-												<div class="flex flex-col gap-2">
-													<span class="text-[13px] font-semibold">{t('docs_label')}</span>
-													<div class="flex flex-wrap gap-1.5">
-														{#each DOCUMENT_OPTIONS[x.kind as RequestKind] as d (d)}
-															{@const sel = docsRequested.includes(d)}
-															<button
-																type="button"
-																aria-pressed={sel}
-																class="lms-focus-ring flex h-8 items-center gap-1 rounded-full border-[1.5px] px-2.5 text-xs font-semibold {sel
-																	? 'border-lms-interactive bg-lms-interactive-subtle'
-																	: 'border-lms-border-strong bg-lms-surface'}"
-																onclick={() =>
-																	(docsRequested = sel
-																		? docsRequested.filter((y) => y !== d)
-																		: [...docsRequested, d])}
-																><Icon icon={sel ? Check : Plus} size="sm" />{docLabel(d)}</button
-															>
-														{/each}
-													</div>
-												</div>
-												<label class="flex flex-col gap-1.5">
-													<span class="text-[13px] font-semibold"
-														>{t('message')}
-														<span class="text-lms-muted font-normal">{t('optional')}</span></span
-													>
-													<textarea
-														rows="2"
-														placeholder={t('message_placeholder')}
-														class="bg-lms-surface border-lms-border-strong lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm"
-														bind:value={note}></textarea>
-												</label>
-												<span class="text-lms-muted text-xs">{t('docs_pause')}</span>
-											{/if}
-											<span class="text-lms-danger-text text-xs" role="alert">{actError}</span>
-											<button
-												type="button"
-												disabled={busy}
-												class="lms-focus-ring text-lms-on-interactive flex h-[42px] items-center justify-center gap-2 rounded-[10px] px-4 text-sm font-bold disabled:opacity-60 {decision ===
-												'reject'
-													? 'bg-lms-danger-text'
-													: decision === 'docs'
-														? 'bg-lms-interactive'
-														: 'bg-lms-success-text'}"
-												onclick={() => submit(x)}
-											>
-												<Icon
-													icon={decision === 'reject'
-														? CircleX
-														: decision === 'docs'
-															? FileUp
-															: CircleCheck}
-													size="sm"
-												/>
-												{t(`submit.${decision}`)}
-											</button>
-										{/if}
-									</div>
-								</div>
-							{/if}
-						</div>
-					{/each}
+										</div>
 
-					{#if list.length === 0}
-						<div
-							class="text-lms-muted flex flex-col items-center gap-2 px-4 py-12 text-center text-sm"
-						>
-							<span class="text-lms-muted"><Icon icon={Inbox} size="lg" /></span>
-							{t(`empty.${tab}`)}
-						</div>
-					{/if}
+										<div
+											class="bg-lms-surface border-lms-border flex min-w-0 flex-[1_1_300px] flex-col gap-3 rounded-xl border p-4"
+										>
+											{#if x.self}
+												<span class="text-lms-muted text-[13px] leading-5">{t('self_note')}</span>
+											{:else if isDone(x)}
+												<span class="flex flex-col gap-1">
+													<span
+														class="text-sm font-bold {x.status === 'approved'
+															? 'text-lms-success-text'
+															: 'text-lms-danger-text'}"
+														>{t(`done.${x.status}`, { name: x.decided_by })}</span
+													>
+													<span class="text-lms-muted text-[13px]"
+														>{x.decided_at ? logTime(x.decided_at) : ''}{x.decision_note
+															? ' · ' + x.decision_note
+															: ''}</span
+													>
+												</span>
+											{:else if x.status === 'need_docs'}
+												<span class="text-lms-muted text-[13px] leading-5"
+													>{t('waiting_docs', { docs: x.docs_requested.join(', ') })}</span
+												>
+											{:else}
+												<div
+													class="bg-lms-surface-muted grid grid-cols-3 gap-0.5 rounded-[10px] p-[3px]"
+													role="radiogroup"
+												>
+													{#each DECISIONS as d (d)}
+														<button
+															type="button"
+															role="radio"
+															aria-checked={decision === d}
+															class="lms-focus-ring min-h-9 rounded-lg p-1 text-xs leading-tight font-semibold {decision ===
+															d
+																? 'bg-lms-surface text-lms-foreground shadow-sm'
+																: 'text-lms-muted'}"
+															onclick={() => {
+																decision = d;
+																tried = false;
+															}}>{t(`decision.${d}`)}</button
+														>
+													{/each}
+												</div>
+												{#if decision === 'approve'}
+													<label class="flex flex-col gap-1.5">
+														<span class="text-[13px] font-semibold"
+															>{t('note_label')}
+															<span class="text-lms-muted font-normal">{t('optional')}</span></span
+														>
+														<textarea
+															rows="2"
+															class="bg-lms-surface border-lms-border-strong lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm"
+															bind:value={note}></textarea>
+													</label>
+												{:else if decision === 'reject'}
+													<div class="flex flex-col gap-2">
+														<span class="text-[13px] font-semibold">{t('reject_label')}</span>
+														<div class="flex flex-wrap gap-1.5">
+															{#each REJECT_OPTIONS[x.kind as RequestKind] as r (r)}
+																<button
+																	type="button"
+																	aria-pressed={rejectKey === r}
+																	class="lms-focus-ring h-8 rounded-full border-[1.5px] px-2.5 text-xs font-semibold {rejectKey ===
+																	r
+																		? 'border-lms-danger-text bg-lms-danger-subtle'
+																		: 'border-lms-border-strong bg-lms-surface'}"
+																	onclick={() => (rejectKey = r)}>{rejectLabel(r)}</button
+																>
+															{/each}
+														</div>
+													</div>
+													<label class="flex flex-col gap-1.5">
+														<span class="text-[13px] font-semibold"
+															>{t('explain')}
+															<span class="text-lms-muted font-normal"
+																>{rejectKey === OTHER_REASON ? t('required') : t('optional')}</span
+															></span
+														>
+														<textarea
+															rows="2"
+															placeholder={t('explain_placeholder')}
+															class="bg-lms-surface lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm {tried &&
+															rejectKey === OTHER_REASON &&
+															note.trim().length < OTHER_REASON_MIN
+																? 'border-lms-danger-text'
+																: 'border-lms-border-strong'}"
+															bind:value={note}></textarea>
+													</label>
+												{:else}
+													<div class="flex flex-col gap-2">
+														<span class="text-[13px] font-semibold">{t('docs_label')}</span>
+														<div class="flex flex-wrap gap-1.5">
+															{#each DOCUMENT_OPTIONS[x.kind as RequestKind] as d (d)}
+																{@const sel = docsRequested.includes(d)}
+																<button
+																	type="button"
+																	aria-pressed={sel}
+																	class="lms-focus-ring flex h-8 items-center gap-1 rounded-full border-[1.5px] px-2.5 text-xs font-semibold {sel
+																		? 'border-lms-interactive bg-lms-interactive-subtle'
+																		: 'border-lms-border-strong bg-lms-surface'}"
+																	onclick={() =>
+																		(docsRequested = sel
+																			? docsRequested.filter((y) => y !== d)
+																			: [...docsRequested, d])}
+																	><Icon icon={sel ? Check : Plus} size="sm" />{docLabel(d)}</button
+																>
+															{/each}
+														</div>
+													</div>
+													<label class="flex flex-col gap-1.5">
+														<span class="text-[13px] font-semibold"
+															>{t('message')}
+															<span class="text-lms-muted font-normal">{t('optional')}</span></span
+														>
+														<textarea
+															rows="2"
+															placeholder={t('message_placeholder')}
+															class="bg-lms-surface border-lms-border-strong lms-focus-ring resize-y rounded-[10px] border-[1.5px] px-3 py-2.5 text-sm"
+															bind:value={note}></textarea>
+													</label>
+													<span class="text-lms-muted text-xs">{t('docs_pause')}</span>
+												{/if}
+												<span class="text-lms-danger-text text-xs" role="alert">{actError}</span>
+												<button
+													type="button"
+													disabled={busy}
+													class="lms-focus-ring text-lms-on-interactive flex h-[42px] items-center justify-center gap-2 rounded-[10px] px-4 text-sm font-bold disabled:opacity-60 {decision ===
+													'reject'
+														? 'bg-lms-danger-text'
+														: decision === 'docs'
+															? 'bg-lms-interactive'
+															: 'bg-lms-success-text'}"
+													onclick={() => submit(x)}
+												>
+													<Icon
+														icon={decision === 'reject'
+															? CircleX
+															: decision === 'docs'
+																? FileUp
+																: CircleCheck}
+														size="sm"
+													/>
+													{t(`submit.${decision}`)}
+												</button>
+											{/if}
+										</div>
+									</div>
+								{/if}
+							</div>
+						{/each}
+
+						{#if list.length === 0 && visibleAnnouncements.length === 0}
+							<div
+								class="text-lms-muted flex flex-col items-center gap-2 px-4 py-12 text-center text-sm"
+							>
+								<span class="text-lms-muted"><Icon icon={Inbox} size="lg" /></span>
+								{t(`empty.${tab}`)}
+							</div>
+						{/if}
+					</div>
 				</div>
-			</div>
-			<div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-				<span class="text-lms-muted text-xs">{t('sla_note', { hours: inbox.sla_hours })}</span>
-			</div>
+				<div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+					<span class="text-lms-muted text-xs">{t('sla_note', { hours: inbox.sla_hours })}</span>
+				</div>
+			{/if}
 		</section>
 
 		{#if selected.length && tab === 'pending'}

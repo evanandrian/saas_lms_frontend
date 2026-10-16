@@ -1,13 +1,16 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import StatePanel from '$lib/components/ui/StatePanel.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import UnavailableLink from '$lib/components/ui/UnavailableLink.svelte';
+	import AnnouncementFeedCard from '$lib/features/announcements/components/AnnouncementFeedCard.svelte';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
 	import { useI18n } from '$lib/i18n';
 	import { formatLongDate, greetingPeriod } from '$lib/utils/clock';
 	import { createDashboardClock } from '$lib/utils/dashboard-clock.svelte';
+	import { APP_PATHS } from '$lib/utils/app-paths';
 	import { initialsOf } from '$lib/utils/initials';
 	import type { LucideIcon } from '@lucide/svelte';
 	import BellRing from '@lucide/svelte/icons/bell-ring';
@@ -409,7 +412,7 @@
 					{i18n.t('dashboard.guardian.agenda')}
 				</h2>
 				<ul>
-					{#each [...child.agenda, ...dashboard.announcements] as entry (entry.id)}
+					{#each child.agenda as entry (entry.id)}
 						<li class="border-lms-border flex items-start gap-3.5 border-t py-2.5">
 							<span class="text-lms-link w-12 flex-none pt-0.5 text-xs font-bold">
 								{agendaDateLabel(entry.date, dashboard.date, LOCALE)}
@@ -432,4 +435,15 @@
 			description={i18n.t('common.state.no_data_description')}
 		/>
 	{/if}
+
+	<!-- Pengumuman sekolah nyata (3 terbaru); tidak memakai data contoh. -->
+	<AnnouncementFeedCard feed={data.feed}>
+		{#snippet footer()}
+			<a
+				href={resolve(APP_PATHS.GUARDIAN_ANNOUNCEMENTS)}
+				class="lms-action-secondary lms-focus-ring inline-flex h-9 items-center self-start rounded-lg px-3 text-xs font-semibold"
+				>{i18n.t('announcements.feed.see_all')}</a
+			>
+		{/snippet}
+	</AnnouncementFeedCard>
 </div>

@@ -3817,7 +3817,10 @@
 			"invoice_partially_paid": "The previous activation invoice has already received a payment, so it cannot be replaced. Settle that invoice or contact the FLIXARE team.",
 			"duplicate_no": "Duplicate import row numbers. Upload the file again and retry.",
 			"rate_limited": "Too many attempts. Try again in {minutes} minutes.",
-			"rate_limited_later": "Too many attempts. Try again in a moment."
+			"rate_limited_later": "Too many attempts. Try again in a moment.",
+			"announcement_invalid_transition": "The announcement status has changed. Reload the page.",
+			"announcement_self_review": "You cannot review an announcement you wrote yourself.",
+			"announcement_not_found": "Announcement not found. Reload the page."
 		},
 		"gap": {
 			"title": "{section} is incomplete.",
@@ -4849,7 +4852,8 @@
 				"academic": "Academic years, classes & subjects",
 				"planning": "Academic planning",
 				"reminder": "Reminders",
-				"export": "Data exports"
+				"export": "Data exports",
+				"announcement": "Announcements"
 			},
 			"from": "From date",
 			"to": "To date",
@@ -4889,6 +4893,7 @@
 				"students": "student",
 				"guardians": "guardian",
 				"class": "class",
+				"announcement": "announcement",
 				"generic": "record"
 			},
 			"action": {
@@ -4966,7 +4971,17 @@
 				"export": {
 					"audit_log": "Exported change history"
 				},
-				"generic": "Activity {action} on {subject}"
+				"generic": "Activity {action} on {subject}",
+				"announcement": {
+					"create": "Created announcement {subject}",
+					"update": "Updated announcement {subject}",
+					"delete": "Deleted announcement draft {subject}",
+					"submit": "Submitted announcement {subject}",
+					"withdraw": "Withdrew announcement submission {subject}",
+					"approve": "Approved announcement {subject}",
+					"reject": "Rejected announcement {subject}",
+					"archive": "Archived announcement {subject}"
+				}
 			},
 			"detail": {
 				"nip": "NIP {value}",
@@ -5591,7 +5606,8 @@
 				"remind": "Remind homeroom teachers who have not recorded attendance today.",
 				"reports": "Monitor the active semester report card flow, from locked grades to published PDFs.",
 				"seats": "Monitor student seat usage, students and teachers active in the last 7 days, and storage.",
-				"follow_up": "Jump straight to the related page from the \"Needs follow-up\" list."
+				"follow_up": "Jump straight to the related page from the \"Needs follow-up\" list.",
+				"announce": "Open the \"Announcements\" page with the banner button to write and submit school announcements."
 			},
 			"steps": {
 				"s1": "If the data completeness card appears, click \"Continue required data\" or \"Continue filling\", or click the name of an unfilled section.",
@@ -5730,7 +5746,8 @@
 				"decide": "See how many items need your decision, such as class report cards submitted by homeroom teachers and school admin data changes.",
 				"approvals": "Open the approval inbox to review data change requests.",
 				"reports": "Monitor active semester report card status per step and open class report cards awaiting approval or ready to lock.",
-				"subscription": "View the plan, subscription status, and student seat quota usage."
+				"subscription": "View the plan, subscription status, and student seat quota usage.",
+				"announcements": "See the three latest published announcements in the \"Announcements\" tab of the \"Agenda & announcements\" card; announcements awaiting your approval are counted in the approval inbox."
 			},
 			"steps": {
 				"s1": "Check \"Needs your decision\" in the banner and click the row you want to act on.",
@@ -5892,7 +5909,8 @@
 				"filter": "Filter requests by type (\"Full name\", \"Identity number\", \"Delete account\") and search by requester name.",
 				"review": "Open request details: current data, requested change, the requester's reason, attachments, and history.",
 				"decide": "Approve, decline with a reason, or ask the requester for additional documents.",
-				"bulk": "Approve several requests at once from the \"Pending\" tab."
+				"bulk": "Approve several requests at once from the \"Pending\" tab.",
+				"announcements": "Principal: review announcements submitted by the school admin (\"Announcement\" type) in the \"Pending\" tab, then approve with an optional note or reject with a reason."
 			},
 			"steps": {
 				"s1": "Open the \"Pending\" tab and handle requests that are close to or past the deadline first.",
@@ -5963,7 +5981,8 @@
 				"overview": "See the greeting, date, and active semester at the top of the page.",
 				"preview": "See \"Today's agenda\" from the school timetable and the \"Gradebook\" with students' final scores and each subject's passing criteria. The grading pile and assessment sessions appear once their modules are available.",
 				"grades": "Open the \"Final grades\" menu in the sidebar to enter and lock report card final grades.",
-				"role": "Switch to the homeroom view with the role toggle at the top of the screen if you are also a homeroom teacher."
+				"role": "Switch to the homeroom view with the role toggle at the top of the screen if you are also a homeroom teacher.",
+				"announcements": "Read school announcements for teachers and your homeroom class in the \"Announcements\" card; click \"Load more\" for earlier ones."
 			},
 			"steps": {
 				"s1": "Check the date and active semester at the top of the page.",
@@ -6007,7 +6026,8 @@
 				"open_report": "Open the class report page with the \"Open class report\" or \"View class report\" button.",
 				"attendance": "Record daily attendance that is actually saved through the \"Class attendance\" menu in the sidebar.",
 				"preview": "Explore daily attendance, \"Parent requests\", \"Liaison book\", \"Grade recap for all subjects\", \"Students needing attention\", the class schedule, and \"Behavior & counseling notes\" as sample data.",
-				"role": "Switch back to the subject teacher view with the role toggle at the top of the screen."
+				"role": "Switch back to the subject teacher view with the role toggle at the top of the screen.",
+				"announcements": "Read school announcements for teachers and your homeroom class in the \"Announcements\" card."
 			},
 			"steps": {
 				"s1": "Check your homeroom class name and the date at the top of the page.",
@@ -6069,11 +6089,12 @@
 			}
 		},
 		"guardian_dashboard": {
-			"purpose": "The Guardian Portal home is designed to summarize your child's activities, scores, attendance, and messages from the homeroom teacher. For now, all of its content is sample data because the data service is not connected yet.",
+			"purpose": "The Guardian Portal home is designed to summarize your child's activities, scores, attendance, and messages from the homeroom teacher. Most of its content is still sample data because the data service is not connected yet; the \"Announcements\" card already shows real school data.",
 			"features": {
 				"child": "Switch between children with the child name buttons at the top of the page.",
 				"preview": "Explore the \"Liaison book\", \"Scores this semester\", monthly attendance, and \"Upcoming\" sections as sample data.",
-				"report": "Open the \"Report cards\" menu in the sidebar to see your child's official report cards published by the school."
+				"report": "Open the \"Report cards\" menu in the sidebar to see your child's official report cards published by the school.",
+				"announcements": "Read the three latest school announcements in the \"Announcements\" card (real school data) and open all of them with \"See all announcements\"."
 			},
 			"steps": {
 				"s1": "Choose a child with the name buttons at the top of the page if you have more than one child.",
@@ -6217,15 +6238,15 @@
 			"purpose": "This page is your message room with your homeroom teacher, subject teachers, and the class announcement channel.",
 			"features": {
 				"contacts": "See the \"Daftar Guru & Saluran\" list with each last message and unread count.",
-				"filter": "Filter contacts with the \"Semua\", \"Guru\", or \"Pengumuman\" tabs.",
+				"filter": "Filter contacts with the \"Semua\" or \"Guru\" tabs, and read official school announcements in the \"Pengumuman\" tab.",
 				"search": "Search teachers by name, role, or last message.",
-				"read": "Read conversation history and school announcements.",
+				"read": "Read conversation history, and the full text of school announcements addressed to you or your class.",
 				"compose": "Write a message in the input field at the bottom of the chat room."
 			},
 			"steps": {
 				"s1": "Pick a tab or search for a teacher in the left panel.",
 				"s2": "Click a contact to open the conversation.",
-				"s3": "Read messages and announcements in the chat room on the right.",
+				"s3": "Read messages in the chat room on the right; in the \"Pengumuman\" tab, click an announcement title to read it.",
 				"s4": "To reply, type a message in the bottom field, then press Enter or click the send button; remember that the message is not actually sent yet (see the notes)."
 			},
 			"tips": {
@@ -6446,6 +6467,39 @@
 				"s1": "Click \"Add activity\", fill in the name and (optionally) coach, schedule, and place, then save.",
 				"s2": "Click \"Members\" on an activity card to add students or a whole class.",
 				"s3": "Click \"Edit\" to update the activity or delete it."
+			}
+		},
+		"school_admin_announcements": {
+			"purpose": "This page is for writing school announcements and submitting them to the principal. A new announcement reaches its recipients only after the principal approves it.",
+			"features": {
+				"write": "Write a title (5–80 characters) and a message (20–1000 characters), then choose recipients: everyone at school, teachers, students, parents, parents of one grade, or one class in the active academic year.",
+				"status": "Track announcements by status tab: \"Draft\", \"Pending\", \"Published\", \"Rejected\", and \"Archived\".",
+				"fix": "Read the \"Principal's note\" on a rejected announcement, then click \"Revise & resubmit\".",
+				"archive": "Archive a published announcement that is wrong or outdated, with a reason; archived announcements disappear from recipients' home pages."
+			},
+			"steps": {
+				"s1": "Fill in \"Title\", \"Message\", and \"Recipients\" in the form on the right.",
+				"s2": "Click \"Save draft\" to save it first, or \"Submit to principal\" to submit right away.",
+				"s3": "While it is \"Pending\", click \"Withdraw submission\" if it still needs changes.",
+				"s4": "Once published, the announcement appears on recipients' home pages and is emailed according to their notification preferences."
+			},
+			"tips": {
+				"approval": "Only the principal can approve or reject announcements.",
+				"archive": "Archived announcements cannot be published again; only drafts can be deleted."
+			}
+		},
+		"guardian_announcements": {
+			"purpose": "This page shows official school announcements addressed to you: general announcements, announcements for your children's grades, and announcements for their classes.",
+			"features": {
+				"read": "Read the full announcement with its recipients, publish time, and author.",
+				"more": "Load older announcements with \"Load more\"."
+			},
+			"steps": {
+				"s1": "Read the latest announcements at the top of the list.",
+				"s2": "Click \"Load more\" to see earlier announcements."
+			},
+			"tips": {
+				"email": "Announcements are also emailed when the \"School announcements\" notification is on in Account settings."
 			}
 		}
 	},
@@ -6945,6 +6999,116 @@
 			"title": "Messages & Liaison Book",
 			"desc": "Learning consultations for class {class} with your homeroom and subject teachers",
 			"academic_year": "Academic Year {year}"
+		}
+	},
+	"announcements": {
+		"audience": {
+			"all": "Everyone at school",
+			"teacher": "Teachers",
+			"student": "Students",
+			"guardian": "Parents",
+			"guardian_grade_of": "Parents of {label}",
+			"class_of": "Class {label}"
+		},
+		"status": {
+			"all": "All",
+			"draft": "Draft",
+			"pending": "Pending",
+			"published": "Published",
+			"rejected": "Rejected",
+			"archived": "Archived"
+		},
+		"reject_reason": {
+			"content": "Content needs revision",
+			"audience": "Recipients are not right",
+			"other": "Other"
+		},
+		"empty": "No announcements yet",
+		"load_more": "Load more",
+		"loading": "Loading…",
+		"load_failed": "Announcements could not be loaded.",
+		"retry": "Try again",
+		"item_meta": "For {audience} · {time} · {author}",
+		"feed": {
+			"title": "Announcements",
+			"see_all": "See all announcements"
+		},
+		"admin": {
+			"eyebrow": "ACTIVITIES · ANNOUNCEMENTS",
+			"title": "Announcements",
+			"desc": "Write announcements for teachers, students, parents, a grade, or a class. Announcements are published after the principal approves them.",
+			"stat_pending": "Awaiting approval",
+			"stat_published": "Published",
+			"stat_draft": "Drafts",
+			"tab": "{label} · {n}",
+			"meta": "For {audience} · created {time} by {author}",
+			"published_meta": "Published {time}, approved by {reviewer}",
+			"review_note": "Principal's note",
+			"archive_reason": "Archive reason",
+			"empty_tab": "No announcements with this status.",
+			"form_new": "New announcement",
+			"form_edit": "Edit announcement",
+			"form_fix": "Revise announcement",
+			"field_title": "Title",
+			"field_body": "Message",
+			"field_audience": "Recipients",
+			"audience_placeholder": "Choose recipients",
+			"group_general": "General",
+			"group_grades": "Parents by grade",
+			"group_classes": "Classes",
+			"counter": "{n}/{max} characters",
+			"save_draft": "Save draft",
+			"submit": "Submit to principal",
+			"cancel_edit": "Cancel",
+			"action": {
+				"edit": "Edit",
+				"submit": "Submit",
+				"delete": "Delete",
+				"withdraw": "Withdraw submission",
+				"fix": "Revise & resubmit",
+				"archive": "Archive"
+			},
+			"toast": {
+				"saved": "Announcement draft saved.",
+				"submitted": "Announcement submitted to the principal.",
+				"withdrawn": "Submission withdrawn back to draft.",
+				"deleted": "Announcement draft deleted.",
+				"archived": "Announcement archived."
+			},
+			"delete_title": "Delete draft \"{title}\"?",
+			"delete_message": "A deleted draft cannot be restored.",
+			"archive_title": "Archive \"{title}\"?",
+			"archive_message": "The announcement disappears from teacher, student, and parent home pages. Archiving cannot be undone.",
+			"archive_reason_label": "Reason for archiving",
+			"archiving": "Archiving…"
+		},
+		"review": {
+			"kind": "Announcement",
+			"section": "PENDING ANNOUNCEMENTS · {n}",
+			"audience": "For {audience}",
+			"submitted": "submitted {time} by {author}",
+			"approve": "Approve",
+			"reject": "Reject",
+			"reason_label": "Rejection reason",
+			"note_label": "Note for the school admin",
+			"optional": "(optional)",
+			"required": "(required)",
+			"confirm_approve_title": "Publish \"{title}\"?",
+			"confirm_approve_message": "The announcement appears to its recipients right away and is emailed according to their notification preferences.",
+			"confirm_reject_title": "Reject \"{title}\"?",
+			"confirm_reject_message": "The school admin can revise the announcement and submit it again.",
+			"busy": "Processing…",
+			"cancel": "Cancel",
+			"toast_approved": "Announcement published.",
+			"toast_rejected": "Announcement rejected."
+		},
+		"guardian": {
+			"eyebrow": "PARENT PORTAL · ANNOUNCEMENTS",
+			"title": "School announcements",
+			"desc": "Official school announcements for you and your children's grades and classes."
+		},
+		"student": {
+			"pick": "Choose an announcement on the left panel to read it."
 		}
 	}
 }

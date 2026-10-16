@@ -1,10 +1,18 @@
+import {
+	announcementFeedActions,
+	loadFeed
+} from '$lib/features/announcements/announcements.server';
 import { loadStudent } from '$lib/features/dashboards/dashboards.api';
 import { dashboardsContext } from '$lib/features/dashboards/dashboards.server';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import type { StudentMessagesPageData, ConversationChannel } from './messages.types';
 
 export const load: PageServerLoad = async (event) => {
-	const res = await loadStudent(dashboardsContext(event));
+	// Tab "Pengumuman" membaca feed pengumuman sekolah (bukan kanal contoh).
+	const [res, { feed }] = await Promise.all([
+		loadStudent(dashboardsContext(event)),
+		loadFeed(event)
+	]);
 
 	const className = res.ok && res.data?.class_name ? res.data.class_name : 'XI-A';
 	const userName =
@@ -81,25 +89,6 @@ export const load: PageServerLoad = async (event) => {
 					timestamp: '06 Okt 14:20'
 				}
 			]
-		},
-		{
-			id: 'ch-announcement',
-			name: 'Pengumuman Resmi Sekolah',
-			roleLabel: 'Pusat Informasi SMAN Contoh',
-			avatarInitials: 'FL',
-			unreadCount: 0,
-			lastMessage: 'Jadwal Sumatif Tengah Semester (STS) Gasal telah dipublikasikan di menu Ujian.',
-			lastMessageTime: '05 Okt',
-			isOnline: true,
-			messages: [
-				{
-					id: 'm-30',
-					sender: 'system',
-					senderName: 'Bagian Kurikulum',
-					text: 'Yth. Seluruh Siswa Kelas XI, Jadwal Sumatif Tengah Semester (STS) Gasal telah dipublikasikan di menu Ujian. Harap mengecek kelengkapan akun masing-masing.',
-					timestamp: '05 Okt 08:00'
-				}
-			]
 		}
 	];
 
@@ -110,6 +99,9 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	return {
-		messagesData: data
+		messagesData: data,
+		feed
 	};
 };
+
+export const actions: Actions = announcementFeedActions;

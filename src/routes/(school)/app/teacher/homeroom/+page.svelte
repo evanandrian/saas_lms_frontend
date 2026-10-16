@@ -4,6 +4,7 @@
 	import HeroBanner from '$lib/components/ui/HeroBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import AnnouncementFeedCard from '$lib/features/announcements/components/AnnouncementFeedCard.svelte';
 	import SampleBadge from '$lib/features/dashboards/components/SampleBadge.svelte';
 	import { PREFIX } from '$lib/features/school-admin/school-admin.model';
 	import { workspaceGreeting } from '$lib/features/workspace/workspace.model';
@@ -1131,6 +1132,8 @@
 			</ul>
 		</section>
 	</div>
+
+	<AnnouncementFeedCard feed={data.feed} />
 
 	<Toast message={visibleToast?.message ?? null} icon={visibleToast?.icon} />
 </div>

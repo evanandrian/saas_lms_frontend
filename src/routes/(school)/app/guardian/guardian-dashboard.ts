@@ -49,8 +49,6 @@ export interface GuardianDashboardData {
 	readonly excellentThreshold: number;
 	readonly attendanceMonth: { readonly year: number; readonly month: number };
 	readonly children: readonly ChildSummary[];
-	/** Pengumuman sekolah, ditampilkan setelah agenda anak. */
-	readonly announcements: readonly AgendaEntry[];
 }
 
 const SCHOOL_DAYS = new Set([1, 2, 3, 4, 5]);

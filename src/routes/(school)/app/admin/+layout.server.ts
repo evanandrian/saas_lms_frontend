@@ -1,4 +1,6 @@
 import { dev } from '$app/environment';
+import { combinedPending } from '$lib/features/announcements/announcements.model';
+import { loadPendingAnnouncements } from '$lib/features/announcements/announcements.server';
 import { pendingApprovals, type ApprovalArea } from '$lib/features/approvals/approvals.server';
 import { loadAreaViews } from '$lib/features/dashboards/dashboards.server';
 import { loadNavigationSidebar } from '$lib/features/navigation/navigation.api';
@@ -12,7 +14,8 @@ import type { LayoutServerLoad } from './$types';
 const APPROVALS_AREA: ApprovalArea = 'school_admin';
 
 export const load: LayoutServerLoad = async (event) => {
-	// Badge menu "Persetujuan" = pengajuan menunggu di kotak peninjau ini (null bila bukan peninjau).
+	// Badge menu "Persetujuan" = pengajuan menunggu di kotak peninjau ini (null bila bukan peninjau)
+	// + pengumuman menunggu untuk kepala sekolah (Fase 3).
 	event.depends('app:approvals');
 	// Sidebar disusun di halaman Menu & navigasi platform; disimpan ulang -> `invalidate('app:navigation')`.
 	event.depends('app:navigation');
@@ -29,9 +32,10 @@ export const load: LayoutServerLoad = async (event) => {
 	// Susunan sidebar mengikuti tampilan aktif: kepala sekolah punya area menu sendiri.
 	const sidebarRole: NavigationRole =
 		areaViews.activeView === 'principal' ? 'principal' : 'school_admin';
-	const [sidebar, pending, workspace, schoolProgress] = await Promise.all([
+	const [sidebar, pending, announcements, workspace, schoolProgress] = await Promise.all([
 		loadNavigationSidebar({ fetch: event.fetch, cookies: event.cookies }, sidebarRole),
 		pendingApprovals(event, APPROVALS_AREA),
+		loadPendingAnnouncements(event, areaViews.views.includes('principal')),
 		// Kartu lembaga/user & sapaan dashboard dari backend.
 		loadWorkspace(event, 'school_admin'),
 		// Status 12 bagian data sekolah: banner celah data per halaman & titik menu sidebar.
@@ -44,7 +48,9 @@ export const load: LayoutServerLoad = async (event) => {
 			: visibleGroups(defaultNavigationLayout(sidebarRole).groups),
 		workspace,
 		schoolProgress,
-		pendingApprovals: pending,
+		pendingApprovals: combinedPending(pending, announcements?.length ?? null),
+		// Daftar pengumuman menunggu (kepala sekolah) dipakai ulang Kotak Persetujuan — tanpa ambil ulang.
+		pendingAnnouncements: announcements,
 		...areaViews
 	};
 };
