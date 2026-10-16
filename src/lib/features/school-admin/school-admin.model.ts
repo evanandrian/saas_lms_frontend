@@ -3,7 +3,10 @@ import {
 	SchoolAuditActorRole,
 	type SchoolAssessmentsInput,
 	type SchoolExtraInput,
+	type SchoolExtraMembersInput,
+	type SchoolGradeOption,
 	type SchoolPlanAssessment,
+	type SchoolPlanClass,
 	type SchoolPlanExtra,
 	type SchoolPlanningView,
 	type SchoolRemindOutcome,
@@ -864,3 +867,50 @@ export function pickedIds(
 		.filter((s) => picks.ids[s.id] === true)
 		.map((s) => s.id);
 }
+
+/** Pilihan "Tambah per tingkat" (khusus ekskul wajib). */
+export interface GradeMembersSelection {
+	gradeLevelIds: readonly string[];
+	allStudents: boolean;
+}
+
+/**
+ * Payload tambah anggota per tingkat: "Semua murid" mengabaikan tingkat; tingkat disatukan
+ * (duplikat dibuang); tanpa pilihan → null (tidak ada yang dikirim).
+ */
+export function gradeMembersPayload(
+	sel: GradeMembersSelection
+): Pick<SchoolExtraMembersInput, 'grade_level_ids' | 'all_students'> | null {
+	if (sel.allStudents) return { all_students: true };
+	const ids = [...new Set(sel.gradeLevelIds)];
+	return ids.length ? { grade_level_ids: ids } : null;
+}
+
+/** Tingkat yang punya kelas di tahun ajaran aktif (tingkat tanpa kelas ditolak backend `not_found`). */
+export function gradesWithClasses(
+	grades: readonly SchoolGradeOption[],
+	classes: readonly Pick<SchoolPlanClass, 'grade_id'>[]
+): SchoolGradeOption[] {
+	const used = new Set(classes.map((c) => c.grade_id));
+	return grades.filter((g) => used.has(g.id));
+}
+
+/** Pesan ConfirmDialog tambah per tingkat: tingkat terpilih (urut naik) atau semua murid. */
+export function gradeMembersConfirm(
+	t: T,
+	sel: GradeMembersSelection,
+	grades: readonly SchoolGradeOption[],
+	name: string
+): string {
+	if (sel.allStudents) return t(`${PREFIX}.extras.add_all_confirm`, { name });
+	const picked = new Set(sel.gradeLevelIds);
+	const list = grades
+		.filter((g) => picked.has(g.id))
+		.map((g) => g.grade)
+		.sort((a, b) => a - b)
+		.join(', ');
+	return t(`${PREFIX}.extras.add_grades_confirm`, { grades: list, name });
+}
+
+/** Jumlah murid yang benar-benar ditambahkan: anggota sesudah − sebelum (tidak pernah negatif). */
+export const membersAdded = (before: number, after: number) => Math.max(0, after - before);

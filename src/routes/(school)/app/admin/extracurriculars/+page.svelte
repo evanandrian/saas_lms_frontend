@@ -26,10 +26,13 @@
 		extraErrors,
 		extraForm,
 		failureMessage,
+		gradesWithClasses,
 		inputClass,
 		inputMaxLength,
+		membersAdded,
 		sectionGap,
-		type ExtraForm
+		type ExtraForm,
+		type GradeMembersSelection
 	} from '$lib/features/school-admin/school-admin.model';
 	import type {
 		SchoolExtraMembersView,
@@ -159,16 +162,31 @@
 		members = m;
 	}
 
-	async function membersCall(name: string, body: Record<string, unknown>) {
+	/** `done` (opsional) membentuk pesan toast dari tampilan anggota terbaru; default "disimpan". */
+	async function membersCall(
+		name: string,
+		body: Record<string, unknown>,
+		done?: (view: SchoolExtraMembersView) => string
+	) {
 		const target = membersOf;
 		if (!target) return;
 		const m = await runMembers<SchoolExtraMembersView>(name, { id: target.id, ...body });
 		if (!m) return;
 		if (membersOf?.id === target.id) members = m;
-		editor.notify(t('common.saved'));
+		editor.notify(done ? done(m) : t('common.saved'));
 		// member_count di kartu & statistik.
 		const p = await runMembers<SchoolPlanningView>('planning', {});
 		if (p) planning = p;
+	}
+
+	/** Ekskul wajib: sekali tambah per tingkat / semua murid; toast = jumlah yang benar-benar ditambahkan. */
+	function addGrades(sel: GradeMembersSelection) {
+		const before = members?.members.length ?? 0;
+		return membersCall(
+			'extraMembersAdd',
+			{ gradeLevelIds: [...sel.gradeLevelIds], allStudents: sel.allStudents },
+			(m) => t('extras.members_added', { count: membersAdded(before, m.members.length) })
+		);
 	}
 </script>
 
@@ -353,6 +371,8 @@
 		view={members}
 		{students}
 		classes={planning.classes}
+		mandatory={membersOf?.is_mandatory === true}
+		grades={gradesWithClasses(planning.grades, planning.classes)}
 		busy={membersBusy}
 		onclose={() => {
 			membersOf = null;
@@ -360,6 +380,7 @@
 		}}
 		onadd={(ids) => membersCall('extraMembersAdd', { studentIds: ids })}
 		onaddclass={(id) => membersCall('extraMembersAdd', { classId: id })}
+		onaddgrades={addGrades}
 		onremove={(sid) => membersCall('extraMemberRemove', { studentId: sid })}
 	/>
 	<Toast message={editor.toast} icon={editor.toastError ? CircleAlert : undefined} />

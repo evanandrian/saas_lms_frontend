@@ -737,9 +737,16 @@ export interface AnnouncementFeed {
 	next_cursor: string;
 }
 
+/**
+ * Sources are combined (union); duplicates and existing members are ignored (idempotent). At least one source is required (otherwise issue members `required`). Issues: student_ids `student_invalid`; class_id `class_invalid`; grade_level_ids `not_found` (malformed id, grade outside the tenant, or grade without a class in the active academic year); grade_level_ids / all_students `not_mandatory` (grade options are only allowed for a mandatory extracurricular).
+ */
 export interface SchoolExtraMembersInput {
 	student_ids?: string[];
 	class_id?: string;
+	/** Mandatory extracurricular only. Adds every active student currently enrolled in an active-year class of the selected grade levels. One-time add (not a stored rule); students enrolled later are not added. Ignored when all_students is true. */
+	grade_level_ids?: string[];
+	/** Mandatory extracurricular only. Adds every active student currently enrolled in any active-year class. One-time add (not a stored rule). */
+	all_students?: boolean;
 }
 
 export interface SchoolExtraMembersView {
@@ -14813,7 +14820,7 @@ export const getAddSchoolExtraMembersUrl = (id: string) => {
 };
 
 /**
- * @summary Add members (selected students and/or all active students of a class); duplicates ignored
+ * @summary Add members (selected students, all active students of a class, and/or — mandatory extracurricular only — all active students of selected grade levels or of every grade); duplicates ignored
  */
 export const addSchoolExtraMembers = async (
 	id: string,

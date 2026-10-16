@@ -12,6 +12,7 @@ export type {
 	SchoolClassReport,
 	SchoolGradeAssignment,
 	SchoolGradeAssignmentsView,
+	SchoolGradeOption,
 	SchoolGradeSheet,
 	SchoolGradeSheetRow,
 	SchoolInviteJob,
