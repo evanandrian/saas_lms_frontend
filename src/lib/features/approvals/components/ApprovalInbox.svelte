@@ -20,6 +20,7 @@
 	import FileUp from '@lucide/svelte/icons/file-up';
 	import IdCard from '@lucide/svelte/icons/id-card';
 	import Inbox from '@lucide/svelte/icons/inbox';
+	import Megaphone from '@lucide/svelte/icons/megaphone';
 	import Info from '@lucide/svelte/icons/info';
 	import MessageSquare from '@lucide/svelte/icons/message-square';
 	import Paperclip from '@lucide/svelte/icons/paperclip';
@@ -33,6 +34,8 @@
 	import X from '@lucide/svelte/icons/x';
 	import { onMount, untrack } from 'svelte';
 	import type { BulkApproveResult } from '$lib/api/generated/lms';
+	import AnnouncementReviewList from '$lib/features/announcements/components/AnnouncementReviewList.svelte';
+	import type { SchoolAnnouncement } from '$lib/features/announcements/announcements.types';
 	import {
 		DECISIONS,
 		DOCUMENT_OPTIONS,
@@ -62,6 +65,8 @@
 		area: 'platform' | 'school_admin';
 		inbox: InboxData | null;
 		failure: string | null;
+		/** Pengumuman menunggu (hanya kepala sekolah; selain itu null/tidak ada). */
+		announcements?: SchoolAnnouncement[] | null;
 	}
 
 	interface Props {
@@ -96,9 +101,16 @@
 	const APPROVALS_DEPENDENCY = 'app:approvals';
 	const TICK_MS = 60_000;
 
+	/** Filter jenis: pengajuan akun + "Pengumuman" (kepala sekolah). */
+	const ANNOUNCEMENT_KIND = 'announcement';
+	type FilterKind = RequestKind | typeof ANNOUNCEMENT_KIND;
+
 	let inbox = $state<InboxData | null>(untrack(() => data.inbox));
+	let announcements = $state<SchoolAnnouncement[] | null>(
+		untrack(() => data.announcements ?? null)
+	);
 	let tab = $state<InboxTab>('pending');
-	let types = $state<RequestKind[]>([]);
+	let types = $state<FilterKind[]>([]);
 	let query = $state('');
 	let openId = $state<string | null>(null);
 	let decision = $state<Decision>('approve');
@@ -131,6 +143,18 @@
 	const role = $derived(inbox?.approver_role ?? 'school_admin');
 	const items = $derived(inbox?.items ?? []);
 	const pending = $derived(items.filter((x) => x.status === 'pending'));
+	const filterKinds = $derived<FilterKind[]>(
+		announcements ? [...REQUEST_KINDS, ANNOUNCEMENT_KIND] : [...REQUEST_KINDS]
+	);
+	/** Pengumuman tampil di tab Menunggu saja (tanpa tab Dokumen & tanpa setujui massal). */
+	const visibleAnnouncements = $derived.by(() => {
+		if (tab !== 'pending' || !announcements) return [];
+		if (types.length && !types.includes(ANNOUNCEMENT_KIND)) return [];
+		const q = query.trim().toLowerCase();
+		return announcements.filter(
+			(a) => !q || a.title.toLowerCase().includes(q) || a.author_name.toLowerCase().includes(q)
+		);
+	});
 	const waitingDocs = $derived(items.filter((x) => x.status === 'need_docs'));
 	const done = $derived(items.filter(isDone));
 	const overdue = $derived(pending.filter((x) => !x.self && hoursLeft(x, now) < 0).length);
@@ -364,7 +388,7 @@
 		>
 			{#snippet actions()}
 				<dl class="flex flex-wrap gap-5">
-					{#each [['pending', pending.filter((x) => !x.self).length], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
+					{#each [['pending', pending.filter((x) => !x.self).length + (announcements?.length ?? 0)], ['overdue', overdue], ['docs', waitingDocs.length]] as const as [key, value] (key)}
 						<div
 							class="flex flex-col gap-0.5 border-lms-on-hero/14 bg-lms-on-hero/8 rounded-lg p-3 border"
 						>
@@ -392,7 +416,7 @@
 					{#each INBOX_TABS as key (key)}
 						{@const count =
 							key === 'pending'
-								? pending.length
+								? pending.length + (announcements?.length ?? 0)
 								: key === 'docs'
 									? waitingDocs.length
 									: done.length}
@@ -413,7 +437,7 @@
 					{/each}
 				</div>
 				<div class="flex flex-wrap gap-1.5">
-					{#each REQUEST_KINDS as kind (kind)}
+					{#each filterKinds as kind (kind)}
 						{@const on = types.includes(kind)}
 						<button
 							type="button"
@@ -422,7 +446,12 @@
 								? 'border-lms-interactive bg-lms-interactive-subtle text-lms-foreground'
 								: 'border-lms-border-strong bg-lms-surface text-lms-muted'}"
 							onclick={() => (types = on ? types.filter((k) => k !== kind) : [...types, kind])}
-							><Icon icon={KIND_ICON[kind]} size="sm" />{kindLabel(kind)}</button
+							><Icon
+								icon={kind === ANNOUNCEMENT_KIND ? Megaphone : KIND_ICON[kind]}
+								size="sm"
+							/>{kind === ANNOUNCEMENT_KIND
+								? i18n.t('announcements.review.kind')
+								: kindLabel(kind)}</button
 						>
 					{/each}
 				</div>
@@ -440,6 +469,14 @@
 					/>
 				</label>
 			</div>
+
+			{#if visibleAnnouncements.length}
+				<AnnouncementReviewList
+					items={visibleAnnouncements}
+					onchange={(next) => (announcements = next)}
+					notify={(message, error) => say(message, error ? CircleX : CircleCheck)}
+				/>
+			{/if}
 
 			<div class="overflow-x-auto">
 				<div class="min-w-[860px]" role="table" aria-label={t('title')}>
@@ -790,7 +827,7 @@
 						</div>
 					{/each}
 
-					{#if list.length === 0}
+					{#if list.length === 0 && visibleAnnouncements.length === 0}
 						<div
 							class="text-lms-muted flex flex-col items-center gap-2 px-4 py-12 text-center text-sm"
 						>

@@ -4,7 +4,8 @@ import type { NavigationGroup, NavigationRole } from '$lib/features/navigation/n
 
 const mocks = vi.hoisted(() => ({
 	loadNavigationSidebar: vi.fn(),
-	loadAreaViews: vi.fn()
+	loadAreaViews: vi.fn(),
+	loadPendingAnnouncements: vi.fn()
 }));
 
 vi.mock('$app/environment', () => ({ dev: false }));
@@ -22,6 +23,10 @@ vi.mock('$lib/features/workspace/workspace.server', () => ({
 }));
 vi.mock('$lib/features/school-admin/school-admin.server', () => ({
 	loadProgress: vi.fn().mockResolvedValue(null)
+}));
+
+vi.mock('$lib/features/announcements/announcements.server', () => ({
+	loadPendingAnnouncements: mocks.loadPendingAnnouncements
 }));
 
 import { load } from '../src/routes/(school)/app/admin/+layout.server';
@@ -50,6 +55,7 @@ const event = {
 async function runLoad() {
 	return (await load(event as never)) as unknown as {
 		navigation: NavigationGroup[];
+		pendingApprovals: number | null;
 	};
 }
 
@@ -59,6 +65,8 @@ describe('layout admin sekolah: sidebar dinamis', () => {
 	beforeEach(() => {
 		mocks.loadNavigationSidebar.mockReset();
 		mocks.loadAreaViews.mockReset();
+		mocks.loadPendingAnnouncements.mockReset();
+		mocks.loadPendingAnnouncements.mockResolvedValue(null);
 	});
 
 	it('tampilan principal memuat area principal, bukan school_admin', async () => {
@@ -106,5 +114,25 @@ describe('layout admin sekolah: sidebar dinamis', () => {
 		const data = await runLoad();
 		expect(requestedRole()).toBe('principal');
 		expect(data.navigation.flatMap((g) => g.items)).toHaveLength(10);
+	});
+
+	it('badge Persetujuan kepala sekolah = pengajuan akun + pengumuman menunggu', async () => {
+		mocks.loadAreaViews.mockResolvedValue({
+			views: ['principal', 'school_admin'],
+			activeView: 'principal'
+		});
+		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'unavailable' });
+		mocks.loadPendingAnnouncements.mockResolvedValue([{ id: 'a' }, { id: 'b' }]);
+		const data = await runLoad();
+		expect(mocks.loadPendingAnnouncements.mock.calls.at(-1)?.[1]).toBe(true);
+		expect(data.pendingApprovals).toBe(5);
+	});
+
+	it('admin sekolah (bukan kepala sekolah) tidak memuat pengumuman menunggu', async () => {
+		mocks.loadAreaViews.mockResolvedValue({ views: ['school_admin'], activeView: 'school_admin' });
+		mocks.loadNavigationSidebar.mockResolvedValue({ ok: false, reason: 'unavailable' });
+		const data = await runLoad();
+		expect(mocks.loadPendingAnnouncements.mock.calls.at(-1)?.[1]).toBe(false);
+		expect(data.pendingApprovals).toBe(3);
 	});
 });
