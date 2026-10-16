@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { SchoolPlanExtra, SchoolStudentRow } from '$lib/api/generated/lms';
 import {
@@ -11,6 +12,11 @@ import {
 	extraErrors,
 	extraForm,
 	emptyPicks,
+	gradeMembersConfirm,
+	gradeMembersPayload,
+	gradeMembersSnapshot,
+	gradesWithClasses,
+	membersAdded,
 	inputMaxLength,
 	issueMessage,
 	memberCandidates,
@@ -309,5 +315,74 @@ describe('pilihan anggota (pickedIds/picksFor/togglePick)', () => {
 		expect(picksFor(picks, 'e1')).toBe(picks);
 		expect(picksFor(picks, 'e2')).toEqual(emptyPicks('e2'));
 		expect(pickedIds(picksFor(picks, 'e2'), students, [])).toEqual([]);
+	});
+});
+
+describe('tambah anggota per tingkat (ekskul wajib)', () => {
+	const G7 = { id: 'g7', grade: 7, label: 'Kelas 7', phase: 'D' };
+	const G8 = { id: 'g8', grade: 8, label: 'Kelas 8', phase: 'D' };
+	const G9 = { id: 'g9', grade: 9, label: 'Kelas 9', phase: 'D' };
+	const tp = (k: string, p?: Record<string, string | number>) => `${k}|${JSON.stringify(p ?? {})}`;
+
+	it('gradeMembersPayload: tingkat terpilih (tanpa duplikat), semua murid mengabaikan tingkat, kosong → null', () => {
+		expect(gradeMembersPayload({ gradeLevelIds: ['g7', 'g8', 'g7'], allStudents: false })).toEqual({
+			grade_level_ids: ['g7', 'g8']
+		});
+		expect(gradeMembersPayload({ gradeLevelIds: ['g7'], allStudents: true })).toEqual({
+			all_students: true
+		});
+		expect(gradeMembersPayload({ gradeLevelIds: [], allStudents: false })).toBeNull();
+	});
+
+	it('gradeMembersSnapshot: salinan lepas untuk ConfirmDialog (reset pilihan tidak mengubahnya); kosong → null', () => {
+		const ids = ['g7', 'g8'];
+		const snap = gradeMembersSnapshot({ gradeLevelIds: ids, allStudents: false });
+		ids.length = 0; // pilihan drawer di-reset setelah anggota diperbarui
+		expect(snap).toEqual({ gradeLevelIds: ['g7', 'g8'], allStudents: false });
+		expect(gradeMembersConfirm(tp, snap!, [G7, G8, G9], 'Pramuka')).toBe(
+			'school_admin.extras.add_grades_confirm|{"grades":"7, 8","name":"Pramuka"}'
+		);
+		expect(gradeMembersSnapshot({ gradeLevelIds: [], allStudents: false })).toBeNull();
+		expect(gradeMembersSnapshot({ gradeLevelIds: [], allStudents: true })).toEqual({
+			gradeLevelIds: [],
+			allStudents: true
+		});
+	});
+
+	it('gradesWithClasses: hanya tingkat yang punya kelas tahun aktif, urutan data dipertahankan', () => {
+		const classes = [
+			{ id: 'c1', name: '8A', grade_id: 'g8', homeroom_id: null },
+			{ id: 'c2', name: '7A', grade_id: 'g7', homeroom_id: null },
+			{ id: 'c3', name: '7B', grade_id: 'g7', homeroom_id: null }
+		];
+		expect(gradesWithClasses([G7, G8, G9], classes)).toEqual([G7, G8]);
+		expect(gradesWithClasses([G7], [])).toEqual([]);
+	});
+
+	it('gradeMembersConfirm: menyebut tingkat terpilih (urut) atau semua murid', () => {
+		expect(
+			gradeMembersConfirm(
+				tp,
+				{ gradeLevelIds: ['g8', 'g7'], allStudents: false },
+				[G7, G8, G9],
+				'Pramuka'
+			)
+		).toBe('school_admin.extras.add_grades_confirm|{"grades":"7, 8","name":"Pramuka"}');
+		expect(
+			gradeMembersConfirm(tp, { gradeLevelIds: ['g7'], allStudents: true }, [G7, G8], 'Pramuka')
+		).toBe('school_admin.extras.add_all_confirm|{"name":"Pramuka"}');
+	});
+
+	it('membersAdded: selisih anggota sesudah − sebelum, tidak pernah negatif', () => {
+		expect(membersAdded(3, 10)).toBe(7);
+		expect(membersAdded(5, 5)).toBe(0);
+		expect(membersAdded(5, 4)).toBe(0);
+	});
+
+	it('pesan isu not_mandatory tersedia di id & en', () => {
+		for (const locale of ['id', 'en']) {
+			const json = JSON.parse(readFileSync(`src/lib/i18n/${locale}.json`, 'utf8'));
+			expect(json.school_admin.errors.not_mandatory).toEqual(expect.any(String));
+		}
 	});
 });

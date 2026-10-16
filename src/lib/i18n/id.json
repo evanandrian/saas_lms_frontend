@@ -3776,6 +3776,7 @@
 			"subject_in_use": "Mapel masih dipakai penugasan, TP, nilai, jadwal, atau rapor sehingga tidak bisa dinonaktifkan.",
 			"student_invalid": "Murid tidak ditemukan atau tidak aktif.",
 			"class_invalid": "Kelas tidak ditemukan di tahun ajaran aktif.",
+			"not_mandatory": "Opsi per tingkat dan semua murid hanya untuk ekskul wajib.",
 			"extra_exists": "Kegiatan sudah ada.",
 			"not_in_class": "Murid bukan anggota kelas ini.",
 			"all_students_required": "Isi presensi seluruh murid kelas.",
@@ -5037,7 +5038,17 @@
 			"search_students": "Cari nama atau NIS",
 			"no_candidates": "Tidak ada murid yang bisa ditambahkan.",
 			"add_selected": "Tambah {count} murid",
-			"selected_hidden": "{count} murid terpilih tidak tampil karena pencarian, tetapi tetap ikut ditambahkan."
+			"selected_hidden": "{count} murid terpilih tidak tampil karena pencarian, tetapi tetap ikut ditambahkan.",
+			"add_grades_title": "Tambah per tingkat",
+			"add_grades_note": "Sekali tambah: murid yang terdaftar kemudian tidak ditambahkan otomatis.",
+			"all_students": "Semua murid",
+			"add_grades": "Tambahkan",
+			"adding": "Menambahkan…",
+			"no_grades": "Belum ada tingkat dengan kelas di tahun ajaran aktif.",
+			"add_grades_confirm_title": "Tambah anggota per tingkat",
+			"add_grades_confirm": "Tambahkan semua murid aktif tingkat {grades} ke {name}? Murid yang sudah menjadi anggota dilewati.",
+			"add_all_confirm": "Tambahkan semua murid aktif ke {name}? Murid yang sudah menjadi anggota dilewati.",
+			"members_added": "{count} murid ditambahkan."
 		}
 	},
 	"payments": {

@@ -41,6 +41,7 @@ import {
 	PROGRESS_DEPENDENCY_KEY,
 	auditExportErrorCode,
 	auditExportQuery,
+	gradeMembersPayload,
 	type AuditActorRole,
 	type AuditCategory
 } from './school-admin.model';
@@ -416,7 +417,12 @@ export const assessmentsPageActions: Actions = {
 	assessments: setupActions.assessments!
 };
 
-type MembersAddBody = WithId & { studentIds?: unknown; classId?: unknown };
+type MembersAddBody = WithId & {
+	studentIds?: unknown;
+	classId?: unknown;
+	gradeLevelIds?: unknown;
+	allStudents?: unknown;
+};
 
 /** Halaman Ekstrakurikuler: data ekskul (perencanaan) + anggota per tahun ajaran aktif. */
 export const extrasPageActions: Actions = {
@@ -440,10 +446,19 @@ export const extrasPageActions: Actions = {
 			if (!validId(b.classId)) return null;
 			classId = b.classId;
 		}
-		if (!ids.length && !classId) return null;
+		// Per tingkat / semua murid (ekskul wajib; backend memvalidasi): bentuk harus tepat bila dikirim.
+		let gradeLevelIds: string[] = [];
+		if (b.gradeLevelIds !== undefined) {
+			if (!Array.isArray(b.gradeLevelIds) || !b.gradeLevelIds.every(validId)) return null;
+			gradeLevelIds = b.gradeLevelIds;
+		}
+		if (b.allStudents !== undefined && typeof b.allStudents !== 'boolean') return null;
+		const byGrade = gradeMembersPayload({ gradeLevelIds, allStudents: b.allStudents === true });
+		if (!ids.length && !classId && !byGrade) return null;
 		return api.addExtraMembers(ctx, b.id, {
 			...(ids.length ? { student_ids: ids } : {}),
-			...(classId ? { class_id: classId } : {})
+			...(classId ? { class_id: classId } : {}),
+			...byGrade
 		});
 	}),
 	extraMemberRemove: action<WithId & { studentId?: string }>((ctx, b) =>

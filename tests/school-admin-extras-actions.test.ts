@@ -20,6 +20,7 @@ const { extrasPageActions } = await import('$lib/features/school-admin/school-ad
 const EXTRA = '11111111-1111-1111-1111-111111111111';
 const STUDENT = '22222222-2222-2222-2222-222222222222';
 const CLASS = '33333333-3333-3333-3333-333333333333';
+const GRADE = '44444444-4444-4444-4444-444444444444';
 
 function event(body: unknown): RequestEvent {
 	const form = new FormData();
@@ -59,6 +60,25 @@ describe('extrasPageActions', () => {
 	it('tambah seluruh kelas → hanya class_id yang dikirim', async () => {
 		await run('extraMembersAdd', { id: EXTRA, classId: CLASS });
 		expect(addExtraMembers.mock.calls[0]?.slice(1)).toEqual([EXTRA, { class_id: CLASS }]);
+	});
+
+	it('tambah per tingkat → grade_level_ids; semua murid → all_students saja', async () => {
+		await run('extraMembersAdd', { id: EXTRA, gradeLevelIds: [GRADE, GRADE] });
+		expect(addExtraMembers.mock.calls[0]?.slice(1)).toEqual([EXTRA, { grade_level_ids: [GRADE] }]);
+		await run('extraMembersAdd', { id: EXTRA, gradeLevelIds: [GRADE], allStudents: true });
+		expect(addExtraMembers.mock.calls[1]?.slice(1)).toEqual([EXTRA, { all_students: true }]);
+	});
+
+	it('tingkat bukan array/id rusak atau allStudents bukan boolean → 400 tanpa panggilan', async () => {
+		for (const body of [
+			{ id: EXTRA, gradeLevelIds: [] },
+			{ id: EXTRA, gradeLevelIds: GRADE },
+			{ id: EXTRA, gradeLevelIds: [GRADE, 'x'] },
+			{ id: EXTRA, allStudents: 'ya' },
+			{ id: EXTRA, allStudents: false }
+		])
+			expect(status(await run('extraMembersAdd', body))).toBe(400);
+		expect(addExtraMembers).not.toHaveBeenCalled();
 	});
 
 	it('tanpa murid & kelas, id tidak valid, atau daftar bukan array → 400 tanpa panggilan', async () => {

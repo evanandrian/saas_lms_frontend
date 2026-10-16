@@ -3776,6 +3776,7 @@
 			"subject_in_use": "This subject is still used by assignments, objectives, grades, the schedule, or report cards and cannot be deactivated.",
 			"student_invalid": "Student not found or inactive.",
 			"class_invalid": "Class not found in the active academic year.",
+			"not_mandatory": "Grade and all-students options are only available for mandatory extracurriculars.",
 			"extra_exists": "Activity already exists.",
 			"not_in_class": "Student is not in this class.",
 			"all_students_required": "Fill attendance for every student in the class.",
@@ -5037,7 +5038,17 @@
 			"search_students": "Search name or NIS",
 			"no_candidates": "No students available to add.",
 			"add_selected": "Add {count} students",
-			"selected_hidden": "{count} selected students are hidden by the search but will still be added."
+			"selected_hidden": "{count} selected students are hidden by the search but will still be added.",
+			"add_grades_title": "Add by grade",
+			"add_grades_note": "One-time add: students enrolled later are not added automatically.",
+			"all_students": "All students",
+			"add_grades": "Add",
+			"adding": "Adding…",
+			"no_grades": "No grade has a class in the active academic year yet.",
+			"add_grades_confirm_title": "Add members by grade",
+			"add_grades_confirm": "Add all active students of grade {grades} to {name}? Students who are already members are skipped.",
+			"add_all_confirm": "Add all active students to {name}? Students who are already members are skipped.",
+			"members_added": "{count} students added."
 		}
 	},
 	"payments": {
